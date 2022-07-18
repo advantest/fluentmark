@@ -44,12 +44,14 @@
 		<repository>
 			<id>tools</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Certiv/net.certiv/net.certiv.tools.site/target/repository/</url>
+			<url>https://www.certiv.net/updates/net.certiv.tools.site/</url>
+			<!-- <url>file:/Users/travkin/Documents/git-repos/CertivTools/net.certiv.tools.site/target/repository/</url> -->
 		</repository>
 		<repository>
 			<id>net.certiv.spellchecker</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Fluentmark/net.certiv.spellchecker/site/target/repository/</url>
+			<url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url>
+			<!-- <url>file:Users/travkin/Documents/git-repos/spellchecker/net.certiv.spellchecker/site/target/repository/</url> -->
 		</repository>
 	</repositories>
 
