@@ -31,11 +31,11 @@ for more information.
 
    <includes
          id="net.certiv.spellchecker.feature"
-         version="0.0.0"/>
+         version="3.4.0.qualifier"/>
 
    <includes
          id="net.certiv.tools.feature"
-         version="0.0.0"/>
+         version="1.2.0.qualifier"/>
 
    <requires>
       <import plugin="org.eclipse.core.commands"/>
