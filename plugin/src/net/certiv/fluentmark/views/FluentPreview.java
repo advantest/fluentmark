@@ -7,6 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.views;
 
+import org.eclipse.ui.ide.IDE;
+
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.ViewPart;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextViewer;
@@ -16,11 +30,15 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.part.ViewPart;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import java.io.File;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.editor.FluentEditor;
@@ -45,6 +63,56 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser = new Browser(parent, SWT.NONE);
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
+
+    browser.addLocationListener( new LocationListener() {
+
+      @Override
+      public void changing( LocationEvent event ) {
+        String urlText = event.location;
+
+        // If the link goes to a markdown file, open it in an editor.
+        // That will cause this viewer to update its contents to the rendered version of the target file.
+        File targetFile = null;
+        try {
+          URL targetUrl = new URL( urlText );
+          targetFile = new File( targetUrl.toURI() );
+        } catch( MalformedURLException | URISyntaxException e1 ) {
+          return;
+        }
+
+        if( targetFile != null && targetFile.exists() && targetFile.isFile() && urlText.endsWith( ".md" ) ) {
+
+          String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+          String targetFilePath = targetFile.getPath();
+          if( targetFilePath.startsWith( absoluteWorkspacePath ) ) {
+            // ok, the target file is in our Eclipse workspace
+            String workspaceRelativPath = targetFilePath.substring( absoluteWorkspacePath.length() );
+
+            IPath path = new Path( workspaceRelativPath );
+            IFile fileToOpen = ResourcesPlugin.getWorkspace().getRoot().getFile( path );
+
+            IWorkbenchPage activePage = FluentPreview.this.getActivePage();
+            try {
+              FluentEditor editor = (FluentEditor) IDE.openEditor( activePage, fileToOpen, FluentEditor.ID );
+              if( editor != null ) {
+                viewjob.load();
+              }
+            } catch( PartInitException e ) {
+              // FIXME log that
+              e.printStackTrace();
+            }
+          }
+
+        }
+      }
+
+      @Override
+      public void changed( LocationEvent event ) {
+        String urlText = event.location;
+        System.out.println( urlText );
+      }
+
+    } );
 
 		viewjob = new ViewJob(viewpart);
 		getPreferenceStore().addPropertyChangeListener(this);
