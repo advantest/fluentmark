@@ -35,9 +35,8 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.widgets.Composite;
 
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import java.io.File;
 
@@ -219,47 +218,45 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		@Override
 		public void changing(LocationEvent event) {
-			String urlText = event.location;
+			String uri = event.location;
 
-			if (urlText != null && urlText.equals("about:blank")) {
+			if (uri != null && uri.equals("about:blank")) {
 				// We're only opening the preview for a certain source file, we do not follow a
 				// link.
 				// --> Nothing to do in this case.
 				return;
 			}
 
+			URI targetUri = null;
+			try {
+				targetUri = new URI (uri);
+			} catch (URISyntaxException e) {
+				// ignore malformed URI, do nothing
+				return;
+			}
+			
 			// If the link goes to a markdown file, open it in an editor.
 			// That will cause this viewer to update its contents to the rendered version of
 			// the target file.
-			File targetFile = null;
-			try {
-				URL targetUrl = new URL(urlText);
-
-				if (targetUrl.getPath().endsWith(".md")) {
-					targetFile = new File(targetUrl.toURI());
-				} else if (targetUrl.getRef() != null) {
-					String targetPath = targetUrl.getPath();
-					if (targetPath.endsWith("/")) {
-						targetPath = targetPath.substring(0, targetPath.length() - 1);
-					}
-					if (preview.currentEditorInputPath != null) {
-						IPath currentParentPath = preview.currentEditorInputPath.removeLastSegments(1);
-						if (currentParentPath.toPortableString().equals(targetPath)) {
-							// do not load the corrupt URL (made of parent-folder-path/#target-reference)
-							event.doit = false;
-							return;
-						}
-					}
+			if (targetUri.getPath() != null
+					&& targetUri.getPath().endsWith(".md")) {
+				File targetFile = new File(targetUri);
+				
+				IFile fileToOpen = toWorkspaceRelativeFile(targetFile);
+				FluentEditor editor = openFluentEditorWith(fileToOpen);
+				if (editor != null) {
+					// update preview contents due to a new Markdown file in focus / opened in editor
+					preview.viewjob.load();
 				}
-			} catch (MalformedURLException | URISyntaxException e1) {
 				return;
 			}
-
-			IFile fileToOpen = toWorkspaceRelativeFile(targetFile);
-			FluentEditor editor = openFluentEditorWith(fileToOpen);
-			if (editor != null) {
-				// update preview contents due to a new Markdown file in focus / opened in editor
-				preview.viewjob.load();
+			
+			// Do not try following links to anchors on the same page (following hashtags like #some-section),
+			// that does not work (yet)
+			if (isLinkToAnchorOnCurrentPage(targetUri)) {
+				// do not load the corrupt URL (made of parent-folder-path/#target-reference)
+				event.doit = false;
+				return;
 			}
 		}
 
@@ -297,6 +294,32 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				
 			}
 			return null;
+		}
+		
+		private boolean isLinkToAnchorOnCurrentPage(URI targetUri) {
+			// fragment is something like #some-section at the end of the URI,  i.e. an anchor ID
+			if (targetUri == null
+					|| targetUri.getFragment() == null) {
+				return false;
+			}
+			
+			String targetPath = targetUri.getPath();
+			
+			// remove trailing slash
+			if (targetPath.endsWith("/")) {
+				targetPath = targetPath.substring(0, targetPath.length() - 1);
+			}
+			
+			if (preview.currentEditorInputPath != null) {
+				// take the currently open file's parent directory path
+				IPath currentParentPath = preview.currentEditorInputPath.removeLastSegments(1);
+				
+				// Since the base URL of the Markdown file'S HTML version in preview is the file's parent directory,
+				// we only have to compare these paths to know, the link goes anywhere in the same file.
+				return currentParentPath.toPortableString().equals(targetPath);
+			}
+			
+			return false;
 		}
 		
 	}
