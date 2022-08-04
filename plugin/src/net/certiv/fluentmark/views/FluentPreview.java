@@ -10,6 +10,7 @@ package net.certiv.fluentmark.views;
 import org.eclipse.ui.ide.IDE;
 
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -41,6 +42,7 @@ import java.net.URL;
 import java.io.File;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.PartListener;
@@ -52,6 +54,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	private static FluentPreview viewpart;
 	private Browser browser;
 	private ViewJob viewjob;
+	private IPath currentEditorInputPath;
 
 	public FluentPreview() {
 		viewpart = this;
@@ -64,55 +67,85 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
 
-    browser.addLocationListener( new LocationListener() {
+		FluentEditor editor = this.getEditor();
+		if (editor != null && editor.getEditorInput() != null) {
+			this.currentEditorInputPath = ((IPathEditorInput) editor.getEditorInput()).getPath();
+		} else {
+			currentEditorInputPath = null;
+		}
 
-      @Override
-      public void changing( LocationEvent event ) {
-        String urlText = event.location;
+		browser.addLocationListener(new LocationListener() {
 
-        // If the link goes to a markdown file, open it in an editor.
-        // That will cause this viewer to update its contents to the rendered version of the target file.
-        File targetFile = null;
-        try {
-          URL targetUrl = new URL( urlText );
-          targetFile = new File( targetUrl.toURI() );
-        } catch( MalformedURLException | URISyntaxException e1 ) {
-          return;
-        }
+			@Override
+			public void changing(LocationEvent event) {
+				String urlText = event.location;
 
-        if( targetFile != null && targetFile.exists() && targetFile.isFile() && urlText.endsWith( ".md" ) ) {
+				if (urlText != null && urlText.equals("about:blank")) {
+					// We're only opening the preview for a certain source file, we do not follow a
+					// link.
+					// --> Nothing to do in this case.
+					return;
+				}
 
-          String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-          String targetFilePath = targetFile.getPath();
-          if( targetFilePath.startsWith( absoluteWorkspacePath ) ) {
-            // ok, the target file is in our Eclipse workspace
-            String workspaceRelativPath = targetFilePath.substring( absoluteWorkspacePath.length() );
+				// If the link goes to a markdown file, open it in an editor.
+				// That will cause this viewer to update its contents to the rendered version of
+				// the target file.
+				File targetFile = null;
+				try {
+					URL targetUrl = new URL(urlText);
 
-            IPath path = new Path( workspaceRelativPath );
-            IFile fileToOpen = ResourcesPlugin.getWorkspace().getRoot().getFile( path );
+					if (targetUrl.getPath().endsWith(".md")) {
+						targetFile = new File(targetUrl.toURI());
+					} else if (targetUrl.getRef() != null) {
+						String targetPath = targetUrl.getPath();
+						if (targetPath.endsWith("/")) {
+							targetPath = targetPath.substring(0, targetPath.length() - 1);
+						}
+						if (currentEditorInputPath != null) {
+							IPath currentParentPath = currentEditorInputPath.removeLastSegments(1);
+							if (currentParentPath.toPortableString().equals(targetPath)) {
+								// do not load the corrupt URL (made of parent-folder-path/#target-reference)
+								event.doit = false;
+								return;
+								// browser.setUrl( "about:blank#" + targetUrl.getRef() );
+							}
+						}
+					}
+				} catch (MalformedURLException | URISyntaxException e1) {
+					return;
+				}
 
-            IWorkbenchPage activePage = FluentPreview.this.getActivePage();
-            try {
-              FluentEditor editor = (FluentEditor) IDE.openEditor( activePage, fileToOpen, FluentEditor.ID );
-              if( editor != null ) {
-                viewjob.load();
-              }
-            } catch( PartInitException e ) {
-              // FIXME log that
-              e.printStackTrace();
-            }
-          }
+				if (targetFile != null && targetFile.exists() && targetFile.isFile() && urlText.endsWith(".md")) {
 
-        }
-      }
+					String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+					String targetFilePath = targetFile.getPath();
+					if (targetFilePath.startsWith(absoluteWorkspacePath)) {
+						// ok, the target file is in our Eclipse workspace
+						String workspaceRelativPath = targetFilePath.substring(absoluteWorkspacePath.length());
 
-      @Override
-      public void changed( LocationEvent event ) {
-        String urlText = event.location;
-        System.out.println( urlText );
-      }
+						IPath path = new Path(workspaceRelativPath);
+						IFile fileToOpen = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 
-    } );
+						IWorkbenchPage activePage = FluentPreview.this.getActivePage();
+						try {
+							FluentEditor editor = (FluentEditor) IDE.openEditor(activePage, fileToOpen,
+									FluentEditor.ID);
+							if (editor != null) {
+								viewjob.load();
+							}
+						} catch (PartInitException e) {
+							Log.error(String.format("Could not open FluentMark editor for path $s", path.toString()), e);
+						}
+					}
+				}
+
+			}
+
+			@Override
+			public void changed(LocationEvent event) {
+			}
+
+		});
 
 		viewjob = new ViewJob(viewpart);
 		getPreferenceStore().addPropertyChangeListener(this);
@@ -124,7 +157,23 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	@Override
 	public void partActivated(IWorkbenchPart part) {
 		if (part instanceof FluentEditor) {
-			((FluentEditor) part).getViewer().addTextListener(this);
+      FluentEditor currentEditor = (FluentEditor) part;
+
+      currentEditor.getViewer().addTextListener( this );
+
+      // load / create HTML file header (and base URL) if the opened Markdown file changes
+      // otherwise, the relative references do not work anymore due to a wrong base URL
+      IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
+      if( editorInput != null ) {
+        IPath editorInputPath = editorInput.getPath();
+        if( currentEditorInputPath != null && !currentEditorInputPath.equals( editorInputPath ) ) {
+          viewjob.load();
+        }
+        currentEditorInputPath = editorInputPath;
+      } else {
+        currentEditorInputPath = null;
+      }
+
 			viewjob.update();
 		}
 	}
