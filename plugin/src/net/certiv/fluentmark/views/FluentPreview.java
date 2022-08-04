@@ -70,78 +70,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		IPathEditorInput currentEditorInput = this.getEditorInput();
 		this.currentEditorInputPath = (currentEditorInput != null ? currentEditorInput.getPath() : null);
 
-		browser.addLocationListener(new LocationListener() {
-
-			@Override
-			public void changing(LocationEvent event) {
-				String urlText = event.location;
-
-				if (urlText != null && urlText.equals("about:blank")) {
-					// We're only opening the preview for a certain source file, we do not follow a
-					// link.
-					// --> Nothing to do in this case.
-					return;
-				}
-
-				// If the link goes to a markdown file, open it in an editor.
-				// That will cause this viewer to update its contents to the rendered version of
-				// the target file.
-				File targetFile = null;
-				try {
-					URL targetUrl = new URL(urlText);
-
-					if (targetUrl.getPath().endsWith(".md")) {
-						targetFile = new File(targetUrl.toURI());
-					} else if (targetUrl.getRef() != null) {
-						String targetPath = targetUrl.getPath();
-						if (targetPath.endsWith("/")) {
-							targetPath = targetPath.substring(0, targetPath.length() - 1);
-						}
-						if (currentEditorInputPath != null) {
-							IPath currentParentPath = currentEditorInputPath.removeLastSegments(1);
-							if (currentParentPath.toPortableString().equals(targetPath)) {
-								// do not load the corrupt URL (made of parent-folder-path/#target-reference)
-								event.doit = false;
-								return;
-								// browser.setUrl( "about:blank#" + targetUrl.getRef() );
-							}
-						}
-					}
-				} catch (MalformedURLException | URISyntaxException e1) {
-					return;
-				}
-
-				if (targetFile != null && targetFile.exists() && targetFile.isFile() && urlText.endsWith(".md")) {
-
-					String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-					String targetFilePath = targetFile.getPath();
-					if (targetFilePath.startsWith(absoluteWorkspacePath)) {
-						// ok, the target file is in our Eclipse workspace
-						String workspaceRelativPath = targetFilePath.substring(absoluteWorkspacePath.length());
-
-						IPath path = new Path(workspaceRelativPath);
-						IFile fileToOpen = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-
-						IWorkbenchPage activePage = FluentPreview.this.getActivePage();
-						try {
-							FluentEditor editor = (FluentEditor) IDE.openEditor(activePage, fileToOpen,
-									FluentEditor.ID);
-							if (editor != null) {
-								viewjob.load();
-							}
-						} catch (PartInitException e) {
-							Log.error(String.format("Could not open FluentMark editor for path $s", path.toString()), e);
-						}
-					}
-				}
-
-			}
-
-			@Override
-			public void changed(LocationEvent event) {
-			}
-
-		});
+		browser.addLocationListener(new FluentBrowserUrlListener(this));
 
 		viewjob = new ViewJob(viewpart);
 		getPreferenceStore().addPropertyChangeListener(this);
@@ -273,4 +202,85 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser = null;
 		super.dispose();
 	}
+	
+	
+	private static class FluentBrowserUrlListener implements LocationListener {
+		
+		private FluentPreview preview;
+		
+		FluentBrowserUrlListener(FluentPreview preview) {
+			this.preview = preview;
+		}
+		
+		@Override
+		public void changing(LocationEvent event) {
+			String urlText = event.location;
+
+			if (urlText != null && urlText.equals("about:blank")) {
+				// We're only opening the preview for a certain source file, we do not follow a
+				// link.
+				// --> Nothing to do in this case.
+				return;
+			}
+
+			// If the link goes to a markdown file, open it in an editor.
+			// That will cause this viewer to update its contents to the rendered version of
+			// the target file.
+			File targetFile = null;
+			try {
+				URL targetUrl = new URL(urlText);
+
+				if (targetUrl.getPath().endsWith(".md")) {
+					targetFile = new File(targetUrl.toURI());
+				} else if (targetUrl.getRef() != null) {
+					String targetPath = targetUrl.getPath();
+					if (targetPath.endsWith("/")) {
+						targetPath = targetPath.substring(0, targetPath.length() - 1);
+					}
+					if (preview.currentEditorInputPath != null) {
+						IPath currentParentPath = preview.currentEditorInputPath.removeLastSegments(1);
+						if (currentParentPath.toPortableString().equals(targetPath)) {
+							// do not load the corrupt URL (made of parent-folder-path/#target-reference)
+							event.doit = false;
+							return;
+						}
+					}
+				}
+			} catch (MalformedURLException | URISyntaxException e1) {
+				return;
+			}
+
+			if (targetFile != null && targetFile.exists() && targetFile.isFile() && urlText.endsWith(".md")) {
+
+				String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+				String targetFilePath = targetFile.getPath();
+				if (targetFilePath.startsWith(absoluteWorkspacePath)) {
+					// ok, the target file is in our Eclipse workspace
+					String workspaceRelativPath = targetFilePath.substring(absoluteWorkspacePath.length());
+
+					IPath path = new Path(workspaceRelativPath);
+					IFile fileToOpen = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+
+					IWorkbenchPage activePage = preview.getActivePage();
+					try {
+						FluentEditor editor = (FluentEditor) IDE.openEditor(activePage, fileToOpen,
+								FluentEditor.ID);
+						if (editor != null) {
+							preview.viewjob.load();
+						}
+					} catch (PartInitException e) {
+						Log.error(String.format("Could not open FluentMark editor for path $s", path.toString()), e);
+					}
+				}
+			}
+
+		}
+
+		@Override
+		public void changed(LocationEvent event) {
+			// do nothing (yet)
+		}
+		
+	}
+	
 }
