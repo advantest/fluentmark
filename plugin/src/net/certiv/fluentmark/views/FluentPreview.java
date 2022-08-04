@@ -67,12 +67,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
 
-		FluentEditor editor = this.getEditor();
-		if (editor != null && editor.getEditorInput() != null) {
-			this.currentEditorInputPath = ((IPathEditorInput) editor.getEditorInput()).getPath();
-		} else {
-			currentEditorInputPath = null;
-		}
+		IPathEditorInput currentEditorInput = this.getEditorInput();
+		this.currentEditorInputPath = (currentEditorInput != null ? currentEditorInput.getPath() : null);
 
 		browser.addLocationListener(new LocationListener() {
 
@@ -243,6 +239,15 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		FluentEditor editor = getEditor();
 		if (editor == null) return null;
 		return editor.getViewer();
+	}
+	
+	protected IPathEditorInput getEditorInput() {
+		FluentEditor editor = this.getEditor();
+		if (editor != null
+				&& editor.getEditorInput() != null) {
+			return (IPathEditorInput) editor.getEditorInput();
+		}
+		return null;
 	}
 
 	protected IPreferenceStore getPreferenceStore() {
