@@ -153,22 +153,24 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	@Override
 	public void partActivated(IWorkbenchPart part) {
 		if (part instanceof FluentEditor) {
-      FluentEditor currentEditor = (FluentEditor) part;
+			FluentEditor currentEditor = (FluentEditor) part;
 
-      currentEditor.getViewer().addTextListener( this );
+			currentEditor.getViewer().addTextListener(this);
 
-      // load / create HTML file header (and base URL) if the opened Markdown file changes
-      // otherwise, the relative references do not work anymore due to a wrong base URL
-      IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
-      if( editorInput != null ) {
-        IPath editorInputPath = editorInput.getPath();
-        if( currentEditorInputPath != null && !currentEditorInputPath.equals( editorInputPath ) ) {
-          viewjob.load();
-        }
-        currentEditorInputPath = editorInputPath;
-      } else {
-        currentEditorInputPath = null;
-      }
+			// Load / re-create HTML file header (and base URL) if the opened Markdown file changes.
+			// Otherwise, the relative references do not work anymore due to a wrong base URL
+			// (e.g. set for another previously opened file from another directory).
+			IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
+			if (editorInput != null) {
+				IPath editorInputPath = editorInput.getPath();
+				if (currentEditorInputPath != null && !currentEditorInputPath.equals(editorInputPath)) {
+					// it's not the same file as before, reload the HTML file header in our preview
+					viewjob.load();
+				}
+				currentEditorInputPath = editorInputPath;
+			} else {
+				currentEditorInputPath = null;
+			}
 
 			viewjob.update();
 		}
