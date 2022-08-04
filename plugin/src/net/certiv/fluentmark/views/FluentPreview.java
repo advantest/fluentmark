@@ -199,7 +199,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			viewjob.dispose();
 			viewjob = null;
 		}
+		
+		if (browser != null && !browser.isDisposed()) {
+			browser.dispose();
+		}
 		browser = null;
+		
 		super.dispose();
 	}
 	
