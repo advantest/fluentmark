@@ -14,6 +14,8 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.core.resources.IFile;
@@ -35,6 +37,7 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.widgets.Composite;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -257,6 +260,16 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				// do not load the corrupt URL (made of parent-folder-path/#target-reference)
 				event.doit = false;
 				return;
+			}
+			
+			// In all other cases (not a Markdown file and not a link to an anchor on the same page)
+			// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
+			event.doit = false;
+			try {
+				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("FluentBrowser.id");
+				webBrowser.openURL(targetUri.toURL());
+			} catch (PartInitException | MalformedURLException e) {
+				Log.error(String.format("Could not open URI %s in web browser", targetUri), e );
 			}
 		}
 
