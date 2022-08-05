@@ -238,6 +238,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
+			// TODO In general, try to open all workspace files in their default editor?
+			
 			// If the link goes to a markdown file, open it in an editor.
 			// That will cause this viewer to update its contents to the rendered version of
 			// the target file.
