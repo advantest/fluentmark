@@ -16,6 +16,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.core.resources.IFile;
@@ -238,21 +239,26 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			// TODO In general, try to open all workspace files in their default editor?
-			
-			// If the link goes to a markdown file, open it in an editor.
-			// That will cause this viewer to update its contents to the rendered version of
-			// the target file.
-			if (targetUri.getPath() != null
-					&& targetUri.getPath().endsWith(".md")) {
-				File targetFile = new File(targetUri);
+			// if the link goes to a file in the Eclipse workspace, open it in an editor
+			// (and update the preview in case of a markdown file)
+			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
+			if (fileInWorkspace != null) {
 				
-				IFile fileToOpen = toWorkspaceRelativeFile(targetFile);
-				FluentEditor editor = openFluentEditorWith(fileToOpen);
-				if (editor != null) {
-					// update preview contents due to a new Markdown file in focus / opened in editor
-					preview.viewjob.load();
+				if (fileInWorkspace.getFileExtension() != null
+						&& "md".equals(fileInWorkspace.getFileExtension())) {
+					// use our Fluentmark editor for markdown files
+					FluentEditor editor = openFluentEditorWith(fileInWorkspace);
+					if (editor != null) {
+						// update preview contents due to a new Markdown file in focus / opened in editor
+						preview.viewjob.load();
+					}
+				} else {
+					openFileInDefaultEditor(fileInWorkspace);
+					
+					// do not update the preview if it is not Markdown
+					event.doit = false;
 				}
+				
 				return;
 			}
 			
@@ -280,34 +286,66 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			// do nothing (yet)
 		}
 		
-		private IFile toWorkspaceRelativeFile(File file) {
-			if (file != null && file.exists() && file.isFile()) {
-				String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-				String filePath = file.getPath();
-				
-				if (filePath.startsWith(absoluteWorkspacePath)) {
-					// ok, the file is in our Eclipse workspace
-					String workspaceRelativPath = filePath.substring(absoluteWorkspacePath.length());
-
-					IPath path = new Path(workspaceRelativPath);
-					return ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-				}
+		private IFile toWorkspaceRelativeFile(URI uri) {
+			if (uri == null || uri.getPath() == null || !"file".equals(uri.getScheme())) {
+				return null;
 			}
+			
+			File file = null;
+			try {
+				file = new File(uri);
+			} catch (Exception e) {
+				file = null;
+			}
+			 
+			if (!file.exists() || !file.isFile()) {
+				return null;
+			}
+			
+			String filePath = file.getPath();
+			String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+			
+			if (filePath.startsWith(absoluteWorkspacePath)) {
+				String workspaceRelativPath = filePath.substring(absoluteWorkspacePath.length());
+				
+				IPath path = new Path(workspaceRelativPath);
+				return ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			}
+			
 			return null;
 		}
 		
 		private FluentEditor openFluentEditorWith(IFile file) {
-			if (file != null) {
-				IWorkbenchPage activePage = preview.getActivePage();
-				if (activePage != null) {
-					try {
-						return (FluentEditor) IDE.openEditor(activePage, file, FluentEditor.ID);
-					} catch (PartInitException e) {
-						Log.error(String.format("Could not open FluentMark editor for path $s", file.getLocation()), e);
-					}
-				}
-				
+			if (file == null) {
+				return null;
 			}
+			
+			IWorkbenchPage activePage = preview.getActivePage();
+			if (activePage != null) {
+				try {
+					return (FluentEditor) IDE.openEditor(activePage, file, FluentEditor.ID);
+				} catch (PartInitException e) {
+					Log.error(String.format("Could not open file (path=%s) in FluentMark editor", file.getLocation()), e);
+				}
+			}
+				
+			return null;
+		}
+		
+		private IEditorPart openFileInDefaultEditor(IFile file) {
+			if (file == null) {
+				return null;
+			}
+			
+			IWorkbenchPage activePage = preview.getActivePage();
+			if (activePage != null) {
+				try {
+					return IDE.openEditor(activePage, file);
+				} catch (PartInitException e) {
+					Log.error(String.format("Could not open file (path=%s) in default editor", file.getLocation()), e);
+				}
+			}
+			
 			return null;
 		}
 		
