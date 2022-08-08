@@ -274,7 +274,14 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
 			event.doit = false;
 			try {
-				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("FluentBrowser.id");
+				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
+						IWorkbenchBrowserSupport.LOCATION_BAR
+						| IWorkbenchBrowserSupport.NAVIGATION_BAR
+						| IWorkbenchBrowserSupport.STATUS
+						| IWorkbenchBrowserSupport.AS_VIEW,
+						"com.advantest.fluentmark.browser.id",
+						"FluentMark browser",
+						"Browser instance used by Fluentmark to open any exernal link");
 				webBrowser.openURL(targetUri.toURL());
 			} catch (PartInitException | MalformedURLException e) {
 				Log.error(String.format("Could not open URI %s in web browser", targetUri), e );
