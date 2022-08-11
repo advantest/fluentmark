@@ -302,7 +302,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			try {
 				file = new File(uri);
 			} catch (Exception e) {
-				file = null;
+				return null;
 			}
 			 
 			if (!file.exists() || !file.isFile()) {
