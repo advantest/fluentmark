@@ -264,18 +264,24 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			// Adapt links to anchors (hashtags like #some-section)
 			if (isLinkToAnchor(targetUri)) {
 
-				// do not load the corrupt URL (made of markdown-file-path/#target-reference)
-				if (targetUri != null
-						&& !targetUri.toString().startsWith("about:blank")) {
+				String targetPath = targetUri.getPath();
+				
+				if (targetPath != null
+						&& preview.currentEditorInputPath != null
+						&& preview.currentEditorInputPath.toPortableString().equals(targetPath)) {
+
+					// We're previewing the Markdown file currently open in editor, just fix the URI
 					event.doit = false;
 					
 					String anchor = targetUri.getFragment();
 					
 					// call JavaScript function for scrolling to the anchor
 					this.preview.viewjob.scrollTo(anchor);
+					return;
 				}
 				
 				// do nothing if the anchor is on the page we're viewing
+				// Just open the link, which was fixed in a previous step
 				return;
 			}
 			
@@ -307,9 +313,19 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return null;
 			}
 			
+			URI adaptedUri = uri;
+			if (uri.getFragment() != null) {
+				// remove trailing fragment & hashtag
+				String uriString = uri.toString();
+				int index = uriString.indexOf(uri.getFragment());
+				uriString = uriString.substring(0, index - 1);
+				
+				adaptedUri = URI.create(uriString);
+			}
+			
 			File file = null;
 			try {
-				file = new File(uri);
+				file = new File(adaptedUri);
 			} catch (Exception e) {
 				return null;
 			}
@@ -318,7 +334,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return null;
 			}
 			
-			IFile[] filesFound = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+			IFile[] filesFound = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(adaptedUri);
 			if (filesFound.length == 1) {
 				return filesFound[0];
 			}
@@ -367,18 +383,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return false;
 			}
 			
-			if (targetUri.toString().startsWith("about:blank")) {
-				// we're still seeing the first rendered Markdown file (we did not follow any link to another file) 
-				return true;
-			}
-			
-			String targetPath = targetUri.getPath();
-			
-			if (preview.currentEditorInputPath != null) {
-				return preview.currentEditorInputPath.toPortableString().equals(targetPath);
-			}
-			
-			return false;
+			return true;
 		}
 		
 	}
