@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextListener;
@@ -309,14 +308,9 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return null;
 			}
 			
-			String filePath = file.getPath();
-			String absoluteWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-			
-			if (filePath.startsWith(absoluteWorkspacePath)) {
-				String workspaceRelativPath = filePath.substring(absoluteWorkspacePath.length());
-				
-				IPath path = new Path(workspaceRelativPath);
-				return ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			IFile[] filesFound = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+			if (filesFound.length == 1) {
+				return filesFound[0];
 			}
 			
 			return null;
