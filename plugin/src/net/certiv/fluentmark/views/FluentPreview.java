@@ -261,11 +261,21 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			// Do not try following links to anchors on the same page (following hashtags like #some-section),
-			// that does not work (yet)
-			if (isLinkToAnchorOnCurrentPage(targetUri)) {
-				// do not load the corrupt URL (made of parent-folder-path/#target-reference)
-				event.doit = false;
+			// Adapt links to anchors (hashtags like #some-section)
+			if (isLinkToAnchor(targetUri)) {
+
+				// do not load the corrupt URL (made of markdown-file-path/#target-reference)
+				if (targetUri != null
+						&& !targetUri.toString().startsWith("about:blank")) {
+					event.doit = false;
+					
+					String anchor = targetUri.getFragment();
+					
+					// call JavaScript function for scrolling to the anchor
+					this.preview.viewjob.scrollTo(anchor);
+				}
+				
+				// do nothing if the anchor is on the page we're viewing
 				return;
 			}
 			
@@ -350,27 +360,22 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return null;
 		}
 		
-		private boolean isLinkToAnchorOnCurrentPage(URI targetUri) {
-			// fragment is something like #some-section at the end of the URI,  i.e. an anchor ID
+		private boolean isLinkToAnchor(URI targetUri) {
+			// fragment is something like #some-section at the end of the URI, i.e. an anchor ID
 			if (targetUri == null
 					|| targetUri.getFragment() == null) {
 				return false;
 			}
 			
-			String targetPath = targetUri.getPath();
-			
-			// remove trailing slash
-			if (targetPath.endsWith("/")) {
-				targetPath = targetPath.substring(0, targetPath.length() - 1);
+			if (targetUri.toString().startsWith("about:blank")) {
+				// we're still seeing the first rendered Markdown file (we did not follow any link to another file) 
+				return true;
 			}
 			
+			String targetPath = targetUri.getPath();
+			
 			if (preview.currentEditorInputPath != null) {
-				// take the currently open file's parent directory path
-				IPath currentParentPath = preview.currentEditorInputPath.removeLastSegments(1);
-				
-				// Since the base URL of the Markdown file'S HTML version in preview is the file's parent directory,
-				// we only have to compare these paths to know, the link goes anywhere in the same file.
-				return currentParentPath.toPortableString().equals(targetPath);
+				return preview.currentEditorInputPath.toPortableString().equals(targetPath);
 			}
 			
 			return false;
