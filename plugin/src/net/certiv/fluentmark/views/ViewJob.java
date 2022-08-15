@@ -1,12 +1,13 @@
 package net.certiv.fluentmark.views;
 
-import java.math.BigDecimal;
+import org.eclipse.ui.IPathEditorInput;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -14,7 +15,8 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IPathEditorInput;
+
+import java.math.BigDecimal;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
@@ -27,6 +29,7 @@ import net.certiv.fluentmark.util.Strings;
 public class ViewJob extends Job {
 
 	private static final String Render = "Fluent.set('%s');";
+	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
 
 	private enum State {
 		NONE,
@@ -93,7 +96,10 @@ public class ViewJob extends Job {
 	}
 
 	public void update() {
-		if (state != State.READY) return;
+		if (state != State.READY) {
+			return;
+		}
+		
 		switch (getState()) {
 			case Job.WAITING:
 			case Job.RUNNING:
@@ -103,6 +109,25 @@ public class ViewJob extends Job {
 				schedule(SHORT);
 				break;
 		}
+	}
+	
+	public void scrollTo(String anchor) {
+		if (state != State.READY || browser == null || browser.isDisposed()) {
+			return;
+		}
+		
+		String script = String.format(CMD_SCROLL_TO, StringEscapeUtils.escapeEcmaScript(anchor));
+		
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if (browser != null && !browser.isDisposed()) {
+					boolean ok = browser.execute(script);
+					if (!ok) Log.error("Script execute failed.");
+				}
+			}
+		});
 	}
 
 	/** The job to run when scheduled */

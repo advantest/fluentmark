@@ -71,6 +71,9 @@
 					set: function(source) {
 						this.contents = source;
 					},
+					scrollTo: function(anchorname) {
+						location.hash = '#' + anchorname;
+					},
 				},
 			});
 		</script>
