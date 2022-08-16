@@ -250,6 +250,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 					if (editor != null) {
 						// update preview contents due to a new Markdown file in focus / opened in editor
 						preview.viewjob.load();
+						
+						// remember the anchor to scroll to, before loading the new Markdown file
+						// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
+						if (targetUri.getFragment() != null) {
+							preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
+						}
 					}
 				} else {
 					openFileInDefaultEditor(fileInWorkspace);

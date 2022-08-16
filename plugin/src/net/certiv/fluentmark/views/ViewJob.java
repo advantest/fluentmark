@@ -30,12 +30,18 @@ public class ViewJob extends Job {
 
 	private static final String Render = "Fluent.set('%s');";
 	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
+	
+	private String currentAnchorToScrollTo;
 
 	private enum State {
 		NONE,
 		LOAD,
 		READY,
 		TYPESET;
+	}
+	
+	void setAnchorForNextPageLoad(String anchor) {
+		this.currentAnchorToScrollTo = anchor;
 	}
 
 	private ProgressListener watcher = new ProgressAdapter() {
@@ -124,12 +130,14 @@ public class ViewJob extends Job {
 			public void run() {
 				if (browser != null && !browser.isDisposed()) {
 					boolean ok = browser.execute(script);
-					if (!ok) Log.error("Script execute failed.");
+					if (!ok) {
+						Log.error(String.format("JavaScript execution (scroll to anchor %s) failed.", anchor));
+					}
 				}
 			}
 		});
 	}
-
+	
 	/** The job to run when scheduled */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
@@ -152,7 +160,17 @@ public class ViewJob extends Job {
 			public void run() {
 				if (browser != null && !browser.isDisposed()) {
 					boolean ok = browser.execute(script);
-					if (!ok) Log.error("Script execute failed.");
+					if (ok) {
+						// read the temporarily saved anchor if any
+						if (currentAnchorToScrollTo != null) {
+							scrollTo(currentAnchorToScrollTo);
+							
+							// we've consumed the anchor, remove it now
+							currentAnchorToScrollTo = null;
+						}
+					} else {
+						Log.error("JavaScript execution (set page contents) failed.");
+					}
 				}
 			}
 		});
