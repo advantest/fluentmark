@@ -24,9 +24,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<tycho.version>1.1.0</tycho.version>
+		<tycho.version>2.7.4</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<modules>
@@ -44,12 +44,14 @@
 		<repository>
 			<id>tools</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Certiv/net.certiv/net.certiv.tools.site/target/repository/</url>
+			<!-- <url>https://www.certiv.net/updates/net.certiv.tools.site/</url> -->
+			<url>file:/Users/travkin/Documents/git-repos/CertivTools/net.certiv.tools.site/target/repository</url>
 		</repository>
 		<repository>
 			<id>net.certiv.spellchecker</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Fluentmark/net.certiv.spellchecker/site/target/repository/</url>
+			<!-- <url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url> -->
+			<url>file:/Users/travkin/Documents/git-repos/spellchecker/site/target/repository</url>
 		</repository>
 	</repositories>
 
