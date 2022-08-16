@@ -31,11 +31,11 @@ for more information.
 
    <includes
          id="net.certiv.spellchecker.feature"
-         version="0.0.0"/>
+         version="3.4.0.qualifier"/>
 
    <includes
          id="net.certiv.tools.feature"
-         version="0.0.0"/>
+         version="1.2.0.qualifier"/>
 
    <requires>
       <import plugin="org.eclipse.core.commands"/>
@@ -54,10 +54,11 @@ for more information.
       <import plugin="org.eclipse.core.variables"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.ui.navigator"/>
       <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="net.certiv.tools"/>
-      <import plugin="net.certiv.spellchecker.plugin"/>
+      <import plugin="org.eclipse.ui.navigator"/>
+      <import plugin="net.certiv.tools.plugin" version="1.0.7" match="compatible"/>
+      <import plugin="net.certiv.spellchecker" version="3.3.2"/>
+      <import plugin="com.google.guava"/>
    </requires>
 
    <plugin
