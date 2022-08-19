@@ -52,6 +52,7 @@ import net.certiv.fluentmark.util.PartListener;
 public class FluentPreview extends ViewPart implements PartListener, ITextListener, IPropertyChangeListener, Prefs {
 
 	public static final String ID = "net.certiv.fluentmark.views.FluentPreview";
+	private static final String NO_CONTENT_TEXT = "No Markdown code to preview";
 
 	private static FluentPreview viewpart;
 	private Browser browser;
@@ -68,6 +69,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser = new Browser(parent, SWT.NONE);
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
+		browser.setText(NO_CONTENT_TEXT);
 
 		IPathEditorInput currentEditorInput = this.getEditorInput();
 		this.currentEditorInputPath = (currentEditorInput != null ? currentEditorInput.getPath() : null);
@@ -94,7 +96,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
 			if (editorInput != null) {
 				IPath editorInputPath = editorInput.getPath();
-				if (currentEditorInputPath != null && !currentEditorInputPath.equals(editorInputPath)) {
+				if (currentEditorInputPath == null || !currentEditorInputPath.equals(editorInputPath)) {
 					// it's not the same file as before, reload the HTML file header in our preview
 					viewjob.load();
 				}
@@ -107,13 +109,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		}
 	}
 
-	// view closed
 	@Override
 	public void partClosed(IWorkbenchPart part) {
-		if (part instanceof FluentEditor) {
-			try { // exception when workbench close closes the editor
-				getActivePage().hideView(viewpart);
-			} catch (Exception e) {}
+		// a FluentEditor was closed and no other FluentEditor became active
+		if (part instanceof FluentEditor
+				&& (getActivePage().getActiveEditor() == null || !(getActivePage().getActiveEditor() instanceof FluentEditor) )) {
+			currentEditorInputPath = null;
+			browser.setText(NO_CONTENT_TEXT);
 		}
 	}
 
