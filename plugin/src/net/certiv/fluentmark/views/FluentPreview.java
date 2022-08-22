@@ -237,6 +237,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 
 			URI targetUri = translateUrlToUri(url);
 			if (targetUri == null) {
+				// open URL in a separate browser if it is not  URI
+				openUrlInSeparateWebBrowser(url);
 				return;
 			}
 			
@@ -340,6 +342,16 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return openUrlInSeparateWebBrowser(uri.toURL());
 			} catch (MalformedURLException e) {
 				Log.error(String.format("Could not open URI %s in web browser", uri), e );
+			}
+			
+			return null;
+		}
+		
+		private IWebBrowser openUrlInSeparateWebBrowser(String url) {
+			try {
+				return openUrlInSeparateWebBrowser(new URL(url));
+			} catch (MalformedURLException e) {
+				Log.error(String.format("Could not open URL %s in web browser", url), e );
 			}
 			
 			return null;
