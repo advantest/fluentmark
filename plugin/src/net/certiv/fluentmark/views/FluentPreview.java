@@ -218,7 +218,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		private static final String URL_SCHEME_ABOUT = "about";
 		private static final String URL_SCHEME_FILE = "file";
 		private static final String URL_SCHEME_SPECIFIC_PART_BLANK = "blank";
-		private static final String URL_ABOUT_BLANK = "URL_SCHEME_ABOUT" + ":" + URL_SCHEME_SPECIFIC_PART_BLANK;
+		private static final String URL_ABOUT_BLANK = URL_SCHEME_ABOUT + ":" + URL_SCHEME_SPECIFIC_PART_BLANK;
 		
 		private final FluentPreview preview;
 		
