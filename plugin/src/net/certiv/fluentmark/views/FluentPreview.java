@@ -259,6 +259,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			
 			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
 			if (fileInWorkspace == null) {
+				// the file is not in the Eclipse workspace
 				event.doit = false;
 				openUriInSeparateWebBrowser(targetUri);
 				return;
@@ -270,36 +271,35 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				event.doit = false;
 				openFileInDefaultEditor(fileInWorkspace);
 				return;
-			} else {
-				// we have a markdown file
-				
-				if (isLinkToAnchor(targetUri)
-						&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
-					// We're previewing the Markdown file currently open in editor
-					// no reload / rendering necessary, just scroll to the anchor
-					// call JavaScript function for scrolling to the anchor
-					event.doit = false;
-					this.preview.viewjob.scrollTo(targetUri.getFragment());
-					return;
-				}
-				
-				// open Markdown file in our Fluentmark editor
-				FluentEditor editor = openFluentEditorWith(fileInWorkspace);
-				if (editor != null) {
-					// update preview contents due to a new Markdown file in focus / opened in editor
-					preview.viewjob.load();
-					// we do not abort the event, since the URL should be opened by our preview browser
-					
-					// remember the anchor to scroll to, before loading the new Markdown file
-					// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
-					if (isLinkToAnchor(targetUri)) {
-						preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
-					}
-				} else {
-					// abort preview refresh if we could not open the file in editor
-					event.doit = false;
-				}
+			}
+			
+			// we have a Markdown file
+			
+			if (isLinkToAnchor(targetUri)
+					&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
+				// We're previewing the Markdown file currently open in editor
+				// no reload / rendering necessary, just scroll to the anchor
+				// call JavaScript function for scrolling to the anchor
+				event.doit = false;
+				this.preview.viewjob.scrollTo(targetUri.getFragment());
 				return;
+			}
+			
+			// open Markdown file in our Fluentmark editor
+			FluentEditor editor = openFluentEditorWith(fileInWorkspace);
+			if (editor != null) {
+				// update preview contents due to a new Markdown file in focus / opened in editor
+				preview.viewjob.load();
+				// we do not abort the event, since the URL should be opened by our preview browser
+				
+				// remember the anchor to scroll to, before loading the new Markdown file
+				// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
+				if (isLinkToAnchor(targetUri)) {
+					preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
+				}
+			} else {
+				// abort preview refresh if we could not open the file in editor
+				event.doit = false;
 			}
 			
 		}
