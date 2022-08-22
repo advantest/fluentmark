@@ -214,6 +214,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	
 	private static class FluentBrowserUrlListener implements LocationListener {
 		
+		private static final String FILE_EXTENSION_MARKDOWN = "md";
 		private static final String URL_SCHEME_ABOUT = "about";
 		private static final String URL_SCHEME_FILE = "file";
 		private static final String URL_SCHEME_SPECIFIC_PART_BLANK = "blank";
@@ -261,16 +262,19 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
 			if (fileInWorkspace != null) {
 				
-				if (fileInWorkspace.getFileExtension() != null
-						&& "md".equals(fileInWorkspace.getFileExtension())) {
+				if (!hasMarkdownFileExtension(fileInWorkspace)) {
+					event.doit = false;
+					openFileInDefaultEditor(fileInWorkspace);
+					return;
+				} else {
+					// we have a markdown file
 					
 					if (isLinkToAnchor(targetUri)
 							&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
 						// We're previewing the Markdown file currently open in editor
 						// no reload / rendering necessary, just scroll to the anchor
-						event.doit = false;
-						
 						// call JavaScript function for scrolling to the anchor
+						event.doit = false;
 						this.preview.viewjob.scrollTo(targetUri.getFragment());
 						return;
 					}
@@ -280,6 +284,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 					if (editor != null) {
 						// update preview contents due to a new Markdown file in focus / opened in editor
 						preview.viewjob.load();
+						// we do not abort the event, since the URL should be opened by our preview browser
 						
 						// remember the anchor to scroll to, before loading the new Markdown file
 						// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
@@ -287,14 +292,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 							preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
 						}
 					}
-				} else {
-					openFileInDefaultEditor(fileInWorkspace);
-					
-					// do not update the preview if it is not Markdown
-					event.doit = false;
+					return;
 				}
-				
-				return;
 			}
 			
 			// In all other cases (not a Markdown file, not a file in Eclipse workspace, and not a link to an anchor on the same page)
@@ -325,6 +324,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return (uri != null
 					&& uri.getScheme() != null
 					&& URL_SCHEME_FILE.equals(uri.getScheme()));
+		}
+		
+		private boolean hasMarkdownFileExtension(IFile file) {
+			return (file != null
+					&& file.getFileExtension() != null
+					&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension()));
 		}
 		
 		private URI translateUrlToUri(String url) {
