@@ -213,7 +213,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	
 	private static class FluentBrowserUrlListener implements LocationListener {
 		
-		private FluentPreview preview;
+		private static final String URL_SCHEME_ABOUT = "about";
+		private static final String URL_SCHEME_FILE = "file";
+		private static final String URL_SCHEME_SPECIFIC_PART_BLANK = "blank";
+		private static final String URL_ABOUT_BLANK = "URL_SCHEME_ABOUT" + ":" + URL_SCHEME_SPECIFIC_PART_BLANK;
+		
+		private final FluentPreview preview;
 		
 		FluentBrowserUrlListener(FluentPreview preview) {
 			this.preview = preview;
@@ -223,32 +228,28 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		public void changing(LocationEvent event) {
 			String url = event.location;
 
-			if (url != null && url.equals("about:blank")) {
-				// We're only opening the preview for a certain source file, we do not follow a
-				// link.
+			if (url == null || isRenderedPageUrl(url)) {
+				// We're only opening the preview for a certain source file, we do not follow a link.
 				// --> Nothing to do in this case.
 				return;
 			}
 
-			URI targetUri = null;
-			try {
-				targetUri = new URI (url);
-			} catch (URISyntaxException e) {
-				// ignore malformed URI, do nothing (remember: URIs are always URLs, but URLs are not always URIs)
+			URI targetUri = translateUrlToUri(url);
+			if (targetUri == null) {
 				return;
 			}
 			
 			// open links to non-files in a separate web browser
 			if (targetUri.getScheme() != null) {
-				if (targetUri.getScheme().equals("about")
-						&& "blank".equals(targetUri.getSchemeSpecificPart())
+				if (targetUri.getScheme().equals(URL_SCHEME_ABOUT)
+						&& URL_SCHEME_SPECIFIC_PART_BLANK.equals(targetUri.getSchemeSpecificPart())
 						&& isLinkToAnchor(targetUri)) {
 					// do nothing if the anchor is on the page we're viewing
 					// Just open the link, which was fixed in a previous step
 					return;
 				}
 				
-				if (!targetUri.getScheme().equals("file")) {
+				if (!targetUri.getScheme().equals(URL_SCHEME_FILE)) {
 					// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
 					event.doit = false;
 					openUriInSeparateWebBrowser(targetUri);
@@ -305,6 +306,27 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		@Override
 		public void changed(LocationEvent event) {
 			// do nothing (yet)
+		}
+		
+		private boolean isRenderedPageUrl(String url) {
+			if (url != null && url.equals(URL_ABOUT_BLANK)) {
+				return true;
+			}
+			return false;
+		}
+		
+		private URI translateUrlToUri(String url) {
+			if (url == null || url.length() == 0) {
+				return null;
+			}
+			
+			try {
+				return new URI (url);
+			} catch (URISyntaxException e) {
+				// ignore malformed URI (remember: URIs are always URLs, but URLs are not always URIs)
+			}
+			
+			return null;
 		}
 		
 		private IWebBrowser openUriInSeparateWebBrowser(URI uri) {
