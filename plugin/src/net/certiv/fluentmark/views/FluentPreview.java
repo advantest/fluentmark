@@ -52,6 +52,7 @@ import net.certiv.fluentmark.util.PartListener;
 public class FluentPreview extends ViewPart implements PartListener, ITextListener, IPropertyChangeListener, Prefs {
 
 	public static final String ID = "net.certiv.fluentmark.views.FluentPreview";
+	private static final String NO_CONTENT_TEXT = "No Markdown code to preview";
 
 	private static FluentPreview viewpart;
 	private Browser browser;
@@ -68,6 +69,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser = new Browser(parent, SWT.NONE);
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
+		browser.setText(NO_CONTENT_TEXT);
 
 		IPathEditorInput currentEditorInput = this.getEditorInput();
 		this.currentEditorInputPath = (currentEditorInput != null ? currentEditorInput.getPath() : null);
@@ -94,7 +96,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
 			if (editorInput != null) {
 				IPath editorInputPath = editorInput.getPath();
-				if (currentEditorInputPath != null && !currentEditorInputPath.equals(editorInputPath)) {
+				if (currentEditorInputPath == null || !currentEditorInputPath.equals(editorInputPath)) {
 					// it's not the same file as before, reload the HTML file header in our preview
 					viewjob.load();
 				}
@@ -107,13 +109,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		}
 	}
 
-	// view closed
 	@Override
 	public void partClosed(IWorkbenchPart part) {
-		if (part instanceof FluentEditor) {
-			try { // exception when workbench close closes the editor
-				getActivePage().hideView(viewpart);
-			} catch (Exception e) {}
+		// a FluentEditor was closed and no other FluentEditor became active
+		if (part instanceof FluentEditor
+				&& (getActivePage().getActiveEditor() == null || !(getActivePage().getActiveEditor() instanceof FluentEditor) )) {
+			currentEditorInputPath = null;
+			browser.setText(NO_CONTENT_TEXT);
 		}
 	}
 
@@ -221,9 +223,9 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		@Override
 		public void changing(LocationEvent event) {
-			String uri = event.location;
+			String url = event.location;
 
-			if (uri != null && uri.equals("about:blank")) {
+			if (url != null && url.equals("about:blank")) {
 				// We're only opening the preview for a certain source file, we do not follow a
 				// link.
 				// --> Nothing to do in this case.
@@ -232,10 +234,28 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 
 			URI targetUri = null;
 			try {
-				targetUri = new URI (uri);
+				targetUri = new URI (url);
 			} catch (URISyntaxException e) {
-				// ignore malformed URI, do nothing
+				// ignore malformed URI, do nothing (remember: URIs are always URLs, but URLs are not always URIs)
 				return;
+			}
+			
+			// open links to non-files in a separate web browser
+			if (targetUri.getScheme() != null) {
+				if (targetUri.getScheme().equals("about")
+						&& "blank".equals(targetUri.getSchemeSpecificPart())
+						&& isLinkToAnchor(targetUri)) {
+					// do nothing if the anchor is on the page we're viewing
+					// Just open the link, which was fixed in a previous step
+					return;
+				}
+				
+				if (!targetUri.getScheme().equals("file")) {
+					// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
+					event.doit = false;
+					openUriInSeparateWebBrowser(targetUri);
+					return;
+				}
 			}
 			
 			// if the link goes to a file in the Eclipse workspace, open it in an editor
@@ -245,7 +265,19 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				
 				if (fileInWorkspace.getFileExtension() != null
 						&& "md".equals(fileInWorkspace.getFileExtension())) {
-					// use our Fluentmark editor for markdown files
+					
+					if (isLinkToAnchor(targetUri)
+							&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
+						// We're previewing the Markdown file currently open in editor
+						// no reload / rendering necessary, just scroll to the anchor
+						event.doit = false;
+						
+						// call JavaScript function for scrolling to the anchor
+						this.preview.viewjob.scrollTo(targetUri.getFragment());
+						return;
+					}
+					
+					// open Markdown file in our Fluentmark editor
 					FluentEditor editor = openFluentEditorWith(fileInWorkspace);
 					if (editor != null) {
 						// update preview contents due to a new Markdown file in focus / opened in editor
@@ -253,7 +285,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 						
 						// remember the anchor to scroll to, before loading the new Markdown file
 						// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
-						if (targetUri.getFragment() != null) {
+						if (isLinkToAnchor(targetUri)) {
 							preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
 						}
 					}
@@ -267,33 +299,17 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			// Adapt links to anchors (hashtags like #some-section)
-			if (isLinkToAnchor(targetUri)) {
-
-				String targetPath = targetUri.getPath();
-				
-				if (targetPath != null
-						&& preview.currentEditorInputPath != null
-						&& preview.currentEditorInputPath.toPortableString().equals(targetPath)) {
-
-					// We're previewing the Markdown file currently open in editor, just fix the URI
-					event.doit = false;
-					
-					String anchor = targetUri.getFragment();
-					
-					// call JavaScript function for scrolling to the anchor
-					this.preview.viewjob.scrollTo(anchor);
-					return;
-				}
-				
-				// do nothing if the anchor is on the page we're viewing
-				// Just open the link, which was fixed in a previous step
-				return;
-			}
-			
-			// In all other cases (not a Markdown file and not a link to an anchor on the same page)
-			// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
+			// In all other cases (not a Markdown file, not a file in Eclipse workspace, and not a link to an anchor on the same page)
 			event.doit = false;
+			openUriInSeparateWebBrowser(targetUri);
+		}
+
+		@Override
+		public void changed(LocationEvent event) {
+			// do nothing (yet)
+		}
+		
+		private IWebBrowser openUriInSeparateWebBrowser(URI uri) {
 			try {
 				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
 						IWorkbenchBrowserSupport.LOCATION_BAR
@@ -303,15 +319,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 						"com.advantest.fluentmark.browser.id",
 						"FluentMark browser",
 						"Browser instance used by Fluentmark to open any exernal link");
-				webBrowser.openURL(targetUri.toURL());
+				webBrowser.openURL(uri.toURL());
+				return webBrowser;
 			} catch (PartInitException | MalformedURLException e) {
-				Log.error(String.format("Could not open URI %s in web browser", targetUri), e );
+				Log.error(String.format("Could not open URI %s in web browser", uri), e );
 			}
-		}
-
-		@Override
-		public void changed(LocationEvent event) {
-			// do nothing (yet)
+			
+			return null;
 		}
 		
 		private IFile toWorkspaceRelativeFile(URI uri) {
@@ -384,14 +398,20 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		private boolean isLinkToAnchor(URI targetUri) {
 			// fragment is something like #some-section at the end of the URI, i.e. an anchor ID
-			if (targetUri == null
-					|| targetUri.getFragment() == null) {
+			return (targetUri != null && targetUri.getFragment() != null);
+		}
+		
+		private boolean isLinkToFileAlreadyOpenInFluentmarkEditor(URI targetUri) {
+			if (targetUri == null) {
 				return false;
 			}
 			
-			return true;
+			String targetPath = targetUri.getPath();
+			
+			return (targetPath != null
+					&& preview.currentEditorInputPath != null
+					&& preview.currentEditorInputPath.toPortableString().equals(targetPath));
 		}
-		
 	}
 	
 }
