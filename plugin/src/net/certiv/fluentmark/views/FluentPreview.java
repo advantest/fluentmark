@@ -238,6 +238,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			URI targetUri = translateUrlToUri(url);
 			if (targetUri == null) {
 				// open URL in a separate browser if it is not  URI
+				event.doit = false;
 				openUrlInSeparateWebBrowser(url);
 				return;
 			}
