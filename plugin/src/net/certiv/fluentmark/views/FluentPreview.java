@@ -249,13 +249,10 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			}
 			
 			// open links to non-files in a separate web browser
-			if (targetUri.getScheme() != null) {
-				if (!targetUri.getScheme().equals(URL_SCHEME_FILE)) {
-					// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
+			if (!hasFileScheme(targetUri)) {
 					event.doit = false;
 					openUriInSeparateWebBrowser(targetUri);
 					return;
-				}
 			}
 			
 			// if the link goes to a file in the Eclipse workspace, open it in an editor
@@ -323,6 +320,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				&& isLinkToAnchor(uri));
 		}
 		
+		private boolean hasFileScheme(URI uri) {
+			return (uri != null
+					&& uri.getScheme() != null
+					&& URL_SCHEME_FILE.equals(uri.getScheme()));
+		}
+		
 		private URI translateUrlToUri(String url) {
 			if (url == null || url.length() == 0) {
 				return null;
@@ -359,6 +362,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		private IWebBrowser openUrlInSeparateWebBrowser(URL url) {
 			try {
+				// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
 				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
 						IWorkbenchBrowserSupport.LOCATION_BAR
 						| IWorkbenchBrowserSupport.NAVIGATION_BAR
