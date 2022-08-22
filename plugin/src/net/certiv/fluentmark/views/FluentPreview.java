@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import java.io.File;
 
@@ -336,6 +337,16 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		private IWebBrowser openUriInSeparateWebBrowser(URI uri) {
 			try {
+				return openUrlInSeparateWebBrowser(uri.toURL());
+			} catch (MalformedURLException e) {
+				Log.error(String.format("Could not open URI %s in web browser", uri), e );
+			}
+			
+			return null;
+		}
+		
+		private IWebBrowser openUrlInSeparateWebBrowser(URL url) {
+			try {
 				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
 						IWorkbenchBrowserSupport.LOCATION_BAR
 						| IWorkbenchBrowserSupport.NAVIGATION_BAR
@@ -344,10 +355,10 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 						"com.advantest.fluentmark.browser.id",
 						"FluentMark browser",
 						"Browser instance used by Fluentmark to open any exernal link");
-				webBrowser.openURL(uri.toURL());
+				webBrowser.openURL(url);
 				return webBrowser;
-			} catch (PartInitException | MalformedURLException e) {
-				Log.error(String.format("Could not open URI %s in web browser", uri), e );
+			} catch (PartInitException e) {
+				Log.error(String.format("Could not open URL %s in web browser", url), e );
 			}
 			
 			return null;
