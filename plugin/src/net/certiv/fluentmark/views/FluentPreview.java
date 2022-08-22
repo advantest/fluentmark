@@ -250,16 +250,10 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			// open links to non-files in a separate web browser
-			if (!hasFileScheme(targetUri)) {
-				event.doit = false;
-				openUriInSeparateWebBrowser(targetUri);
-				return;
-			}
-			
 			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
-			if (fileInWorkspace == null) {
-				// the file is not in the Eclipse workspace
+			
+			// open links to non-files and to files outside the Eclipse workspace in a separate web browser
+			if (!hasFileScheme(targetUri) || fileInWorkspace == null) {
 				event.doit = false;
 				openUriInSeparateWebBrowser(targetUri);
 				return;
@@ -273,7 +267,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			// we have a Markdown file
+			// we have a Markdown file in the Eclipse workspace
 			
 			if (isLinkToAnchor(targetUri)
 					&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
@@ -390,7 +384,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		}
 		
 		private IFile toWorkspaceRelativeFile(URI uri) {
-			if (uri == null || uri.getPath() == null || !"file".equals(uri.getScheme())) {
+			if (uri == null || uri.getPath() == null || !URL_SCHEME_FILE.equals(uri.getScheme())) {
 				return null;
 			}
 			
