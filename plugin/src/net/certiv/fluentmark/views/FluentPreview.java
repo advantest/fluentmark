@@ -239,16 +239,14 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
+			if (isRenderedPageUriWithAnchor(targetUri)) {
+				// Do nothing if the anchor is on the page we're rendering / viewing.
+				// Just open the link, which was fixed in a previous step
+				return;
+			}
+			
 			// open links to non-files in a separate web browser
 			if (targetUri.getScheme() != null) {
-				if (targetUri.getScheme().equals(URL_SCHEME_ABOUT)
-						&& URL_SCHEME_SPECIFIC_PART_BLANK.equals(targetUri.getSchemeSpecificPart())
-						&& isLinkToAnchor(targetUri)) {
-					// do nothing if the anchor is on the page we're viewing
-					// Just open the link, which was fixed in a previous step
-					return;
-				}
-				
 				if (!targetUri.getScheme().equals(URL_SCHEME_FILE)) {
 					// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
 					event.doit = false;
@@ -313,6 +311,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return true;
 			}
 			return false;
+		}
+		
+		private boolean isRenderedPageUriWithAnchor(URI uri) {
+			return (uri != null
+				&& URL_SCHEME_ABOUT.equals(uri.getScheme())
+				&& URL_SCHEME_SPECIFIC_PART_BLANK.equals(uri.getSchemeSpecificPart())
+				&& isLinkToAnchor(uri));
 		}
 		
 		private URI translateUrlToUri(String url) {
