@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import java.io.File;
 
@@ -215,7 +216,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	
 	private static class FluentBrowserUrlListener implements LocationListener {
 		
-		private FluentPreview preview;
+		private static final String FILE_EXTENSION_MARKDOWN = "md";
+		private static final String URL_SCHEME_ABOUT = "about";
+		private static final String URL_SCHEME_FILE = "file";
+		private static final String URL_SCHEME_SPECIFIC_PART_BLANK = "blank";
+		private static final String URL_ABOUT_BLANK = URL_SCHEME_ABOUT + ":" + URL_SCHEME_SPECIFIC_PART_BLANK;
+		
+		private final FluentPreview preview;
 		
 		FluentBrowserUrlListener(FluentPreview preview) {
 			this.preview = preview;
@@ -225,83 +232,72 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		public void changing(LocationEvent event) {
 			String url = event.location;
 
-			if (url != null && url.equals("about:blank")) {
-				// We're only opening the preview for a certain source file, we do not follow a
-				// link.
+			if (url == null || isRenderedPageUrl(url)) {
+				// We're only opening the preview for a certain source file, we do not follow a link.
 				// --> Nothing to do in this case.
 				return;
 			}
 
-			URI targetUri = null;
-			try {
-				targetUri = new URI (url);
-			} catch (URISyntaxException e) {
-				// ignore malformed URI, do nothing (remember: URIs are always URLs, but URLs are not always URIs)
+			URI targetUri = translateUrlToUri(url);
+			if (targetUri == null) {
+				// open URL in a separate browser if it is not  URI
+				event.doit = false;
+				openUrlInSeparateWebBrowser(url);
 				return;
 			}
 			
-			// open links to non-files in a separate web browser
-			if (targetUri.getScheme() != null) {
-				if (targetUri.getScheme().equals("about")
-						&& "blank".equals(targetUri.getSchemeSpecificPart())
-						&& isLinkToAnchor(targetUri)) {
-					// do nothing if the anchor is on the page we're viewing
-					// Just open the link, which was fixed in a previous step
-					return;
-				}
-				
-				if (!targetUri.getScheme().equals("file")) {
-					// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
-					event.doit = false;
-					openUriInSeparateWebBrowser(targetUri);
-					return;
-				}
+			if (isRenderedPageUriWithAnchor(targetUri)) {
+				// Do nothing if the anchor is on the page we're rendering / viewing.
+				// Just open the link, which was fixed in a previous step
+				return;
+			}
+			
+			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
+			
+			// open links to non-files and to files outside the Eclipse workspace in a separate web browser
+			if (!hasFileScheme(targetUri) || fileInWorkspace == null) {
+				event.doit = false;
+				openUriInSeparateWebBrowser(targetUri);
+				return;
 			}
 			
 			// if the link goes to a file in the Eclipse workspace, open it in an editor
 			// (and update the preview in case of a markdown file)
-			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
-			if (fileInWorkspace != null) {
-				
-				if (fileInWorkspace.getFileExtension() != null
-						&& "md".equals(fileInWorkspace.getFileExtension())) {
-					
-					if (isLinkToAnchor(targetUri)
-							&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
-						// We're previewing the Markdown file currently open in editor
-						// no reload / rendering necessary, just scroll to the anchor
-						event.doit = false;
-						
-						// call JavaScript function for scrolling to the anchor
-						this.preview.viewjob.scrollTo(targetUri.getFragment());
-						return;
-					}
-					
-					// open Markdown file in our Fluentmark editor
-					FluentEditor editor = openFluentEditorWith(fileInWorkspace);
-					if (editor != null) {
-						// update preview contents due to a new Markdown file in focus / opened in editor
-						preview.viewjob.load();
-						
-						// remember the anchor to scroll to, before loading the new Markdown file
-						// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
-						if (isLinkToAnchor(targetUri)) {
-							preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
-						}
-					}
-				} else {
-					openFileInDefaultEditor(fileInWorkspace);
-					
-					// do not update the preview if it is not Markdown
-					event.doit = false;
-				}
-				
+			if (!hasMarkdownFileExtension(fileInWorkspace)) {
+				event.doit = false;
+				openFileInDefaultEditor(fileInWorkspace);
 				return;
 			}
 			
-			// In all other cases (not a Markdown file, not a file in Eclipse workspace, and not a link to an anchor on the same page)
-			event.doit = false;
-			openUriInSeparateWebBrowser(targetUri);
+			// we have a Markdown file in the Eclipse workspace
+			
+			if (isLinkToAnchor(targetUri)
+					&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
+				// We're previewing the Markdown file currently open in editor
+				// no reload / rendering necessary, just scroll to the anchor
+				// call JavaScript function for scrolling to the anchor
+				event.doit = false;
+				this.preview.viewjob.scrollTo(targetUri.getFragment());
+				return;
+			}
+			
+			// open Markdown file in our Fluentmark editor
+			FluentEditor editor = openFluentEditorWith(fileInWorkspace);
+			if (editor != null) {
+				// update preview contents due to a new Markdown file in focus / opened in editor
+				preview.viewjob.load();
+				// we do not abort the event, since the URL should be opened by our preview browser
+				
+				// remember the anchor to scroll to, before loading the new Markdown file
+				// (and changing the URL to "about:blank", i.e. loosing the anchor in the URL)
+				if (isLinkToAnchor(targetUri)) {
+					preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
+				}
+			} else {
+				// abort preview refresh if we could not open the file in editor
+				event.doit = false;
+			}
+			
 		}
 
 		@Override
@@ -309,8 +305,69 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			// do nothing (yet)
 		}
 		
+		private boolean isRenderedPageUrl(String url) {
+			if (url != null && url.equals(URL_ABOUT_BLANK)) {
+				return true;
+			}
+			return false;
+		}
+		
+		private boolean isRenderedPageUriWithAnchor(URI uri) {
+			return (uri != null
+				&& URL_SCHEME_ABOUT.equals(uri.getScheme())
+				&& URL_SCHEME_SPECIFIC_PART_BLANK.equals(uri.getSchemeSpecificPart())
+				&& isLinkToAnchor(uri));
+		}
+		
+		private boolean hasFileScheme(URI uri) {
+			return (uri != null
+					&& uri.getScheme() != null
+					&& URL_SCHEME_FILE.equals(uri.getScheme()));
+		}
+		
+		private boolean hasMarkdownFileExtension(IFile file) {
+			return (file != null
+					&& file.getFileExtension() != null
+					&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension()));
+		}
+		
+		private URI translateUrlToUri(String url) {
+			if (url == null || url.length() == 0) {
+				return null;
+			}
+			
+			try {
+				return new URI (url);
+			} catch (URISyntaxException e) {
+				// ignore malformed URI (remember: URIs are always URLs, but URLs are not always URIs)
+			}
+			
+			return null;
+		}
+		
 		private IWebBrowser openUriInSeparateWebBrowser(URI uri) {
 			try {
+				return openUrlInSeparateWebBrowser(uri.toURL());
+			} catch (MalformedURLException e) {
+				Log.error(String.format("Could not open URI %s in web browser", uri), e );
+			}
+			
+			return null;
+		}
+		
+		private IWebBrowser openUrlInSeparateWebBrowser(String url) {
+			try {
+				return openUrlInSeparateWebBrowser(new URL(url));
+			} catch (MalformedURLException e) {
+				Log.error(String.format("Could not open URL %s in web browser", url), e );
+			}
+			
+			return null;
+		}
+		
+		private IWebBrowser openUrlInSeparateWebBrowser(URL url) {
+			try {
+				// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
 				IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
 						IWorkbenchBrowserSupport.LOCATION_BAR
 						| IWorkbenchBrowserSupport.NAVIGATION_BAR
@@ -319,17 +376,17 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 						"com.advantest.fluentmark.browser.id",
 						"FluentMark browser",
 						"Browser instance used by Fluentmark to open any exernal link");
-				webBrowser.openURL(uri.toURL());
+				webBrowser.openURL(url);
 				return webBrowser;
-			} catch (PartInitException | MalformedURLException e) {
-				Log.error(String.format("Could not open URI %s in web browser", uri), e );
+			} catch (PartInitException e) {
+				Log.error(String.format("Could not open URL %s in web browser", url), e );
 			}
 			
 			return null;
 		}
 		
 		private IFile toWorkspaceRelativeFile(URI uri) {
-			if (uri == null || uri.getPath() == null || !"file".equals(uri.getScheme())) {
+			if (uri == null || uri.getPath() == null || !URL_SCHEME_FILE.equals(uri.getScheme())) {
 				return null;
 			}
 			
