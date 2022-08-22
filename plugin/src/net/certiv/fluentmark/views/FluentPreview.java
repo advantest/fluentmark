@@ -291,6 +291,9 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 						if (isLinkToAnchor(targetUri)) {
 							preview.viewjob.setAnchorForNextPageLoad(targetUri.getFragment());
 						}
+					} else {
+						// abort preview refresh if we could not open the file in editor
+						event.doit = false;
 					}
 					return;
 				}
