@@ -7,18 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.strategies;
 
+import org.eclipse.ui.progress.UIJob;
+import org.eclipse.ui.texteditor.ITextEditor;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultTextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.ui.progress.UIJob;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.DotGen;
@@ -54,14 +56,15 @@ public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 					runDotEditor();
 					return;
 				}
-
+				break;
+				
 			case TABLE:
 				runTableEditor();
 				return;
 
 			default:
 		}
-
+		
 		super.doubleClicked(viewer);
 	}
 
