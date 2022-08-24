@@ -74,6 +74,24 @@
 		enabled="true"
 		autoinsert="false">%template.header_id
 	</template>
+	
+	<template
+		name="comment"
+		description="%describe.comment"
+		id="net.certiv.fluentmark.templates.comment"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.comment
+	</template>
+	
+	<template
+		name="comment_hidden"
+		description="%describe.comment_hidden"
+		id="net.certiv.fluentmark.templates.comment_hidden"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.comment_hidden
+	</template>
 
 	<template
 		name="code_block"
