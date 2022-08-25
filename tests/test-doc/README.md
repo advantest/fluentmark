@@ -9,7 +9,7 @@ etc. and testing the feature groups separately.
 
 ### Markdown
 
-* [Markdown basic syntax](Markdown/CommonMark/basic.md)
+* [Markdown basic syntax (structured according to CommonMark Spec.)](Markdown/CommonMark/basic.md)
 * [Markdown extensions](Markdown/extensions/extensions.md)
 
 ### PlantUML diagrams

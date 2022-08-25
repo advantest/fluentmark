@@ -10,21 +10,7 @@ Based on [CommonMark Specification Version 0.30 (2021-06-19)](https://spec.commo
 
 ### 4.1 Thematic breaks
 
-Horizontal lines
-
-***
-
-text
-
----
-
-text
-
-___
-
-text
-
---------------------------
+[Horizontal lines](horizontal-lines.md)
 
 
 ### 4.2 ATX headings
@@ -44,20 +30,12 @@ text
 
 ### 4.6 HTML blocks
 
-[HTML code in Markdown](html.md)
+[HTML code blocks in Markdown](html.md)
 
 
 ### 4.7 Link reference definitions
 
-Some link reference definitions in action:
-
-[GFM]: https://github.github.com/gfm/ "GitHub-flavored Markdown"
-[GLFM]: https://docs.gitlab.com/ee/user/markdown.html
-  "GitLab-flavored Markdown"
-[CommonMark]: https://commonmark.org/
-
-[GFM], [GLFM],
-[CommonMark]
+[Link reference definitions](link-reference-definitions.md)
 
 
 ### 4.8 Paragraphs & 4.9 Blank lines
@@ -78,50 +56,51 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
  
 ### 5.1 Block quotes
 
-> #### Foo
-> Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-> sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-> sed diam voluptua.
-
->> Blub
->> bla
->> Ba boom
->>>> blub
+[Block quotes](quotes.md)
 
 
 ### 5.2 List items & 5.3 Lists
 
-* Lists can be unordered,
-* ordered,
-  * and hierarchical
-  * with many items
-* Also consider indentation in source code
-
-Another example:
-
-
-1.  A paragraph
-    with two lines.
-
-        indented code
-
-    > A block quote.
-    
-2.  Some other text
-      i. with sub items
-      i. automatically numbered
-         one after the other
-         
-3.  Third thing
-
-One more example:
-
-* I need to buy
-    - new shoes
-    - a coat
-    - a plane ticket
+[List items and lists](lists.md)
 
 
 ## 6 Inlines
 
-TODO
+### 6.1 Code spans
+
+[In-line code snippets](code-spans.md)
+
+
+### 6.2 Emphasis and strong emphasis
+
+[emphasized text](emphasis.md)
+
+
+### 6.3 Links
+
+[Links](links.md)
+
+
+### 6.4 Images
+
+[Images](images.md)
+
+
+### 6.5 Autolinks
+
+[Autolinks](autolinks.md)
+
+
+### 6.6 Raw HTML
+
+[See CommonMark Spec.](https://spec.commonmark.org/0.30/#raw-html)
+
+
+### 6.7 Hard line breaks & 6.8 Soft line breaks
+
+[Hard & soft line breaks](line-breaks.md)
+
+
+### 6.9 Textual content
+
+[See CommonMark Spec.](https://spec.commonmark.org/0.30/#textual-content)
