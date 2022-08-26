@@ -7,23 +7,26 @@
  ******************************************************************************/
 package net.certiv.fluentmark.handlers;
 
+import org.eclipse.jface.viewers.ISelection;
+
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.FluentEditor;
@@ -87,7 +90,7 @@ public class ToggleHiddenCommentHandler extends AbstractHandler {
 			if ((begCmt && !endCmt) || (!begCmt && endCmt)) return LAPD;
 			return NONE;
 		} catch (BadLocationException e) {
-			Log.error("Bad comment partitioning " + e.getMessage());
+			Log.error("Bad comment partitioning " + e.getMessage(), e);
 			return UNKN;
 		}
 	}
@@ -103,7 +106,7 @@ public class ToggleHiddenCommentHandler extends AbstractHandler {
 			edit.apply(doc);
 			undoMgr.endCompoundChange();
 		} catch (MalformedTreeException | BadLocationException e) {
-			Log.error("Failure creating comment " + e.getMessage());
+			Log.error("Failure creating comment " + e.getMessage(), e);
 		}
 	}
 
@@ -126,7 +129,7 @@ public class ToggleHiddenCommentHandler extends AbstractHandler {
 			edit.apply(doc);
 			undoMgr.endCompoundChange();
 		} catch (MalformedTreeException | BadLocationException e) {
-			Log.error("Failure removing comment " + e.getMessage());
+			Log.error("Failure removing comment " + e.getMessage(), e);
 		}
 	}
 

@@ -109,7 +109,7 @@ public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 					try {
 						edit.apply(editor.getDocument());
 					} catch (MalformedTreeException | BadLocationException e) {
-						Log.error("Failed to insert new table in part " + part + " (" + e.getMessage() + ")");
+						Log.error("Failed to insert new table in part " + part + " (" + e.getMessage() + ")", e);
 						return Status.CANCEL_STATUS;
 					}
 				}

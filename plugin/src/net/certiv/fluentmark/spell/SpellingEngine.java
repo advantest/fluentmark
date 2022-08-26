@@ -7,12 +7,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.spell;
 
+import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
@@ -39,7 +41,7 @@ public class SpellingEngine extends TextSpellingEngine {
 		try {
 			regions = filter.exec(doc, regions);
 		} catch (BadLocationException | BadPartitioningException e) {
-			Log.error("Failed to filter doc partitions: " + e.getMessage());
+			Log.error("Failed to filter doc partitions: " + e.getMessage(), e);
 		}
 
 		super.check(doc, regions, checker, collector, monitor);
