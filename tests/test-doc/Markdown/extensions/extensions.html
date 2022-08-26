@@ -1,0 +1,137 @@
+<html><head>
+		<meta charset='utf-8'>
+		<meta http-equiv='x-ua-compatible' content='IE=edge'/>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+
+<script type=text/x-mathjax-config>
+			MathJax.Hub.Config({
+				messageStyle: "none",
+				positionToHash: true,
+				showMathMenu: true,
+  				tex2jax: {
+      				inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      				displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+					processEscapes: true,
+  				},
+				TeX: {
+					equationNumbers: {
+						autoNumber: "AMS"
+					}
+				},
+			});
+		</script>
+<script type="text/javascript" async
+	src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<style media="screen" type="text/css">
+h1,h2,h3,h4,h5,h6{font-weight:400;color:#111;line-height:1em}code,kbd,pre,samp{color:#000;font-family:monospace,monospace;font-size:.98em}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}html{font-size:100%;overflow-y:scroll}body{color:#444;font-family:Georgia,Palatino,Palatino Linotype,Times,Times New Roman,serif;font-size:12px;line-height:1.5em;padding:1em;margin:auto;max-width:42em;background:#fefefe}a{color:#0645ad;text-decoration:none}a:visited{color:#0b0080}a:hover{color:#06e;outline:0}a:active{color:#faa700;outline:0}a:focus{outline:thin dotted}::-moz-selection{background:rgba(255,255,0,.3);color:#000}::selection{background:rgba(255,255,0,.3);color:#000}a::-moz-selection{background:rgba(255,255,0,.3);color:#0645ad}a::selection{background:rgba(255,255,0,.3);color:#0645ad}p{margin:1em 0}img{max-width:100%;border:0;vertical-align:middle}h1{font-size:2.5em}h2{font-size:2em}h3{font-size:1.5em}h4{font-weight:700;font-size:1.2em}h5{font-weight:700;font-size:1em}h6{font-weight:700;font-size:.9em}blockquote{color:#666;margin:0;padding-left:3em;border-left:.5em #eee solid}hr{display:block;height:2px;border:0;border-top:1px solid #aaa;border-bottom:1px solid #eee;margin:1em 0;padding:0}pre{white-space:pre;white-space:pre-wrap;word-wrap:break-word}b{font-weight:700}strong{font-weight:700}dfn{font-style:italic}ins{background:#ff9;color:#000;text-decoration:none}mark{background:#ff0;color:#000;font-style:italic;font-weight:700}sub{bottom:-.25em}sup{top:-.5em}ul{margin:1em 0;padding:0 0 0 2em}ol{margin:1em 0;padding:0 0 0 2em}dd{margin:0 0 0 2em}table{border-collapse:collapse;border-spacing:0}td{vertical-align:top}@media only screen and (min-width:480px){body{font-size:14px}}@media only screen and (min-width:768px){body{font-size:16px}}@media print{*{background:0 0!important;color:#000!important;-webkit-filter:none!important;filter:none!important}body{font-size:12pt;max-width:100%}a{text-decoration:underline}a:visited{text-decoration:underline}hr{height:1px;border:0;border-bottom:1px solid #000}pre{border:1px solid #999;padding-right:1em;page-break-inside:avoid}blockquote{border:1px solid #999;padding-right:1em;page-break-inside:avoid}tr{page-break-inside:avoid}img{page-break-inside:avoid;max-width:100%!important}p{orphans:3;widows:3}h2{orphans:3;widows:3;page-break-after:avoid}h3{orphans:3;widows:3;page-break-after:avoid}a[href]:after{content:"(" attr(href) ")"}abbr[title]:after{content:"(" attr(title) ")"}.ir a:after{content:""}a[href^="javascript:"]:after{content:""}a[href^="#"]:after{content:""}}li p:last-child{margin:0}
+</style>
+</head><body>
+<h1 id="markdown-syntax-extensions">Markdown syntax extensions</h1>
+<p>There are several Markdown syntax extensions and Markdown renderers
+(processors) that can handle those extensions. We use pandoc for
+processing Markdown code, because supports most of our desired features.
+Thus, our focus is on <a
+href="https://pandoc.org/MANUAL.html#pandocs-markdown">pandoc&#x2019;s
+Markdown</a> and <a
+href="https://pandoc.org/MANUAL.html#extensions">pandoc&#x2019;s Markdown
+extensions</a>.</p>
+<h2 id="heading-identifiers">Heading identifiers</h2>
+<h3 id="automatically-generated-heading-identifiers">Automatically
+generated heading identifiers</h3>
+<p><a href="auto-identifiers.md">Generated identifiers</a></p>
+<h3 id="explicit-heading-identifiers">Explicit heading identifiers</h3>
+<p><a href="header-attributes.md">Explicit identifiers</a></p>
+<h2 id="code-blocks">Code Blocks</h2>
+<h3 id="code-block-attributes-anchors-and-code-highlighting">Code block
+attributes, anchors, and code highlighting</h3>
+<p><a href="code-blocks.md">Code block extensions</a></p>
+<h2 id="lists">Lists</h2>
+<h3 id="task-lists">Task lists</h3>
+<p><a href="tasks.md">Task lists</a></p>
+<h2 id="tables">Tables</h2>
+<p><a href="tables.md">Table support</a></p>
+<h2 id="math-formula-and-expressions">Math formula and expressions</h2>
+<p><a href="math.md">Math formula</a></p>
+<h2 id="listing-all-available-and-active-markdown-extensions">Listing
+all available and active Markdown extensions</h2>
+<p>In a terminal, we can list all available Markdown extensions with the
+following command. Active extensions are preceded by a <code>+</code>
+character, inactive extensions are preceded by a <code>-</code>.</p>
+<pre class="sh"><code>pandoc --list-extensions=markdown</code></pre>
+<p>Exemplary output (pandoc 2.18):</p>
+<pre><code>-abbreviations
++all_symbols_escapable
+-angle_brackets_escapable
+-ascii_identifiers
++auto_identifiers
+-autolink_bare_uris
++backtick_code_blocks
++blank_before_blockquote
++blank_before_header
++bracketed_spans
++citations
+-compact_definition_lists
++definition_lists
+-east_asian_line_breaks
+-emoji
++escaped_line_breaks
++example_lists
++fancy_lists
++fenced_code_attributes
++fenced_code_blocks
++fenced_divs
++footnotes
+-four_space_rule
+-gfm_auto_identifiers
++grid_tables
+-gutenberg
+-hard_line_breaks
++header_attributes
+-ignore_line_breaks
++implicit_figures
++implicit_header_references
++inline_code_attributes
++inline_notes
++intraword_underscores
++latex_macros
++line_blocks
++link_attributes
+-lists_without_preceding_blankline
+-literate_haskell
+-markdown_attribute
++markdown_in_html_blocks
+-mmd_header_identifiers
+-mmd_link_attributes
+-mmd_title_block
++multiline_tables
++native_divs
++native_spans
+-old_dashes
++pandoc_title_block
++pipe_tables
++raw_attribute
++raw_html
++raw_tex
+-rebase_relative_paths
+-short_subsuperscripts
++shortcut_reference_links
++simple_tables
++smart
++space_in_atx_header
+-spaced_reference_links
++startnum
++strikeout
++subscript
++superscript
++task_lists
++table_captions
++tex_math_dollars
+-tex_math_double_backslash
+-tex_math_single_backslash
++yaml_metadata_block</code></pre>
+
+</body></html>
