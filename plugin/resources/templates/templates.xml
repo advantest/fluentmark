@@ -47,6 +47,51 @@
 		enabled="true"
 		autoinsert="false">%template.h5
 	</template>
+	
+	<template
+		name="link"
+		description="%describe.link"
+		id="net.certiv.fluentmark.templates.link"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.link
+	</template>
+	
+	<template
+		name="image"
+		description="%describe.image"
+		id="net.certiv.fluentmark.templates.image"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.image
+	</template>
+	
+	<template
+		name="header_id"
+		description="%describe.header_id"
+		id="net.certiv.fluentmark.templates.header_id"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.header_id
+	</template>
+	
+	<template
+		name="comment"
+		description="%describe.comment"
+		id="net.certiv.fluentmark.templates.comment"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.comment
+	</template>
+	
+	<template
+		name="comment_hidden"
+		description="%describe.comment_hidden"
+		id="net.certiv.fluentmark.templates.comment_hidden"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.comment_hidden
+	</template>
 
 	<template
 		name="code_block"
@@ -55,6 +100,15 @@
 		context="net.certiv.fluentmark.templateContext"
 		enabled="true"
 		autoinsert="false">%template.code_block
+	</template>
+	
+	<template
+		name="uml_block"
+		description="%describe.uml_block"
+		id="net.certiv.fluentmark.templates.uml_block"
+		context="net.certiv.fluentmark.templateContext"
+		enabled="true"
+		autoinsert="false">%template.uml_block
 	</template>
 
 	<template

@@ -41,7 +41,7 @@ public class SpellingEngine extends TextSpellingEngine {
 		try {
 			regions = filter.exec(doc, regions);
 		} catch (BadLocationException | BadPartitioningException e) {
-			Log.error("Failed to filter doc partitions: " + e.getMessage(), e);
+			Log.error("Failed to filter doc partitions.", e);
 		}
 
 		super.check(doc, regions, checker, collector, monitor);
