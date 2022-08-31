@@ -8,7 +8,7 @@ Examples:
 
 Einstein's formula $E=mc^2$ is famous.
 
-Formula in display mode (with a LaTeX command):
+Formula in display mode (with LaTeX commands):
 
 $$\sum_{i=1}^{n}=\frac{n(n+1)}{2}$$
 
