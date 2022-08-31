@@ -51,7 +51,7 @@ public class UmlGen {
 
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
-			reader.generateImage(os, new FileFormatOption(FileFormat.SVG));
+			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
 			value = new String(os.toByteArray(), Charset.forName("UTF-8"));
 		} catch (IOException e) {
 			Log.error("Uml exception on" + Strings.EOL + data, e);
