@@ -13,7 +13,7 @@ etc. and testing the feature groups separately.
 An overview of Markdown basic syntax, syntax extensions, and renderers (processors) are documented 
 in the [Markdown Guide](https://www.markdownguide.org/).
 
-We plant to use [pandoc](https://pandoc.org) for rendering Markdown source code, thus, we're interested in 
+We plan to use [pandoc](https://pandoc.org) for rendering Markdown source code, thus, we're interested in 
 Markdown extensions that are available in pandoc. The pandoc documentation includes 
 the describtion of [pandoc's Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 

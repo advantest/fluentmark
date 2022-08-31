@@ -1,0 +1,26 @@
+<svg id='plantuml' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="177px" preserveAspectRatio="none" style="width:227px;height:177px;" version="1.1" viewBox="0 0 227 177" width="227px" zoomAndPan="magnify"><defs><filter height="300%" id="fw6wxirwv0wug" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[3d4177ac58b4411586d067f34e84928f]
+class List--><rect codeLine="2" fill="#FEFECE" filter="url(#fw6wxirwv0wug)" height="48" id="List" style="stroke:#A80036;stroke-width:1.5;" width="51" x="82.5" y="115"/><ellipse cx="97.5" cy="131" fill="#B4A7E5" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M93.9277,127.2651 L93.9277,125.1069 L101.3071,125.1069 L101.3071,127.2651 L98.8418,127.2651 L98.8418,135.3418 L101.3071,135.3418 L101.3071,137.5 L93.9277,137.5 L93.9277,135.3418 L96.3931,135.3418 L96.3931,127.2651 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="19" x="111.5" y="135.5352">List</text><line style="stroke:#A80036;stroke-width:1.5;" x1="83.5" x2="132.5" y1="147" y2="147"/><line style="stroke:#A80036;stroke-width:1.5;" x1="83.5" x2="132.5" y1="155" y2="155"/><!--MD5=[ab8871ed637f40707b866ba6597734bc]
+class ArrayList--><rect codeLine="4" fill="#FEFECE" filter="url(#fw6wxirwv0wug)" height="48" id="ArrayList" style="stroke:#A80036;stroke-width:1.5;" width="82" x="7" y="7"/><ellipse cx="22" cy="23" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M24.4731,29.1431 Q23.8921,29.4419 23.2529,29.5913 Q22.6138,29.7407 21.9082,29.7407 Q19.4014,29.7407 18.0815,28.0889 Q16.7617,26.437 16.7617,23.3159 Q16.7617,20.1865 18.0815,18.5347 Q19.4014,16.8828 21.9082,16.8828 Q22.6138,16.8828 23.2612,17.0322 Q23.9087,17.1816 24.4731,17.4805 L24.4731,20.2031 Q23.8423,19.6221 23.2488,19.3523 Q22.6553,19.0825 22.0244,19.0825 Q20.6797,19.0825 19.9949,20.1492 Q19.3101,21.2158 19.3101,23.3159 Q19.3101,25.4077 19.9949,26.4744 Q20.6797,27.541 22.0244,27.541 Q22.6553,27.541 23.2488,27.2712 Q23.8423,27.0015 24.4731,26.4204 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="50" x="36" y="27.5352">ArrayList</text><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="88" y1="39" y2="39"/><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="88" y1="47" y2="47"/><!--MD5=[a046d640d88ed63f622f54ae7bf961fb]
+class LinkedList--><rect codeLine="5" fill="#FEFECE" filter="url(#fw6wxirwv0wug)" height="48" id="LinkedList" style="stroke:#A80036;stroke-width:1.5;" width="89" x="124.5" y="7"/><ellipse cx="139.5" cy="23" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M141.9731,29.1431 Q141.3921,29.4419 140.7529,29.5913 Q140.1138,29.7407 139.4082,29.7407 Q136.9014,29.7407 135.5815,28.0889 Q134.2617,26.437 134.2617,23.3159 Q134.2617,20.1865 135.5815,18.5347 Q136.9014,16.8828 139.4082,16.8828 Q140.1138,16.8828 140.7612,17.0322 Q141.4087,17.1816 141.9731,17.4805 L141.9731,20.2031 Q141.3423,19.6221 140.7488,19.3523 Q140.1553,19.0825 139.5244,19.0825 Q138.1797,19.0825 137.4949,20.1492 Q136.8101,21.2158 136.8101,23.3159 Q136.8101,25.4077 137.4949,26.4744 Q138.1797,27.541 139.5244,27.541 Q140.1553,27.541 140.7488,27.2712 Q141.3423,27.0015 141.9731,26.4204 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="57" x="153.5" y="27.5352">LinkedList</text><line style="stroke:#A80036;stroke-width:1.5;" x1="125.5" x2="212.5" y1="39" y2="39"/><line style="stroke:#A80036;stroke-width:1.5;" x1="125.5" x2="212.5" y1="47" y2="47"/><!--MD5=[015019e550773330e421c39598822e39]
+link ArrayList to List--><path codeLine="7" d="M61.02,55 C67.97,67.28 76.73,82.76 84.8,97.01 " fill="none" id="ArrayList-to-List" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="91.04,93.83,94.8,114.68,78.86,100.72,91.04,93.83" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[633bc1bdbe615b038114c14a30886417]
+link LinkedList to List--><path codeLine="8" d="M155.76,55 C148.7,67.28 139.79,82.76 131.59,97.01 " fill="none" id="LinkedList-to-List" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="137.46,100.84,121.42,114.68,125.33,93.85,137.46,100.84" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7497b0e51ed899e5cf69e7982d3cf59b]
+@startuml
+
+interface List
+
+class ArrayList
+class LinkedList
+
+ArrayList ..|> List
+LinkedList ..|> List
+
+@enduml
+
+PlantUML version 1.2021.5(Sun Apr 25 13:20:28 CEST 2021)
+(EPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: de
+Country: DE
+--></g></svg>
