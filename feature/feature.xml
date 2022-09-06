@@ -55,11 +55,11 @@ for more information.
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="net.certiv.tools.plugin" version="1.0.7" match="compatible"/>
-      <import plugin="net.certiv.spellchecker" version="3.3.2"/>
+      <import plugin="org.eclipse.core.filesystem"/>
       <import plugin="com.google.guava"/>
       <import plugin="org.eclipse.ui.navigator"/>
-      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="net.certiv.tools.plugin" version="1.2.0" match="greaterOrEqual"/>
+      <import plugin="net.certiv.spellchecker" version="3.4.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
