@@ -30,6 +30,7 @@
 	</properties>
 
 	<modules>
+	    <module>target-platform/2021-09</module>
 		<module>plugin</module>
 		<module>feature</module>
 		<module>site</module>
@@ -83,6 +84,9 @@
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
+					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
+				         for more details see https://www.eclipse.org/tycho/sitedocs/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+					<useJdk>BREE</useJdk>
 				</configuration>
 			</plugin>
 
@@ -91,7 +95,13 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
-					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>eclipse-421</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
 					<pomDependencies>consider</pomDependencies>
 					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					<environments>
