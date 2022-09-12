@@ -7,13 +7,13 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.text;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.eclipse.jface.resource.StringConverter;
+
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
@@ -23,12 +23,14 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-import net.certiv.fluentmark.Log;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.color.IColorManager;
 import net.certiv.fluentmark.preferences.Prefs;
 
@@ -128,7 +130,7 @@ public abstract class AbstractBufferedRuleBasedScanner extends BufferedRuleBased
 			}
 			return document.get(jdx, idx - jdx);
 		} catch (BadLocationException e) {
-			Log.error("No prefix scan string found");
+			Log.error("No prefix scan string found", e);
 		}
 		return "";
 	}

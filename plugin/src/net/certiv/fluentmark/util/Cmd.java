@@ -6,14 +6,15 @@
  ******************************************************************************/
 package net.certiv.fluentmark.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.certiv.fluentmark.Log;
 
@@ -54,7 +55,7 @@ public class Cmd {
 			return sb.toString();
 
 		} catch (IOException e) {
-			Log.error("Cmd execution error: " + e.getMessage());
+			Log.error("Cmd execution error: " + e.getMessage(), e);
 			return "";
 		}
 	}

@@ -1,28 +1,34 @@
 package net.certiv.fluentmark.convert;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.ui.IPathEditorInput;
 import org.osgi.framework.Bundle;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import java.io.File;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
@@ -63,11 +69,21 @@ public class HtmlGen {
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
 	public String getHtml(Kind kind) {
-		IPathEditorInput input = (IPathEditorInput) editor.getEditorInput();
+		IEditorInput input = editor.getEditorInput();
 		if (input == null) return "";
-
-		IPath pathname = input.getPath();
-		String basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+		
+		String basepath = null;
+		IPath pathname = null;
+		if (input instanceof IPathEditorInput) {
+			pathname = ((IPathEditorInput) input).getPath();
+			basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+		} else if (input instanceof IURIEditorInput) {
+			URI uri = ((IURIEditorInput) input).getURI();
+			basepath = uri.getPath();
+			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
+			pathname = new Path(uri.getPath());
+		}
+		
 		return build(kind, convert(basepath), basepath, pathname);
 	}
 
@@ -98,7 +114,7 @@ public class HtmlGen {
 
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
-				preview = preview.replaceFirst("%path%", base);
+				preview = preview.replaceFirst("%path%", pathname.toString());
 				sb.append(preview.replaceFirst("%styles%", getStyle(pathname)));
 				break;
 
@@ -119,7 +135,7 @@ public class HtmlGen {
 		try {
 			regions = TextUtilities.computePartitioning(doc, Partitions.PARTITIONING, beg, len, false);
 		} catch (BadLocationException e) {
-			Log.error("Failed to compute partitions." + beg);
+			Log.error("Failed to compute partitions. " + beg, e);
 			return "";
 		}
 

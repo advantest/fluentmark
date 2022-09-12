@@ -2,7 +2,7 @@
 <feature
       id="net.certiv.fluentmark.feature"
       label="FluentMark Editor"
-      version="1.2.1.qualifier"
+      version="1.2.3.qualifier"
       provider-name="Certiv Analytics">
 
    <description>
@@ -31,40 +31,42 @@ for more information.
 
    <includes
          id="net.certiv.spellchecker.feature"
-         version="0.0.0"/>
+         version="3.4.1.qualifier"/>
 
    <includes
          id="net.certiv.tools.feature"
-         version="0.0.0"/>
+         version="1.2.1.qualifier"/>
 
    <requires>
-      <import plugin="org.eclipse.core.commands"/>
-      <import plugin="org.eclipse.core.expressions"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.jface"/>
-      <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.swt"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.forms"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.ui.workbench"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.core.variables"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.ui.navigator"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="net.certiv.tools"/>
-      <import plugin="net.certiv.spellchecker.plugin"/>
+      <import plugin="com.google.guava" version="30.1.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.commands" version="3.10.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.expressions" version="3.8.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources" version="3.15.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.runtime" version="3.23.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface" version="3.23.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface.text" version="3.18.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.swt" version="3.117.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.119.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.editors" version="3.14.200" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.forms" version="3.11.200" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.navigator" version="3.10.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.views" version="3.11.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.workbench" version="3.123.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor" version="3.16.200" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.variables" version="3.5.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide" version="3.18.300" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.ui" version="3.15.100" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.ui" version="3.24.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.filesystem" version="1.9.100" match="greaterOrEqual"/>
+      <import plugin="net.certiv.tools.plugin" version="1.2.1" match="greaterOrEqual"/>
+      <import plugin="net.certiv.spellchecker" version="3.4.1" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="net.certiv.fluentmark"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.2.3.qualifier"
          unpack="false"/>
 
 </feature>

@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>Fluentmark</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -24,12 +24,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<tycho.version>1.1.0</tycho.version>
+		<tycho.version>2.3.0</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<modules>
+	    <module>target-platform/2021-09</module>
 		<module>plugin</module>
 		<module>feature</module>
 		<module>site</module>
@@ -37,19 +38,26 @@
 
 	<repositories>
 		<repository>
-			<id>photon</id>
+			<id>2021-09</id> <!-- Eclipse 4.21 -->
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/photon</url>
+			<url>https://download.eclipse.org/releases/2021-09</url>
+		</repository>
+		<repository>
+			<id>orbit-libs</id>
+			<layout>p2</layout>
+			<url>https://download.eclipse.org/tools/orbit/downloads/drops/R20210825222808/repository</url>
 		</repository>
 		<repository>
 			<id>tools</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Certiv/net.certiv/net.certiv.tools.site/target/repository/</url>
+			<!-- <url>https://www.certiv.net/updates/net.certiv.tools.site/</url> -->
+			<url>file:/Users/travkin/Documents/git-repos/CertivTools/net.certiv.tools.site/target/repository</url>
 		</repository>
 		<repository>
 			<id>net.certiv.spellchecker</id>
 			<layout>p2</layout>
-			<url>file:/D:/DevFiles/Eclipse/Fluentmark/net.certiv.spellchecker/site/target/repository/</url>
+			<!-- <url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url> -->
+			<url>file:/Users/travkin/Documents/git-repos/spellchecker/site/target/repository</url>
 		</repository>
 	</repositories>
 
@@ -76,6 +84,9 @@
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
+					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
+				         for more details see https://www.eclipse.org/tycho/sitedocs/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+					<useJdk>BREE</useJdk>
 				</configuration>
 			</plugin>
 
@@ -84,24 +95,20 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
-					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>eclipse-421</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
 					<pomDependencies>consider</pomDependencies>
 					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					<environments>
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
 						</environment>
 						<environment>
 							<os>win32</os>

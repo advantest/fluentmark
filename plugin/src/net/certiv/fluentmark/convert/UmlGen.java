@@ -6,13 +6,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import org.eclipse.jface.preference.IPreferenceStore;
+
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import java.io.ByteArrayOutputStream;
+
+import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
@@ -51,17 +52,17 @@ public class UmlGen {
 
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
-			reader.generateImage(os, new FileFormatOption(FileFormat.SVG));
+			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
 			value = new String(os.toByteArray(), Charset.forName("UTF-8"));
-		} catch (IOException e) {
-			Log.error("Uml exception on" + Strings.EOL + data, e);
+		} catch (Exception e) {
+			Log.error("PlantUML exception on" + Strings.EOL + data, e);
 		}
 
 		// update cache if valid value
 		if (value != null && !value.trim().isEmpty()) {
 			umlCache.put(key, value);
 		} else {
-			Log.error("Uml created no output for" + Strings.EOL + data);
+			return "";
 		}
 
 		return value;

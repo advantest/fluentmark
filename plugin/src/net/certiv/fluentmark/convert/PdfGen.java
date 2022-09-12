@@ -6,19 +6,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import java.awt.Desktop;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -26,6 +18,18 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import java.awt.Desktop;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
+import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
@@ -264,7 +268,7 @@ public class PdfGen {
 		try {
 			return doc.get(range.getOffset(), range.getLength());
 		} catch (BadLocationException e) {
-			Log.error(String.format("Failed extracting text at %s (%s)", range, e.getMessage()));
+			Log.error(String.format("Failed extracting text at %s (%s)", range, e.getMessage()), e);
 			return null;
 		}
 	}
@@ -274,7 +278,7 @@ public class PdfGen {
 			return Temps.createFolder("mk_" + Temps.nextRandom());
 		} catch (IOException e) {
 			String msg = String.format("Failed creating tmp folder (%s)", e.getMessage());
-			throw new IOException(msg);
+			throw new IOException(msg, e);
 		}
 	}
 
@@ -282,7 +286,7 @@ public class PdfGen {
 		try {
 			return Temps.createFile("fluent_", "." + ext, dir);
 		} catch (IOException e) {
-			Log.error(String.format("Failed creating tmp file (%s)", e.getMessage()));
+			Log.error(String.format("Failed creating tmp file (%s)", e.getMessage()), e);
 			return null;
 		}
 	}
