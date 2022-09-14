@@ -7,5 +7,4 @@ Bundle-Vendor: ADVANTEST
 Fragment-Host: net.certiv.fluentmark;bundle-version="1.2.4"
 Automatic-Module-Name: com.advantest.fluentmark.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.junit.jupiter.api;bundle-version="5.8.1",
- org.junit.jupiter.engine;bundle-version="5.8.1"
+Require-Bundle: org.junit.jupiter.api;bundle-version="5.7.1",

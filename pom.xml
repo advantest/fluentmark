@@ -33,7 +33,7 @@
 	    <module>target-platform/2021-09</module>
 		<module>plugin</module>
 		<module>feature</module>
-		<module>site</module>
+		<module>tests/com.advantest.fluentmark.tests</module>
 	</modules>
 
 	<repositories>
@@ -89,6 +89,21 @@
 					<useJdk>BREE</useJdk>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<!-- <argLine>${tycho.testArgLine} -Xms128m -Xmx4096m -Xss4m</argLine> -->
+					<!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
+					<!-- <failIfNoTests>false</failIfNoTests> -->
+					<showEclipseLog>true</showEclipseLog>
+					<includes>
+          				<include>**/*Test.java</include>
+			        </includes>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -123,6 +138,7 @@
 					</environments>
 				</configuration>
 			</plugin>
+			
 		</plugins>
 
 		<pluginManagement>

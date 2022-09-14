@@ -21,7 +21,6 @@ public class PageRootTest {
 	@Test
 	public void testParsing() {
 		assertTrue(true);
-		assertTrue(false);
 	}
 
 }
