@@ -99,6 +99,7 @@
 					<!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
 					<!-- <failIfNoTests>false</failIfNoTests> -->
 					<showEclipseLog>true</showEclipseLog>
+					<useUIHarness>true</useUIHarness>
 					<includes>
           				<include>**/*Test.java</include>
 			        </includes>
@@ -158,5 +159,28 @@
 		</pluginManagement>
 
 	</build>
+
+	<profiles>
+		<profile>
+			<id>platform-mac</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-surefire-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<configuration>
+							<argLine>-XstartOnFirstThread</argLine>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
