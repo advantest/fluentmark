@@ -18,6 +18,14 @@ import org.junit.jupiter.api.Test;
 
 public class PageRootTest {
 	
+//	private static SWTBot bot;
+//	
+//	@BeforeEach
+//    public void beforeClass() throws Exception {
+//        // don't use SWTWorkbenchBot here which relies on Platform 3.x
+//        bot = new SWTBot();
+//    }
+	
 	@Test
 	public void testParsing() {
 		assertTrue(true);
