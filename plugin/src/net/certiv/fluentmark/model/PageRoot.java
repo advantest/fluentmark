@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.DotGen;
-import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.IDocumentChangedListener;
 import net.certiv.fluentmark.model.Lines.Line;
 import net.certiv.fluentmark.util.FloorKeyMap;
@@ -42,16 +41,16 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 	protected List<IElementChangedListener> elementChangedListeners = Collections
 			.synchronizedList(new ArrayList<IElementChangedListener>());
 
-	private FluentEditor editor;
+	private IOffsetProvider offsetProvider;
 	private List<PagePart> parts;	// all page parts
 	private Headers headers;		// all header page parts
 	private Lines lines;			// all lines
 	private FloorKeyMap lineMap;
 
-	public PageRoot(FluentEditor editor) {
-		super(editor.getLineDelimiter());
+	public PageRoot(IOffsetProvider offsetProvider, String lineDelimiter) {
+		super(lineDelimiter);
 		MODEL = this;
-		this.editor = editor;
+		this.offsetProvider = offsetProvider;
 		init();
 	}
 
@@ -71,7 +70,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 			listeners = new IElementChangedListener[elementChangedListeners.size()];
 			elementChangedListeners.toArray(listeners);
 		}
-		int offset = editor.getCursorOffset();
+		int offset = offsetProvider.getCursorOffset();
 		IElement part = partAtOffset(offset);
 		final ElementChangedEvent event = new ElementChangedEvent(this, part, ElementChangedEvent.POST_CHANGE);
 		for (IElementChangedListener listener : listeners) {

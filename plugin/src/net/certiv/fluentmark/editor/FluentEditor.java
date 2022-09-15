@@ -100,6 +100,7 @@ import net.certiv.fluentmark.editor.color.IColorManager;
 import net.certiv.fluentmark.editor.folding.FoldingStructureProvider;
 import net.certiv.fluentmark.editor.folding.IFoldingStructureProvider;
 import net.certiv.fluentmark.editor.text.SmartBackspaceManager;
+import net.certiv.fluentmark.model.IOffsetProvider;
 import net.certiv.fluentmark.model.ISourceRange;
 import net.certiv.fluentmark.model.PagePart;
 import net.certiv.fluentmark.model.PageRoot;
@@ -114,7 +115,7 @@ import net.certiv.fluentmark.util.Strings;
  * Text editor with markdown support.
  */
 public class FluentEditor extends TextEditor
-		implements CommandManager, IShowInTarget, IShowInSource, IReconcilingListener {
+		implements CommandManager, IShowInTarget, IShowInSource, IReconcilingListener, IOffsetProvider {
 
 	public static final String ID = "net.certiv.fluentmark.editor.FluentEditor";
 	
@@ -199,7 +200,7 @@ public class FluentEditor extends TextEditor
 		SourceViewerConfiguration config = tools.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
-		pageModel = new PageRoot(this);
+		pageModel = new PageRoot(this, getLineDelimiter());
 		converter = new Converter();
 		htmlGen = new HtmlGen(this, converter);
 		
