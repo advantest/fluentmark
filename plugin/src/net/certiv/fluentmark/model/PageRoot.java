@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.DotGen;
@@ -116,7 +117,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 		set(resource, text);
 		parse();
 		long elapsed = System.nanoTime() - begTime;
-		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, RoundingMode.HALF_UP).toString();
 		if (value.indexOf('.') > 2) {
 			Log.info("Model updated (ms): " + value);
 		}
