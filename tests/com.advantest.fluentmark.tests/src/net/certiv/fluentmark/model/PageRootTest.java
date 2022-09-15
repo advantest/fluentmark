@@ -22,7 +22,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
+import java.io.IOException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import junit.framework.TestCase;
+import net.certiv.fluentmark.convert.UmlGen;
 
 
 public class PageRootTest extends TestCase {
@@ -75,15 +84,28 @@ public class PageRootTest extends TestCase {
 	}
 	
 	@Test
-	public void testParsing() {
+	public void testParsing_Bug_HMR_43() throws IOException {
 		// given
-		String text = "# Header\n\n";
+		String text = readTextFromFile("resources/md/bug-hmr-43.md");
 		
 		// when
 		pageModel.updateModel(markdownFile, text);
 		
 		// then
-		assertTrue(true);
+		List<IParent> documentModelChildren = pageModel.getChildList();
+		assertEquals(1, documentModelChildren.size());
+		IParent part = documentModelChildren.get(0);
+		assertEquals(Type.CODE_BLOCK, part.getKind());
+		assertEquals(0, part.getChildList().size());
+		assertTrue(part instanceof PagePart);
+		PagePart pagePart = (PagePart) part;
+		assertEquals(UmlGen.UML, pagePart.getMeta());
+	}
+	
+	private String readTextFromFile(String filePath) throws IOException {
+		Path path = Paths.get(filePath);
+		byte[] bytes = Files.readAllBytes(path);
+		return new String(bytes);
 	}
 
 }
