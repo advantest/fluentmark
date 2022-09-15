@@ -11,12 +11,21 @@ package net.certiv.fluentmark.model;
 
 
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import junit.framework.TestCase;
 
 
-public class PageRootTest {
+public class PageRootTest extends TestCase {
 	
 //	private static SWTBot bot;
 //	
@@ -26,8 +35,54 @@ public class PageRootTest {
 //        bot = new SWTBot();
 //    }
 	
+	private PageRoot pageModel = null;
+	private OffsetProviderMock offsetProvider = null;
+	private IFile markdownFile = null;
+	
+	@Before
+	public void setUp() {
+		offsetProvider = new OffsetProviderMock();
+		pageModel = new PageRoot(offsetProvider, "\n");
+		
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IProject project  = root.getProject("Test-FluentMark-Project");
+		IFolder folder = project.getFolder("src");
+		markdownFile = folder.getFile("test.md");
+	}
+	
+	@After
+	public void tearDown() {
+		pageModel.dispose();
+		offsetProvider = null;
+		pageModel = null;
+		markdownFile = null;
+	}
+	
+	private static class OffsetProviderMock implements IOffsetProvider {
+		
+		private int cursorOffset = 0;
+		
+		public void setCursorOffset(int newOffset) {
+			this.cursorOffset = newOffset;
+		}
+
+		@Override
+		public int getCursorOffset() {
+			return cursorOffset;
+		}
+		
+	}
+	
 	@Test
 	public void testParsing() {
+		// given
+		String text = "# Header\n\n";
+		
+		// when
+		pageModel.updateModel(markdownFile, text);
+		
+		// then
 		assertTrue(true);
 	}
 
