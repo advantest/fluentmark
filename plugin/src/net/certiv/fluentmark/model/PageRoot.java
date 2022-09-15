@@ -56,7 +56,6 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 	}
 
 	private void init() {
-		editor.addDocChangeListener(this);
 		headers = new Headers(MODEL);
 	}
 
@@ -200,7 +199,6 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 
 	@Override
 	public void dispose() {
-		editor.removeDocChangeListener(this);
 		if (headers != null) headers.dispose();
 		if (lines != null) lines.dispose();
 		if (lineMap != null) lineMap.clear();

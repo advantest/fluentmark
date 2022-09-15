@@ -205,6 +205,7 @@ public class FluentEditor extends TextEditor
 		
 		pageModelUpdater = new PageModelUpdater();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(pageModelUpdater, POST_CHANGE_EVENT);
+		this.addDocChangeListener(pageModel);
 	}
 
 	private void createListeners() {
@@ -346,6 +347,7 @@ public class FluentEditor extends TextEditor
 	@Override
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(pageModelUpdater);
+		removeDocChangeListener(pageModel);
 		removePreferenceStoreListener();
 		uninstallSemanticHighlighting();
 		parseRecords.clear();
