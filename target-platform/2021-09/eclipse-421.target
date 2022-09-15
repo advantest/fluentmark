@@ -17,6 +17,10 @@
 			<unit id="org.eclipse.swtbot.eclipse.gef.feature.group" version="3.1.0.202106041005"/>
 			<unit id="org.eclipse.swtbot.feature.group" version="3.1.0.202106041005"/>
 			<unit id="org.eclipse.swtbot.ide.feature.group" version="3.1.0.202106041005"/>
+			<unit id="epp.package.committers" version="4.21.0.20210910-1200"/>
+			<unit id="org.eclipse.egit.feature.group" version="5.13.0.202109080827-r"/>
+			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="5.13.0.202109080827-r"/>
+			<unit id="org.eclipse.jgit.feature.group" version="5.13.0.202109080827-r"/>
 		</location>
 	</locations>
 </target>
