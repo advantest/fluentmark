@@ -102,6 +102,89 @@ public class PageRootTest extends TestCase {
 		assertEquals(UmlGen.UML, pagePart.getMeta());
 	}
 	
+	@Test
+	public void testParsing_Comments() throws IOException {
+		// given
+		String text = readTextFromFile("resources/md/comments.md");
+		
+		// when
+		pageModel.updateModel(markdownFile, text);
+		
+		// then
+		List<IParent> documentModelChildren = pageModel.getChildList();
+		assertEquals(1, documentModelChildren.size());
+		
+		IParent part = documentModelChildren.get(0);
+		assertEquals(Type.HEADER, part.getKind());
+		assertEquals("# Header Level 1\n", part.getContent());
+		
+		documentModelChildren = part.getChildList();
+		assertEquals(4, documentModelChildren.size());
+		
+		part = documentModelChildren.get(0);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(1);
+		assertEquals(Type.TEXT, part.getKind());
+		assertEquals("Some text\n", part.getContent());
+		
+		part = documentModelChildren.get(2);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(3);
+		assertEquals(Type.HEADER, part.getKind());
+		assertEquals("## Header Level 2\n", part.getContent());
+		
+		documentModelChildren = part.getChildList();
+		//assertEquals(7, documentModelChildren.size());
+		
+		part = documentModelChildren.get(0);
+		assertEquals(Type.TEXT, part.getKind());
+		assertEquals("More text\n", part.getContent());
+		
+		part = documentModelChildren.get(1);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(2);
+		assertEquals(Type.HTML_BLOCK, part.getKind());
+		assertEquals("<!-- HTML-style comment -->\n", part.getContent());
+		
+		part = documentModelChildren.get(3);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(4);
+		assertEquals(Type.TEXT, part.getKind());
+		assertEquals("Even more text\n", part.getContent());
+		
+		part = documentModelChildren.get(5);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(6);
+		assertEquals(Type.COMMENT, part.getKind());
+		assertEquals("<!--- hidden comment --->\n", part.getContent());
+		
+		part = documentModelChildren.get(7);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(8);
+		assertEquals(Type.TEXT, part.getKind());
+		assertEquals("Text again\n", part.getContent());
+		
+		part = documentModelChildren.get(9);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(10);
+		assertEquals(Type.COMMENT, part.getKind());
+		assertEquals("<!--- hidden --->\n", part.getContent());
+		
+		part = documentModelChildren.get(11);
+		assertEquals(Type.BLANK, part.getKind());
+		
+//		assertTrue(part instanceof PagePart);
+//		PagePart pagePart = (PagePart) part;
+//		assertEquals(UmlGen.UML, pagePart.getMeta());
+	}
+	
 	private String readTextFromFile(String filePath) throws IOException {
 		Path path = Paths.get(filePath);
 		byte[] bytes = Files.readAllBytes(path);
