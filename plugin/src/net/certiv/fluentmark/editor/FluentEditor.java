@@ -34,6 +34,10 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -87,6 +91,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.Converter;
 import net.certiv.fluentmark.convert.HtmlGen;
 import net.certiv.fluentmark.convert.Kind;
@@ -112,15 +117,8 @@ public class FluentEditor extends TextEditor
 		implements CommandManager, IShowInTarget, IShowInSource, IReconcilingListener {
 
 	public static final String ID = "net.certiv.fluentmark.editor.FluentEditor";
-
-	// Updates the DslOutline pageModel selection and this editor's range indicator.
-	private class EditorSelectionChangedListener extends AbstractSelectionChangedListener {
-
-		@Override
-		public void selectionChanged(SelectionChangedEvent event) {
-			FluentEditor.this.selectionChanged();
-		}
-	}
+	
+	private static final int POST_CHANGE_EVENT = IResourceChangeEvent.POST_CHANGE;
 
 	private FluentSourceViewer viewer;
 	private FluentOutlinePage outlinePage;
@@ -141,11 +139,44 @@ public class FluentEditor extends TextEditor
 
 	private ListenerList<IReconcilingListener> reconcilingListeners;
 	private EditorSelectionChangedListener editorSelectionChangedListener;
+	private PageModelUpdater pageModelUpdater;
 	private boolean disableSelResponse;
 	private HtmlGen htmlGen;
 
 	public FluentEditor() {
 		super();
+	}
+	
+	// Updates the DslOutline pageModel selection and this editor's range indicator.
+	private class EditorSelectionChangedListener extends AbstractSelectionChangedListener {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			FluentEditor.this.selectionChanged();
+		}
+	}
+	
+	private class PageModelUpdater implements IResourceChangeListener {
+		
+		@Override
+		public void resourceChanged(IResourceChangeEvent event) {
+			if (event.getSource() instanceof IWorkspace) {
+				switch (event.getType()) {
+					case POST_CHANGE_EVENT:
+						try {
+							if (event.getDelta() != null
+									&& FluentEditor.this.isActiveOn(event.getResource())) {
+								// update page model if page dirty
+								FluentEditor.this.getPageModel();
+							}
+						} catch (Exception e) {
+							Log.error("Failed handing post_change of resource", e);
+						}
+						break;
+				}
+			}
+		}
+		
 	}
 
 	@Override
@@ -171,6 +202,9 @@ public class FluentEditor extends TextEditor
 		pageModel = new PageRoot(this);
 		converter = new Converter();
 		htmlGen = new HtmlGen(this, converter);
+		
+		pageModelUpdater = new PageModelUpdater();
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(pageModelUpdater, POST_CHANGE_EVENT);
 	}
 
 	private void createListeners() {
@@ -311,6 +345,7 @@ public class FluentEditor extends TextEditor
 
 	@Override
 	public void dispose() {
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(pageModelUpdater);
 		removePreferenceStoreListener();
 		uninstallSemanticHighlighting();
 		parseRecords.clear();

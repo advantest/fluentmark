@@ -7,22 +7,21 @@
  ******************************************************************************/
 package net.certiv.fluentmark.model;
 
-import java.math.BigDecimal;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.SafeRunner;
+
+import org.eclipse.jface.text.DocumentEvent;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.jface.text.DocumentEvent;
+import java.math.BigDecimal;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.DotGen;
@@ -31,9 +30,7 @@ import net.certiv.fluentmark.editor.IDocumentChangedListener;
 import net.certiv.fluentmark.model.Lines.Line;
 import net.certiv.fluentmark.util.FloorKeyMap;
 
-public class PageRoot extends Parent implements IResourceChangeListener, IDocumentChangedListener {
-
-	private static final int events = IResourceChangeEvent.POST_CHANGE;
+public class PageRoot extends Parent implements IDocumentChangedListener {
 
 	/** Maximum length for a task tag message */
 	private static final int MSG_MAXLEN = 60;
@@ -59,27 +56,10 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 	}
 
 	private void init() {
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, events);
 		editor.addDocChangeListener(this);
 		headers = new Headers(MODEL);
 	}
 
-	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		if (event.getSource() instanceof IWorkspace) {
-			switch (event.getType()) {
-				case IResourceChangeEvent.POST_CHANGE:
-					try {
-						if (event.getDelta() != null && editor.isActiveOn(event.getResource())) {
-							editor.getPageModel();
-						}
-					} catch (Exception e) {
-						Log.error("Failed handing post_change of resource", e);
-					}
-					break;
-			}
-		}
-	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
@@ -220,7 +200,6 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 
 	@Override
 	public void dispose() {
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 		editor.removeDocChangeListener(this);
 		if (headers != null) headers.dispose();
 		if (lines != null) lines.dispose();
