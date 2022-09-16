@@ -185,6 +185,11 @@ public class PageRootTest extends TestCase {
 //		assertEquals(UmlGen.UML, pagePart.getMeta());
 	}
 	
+	// TODO Add tests of Lines class, parsing and classifying their content
+	// TODO Add tests for parsing HTML code and comments
+	// see https://spec.commonmark.org/0.30/#html-blocks
+	// and https://spec.commonmark.org/0.30/#raw-html
+	
 	private String readTextFromFile(String filePath) throws IOException {
 		Path path = Paths.get(filePath);
 		byte[] bytes = Files.readAllBytes(path);
