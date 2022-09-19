@@ -1,6 +1,6 @@
 package net.certiv.fluentmark.views;
 
-import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IEditorInput;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -79,7 +79,7 @@ public class ViewJob extends Job {
 		FluentEditor editor = view.getEditor();
 		if (editor == null) return false;
 
-		IPathEditorInput input = (IPathEditorInput) editor.getEditorInput();
+		IEditorInput input = editor.getEditorInput();
 		if (input == null) return false;
 
 		state = State.LOAD;

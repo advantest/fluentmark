@@ -1,6 +1,8 @@
 package net.certiv.fluentmark.convert;
 
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -67,11 +69,21 @@ public class HtmlGen {
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
 	public String getHtml(Kind kind) {
-		IPathEditorInput input = (IPathEditorInput) editor.getEditorInput();
+		IEditorInput input = editor.getEditorInput();
 		if (input == null) return "";
-
-		IPath pathname = input.getPath();
-		String basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+		
+		String basepath = null;
+		IPath pathname = null;
+		if (input instanceof IPathEditorInput) {
+			pathname = ((IPathEditorInput) input).getPath();
+			basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+		} else if (input instanceof IURIEditorInput) {
+			URI uri = ((IURIEditorInput) input).getURI();
+			basepath = uri.getPath();
+			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
+			pathname = new Path(uri.getPath());
+		}
+		
 		return build(kind, convert(basepath), basepath, pathname);
 	}
 
@@ -123,7 +135,7 @@ public class HtmlGen {
 		try {
 			regions = TextUtilities.computePartitioning(doc, Partitions.PARTITIONING, beg, len, false);
 		} catch (BadLocationException e) {
-			Log.error("Failed to compute partitions." + beg);
+			Log.error("Failed to compute partitions. " + beg, e);
 			return "";
 		}
 

@@ -9,8 +9,10 @@ package net.certiv.fluentmark.views;
 
 import org.eclipse.ui.ide.IDE;
 
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -23,6 +25,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.IPath;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextListener;
@@ -58,7 +63,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	private static FluentPreview viewpart;
 	private Browser browser;
 	private ViewJob viewjob;
-	private IPath currentEditorInputPath;
+	private IEditorInput currentEditorInput;
 
 	public FluentPreview() {
 		viewpart = this;
@@ -72,8 +77,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser.setJavascriptEnabled(true);
 		browser.setText(NO_CONTENT_TEXT);
 
-		IPathEditorInput currentEditorInput = this.getEditorInput();
-		this.currentEditorInputPath = (currentEditorInput != null ? currentEditorInput.getPath() : null);
+		currentEditorInput = this.getEditorInput();
 
 		browser.addLocationListener(new FluentBrowserUrlListener(this));
 
@@ -94,18 +98,14 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			// Load / re-create HTML file header (and base URL) if the opened Markdown file changes.
 			// Otherwise, the relative references do not work anymore due to a wrong base URL
 			// (e.g. set for another previously opened file from another directory).
-			IPathEditorInput editorInput = (IPathEditorInput) currentEditor.getEditorInput();
-			if (editorInput != null) {
-				IPath editorInputPath = editorInput.getPath();
-				if (currentEditorInputPath == null || !currentEditorInputPath.equals(editorInputPath)) {
-					// it's not the same file as before, reload the HTML file header in our preview
-					viewjob.load();
-				}
-				currentEditorInputPath = editorInputPath;
-			} else {
-				currentEditorInputPath = null;
+			IEditorInput editorInput = currentEditor.getEditorInput();
+			if (editorInput != null
+					&& (currentEditorInput == null || !currentEditorInput.equals(editorInput))) {
+				// it's not the same file as before, reload the HTML file header in our preview
+				viewjob.load();
 			}
-
+			currentEditorInput = editorInput;
+			
 			viewjob.update();
 		}
 	}
@@ -115,7 +115,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		// a FluentEditor was closed and no other FluentEditor became active
 		if (part instanceof FluentEditor
 				&& (getActivePage().getActiveEditor() == null || !(getActivePage().getActiveEditor() instanceof FluentEditor) )) {
-			currentEditorInputPath = null;
+			currentEditorInput = null;
 			browser.setText(NO_CONTENT_TEXT);
 		}
 	}
@@ -177,11 +177,10 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		return editor.getViewer();
 	}
 	
-	protected IPathEditorInput getEditorInput() {
+	protected IEditorInput getEditorInput() {
 		FluentEditor editor = this.getEditor();
-		if (editor != null
-				&& editor.getEditorInput() != null) {
-			return (IPathEditorInput) editor.getEditorInput();
+		if (editor != null) {
+			return editor.getEditorInput();
 		}
 		return null;
 	}
@@ -252,24 +251,36 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				return;
 			}
 			
-			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
-			
-			// open links to non-files and to files outside the Eclipse workspace in a separate web browser
-			if (!hasFileScheme(targetUri) || fileInWorkspace == null) {
+			// open links to non-files in a separate web browser
+			if (!hasFileScheme(targetUri)) {
 				event.doit = false;
 				openUriInSeparateWebBrowser(targetUri);
 				return;
 			}
 			
-			// if the link goes to a file in the Eclipse workspace, open it in an editor
-			// (and update the preview in case of a markdown file)
-			if (!hasMarkdownFileExtension(fileInWorkspace)) {
-				event.doit = false;
-				openFileInDefaultEditor(fileInWorkspace);
-				return;
+			
+			IFile fileInWorkspace = toWorkspaceRelativeFile(targetUri);
+			
+			// open non-Markdown files in default editor
+			if (fileInWorkspace != null) {
+				if (!hasMarkdownFileExtension(fileInWorkspace)) {
+					event.doit = false;
+					openFileInDefaultEditor(fileInWorkspace);
+					return;
+				}
+			} else {
+				URI targetFileUriWithoutAnchor = omitAnchor(targetUri);
+				IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(targetFileUriWithoutAnchor);
+				if (!hasMarkdownFileExtension(fileOutsideWorkspace)) {
+					event.doit = false;
+					openFileInDefaultEditor(fileOutsideWorkspace);
+					return;
+				}
 			}
 			
-			// we have a Markdown file in the Eclipse workspace
+			
+			// We definitely have a Markdown file
+			
 			
 			if (isLinkToAnchor(targetUri)
 					&& isLinkToFileAlreadyOpenInFluentmarkEditor(targetUri)) {
@@ -282,7 +293,14 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			}
 			
 			// open Markdown file in our Fluentmark editor
-			FluentEditor editor = openFluentEditorWith(fileInWorkspace);
+			FluentEditor editor = null;
+			if (fileInWorkspace != null) {
+				editor = openFluentEditorWith(fileInWorkspace);
+			} else {
+				// file outside Eclipse workspace
+				editor = openFluentEditorWith(omitAnchor(targetUri));
+			}
+			
 			if (editor != null) {
 				// update preview contents due to a new Markdown file in focus / opened in editor
 				preview.viewjob.load();
@@ -329,6 +347,21 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return (file != null
 					&& file.getFileExtension() != null
 					&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension()));
+		}
+		
+		private boolean hasMarkdownFileExtension(IFileStore fileStore) {
+			if (fileStore == null) {
+				return false;
+			}
+			
+			int lastPointIndex = fileStore.getName().lastIndexOf('.');
+			if (lastPointIndex < 0) {
+				return false;
+			}
+			
+			String fileExtension = fileStore.getName().substring(lastPointIndex + 1);
+			
+			return FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension);
 		}
 		
 		private URI translateUrlToUri(String url) {
@@ -385,20 +418,25 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return null;
 		}
 		
+		private URI omitAnchor(URI uri) {
+			if (uri == null || uri.getFragment() == null) {
+				return uri;
+			}
+			
+			// remove trailing fragment & hashtag
+			String uriString = uri.toString();
+			int index = uriString.indexOf(uri.getFragment());
+			uriString = uriString.substring(0, index - 1);
+			
+			return URI.create(uriString);
+		}
+		
 		private IFile toWorkspaceRelativeFile(URI uri) {
 			if (uri == null || uri.getPath() == null || !URL_SCHEME_FILE.equals(uri.getScheme())) {
 				return null;
 			}
 			
-			URI adaptedUri = uri;
-			if (uri.getFragment() != null) {
-				// remove trailing fragment & hashtag
-				String uriString = uri.toString();
-				int index = uriString.indexOf(uri.getFragment());
-				uriString = uriString.substring(0, index - 1);
-				
-				adaptedUri = URI.create(uriString);
-			}
+			URI adaptedUri = omitAnchor(uri);
 			
 			File file = null;
 			try {
@@ -436,6 +474,23 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return null;
 		}
 		
+		private FluentEditor openFluentEditorWith(URI fileUri) {
+			if (fileUri == null || fileUri.getPath() == null || !URL_SCHEME_FILE.equals(fileUri.getScheme())) {
+				return null;
+			}
+			
+			IWorkbenchPage activePage = preview.getActivePage();
+			if (activePage != null) {
+				try {
+					return (FluentEditor) IDE.openEditor(activePage, fileUri, FluentEditor.ID, true);
+				} catch (PartInitException e) {
+					Log.error(String.format("Could not open file outside Eclipse workspace (URI=%s) in FluentMark editor", fileUri.toString()), e);
+				}
+			}
+				
+			return null;
+		}
+		
 		private IEditorPart openFileInDefaultEditor(IFile file) {
 			if (file == null) {
 				return null;
@@ -453,21 +508,50 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			return null;
 		}
 		
+		private IEditorPart openFileInDefaultEditor(IFileStore fileStore) {
+			if (fileStore == null
+					|| !fileStore.fetchInfo().exists()
+					|| fileStore.fetchInfo().isDirectory()) {
+				return null;
+			}
+			
+			IWorkbenchPage activePage = preview.getActivePage();
+			if (activePage != null) {
+				try {
+					return IDE.openEditorOnFileStore(activePage, fileStore);
+				} catch (PartInitException e) {
+					Log.error(String.format("Could not open file outside Eclipse workspace (path=%s) in default editor", fileStore.getName()), e);
+				}
+			}
+			
+			return null;
+		}
+		
 		private boolean isLinkToAnchor(URI targetUri) {
 			// fragment is something like #some-section at the end of the URI, i.e. an anchor ID
 			return (targetUri != null && targetUri.getFragment() != null);
 		}
 		
 		private boolean isLinkToFileAlreadyOpenInFluentmarkEditor(URI targetUri) {
-			if (targetUri == null) {
+			if (targetUri == null || preview.currentEditorInput == null) {
 				return false;
 			}
 			
-			String targetPath = targetUri.getPath();
+			if (preview.currentEditorInput instanceof IURIEditorInput) {
+				URI currentUri = ((IURIEditorInput) preview.currentEditorInput).getURI();
+				String currentPath = currentUri.getPath();
+				String targetPath = targetUri.getPath();
+				return currentPath != null && targetPath != null && targetPath.equals(currentPath);
+			} else if (preview.currentEditorInput instanceof IPathEditorInput) {
+				IPath currentPath = ((IPathEditorInput) preview.currentEditorInput).getPath();
+				String targetPath = targetUri.getPath();
+				
+				return (targetPath != null
+						&& currentPath != null
+						&& currentPath.toPortableString().equals(targetPath));
+			}
 			
-			return (targetPath != null
-					&& preview.currentEditorInputPath != null
-					&& preview.currentEditorInputPath.toPortableString().equals(targetPath));
+			return false;
 		}
 	}
 	

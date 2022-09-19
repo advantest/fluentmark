@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="eclipse-421">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20210825222808/repository"/>
+			<unit id="com.google.guava" version="30.1.0.v20210127-2300"/>
+			<unit id="org.antlr.runtime" version="3.5.2.v20200724-1452"/>
+			<unit id="org.antlr.runtime" version="4.7.2.v20200218-0804"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2021-09"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.23.100.v20210830-0925"/>
+			<unit id="org.eclipse.jdt.feature.group" version="3.18.900.v20210906-0500"/>
+			<unit id="org.eclipse.swt.tools.feature.feature.group" version="3.108.200.v20210830-2107"/>
+		</location>
+	</locations>
+</target>

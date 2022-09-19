@@ -1,14 +1,12 @@
 package net.certiv.fluentmark.editor.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import org.eclipse.ui.ide.ResourceUtil;
+
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,6 +14,7 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -31,8 +30,13 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.ui.ide.ResourceUtil;
-import org.eclipse.ui.texteditor.ITextEditor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.dot.DotSourceParser;
@@ -70,6 +74,9 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 	@Override
 	public void initialReconcile() {
 		IResource res = ResourceUtil.getResource(editor.getEditorInput());
+		if (res == null) {
+			return;
+		}
 		try {
 			res.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		} catch (CoreException e) {}

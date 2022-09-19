@@ -7,9 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -17,6 +14,9 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.certiv.fluentmark.editor.text.rules.UmlSymbolDetector;
 import net.certiv.fluentmark.editor.text.rules.UmlWordDetector;
@@ -32,7 +32,15 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 			"storage", "agent", "stack", "boundary", "control", "collections", "entity", "card", "file", "package",
 			"queue", "archimate", };
 
-	private static final String[] keywords = { "@startuml", "@enduml", "@startdot", "@enddot", "@startsalt", "@endsalt",
+	private static final String[] keywords = { 
+			"@startuml", "@enduml",
+			"@startdot", "@enddot",
+			"@startsalt", "@endsalt",
+			"@startyaml", "@endyaml", 
+			"@startjson", "@endjson", 
+			"@startmindmap", "@endmindmap", 
+			"@startgantt", "@endgantt",
+			"@startwbs", "@endwbs",
 			"as", "also", "autonumber", "caption", "title", "newpage", "box", "alt", "else", "opt", "loop", "par",
 			"break", "critical", "note", "rnote", "hnote", "legend", "group", "left", "right", "of", "on", "link",
 			"over", "end", "activate", "deactivate", "destroy", "create", "footbox", "hide", "show", "skinparam",

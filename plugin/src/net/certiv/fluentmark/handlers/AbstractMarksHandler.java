@@ -1,22 +1,25 @@
 package net.certiv.fluentmark.handlers;
 
+import org.eclipse.jface.viewers.ISelection;
+
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.FluentEditor;
@@ -116,7 +119,7 @@ public abstract class AbstractMarksHandler extends AbstractHandler {
 			undoMgr.endCompoundChange();
 			editor.setCursorOffset(cpos + markSpec[0].length());
 		} catch (MalformedTreeException | BadLocationException e) {
-			Log.error("Failure applying mark" + e.getMessage());
+			Log.error("Failure applying mark" + e.getMessage(), e);
 		}
 	}
 
@@ -149,7 +152,7 @@ public abstract class AbstractMarksHandler extends AbstractHandler {
 			edit.apply(doc);
 			undoMgr.endCompoundChange();
 		} catch (MalformedTreeException | BadLocationException e) {
-			Log.error("Failure removing mark" + e.getMessage());
+			Log.error("Failure removing mark" + e.getMessage(), e);
 		}
 	}
 }

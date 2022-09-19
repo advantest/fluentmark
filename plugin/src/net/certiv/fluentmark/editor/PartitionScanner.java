@@ -7,9 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IRule;
@@ -17,6 +14,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.certiv.fluentmark.editor.text.IScannerExt;
 import net.certiv.fluentmark.editor.text.rules.DotCodeRule;
@@ -49,6 +49,11 @@ public class PartitionScanner extends RuleBasedPartitionScanner implements IScan
 		rules.add(new MultiLineRule("@startuml", "@enduml", umlblock, '\\', true));
 		rules.add(new MultiLineRule("@startdot", "@enddot", umlblock, '\\', true));
 		rules.add(new MultiLineRule("@startsalt", "@endsalt", umlblock, '\\', true));
+		rules.add(new MultiLineRule("@startyaml", "@endyaml", umlblock, '\\', true));
+		rules.add(new MultiLineRule("@startjson", "@endjson", umlblock, '\\', true));
+		rules.add(new MultiLineRule("@startmindmap", "@endmindmap", umlblock, '\\', true));
+		rules.add(new MultiLineRule("@startgantt", "@endgantt", umlblock, '\\', true));
+		rules.add(new MultiLineRule("@startwbs", "@endwbs", umlblock, '\\', true));
 		rules.add(new MultiLineRule("~~~", "~~~", codeblock, '\\', true));
 		rules.add(new MultiLineRule("```", "```", codeblock, '\\', true));
 		rules.add(new IndentedCodeRule(codeblock));
