@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark Tests
 Bundle-SymbolicName: com.advantest.fluentmark.tests
 Bundle-Version: 1.2.4.qualifier
-Bundle-Vendor: ADVANTEST
+Bundle-Vendor: Advantest Europe GmbH
 Fragment-Host: net.certiv.fluentmark;bundle-version="1.2.4"
 Automatic-Module-Name: com.advantest.fluentmark.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-11
