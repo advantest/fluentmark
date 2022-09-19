@@ -159,30 +159,26 @@ public class PageRootTest extends TestCase {
 		part = documentModelChildren.get(5);
 		assertEquals(Type.BLANK, part.getKind());
 		
-//		part = documentModelChildren.get(6);
-//		assertEquals(Type.COMMENT, part.getKind());
-//		assertEquals("<!--- hidden comment --->\n", part.getContent());
-//		
-//		part = documentModelChildren.get(7);
-//		assertEquals(Type.BLANK, part.getKind());
-//		
-//		part = documentModelChildren.get(8);
-//		assertEquals(Type.TEXT, part.getKind());
-//		assertEquals("Text again\n", part.getContent());
-//		
-//		part = documentModelChildren.get(9);
-//		assertEquals(Type.BLANK, part.getKind());
-//		
-//		part = documentModelChildren.get(10);
-//		assertEquals(Type.COMMENT, part.getKind());
-//		assertEquals("<!--- hidden --->\n", part.getContent());
-//		
-//		part = documentModelChildren.get(11);
-//		assertEquals(Type.BLANK, part.getKind());
+		part = documentModelChildren.get(6);
+		assertEquals(Type.COMMENT, part.getKind());
+		assertEquals("<!--- hidden comment --->\n", part.getContent());
 		
-//		assertTrue(part instanceof PagePart);
-//		PagePart pagePart = (PagePart) part;
-//		assertEquals(UmlGen.UML, pagePart.getMeta());
+		part = documentModelChildren.get(7);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(8);
+		assertEquals(Type.TEXT, part.getKind());
+		assertEquals("Text again\n", part.getContent());
+		
+		part = documentModelChildren.get(9);
+		assertEquals(Type.BLANK, part.getKind());
+		
+		part = documentModelChildren.get(10);
+		assertEquals(Type.COMMENT, part.getKind());
+		assertEquals("<!--- hidden --->\n", part.getContent());
+		
+		part = documentModelChildren.get(11);
+		assertEquals(Type.BLANK, part.getKind());
 	}
 	
 	// TODO Add tests for parsing HTML code and comments
