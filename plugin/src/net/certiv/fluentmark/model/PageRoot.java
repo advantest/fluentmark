@@ -305,17 +305,25 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 					break;
 
 				case HTML_BLOCK:
-					end = lines.nextMatching(idx, Type.BLANK);
-					end = lines.identifyKind(end) == Type.BLANK ? end - 1 : end;
-					offset = lines.getOffset(idx);
-					len = lines.getOffset(end) + lines.getTextLength(end) - offset;
-					current = headers.getCurrentParent();
+					String lineText = lines.getText(idx);
+					if (lineText != null && lineText.startsWith("<!--")) {
+						end = lines.nextContaining(idx, "-->");
+						offset = lines.getOffset(idx);
+						len = lines.getOffset(end) + lines.getTextLength(end) - offset;
+						current = headers.getCurrentParent();
+					} else {
+						end = lines.nextMatching(idx, Type.BLANK);
+						end = lines.identifyKind(end) == Type.BLANK ? end - 1 : end;
+						offset = lines.getOffset(idx);
+						len = lines.getOffset(end) + lines.getTextLength(end) - offset;
+						current = headers.getCurrentParent();
+					}
 					addPageElement(current, kind, offset, len, idx, end);
 					idx = end;
 					break;
 
 				case COMMENT:
-					end = lines.nextMatching(idx, kind, "--->");
+					end = lines.nextContaining(idx, "--->");
 					offset = lines.getOffset(idx);
 					len = lines.getOffset(end) + lines.getTextLength(end) - offset;
 					current = headers.getCurrentParent();

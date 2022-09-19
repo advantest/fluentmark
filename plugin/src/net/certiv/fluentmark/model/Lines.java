@@ -209,6 +209,17 @@ public class Lines {
 		}
 		return length() - 1;
 	}
+	
+	public int nextContaining(int mark, String containedText) {
+		for (int idx = mark; idx < length(); idx++) {
+			boolean found = (containedText != null)
+					&& lineList.get(idx).text.contains(containedText); 
+			if (found) {
+				return idx;
+			}
+		}
+		return length() - 1;
+	}
 
 	public void clear() {
 		lineList.clear();
