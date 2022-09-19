@@ -31,13 +31,17 @@ public class LinesTest {
 		Lines linesFromFile = new Lines(text, "\n");
 		
 		// then
-		assertEquals(30, linesFromFile.length());
+		assertEquals(35, linesFromFile.length());
 		assertTextAndKind(linesFromFile, 0, "# Header Level 1", Type.HEADER);
 		assertTextAndKind(linesFromFile, 1, "", Type.BLANK);
 		assertTextAndKind(linesFromFile, 2, "Some text", Type.TEXT);
 		assertTextAndKind(linesFromFile, 4, "## Header Level 2", Type.HEADER);
 		assertTextAndKind(linesFromFile, 7, "<!-- HTML-style comment -->", Type.HTML_BLOCK);
 		assertTextAndKind(linesFromFile, 11, "<!--- hidden comment --->", Type.COMMENT);
+		assertTextAndKind(linesFromFile, 31, "<!-- a multi-line", Type.HTML_BLOCK);
+//		assertTextAndKind(linesFromFile, 32, "HTML-style", Type.HTML_BLOCK);
+//		assertTextAndKind(linesFromFile, 33, "  ...", Type.HTML_BLOCK);
+//		assertTextAndKind(linesFromFile, 34, "     comment -->", Type.HTML_BLOCK);
 	}
 	
 	private void assertTextAndKind(Lines lines, int lineIndex, String text, Type kind) {

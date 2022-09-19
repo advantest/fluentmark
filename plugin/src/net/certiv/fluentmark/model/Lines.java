@@ -181,6 +181,7 @@ public class Lines {
 
 		if (curTxt.matches("\\</?\\w+(\\s+.*?)?/?\\>.*")) return Type.HTML_BLOCK;
 		if (curTxt.startsWith("<!--") && !curTxt.startsWith("<!---")) return Type.HTML_BLOCK;
+		if (curTxt.startsWith("-->") && !curTxt.startsWith("--->")) return Type.HTML_BLOCK;
 
 		if (curTxt.startsWith("```")) return Type.CODE_BLOCK;
 		if (curTxt.startsWith("~~~")) return Type.CODE_BLOCK;

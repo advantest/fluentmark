@@ -28,3 +28,8 @@ Text again
 Some text that
 <!--- hidden, no empty lines --->
 is intercepted by a hidden comment.
+
+<!-- a multi-line
+HTML-style
+  ...
+     comment -->
