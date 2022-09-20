@@ -7,33 +7,30 @@
  ******************************************************************************/
 package net.certiv.fluentmark.model;
 
-import java.math.BigDecimal;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.SafeRunner;
+
+import org.eclipse.jface.text.DocumentEvent;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.jface.text.DocumentEvent;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.DotGen;
-import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.IDocumentChangedListener;
 import net.certiv.fluentmark.model.Lines.Line;
 import net.certiv.fluentmark.util.FloorKeyMap;
 
-public class PageRoot extends Parent implements IResourceChangeListener, IDocumentChangedListener {
-
-	private static final int events = IResourceChangeEvent.POST_CHANGE;
+public class PageRoot extends Parent implements IDocumentChangedListener {
 
 	/** Maximum length for a task tag message */
 	private static final int MSG_MAXLEN = 60;
@@ -45,41 +42,23 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 	protected List<IElementChangedListener> elementChangedListeners = Collections
 			.synchronizedList(new ArrayList<IElementChangedListener>());
 
-	private FluentEditor editor;
+	private IOffsetProvider offsetProvider;
 	private List<PagePart> parts;	// all page parts
 	private Headers headers;		// all header page parts
 	private Lines lines;			// all lines
 	private FloorKeyMap lineMap;
 
-	public PageRoot(FluentEditor editor) {
-		super(editor.getLineDelimiter());
+	public PageRoot(IOffsetProvider offsetProvider, String lineDelimiter) {
+		super(lineDelimiter);
 		MODEL = this;
-		this.editor = editor;
+		this.offsetProvider = offsetProvider;
 		init();
 	}
 
 	private void init() {
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, events);
-		editor.addDocChangeListener(this);
 		headers = new Headers(MODEL);
 	}
 
-	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		if (event.getSource() instanceof IWorkspace) {
-			switch (event.getType()) {
-				case IResourceChangeEvent.POST_CHANGE:
-					try {
-						if (event.getDelta() != null && editor.isActiveOn(event.getResource())) {
-							editor.getPageModel();
-						}
-					} catch (Exception e) {
-						Log.error("Failed handing post_change of resource", e);
-					}
-					break;
-			}
-		}
-	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
@@ -92,7 +71,7 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 			listeners = new IElementChangedListener[elementChangedListeners.size()];
 			elementChangedListeners.toArray(listeners);
 		}
-		int offset = editor.getCursorOffset();
+		int offset = offsetProvider.getCursorOffset();
 		IElement part = partAtOffset(offset);
 		final ElementChangedEvent event = new ElementChangedEvent(this, part, ElementChangedEvent.POST_CHANGE);
 		for (IElementChangedListener listener : listeners) {
@@ -138,7 +117,7 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 		set(resource, text);
 		parse();
 		long elapsed = System.nanoTime() - begTime;
-		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, RoundingMode.HALF_UP).toString();
 		if (value.indexOf('.') > 2) {
 			Log.info("Model updated (ms): " + value);
 		}
@@ -220,8 +199,6 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 
 	@Override
 	public void dispose() {
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-		editor.removeDocChangeListener(this);
 		if (headers != null) headers.dispose();
 		if (lines != null) lines.dispose();
 		if (lineMap != null) lineMap.clear();
@@ -328,17 +305,25 @@ public class PageRoot extends Parent implements IResourceChangeListener, IDocume
 					break;
 
 				case HTML_BLOCK:
-					end = lines.nextMatching(idx, Type.BLANK);
-					end = lines.identifyKind(end) == Type.BLANK ? end - 1 : end;
-					offset = lines.getOffset(idx);
-					len = lines.getOffset(end) + lines.getTextLength(end) - offset;
-					current = headers.getCurrentParent();
+					String lineText = lines.getText(idx);
+					if (lineText != null && lineText.startsWith("<!--")) {
+						end = lines.nextContaining(idx, "-->");
+						offset = lines.getOffset(idx);
+						len = lines.getOffset(end) + lines.getTextLength(end) - offset;
+						current = headers.getCurrentParent();
+					} else {
+						end = lines.nextMatching(idx, Type.BLANK);
+						end = lines.identifyKind(end) == Type.BLANK ? end - 1 : end;
+						offset = lines.getOffset(idx);
+						len = lines.getOffset(end) + lines.getTextLength(end) - offset;
+						current = headers.getCurrentParent();
+					}
 					addPageElement(current, kind, offset, len, idx, end);
 					idx = end;
 					break;
 
 				case COMMENT:
-					end = lines.nextMatching(idx, kind, "--->");
+					end = lines.nextContaining(idx, "--->");
 					offset = lines.getOffset(idx);
 					len = lines.getOffset(end) + lines.getTextLength(end) - offset;
 					current = headers.getCurrentParent();

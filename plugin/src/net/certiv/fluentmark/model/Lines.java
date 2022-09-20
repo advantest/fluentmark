@@ -180,6 +180,8 @@ public class Lines {
 		if (curTxt.matches("\\[\\^?\\d+\\]\\:\\s+.*")) return Type.REFERENCE;
 
 		if (curTxt.matches("\\</?\\w+(\\s+.*?)?/?\\>.*")) return Type.HTML_BLOCK;
+		if (curTxt.startsWith("<!--") && !curTxt.startsWith("<!---")) return Type.HTML_BLOCK;
+		if (curTxt.startsWith("-->")) return Type.HTML_BLOCK;
 
 		if (curTxt.startsWith("```")) return Type.CODE_BLOCK;
 		if (curTxt.startsWith("~~~")) return Type.CODE_BLOCK;
@@ -204,6 +206,17 @@ public class Lines {
 			boolean ok = kind != null ? kind == identifyKind(idx) : true;
 			ok = ok && (exact != null) ? lineList.get(idx).text.startsWith(exact) : ok;
 			if (ok) return idx;
+		}
+		return length() - 1;
+	}
+	
+	public int nextContaining(int mark, String containedText) {
+		for (int idx = mark; idx < length(); idx++) {
+			boolean found = (containedText != null)
+					&& lineList.get(idx).text.contains(containedText); 
+			if (found) {
+				return idx;
+			}
 		}
 		return length() - 1;
 	}
