@@ -395,6 +395,7 @@
             name="Format">
       </command>
       <command
+            categoryId="net.certiv.fluentmark.commands"
             defaultHandler="net.certiv.fluentmark.handlers.UnwrapHandler"
             description="Unwrap text"
             id="net.certiv.fluentmark.unwrap"

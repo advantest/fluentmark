@@ -140,6 +140,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 
 	// called only by refresh view icon
 	public void trigger() {
+		viewjob.load();
 		viewjob.update();
 	}
 
