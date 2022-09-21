@@ -158,6 +158,7 @@ public interface Prefs extends PrefsSpelling {
 	String FOLDING_INITIAL_HTMLBLOCKS = MD_ID + ".foldInitHtmlblocks";
 
 	String VIEW_UPDATE_DELAY = MD_ID + ".viewUpdateDelay";
+	String OUTLINE_VIEW_HEADINGS_ONLY = MD_ID + ".outlineViewHeadingsOnly";
 
 	// code assist preferences
 

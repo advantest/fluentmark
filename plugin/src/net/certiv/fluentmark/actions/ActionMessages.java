@@ -7,11 +7,12 @@
  ******************************************************************************/
 package net.certiv.fluentmark.actions;
 
+import org.eclipse.osgi.util.NLS;
+
 import java.text.MessageFormat;
+
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import org.eclipse.osgi.util.NLS;
 
 /**
  * Class that gives access to the action messages resource bundle.
@@ -24,6 +25,9 @@ public class ActionMessages {
 	public static String CollapseAllAction_1;
 	public static String ExpandAllAction_0;
 	public static String ExpandAllAction_1;
+	
+	public static String HeadingsOnlyAction_0;
+	public static String HeadingsOnlyAction_1;
 
 	public static String CopyToClipboardAction_label;
 	public static String CopyToClipboardAction_tooltip;
