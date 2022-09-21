@@ -227,7 +227,7 @@
                id="net.certiv.fluentmark.MarkdownEditor">
             <command
                   commandId="net.certiv.fluentmark.bold"
-                  icon="icons/etool16/style_bold.gif"
+                  icon="icons/etool16/style_bold.png"
                   style="push"
                   tooltip="Toggle bold font">
                <visibleWhen>
@@ -238,7 +238,7 @@
             </command>
             <command
                   commandId="net.certiv.fluentmark.italic"
-                  icon="icons/etool16/style_italic.gif"
+                  icon="icons/etool16/style_italic.png"
                   style="push"
                   tooltip="Toggle italic font">
                <visibleWhen>
@@ -249,7 +249,7 @@
             </command>
             <command
                   commandId="net.certiv.fluentmark.hiddenComment"
-                  icon="icons/etool16/html_tag_obj.png"
+                  icon="icons/etool16/comment-hidden.png"
                   style="push"
                   tooltip="Toggle hidden comment">
                <visibleWhen>
@@ -260,7 +260,7 @@
             </command>
             <command
                   commandId="net.certiv.fluentmark.visibleComment"
-                  icon="icons/etool16/html_tag_obj.png"
+                  icon="icons/etool16/comment-visible.png"
                   style="push"
                   tooltip="Toggle visible comment">
                <visibleWhen>
