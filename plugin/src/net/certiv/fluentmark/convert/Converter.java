@@ -209,22 +209,18 @@ public class Converter {
 						Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
 				        Matcher m = p.matcher(text);
 				        m.find();
-				        int offset = m.end();
-				        String pumlFilePath = text.substring(offset);
-				        int index = pumlFilePath.lastIndexOf(')');
-				        pumlFilePath = pumlFilePath.substring(0, index);
+				        int indexOfFirstPathCharacter = m.end();
+				        String pumlFilePath = text.substring(indexOfFirstPathCharacter);
+				        int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
+				        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
 				        IPath relativePumlFilePath = new Path(pumlFilePath);
+				        
+				        // remove file name, so that we get the current folder's path, then append the relative path of the target puml file
 				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
 				        File file = absolutePumlFilePath.toFile();
-				        if (file.exists() && file.isFile()) {
-				        	try {
-								String pumlFileContent = Files.readString(
-										Paths.get(absolutePumlFilePath.toOSString()),
-										StandardCharsets.UTF_8);
-								text = UmlGen.uml2svg(pumlFileContent);
-							} catch (IOException e) {
-								Log.error(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
-							}
+				        String pumlFileContent = readTextFromFile(file);
+				        if (pumlFileContent != null) {
+				        	text = UmlGen.uml2svg(pumlFileContent);
 				        }
 					}
 					break;
@@ -235,6 +231,19 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private String readTextFromFile(File file) {
+		if (file != null && file.exists() && file.isFile()) {
+			try {
+				return Files.readString(
+						Paths.get(file.getAbsolutePath()),
+						StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				Log.error(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
+			}
+		}
+		return null;
 	}
 
 	private String filter(String text, Pattern beg, Pattern end) {
