@@ -204,8 +204,9 @@ public class Converter {
 					break;
 				case Partitions.PLANTUML_INCLUDE:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-						//Pattern p = Pattern.compile("!\\[.+\\]\\(.+\\.puml\\)");
-						Pattern p = Pattern.compile("!\\[.+\\]\\(");
+						// we look for something like ![any text](path/to/some/file.puml)
+						// and want to extract the path to the puml file
+						Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
 				        Matcher m = p.matcher(text);
 				        m.find();
 				        int offset = m.end();

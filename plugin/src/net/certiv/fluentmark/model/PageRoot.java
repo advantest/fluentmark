@@ -243,7 +243,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 				
 				case PLANTUML_INCLUDE:
 					String lineTxt = lines.getText(idx);
-					Pattern p = Pattern.compile("!\\[.+\\]\\(.+\\.puml\\)");
+					Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
 			        Matcher m = p.matcher(lineTxt);
 			        m.find();
 					end = idx;
