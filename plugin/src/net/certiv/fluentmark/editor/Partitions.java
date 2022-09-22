@@ -22,10 +22,11 @@ public class Partitions {
 	public static final String DOTBLOCK = "__dotblock";
 	public static final String UMLBLOCK = "__umlblock";
 	public static final String MATHBLOCK = "__mathblock";
+	public static final String PLANTUML_INCLUDE = "__plantuml_include";
 
 	/** Partition type groups by similar treatment */
 	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
-			MATHBLOCK, FRONT_MATTER };
+			MATHBLOCK, PLANTUML_INCLUDE, FRONT_MATTER };
 
 	private Partitions() {}
 

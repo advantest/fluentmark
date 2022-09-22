@@ -37,6 +37,7 @@ public class PartitionScanner extends RuleBasedPartitionScanner implements IScan
 		IToken dotblock = new Token(Partitions.DOTBLOCK);
 		IToken umlblock = new Token(Partitions.UMLBLOCK);
 		IToken mathblock = new Token(Partitions.MATHBLOCK);
+		IToken plantUmlInclude = new Token(Partitions.PLANTUML_INCLUDE);
 
 		List<IRule> rules = new ArrayList<>();
 
@@ -44,6 +45,7 @@ public class PartitionScanner extends RuleBasedPartitionScanner implements IScan
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', true));
 		rules.add(new MultiLineRule("$$", "$$", mathblock, '\\', true));
 		rules.add(new MatchRule("\\$\\S", "\\S\\$\\D", mathblock, '\\', true, true));
+		rules.add(new MatchRule("!\\[", "\\]\\(.+\\.puml\\)", plantUmlInclude, '\\', true, true));
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));
 		rules.add(new MultiLineRule("@startuml", "@enduml", umlblock, '\\', true));

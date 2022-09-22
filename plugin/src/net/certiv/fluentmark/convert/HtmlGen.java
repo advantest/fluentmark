@@ -73,21 +73,21 @@ public class HtmlGen {
 		if (input == null) return "";
 		
 		String basepath = null;
-		IPath pathname = null;
+		IPath filePath = null;
 		if (input instanceof IPathEditorInput) {
-			pathname = ((IPathEditorInput) input).getPath();
-			basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+			filePath = ((IPathEditorInput) input).getPath();
+			basepath = filePath.removeLastSegments(1).addTrailingSeparator().toString();
 		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput) input).getURI();
 			basepath = uri.getPath();
 			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
-			pathname = new Path(uri.getPath());
+			filePath = new Path(uri.getPath());
 		}
 		
-		return build(kind, convert(basepath), basepath, pathname);
+		return build(kind, convert(filePath, basepath), basepath, filePath);
 	}
 
-	private String build(Kind kind, String content, String base, IPath pathname) {
+	private String build(Kind kind, String content, String base, IPath filePath) {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
@@ -98,7 +98,7 @@ public class HtmlGen {
 					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
-				sb.append(getStyle(pathname) + Strings.EOL);
+				sb.append(getStyle(filePath) + Strings.EOL);
 				sb.append("</style>" + Strings.EOL);
 				sb.append("</head><body>" + Strings.EOL);
 				sb.append(content + Strings.EOL);
@@ -114,8 +114,8 @@ public class HtmlGen {
 
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
-				preview = preview.replaceFirst("%path%", pathname.toString());
-				sb.append(preview.replaceFirst("%styles%", getStyle(pathname)));
+				preview = preview.replaceFirst("%path%", filePath.toString());
+				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
 				break;
 
 			case UPDATE:
@@ -126,7 +126,7 @@ public class HtmlGen {
 		return sb.toString();
 	}
 
-	private String convert(String basepath) {
+	private String convert(IPath filePath, String basepath) {
 		IDocument doc = editor.getDocument();
 		int beg = 0;
 		int len = doc.getLength();
@@ -139,7 +139,7 @@ public class HtmlGen {
 			return "";
 		}
 
-		return converter.convert(basepath, doc, regions);
+		return converter.convert(filePath, basepath, doc, regions);
 	}
 
 	// path is the searchable base for the style to use; returns the content

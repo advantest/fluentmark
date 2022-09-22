@@ -167,6 +167,8 @@ public class Lines {
 		if (priorblank && nxtblank && curTxt.startsWith("___")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("***")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("---")) return Type.HRULE;
+		
+		if (curTxt.matches("!\\[.+\\]\\(.+\\.puml\\)")) return Type.PLANTUML_INCLUDE;
 
 		if (curTxt.matches("(\\|\\s?\\:?---+\\:?\\s?)+\\|.*")) return Type.TABLE;
 

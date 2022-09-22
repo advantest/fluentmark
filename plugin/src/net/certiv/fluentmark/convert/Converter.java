@@ -6,10 +6,8 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -26,7 +24,21 @@ import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
 import com.github.rjeschke.txtmark.Processor;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.Partitions;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
@@ -53,29 +65,29 @@ public class Converter {
 		}
 	}
 
-	public String convert(String basepath, IDocument doc, ITypedRegion[] regions) {
+	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions) {
 		String text;
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
-				text = getText(doc, regions, true);
+				text = getText(filePath, doc, regions, true);
 				return usePandoc(basepath, text);
 			case Prefs.KEY_BLACKFRIDAY:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useBlackFriday(basepath, text);
 			case Prefs.KEY_MARDOWNJ:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useMarkDownJ(basepath, text);
 			case Prefs.KEY_PEGDOWN:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return usePegDown(basepath, text);
 			case Prefs.KEY_COMMONMARK:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useCommonMark(basepath, text);
 			case Prefs.KEY_TXTMARK:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useTxtMark(basepath, text);
 			case Prefs.EDITOR_EXTERNAL_COMMAND:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useExternal(basepath, text);
 		}
 		return "";
@@ -166,7 +178,7 @@ public class Converter {
 		return "";
 	}
 
-	private String getText(IDocument doc, ITypedRegion[] regions, boolean inclFM) {
+	private String getText(IPath filePath, IDocument doc, ITypedRegion[] regions, boolean inclFM) {
 		List<String> parts = new ArrayList<>();
 		for (ITypedRegion region : regions) {
 			String text = null;
@@ -188,6 +200,31 @@ public class Converter {
 				case Partitions.UMLBLOCK:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
 						text = UmlGen.uml2svg(text);
+					}
+					break;
+				case Partitions.PLANTUML_INCLUDE:
+					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
+						//Pattern p = Pattern.compile("!\\[.+\\]\\(.+\\.puml\\)");
+						Pattern p = Pattern.compile("!\\[.+\\]\\(");
+				        Matcher m = p.matcher(text);
+				        m.find();
+				        int offset = m.end();
+				        String pumlFilePath = text.substring(offset);
+				        int index = pumlFilePath.lastIndexOf(')');
+				        pumlFilePath = pumlFilePath.substring(0, index);
+				        IPath relativePumlFilePath = new Path(pumlFilePath);
+				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
+				        File file = absolutePumlFilePath.toFile();
+				        if (file.exists() && file.isFile()) {
+				        	try {
+								String pumlFileContent = Files.readString(
+										Paths.get(absolutePumlFilePath.toOSString()),
+										StandardCharsets.UTF_8);
+								text = UmlGen.uml2svg(pumlFileContent);
+							} catch (IOException e) {
+								Log.error(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
+							}
+				        }
 					}
 					break;
 				default:
