@@ -204,21 +204,14 @@ public class Converter {
 					break;
 				case Partitions.PLANTUML_INCLUDE:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-						// we look for something like ![any text](path/to/some/file.puml)
-						// and want to extract the path to the puml file
-						Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
-				        Matcher m = p.matcher(text);
-				        m.find();
-				        int indexOfFirstPathCharacter = m.end();
-				        String pumlFilePath = text.substring(indexOfFirstPathCharacter);
-				        int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
-				        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
-				        IPath relativePumlFilePath = new Path(pumlFilePath);
+				        IPath relativePumlFilePath = readPumlFilePath(text);
 				        
 				        // remove file name, so that we get the current folder's path, then append the relative path of the target puml file
 				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
+				        
 				        File file = absolutePumlFilePath.toFile();
 				        String pumlFileContent = readTextFromFile(file);
+				        
 				        if (pumlFileContent != null) {
 				        	text = UmlGen.uml2svg(pumlFileContent);
 				        }
@@ -231,6 +224,22 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private IPath readPumlFilePath(String pumlFileInclusionStatement) {
+		// we get something like ![any text](path/to/some/file.puml)
+		// and want to extract the path to the puml file
+		Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
+        Matcher m = p.matcher(pumlFileInclusionStatement);
+        
+        m.find();
+        int indexOfFirstPathCharacter = m.end();
+        String pumlFilePath = pumlFileInclusionStatement.substring(indexOfFirstPathCharacter);
+        
+        int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
+        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
+        
+        return new Path(pumlFilePath);
 	}
 	
 	private String readTextFromFile(File file) {
