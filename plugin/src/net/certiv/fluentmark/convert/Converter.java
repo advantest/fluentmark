@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.Partitions;
+import net.certiv.fluentmark.model.Lines;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 import net.certiv.fluentmark.util.Cmd;
@@ -206,6 +207,15 @@ public class Converter {
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
 				        IPath relativePumlFilePath = readPumlFilePath(text);
 				        
+				        String remainingLine = "";
+				        Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
+				        Matcher m = p.matcher(text);
+				        m.find();
+				        int endOfPattern = m.end();
+				        if (endOfPattern < text.length()) {
+				        	remainingLine = text.substring(endOfPattern);
+				        }
+				        
 				        // remove file name, so that we get the current folder's path, then append the relative path of the target puml file
 				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
 				        
@@ -213,7 +223,7 @@ public class Converter {
 				        String pumlFileContent = readTextFromFile(file);
 				        
 				        if (pumlFileContent != null) {
-				        	text = UmlGen.uml2svg(pumlFileContent);
+				        	text = UmlGen.uml2svg(pumlFileContent) + remainingLine;
 				        }
 					}
 					break;
