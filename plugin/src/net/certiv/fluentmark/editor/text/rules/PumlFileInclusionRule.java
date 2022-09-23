@@ -48,10 +48,10 @@ public class PumlFileInclusionRule implements IPredicateRule {
 		do {
 			charAsInt = scanner.read();
 			charactersRead++;
-		} while (!charIsEofOrLineEnding(charAsInt) && charAsInt != ']');
+		} while (!charIsEofOrLineEnding(scanner, charAsInt) && charAsInt != ']');
 		
 		// rewind and abort in case of end of file or line ending
-		if (charIsEofOrLineEnding(charAsInt)) {
+		if (charIsEofOrLineEnding(scanner, charAsInt)) {
 			unreadCharacters(scanner, charactersRead);
 			return Token.UNDEFINED;
 		}
@@ -90,8 +90,31 @@ public class PumlFileInclusionRule implements IPredicateRule {
 				|| charAsInt == '/');
 	}
 	
-	private boolean charIsEofOrLineEnding(int charAsInt) {
-		return (charAsInt == ICharacterScanner.EOF || charAsInt == '\n' || charAsInt == '\r');
+	private boolean charIsEofOrLineEnding(ICharacterScanner scanner, int charAsInt) {
+		if (charAsInt == ICharacterScanner.EOF) {
+			return true;
+		}
+		
+		char[][] legalLineDelimiters = scanner.getLegalLineDelimiters();
+		for (char[] lineDelimiter : legalLineDelimiters) {
+			if (lineDelimiter.length == 1 && charAsInt == lineDelimiter[0]) {
+				return true;
+			}
+			
+			if (lineDelimiter.length == 2) {
+				boolean charsEqual = (charAsInt == lineDelimiter[0]);
+				if (charsEqual) {
+					int nextChar = scanner.read();
+					charsEqual = (nextChar == lineDelimiter[1]);
+					scanner.unread();
+				}
+				
+				if (charsEqual) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private boolean sequenceFound(ICharacterScanner scanner, String sequence) {
