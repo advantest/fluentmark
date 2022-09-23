@@ -24,6 +24,7 @@ import net.certiv.fluentmark.editor.text.rules.FrontMatterRule;
 import net.certiv.fluentmark.editor.text.rules.HtmlCodeRule;
 import net.certiv.fluentmark.editor.text.rules.IndentedCodeRule;
 import net.certiv.fluentmark.editor.text.rules.MatchRule;
+import net.certiv.fluentmark.editor.text.rules.PumlFileInclusionRule;
 
 public class PartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 
@@ -45,7 +46,7 @@ public class PartitionScanner extends RuleBasedPartitionScanner implements IScan
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', true));
 		rules.add(new MultiLineRule("$$", "$$", mathblock, '\\', true));
 		rules.add(new MatchRule("\\$\\S", "\\S\\$\\D", mathblock, '\\', true, true));
-		rules.add(new MatchRule("!\\[", "\\]\\(.+\\.puml\\)", plantUmlInclude, '\\', true, true)); // compare Lines.PATTERN_PLANTUML_INCLUDE
+		rules.add(new PumlFileInclusionRule(plantUmlInclude));
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));
 		rules.add(new MultiLineRule("@startuml", "@enduml", umlblock, '\\', true));
