@@ -6,10 +6,8 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -26,8 +24,23 @@ import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
 import com.github.rjeschke.txtmark.Processor;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.Partitions;
+import net.certiv.fluentmark.model.Lines;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 import net.certiv.fluentmark.util.Cmd;
@@ -53,29 +66,29 @@ public class Converter {
 		}
 	}
 
-	public String convert(String basepath, IDocument doc, ITypedRegion[] regions) {
+	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions) {
 		String text;
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
-				text = getText(doc, regions, true);
+				text = getText(filePath, doc, regions, true);
 				return usePandoc(basepath, text);
 			case Prefs.KEY_BLACKFRIDAY:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useBlackFriday(basepath, text);
 			case Prefs.KEY_MARDOWNJ:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useMarkDownJ(basepath, text);
 			case Prefs.KEY_PEGDOWN:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return usePegDown(basepath, text);
 			case Prefs.KEY_COMMONMARK:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useCommonMark(basepath, text);
 			case Prefs.KEY_TXTMARK:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useTxtMark(basepath, text);
 			case Prefs.EDITOR_EXTERNAL_COMMAND:
-				text = getText(doc, regions, false);
+				text = getText(filePath, doc, regions, false);
 				return useExternal(basepath, text);
 		}
 		return "";
@@ -166,7 +179,7 @@ public class Converter {
 		return "";
 	}
 
-	private String getText(IDocument doc, ITypedRegion[] regions, boolean inclFM) {
+	private String getText(IPath filePath, IDocument doc, ITypedRegion[] regions, boolean inclFM) {
 		List<String> parts = new ArrayList<>();
 		for (ITypedRegion region : regions) {
 			String text = null;
@@ -190,6 +203,27 @@ public class Converter {
 						text = UmlGen.uml2svg(text);
 					}
 					break;
+				case Partitions.PLANTUML_INCLUDE:
+					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
+				        IPath relativePumlFilePath = readPumlFilePath(text);
+				        
+				        String remainingLine = "";
+				        int endOfPattern = readEndOfPumlFileInclusionStatement(text);
+				        if (endOfPattern < text.length()) {
+				        	remainingLine = text.substring(endOfPattern);
+				        }
+				        
+				        // remove file name, so that we get the current folder's path, then append the relative path of the target puml file
+				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
+				        
+				        File file = absolutePumlFilePath.toFile();
+				        String pumlFileContent = readTextFromFile(file);
+				        
+				        if (pumlFileContent != null) {
+				        	text = UmlGen.uml2svg(pumlFileContent) + remainingLine;
+				        }
+					}
+					break;
 				default:
 					break;
 			}
@@ -197,6 +231,42 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private int readEndOfPumlFileInclusionStatement(String text) {
+		Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
+        Matcher m = p.matcher(text);
+        m.find();
+        return m.end();
+	}
+	
+	private IPath readPumlFilePath(String pumlFileInclusionStatement) {
+		// we get something like ![any text](path/to/some/file.puml)
+		// and want to extract the path to the puml file
+		Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
+        Matcher m = p.matcher(pumlFileInclusionStatement);
+        
+        m.find();
+        int indexOfFirstPathCharacter = m.end();
+        String pumlFilePath = pumlFileInclusionStatement.substring(indexOfFirstPathCharacter);
+        
+        int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
+        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
+        
+        return new Path(pumlFilePath);
+	}
+	
+	private String readTextFromFile(File file) {
+		if (file != null && file.exists() && file.isFile()) {
+			try {
+				return Files.readString(
+						Paths.get(file.getAbsolutePath()),
+						StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				Log.error(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
+			}
+		}
+		return null;
 	}
 
 	private String filter(String text, Pattern beg, Pattern end) {

@@ -17,6 +17,9 @@ import org.eclipse.core.runtime.SafeRunner;
 
 import org.eclipse.jface.text.DocumentEvent;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -231,11 +234,25 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 					lines.setKind(idx, kind);
 					addPageHeader(lines.getLine(idx));
 					break;
-
+				
 				case SETEXT:
 					lines.setKind(idx, kind);			// original
 					lines.setKind(idx, Type.HEADER);	// effective
 					addToParent(idx);
+					break;
+				
+				case PLANTUML_INCLUDE:
+					String lineTxt = lines.getText(idx);
+					Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
+			        Matcher m = p.matcher(lineTxt);
+			        m.find();
+					end = idx;
+					offset = lines.getOffset(idx);
+					len = m.end();
+					current = headers.getCurrentParent();
+					lines.setKind(idx, kind);
+					addPageElement(current, Type.PLANTUML_INCLUDE, offset, len, idx, end);
+					idx = end;
 					break;
 
 				case MATH_BLOCK:

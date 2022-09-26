@@ -16,6 +16,8 @@ import net.certiv.fluentmark.util.FloorKeyMap;
 import net.certiv.fluentmark.util.Indent;
 
 public class Lines {
+	
+	public static final String PATTERN_PLANTUML_INCLUDE = "!\\[.+\\]\\(.+\\.puml\\)";
 
 	protected static class Line {
 
@@ -167,6 +169,8 @@ public class Lines {
 		if (priorblank && nxtblank && curTxt.startsWith("___")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("***")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("---")) return Type.HRULE;
+		
+		if (curTxt.matches(PATTERN_PLANTUML_INCLUDE)) return Type.PLANTUML_INCLUDE;
 
 		if (curTxt.matches("(\\|\\s?\\:?---+\\:?\\s?)+\\|.*")) return Type.TABLE;
 

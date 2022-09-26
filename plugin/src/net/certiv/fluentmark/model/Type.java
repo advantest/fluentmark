@@ -30,6 +30,8 @@ public enum Type {
 	QUOTE("Quote"),
 	DEFINITION("Definition"),
 	REFERENCE("Link reference"),
+	
+	PLANTUML_INCLUDE("PlantUML file inclusion"),
 
 	UNDEFINED("Undefined")
 
