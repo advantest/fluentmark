@@ -33,6 +33,7 @@
 	    <module>target-platform/2021-09</module>
 		<module>plugin</module>
 		<module>feature</module>
+		<module>site</module>
 		<module>tests/com.advantest.fluentmark.tests</module>
 	</modules>
 
