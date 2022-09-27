@@ -16,7 +16,7 @@ public interface Prefs extends PrefsSpelling {
 	// preference related values
 	String CSS_RESOURCE_DIR = "resources/css/";
 	String CSS = "css";
-	String CSS_DEFAULT = "markdown.css";
+	String CSS_DEFAULT = "advantest.css";
 
 	// preference store keys
 
