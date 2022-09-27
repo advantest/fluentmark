@@ -41,16 +41,16 @@ import net.certiv.fluentmark.util.Strings;
 /**
  * Generate Html files for:
  * <ul>
- * <li>Preview
- * <ul>
- * <li>Base html to be loaded to the browser
- * <li>Body to be updated to the base
- * </ul>
- * <li>Export
- * <ul>
- * <li>Full, self contanied Html document
- * <li>Minimal Html document
- * </ul>
+ *   <li>Preview
+ *   <ul>
+ *     <li>Base html to be loaded to the browser
+ *     <li>Body to be updated to the base
+ *   </ul>
+ *   <li>Export
+ *   <ul>
+ *     <li>Full, self contanied Html document
+ *     <li>Minimal Html document
+ *   </ul>
  * </ul>
  */
 public class HtmlGen {
@@ -160,7 +160,7 @@ public class HtmlGen {
 		URL pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
 
-		// 2) look for a file with the name 'markdown.css' in the same set of directories
+		// 2) look for a file with the name 'advantest.css' in the same set of directories
 		style = path.removeLastSegments(1).append(Prefs.CSS_DEFAULT);
 		pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
@@ -188,7 +188,7 @@ public class HtmlGen {
 			}
 		}
 
-		// 5) read 'markdown.css' from the bundle
+		// 5) read 'advantest.css' from the bundle
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
 		URL url = FileLocator.find(bundle, new Path(Prefs.CSS_RESOURCE_DIR + Prefs.CSS_DEFAULT), null);
 		url = FileLocator.toFileURL(url);
