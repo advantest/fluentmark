@@ -207,18 +207,7 @@ public class Converter {
 					break;
 				case Partitions.PLANTUML_INCLUDE:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-						String figureCaption = readCaptionFrom(text);
-						IPath relativePumlFilePath = readPumlFilePath(text);
-				        String remainingLine = getRemainderOfThePumlIncludeLine(text);
-				        
-				        String pumlFileContent = readPumlFile(filePath, relativePumlFilePath);
-				        String pumlDiagram = convertPlantUml2Svg(pumlFileContent);
-				        
-				        String htmlFigure = createHtmlFigure(pumlDiagram, figureCaption);
-				        
-				        if (htmlFigure != null) {
-				        	text = htmlFigure + remainingLine;
-				        }
+						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
 				default:
@@ -228,6 +217,23 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
+		String figureCaption = readCaptionFrom(markdownCodeWithPumlIncludeStatement);
+		IPath relativePumlFilePath = readPumlFilePath(markdownCodeWithPumlIncludeStatement);
+        String remainingLine = getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
+        
+        String pumlFileContent = readPumlFile(currentMarkdownFilePath, relativePumlFilePath);
+        String pumlDiagram = convertPlantUml2Svg(pumlFileContent);
+        
+        String htmlFigure = createHtmlFigure(pumlDiagram, figureCaption);
+        
+        if (htmlFigure != null) {
+        	return htmlFigure + remainingLine;
+        }
+        
+        return markdownCodeWithPumlIncludeStatement;
 	}
 	
 	private String getRemainderOfThePumlIncludeLine(String pumlIncludeLine) {
