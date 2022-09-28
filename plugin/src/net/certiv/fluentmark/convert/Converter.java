@@ -6,6 +6,7 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
@@ -44,6 +45,7 @@ import net.certiv.fluentmark.model.Lines;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 import net.certiv.fluentmark.util.Cmd;
+import net.certiv.fluentmark.util.FileUtils;
 
 public class Converter {
 
@@ -205,7 +207,8 @@ public class Converter {
 					break;
 				case Partitions.PLANTUML_INCLUDE:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-				        IPath relativePumlFilePath = readPumlFilePath(text);
+						String figureCaption = readCaptionFrom(text);
+						IPath relativePumlFilePath = readPumlFilePath(text);
 				        
 				        String remainingLine = "";
 				        int endOfPattern = findEndOfPumlFileInclusionStatement(text);
@@ -218,9 +221,17 @@ public class Converter {
 				        
 				        File file = absolutePumlFilePath.toFile();
 				        String pumlFileContent = readTextFromFile(file);
+				        String figureText = FileUtils.fromBundle("resources/html/puml-include.html");
 				        
+				        String pumlDiagram = "";
 				        if (pumlFileContent != null) {
-				        	text = UmlGen.uml2svg(pumlFileContent) + remainingLine;
+				        	pumlDiagram = UmlGen.uml2svg(pumlFileContent);
+				        }
+				        
+				        if (figureText != null) {
+				        	figureText = figureText.replace("%image%", pumlDiagram);
+				        	figureText = figureText.replace("%caption%", figureCaption);
+				        	text = figureText + remainingLine;
 				        }
 					}
 					break;
@@ -254,6 +265,17 @@ public class Converter {
         pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
         
         return new Path(pumlFilePath);
+	}
+	
+	private String readCaptionFrom(String pumlFileInclusionStatement) {
+		// we get something like ![The image's caption](path/to/some/file.puml)
+		// and want to extract the caption text
+		Assert.isTrue(pumlFileInclusionStatement != null && pumlFileInclusionStatement.startsWith("!["));
+		
+		String caption = pumlFileInclusionStatement.substring(2);
+		
+		int indexOfLastCaptionCharacter = caption.indexOf(']');
+		return caption.substring(0, indexOfLastCaptionCharacter);
 	}
 	
 	private String readTextFromFile(File file) {
