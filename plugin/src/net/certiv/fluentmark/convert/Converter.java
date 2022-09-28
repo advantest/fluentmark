@@ -208,7 +208,7 @@ public class Converter {
 				        IPath relativePumlFilePath = readPumlFilePath(text);
 				        
 				        String remainingLine = "";
-				        int endOfPattern = readEndOfPumlFileInclusionStatement(text);
+				        int endOfPattern = findEndOfPumlFileInclusionStatement(text);
 				        if (endOfPattern < text.length()) {
 				        	remainingLine = text.substring(endOfPattern);
 				        }
@@ -233,7 +233,7 @@ public class Converter {
 		return String.join(" ", parts);
 	}
 	
-	private int readEndOfPumlFileInclusionStatement(String text) {
+	private int findEndOfPumlFileInclusionStatement(String text) {
 		Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
         Matcher m = p.matcher(text);
         m.find();
