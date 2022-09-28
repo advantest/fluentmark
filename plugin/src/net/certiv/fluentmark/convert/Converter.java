@@ -6,6 +6,7 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
@@ -44,6 +45,7 @@ import net.certiv.fluentmark.model.Lines;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 import net.certiv.fluentmark.util.Cmd;
+import net.certiv.fluentmark.util.FileUtils;
 
 public class Converter {
 
@@ -205,23 +207,7 @@ public class Converter {
 					break;
 				case Partitions.PLANTUML_INCLUDE:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-				        IPath relativePumlFilePath = readPumlFilePath(text);
-				        
-				        String remainingLine = "";
-				        int endOfPattern = readEndOfPumlFileInclusionStatement(text);
-				        if (endOfPattern < text.length()) {
-				        	remainingLine = text.substring(endOfPattern);
-				        }
-				        
-				        // remove file name, so that we get the current folder's path, then append the relative path of the target puml file
-				        IPath absolutePumlFilePath = filePath.removeLastSegments(1).append(relativePumlFilePath);
-				        
-				        File file = absolutePumlFilePath.toFile();
-				        String pumlFileContent = readTextFromFile(file);
-				        
-				        if (pumlFileContent != null) {
-				        	text = UmlGen.uml2svg(pumlFileContent) + remainingLine;
-				        }
+						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
 				default:
@@ -233,7 +219,37 @@ public class Converter {
 		return String.join(" ", parts);
 	}
 	
-	private int readEndOfPumlFileInclusionStatement(String text) {
+	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
+		String figureCaption = readCaptionFrom(markdownCodeWithPumlIncludeStatement);
+		IPath relativePumlFilePath = readPumlFilePath(markdownCodeWithPumlIncludeStatement);
+        String remainingLine = getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
+        
+        String pumlFileContent = readPumlFile(currentMarkdownFilePath, relativePumlFilePath);
+        String pumlDiagram = convertPlantUml2Svg(pumlFileContent);
+        
+        String htmlFigure = createHtmlFigure(pumlDiagram, figureCaption);
+        
+        if (htmlFigure != null) {
+        	return htmlFigure + remainingLine;
+        }
+        
+        return markdownCodeWithPumlIncludeStatement;
+	}
+	
+	private String getRemainderOfThePumlIncludeLine(String pumlIncludeLine) {
+		if (pumlIncludeLine == null) {
+			return null;
+		}
+		
+		String remainingLine = "";
+        int endOfPattern = findEndOfPumlFileInclusionStatement(pumlIncludeLine);
+        if (endOfPattern < pumlIncludeLine.length()) {
+        	remainingLine = pumlIncludeLine.substring(endOfPattern);
+        }
+        return remainingLine;
+	}
+	
+	private int findEndOfPumlFileInclusionStatement(String text) {
 		Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
         Matcher m = p.matcher(text);
         m.find();
@@ -256,6 +272,27 @@ public class Converter {
         return new Path(pumlFilePath);
 	}
 	
+	private String readPumlFile(IPath currentMarkdownFilePath, IPath relativePumlFilePath) {
+		// remove file name, so that we get the current folder's path, then append the relative path of the target puml file
+        IPath absolutePumlFilePath = currentMarkdownFilePath.removeLastSegments(1).append(relativePumlFilePath);
+        
+        File file = absolutePumlFilePath.toFile();
+        String pumlFileContent = readTextFromFile(file);
+        
+        return pumlFileContent;
+	}
+	
+	private String readCaptionFrom(String pumlFileInclusionStatement) {
+		// we get something like ![The image's caption](path/to/some/file.puml)
+		// and want to extract the caption text
+		Assert.isTrue(pumlFileInclusionStatement != null && pumlFileInclusionStatement.startsWith("!["));
+		
+		String caption = pumlFileInclusionStatement.substring(2);
+		
+		int indexOfLastCaptionCharacter = caption.indexOf(']');
+		return caption.substring(0, indexOfLastCaptionCharacter);
+	}
+	
 	private String readTextFromFile(File file) {
 		if (file != null && file.exists() && file.isFile()) {
 			try {
@@ -267,6 +304,27 @@ public class Converter {
 			}
 		}
 		return null;
+	}
+	
+	private String convertPlantUml2Svg(String plantUmlCode) {
+		String svgDiagram = "";
+        if (plantUmlCode != null) {
+        	svgDiagram = UmlGen.uml2svg(plantUmlCode);
+        }
+        return svgDiagram;
+	}
+	
+	private String createHtmlFigure(String svgCode, String figureCaption) {
+		String figureText = FileUtils.fromBundle("resources/html/puml-include.html");
+        
+        if (figureText != null) {
+        	figureText = figureText.replace("%image%", svgCode);
+        	figureText = figureText.replace("%caption%", figureCaption);
+        	
+        	return figureText;
+        }
+        
+        return null;
 	}
 
 	private String filter(String text, Pattern beg, Pattern end) {
