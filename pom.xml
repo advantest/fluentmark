@@ -30,7 +30,7 @@
 	</properties>
 
 	<modules>
-	    <module>target-platform/2021-09</module>
+	    <module>target-platform/2022-09</module>
 		<module>plugin</module>
 		<module>feature</module>
 		<module>site</module>
@@ -39,14 +39,14 @@
 
 	<repositories>
 		<repository>
-			<id>2021-09</id> <!-- Eclipse 4.21 -->
+			<id>2022-09</id> <!-- Eclipse 4.25 -->
 			<layout>p2</layout>
-			<url>https://download.eclipse.org/releases/2021-09</url>
+			<url>https://download.eclipse.org/releases/2022-09</url>
 		</repository>
 		<repository>
 			<id>orbit-libs</id>
 			<layout>p2</layout>
-			<url>https://download.eclipse.org/tools/orbit/downloads/drops/R20210825222808/repository</url>
+			<url>https://download.eclipse.org/tools/orbit/downloads/drops/R20220830213456/repository</url>
 		</repository>
 		<repository>
 			<id>tools</id>
