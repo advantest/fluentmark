@@ -42,4 +42,4 @@ Bundle-ClassPath: .,
  lib/pegdown-1.6.0.jar,
  lib/ST4-4.0.8.jar,
  lib/txtmark-0.13.jar,
- lib/plantuml-1.2021.5.jar
+ lib/plantuml-1.2022.8.jar
