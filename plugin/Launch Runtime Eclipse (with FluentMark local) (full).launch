@@ -259,7 +259,7 @@
         <setEntry value="org.eclipse.jgit.archive@default:default"/>
         <setEntry value="org.eclipse.jgit.gpg.bc@default:false"/>
         <setEntry value="org.eclipse.jgit.http.apache@default:default"/>
-        <setEntry value="org.eclipse.jgit.ssh.apache.agent@default:default"/>
+        <setEntry value="org.eclipse.jgit.ssh.apache.agent@default:false"/>
         <setEntry value="org.eclipse.jgit.ssh.apache@default:default"/>
         <setEntry value="org.eclipse.jgit@default:default"/>
         <setEntry value="org.eclipse.jsch.core@default:default"/>
