@@ -42,9 +42,9 @@ public void setVisible(boolean visible) {
 }
 ~~~
 
-#### Code highlighting support
+#### Syntax highlighting support
 
-There is a list of languages that pandoc has code highlighting support for. You can 
+There is a list of languages that pandoc has syntax highlighting support for. You can 
 print that languages using the following command in a terminal.
 
 ```bash
