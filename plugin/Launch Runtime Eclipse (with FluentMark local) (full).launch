@@ -372,7 +372,7 @@
         <setEntry value="org.w3c.dom.svg@default:default"/>
     </setAttribute>
     <setAttribute key="selected_workspace_bundles">
-        <setEntry value="com.advantest.fluentmark.ui.smartest@default:default"/>
+        <setEntry value="com.advantest.fluentmark.extensions.ui@default:default"/>
         <setEntry value="net.certiv.fluentmark@default:default"/>
         <setEntry value="net.certiv.spellchecker@default:default"/>
         <setEntry value="net.certiv.tools.plugin@default:default"/>
