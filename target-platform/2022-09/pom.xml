@@ -11,7 +11,7 @@
   <!-- See https://wiki.eclipse.org/Tycho/Packaging_Types#eclipse-target-definition -->
   <!-- The artifactId hat to match the name of the target definition file, but without file extension .target -->
   <artifactId>eclipse-425</artifactId>
-  <name>fluentmark.target.platform</name>
+  <name>Fluentmark target platform</name>
   <packaging>eclipse-target-definition</packaging>
   
 </project>

@@ -1,3 +1,4 @@
 tests/com.advantest.fluentmark.tests/bin
 tests/com.advantest.fluentmark.tests/target
-com.advantest.fluentmark.ui.smartest/target
+com.advantest.fluentmark.extensions.ui/target
+com.advantest.fluentmark.extensions.feature/target
