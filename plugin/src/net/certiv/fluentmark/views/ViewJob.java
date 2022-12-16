@@ -92,9 +92,9 @@ public class ViewJob extends Job {
 		}
 		browser.addProgressListener(watcher);
 		timer = System.nanoTime();
-		String script = FileUtils.fromBundle("resources/html/firebug.html") + Strings.EOL;
 		String content = editor.getHtml(Kind.VIEW);
 		if (firebug) {
+			String script = FileUtils.fromBundle("resources/html/firebug.html") + Strings.EOL;
 			content = content.replaceFirst("</head>", script + "</head>");
 		}
 		browser.setText(content);
