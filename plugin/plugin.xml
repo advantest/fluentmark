@@ -337,6 +337,13 @@
                tooltip="Open stylesheet preferences">
          </command>
          <command
+               commandId="net.certiv.fluentmark.showHtmlCode"
+               icon="icons/etool16/html_tag_obj.png"
+               label="Source Code"
+               style="push"
+               tooltip="Show HTML source code">
+         </command>
+         <command
                commandId="net.certiv.fluentmark.firebug"
                icon="icons/obj16/firebug.png"
                label="Firebug"
@@ -434,6 +441,13 @@
             description="Firebug"
             id="net.certiv.fluentmark.firebug"
             name="Firebug">
+      </command>
+      <command
+            categoryId="net.certiv.fluentmark.commands"
+            defaultHandler="net.certiv.fluentmark.handlers.ShowHtmlSourceCodeHandler"
+            description="Show the HTML code generated from the given Markdown code"
+            id="net.certiv.fluentmark.showHtmlCode"
+            name="Show HTML source code">
       </command>
    </extension>
 
