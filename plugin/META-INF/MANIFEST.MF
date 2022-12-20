@@ -4,6 +4,34 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark Editor
 Bundle-SymbolicName: net.certiv.fluentmark;singleton:=true
 Bundle-Version: 1.2.4.qualifier
+Export-Package: net.certiv.fluentmark,
+ net.certiv.fluentmark.actions,
+ net.certiv.fluentmark.convert,
+ net.certiv.fluentmark.dialog.graphs,
+ net.certiv.fluentmark.dialog.tables,
+ net.certiv.fluentmark.dot,
+ net.certiv.fluentmark.dot.gen,
+ net.certiv.fluentmark.editor,
+ net.certiv.fluentmark.editor.assist,
+ net.certiv.fluentmark.editor.color,
+ net.certiv.fluentmark.editor.folding,
+ net.certiv.fluentmark.editor.strategies,
+ net.certiv.fluentmark.editor.text,
+ net.certiv.fluentmark.editor.text.rules,
+ net.certiv.fluentmark.format,
+ net.certiv.fluentmark.handlers,
+ net.certiv.fluentmark.handlers.dialog,
+ net.certiv.fluentmark.model,
+ net.certiv.fluentmark.outline,
+ net.certiv.fluentmark.outline.dnd,
+ net.certiv.fluentmark.outline.operations,
+ net.certiv.fluentmark.preferences,
+ net.certiv.fluentmark.preferences.editors,
+ net.certiv.fluentmark.preferences.pages,
+ net.certiv.fluentmark.spell,
+ net.certiv.fluentmark.util,
+ net.certiv.fluentmark.views,
+ net.certiv.fluentmark.wizards
 Bundle-Activator: net.certiv.fluentmark.FluentUI
 Bundle-Vendor: Certiv Analytics
 Require-Bundle: com.google.guava;bundle-version="30.1.0",
