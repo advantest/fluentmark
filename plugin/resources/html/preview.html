@@ -142,8 +142,6 @@
 			}
 			
 			function refreshImages() {
-				alert('Refresh!');
-				
 				try {
 				
 				scale = 1;
@@ -154,7 +152,7 @@
 				panning = false;
 					
 				var images = document.getElementsByTagName('img')
-				alert("# Images: " + images.length);
+				//alert("# Images: " + images.length);
 				
 				for (let i = 0; i < images.length; i++) {
 					resetTransform(images[i]);
@@ -260,12 +258,11 @@
 					},
 					set: function(source) {
 						this.contents = source;
-						refreshImages();
 					},
 					scrollTo: function(anchorname) {
 						location.hash = '#' + anchorname;
 					},
-					images: function() {
+					updateImages: function() {
 						refreshImages();
 					},
 				},
