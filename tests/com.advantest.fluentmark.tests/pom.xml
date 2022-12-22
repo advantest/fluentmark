@@ -7,10 +7,12 @@
 		<artifactId>Fluentmark</artifactId>
 		<version>1.2.4-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
-	</parent>
+  </parent>
 
   <artifactId>com.advantest.fluentmark.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
+  
+  <name>FluentMark tests</name>
 
 
 	<dependencies>

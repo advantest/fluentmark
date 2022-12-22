@@ -22,6 +22,7 @@
 			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="5.13.0.202109080827-r"/>
 			<unit id="org.eclipse.jgit.feature.group" version="5.13.0.202109080827-r"/>
 			<unit id="org.eclipse.test.feature.group" version="3.7.1600.v20210729-0440"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.21.0.v20210906-0842"/>
 		</location>
 	</locations>
 </target>
