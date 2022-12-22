@@ -15,6 +15,7 @@
 			  	transform-origin: 0 0;
   				transform: scale(1) translate(0px, 0px);
   				cursor: zoom-in;
+  				display: inline-block;
 			}
 			@media print { 
 				img {
@@ -59,45 +60,15 @@
 		<span id="app" v-html="contents"></span>
 
  		<script type="text/javascript">
-			window.Fluent = new Vue({
-				el: '#app',
-				data: { 
-					contents: 'Ready...', 
-				},
-				mounted: function() {
-					this.refresh(); 
-				},
-				updated: function() {
-					this.refresh(); 
-				},
-				methods: {
-					refresh: function() {
-						this.$nextTick(function() {
-							var blocks = this.$el.querySelectorAll('pre code');
-							for (var idx = 0; idx < blocks.length; idx++) {
-								hljs.highlightBlock(blocks[idx]);
-							}
-							MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-						});
-					},
-					check: function() {
-						alert('Check: ' + this.contents); 
-					},
-					clear: function() { 
-						this.contents = 'Cleared...'; 
-					},
-					set: function(source) {
-						this.contents = source;
-					},
-					scrollTo: function(anchorname) {
-						location.hash = '#' + anchorname;
-					},
-				},
-			});
-		</script>
-		
-		<script type="text/javascript">
-		
+ 		
+ 			let factor = 1.01;
+			var scale = 1;
+			var zoomX = 0;
+			var zoomY = 0;
+			var currentImage = null;
+			var start = null;
+			var panning = false;
+ 		
 			function setTransform(image, translateX, translateY, scale) {
 				image.style.transform = "translate(" + translateX + "px, " + translateY + "px) scale(" + scale + ")";
 			}
@@ -170,86 +141,136 @@
 				}
 			}
 			
-			let factor = 1.01;
-			var scale = 1;
-			var zoomX = 0;
-			var zoomY = 0;
-			var currentImage = null;
-			var start = null;
-			var panning = false;
-
-
-			var images = document.getElementsByTagName('img')
-			
-			for (let i = 0; i < images.length; i++) {
-				resetTransform(images[i]);
+			function refreshImages() {
+				alert('Refresh!');
 				
-				images[i].onwheel=function(e) {
-					e.preventDefault();
+				try {
+				
+				scale = 1;
+				zoomX = 0;
+				zoomY = 0;
+				currentImage = null;
+				start = null;
+				panning = false;
+					
+				var images = document.getElementsByTagName('img')
+				alert("# Images: " + images.length);
+				
+				for (let i = 0; i < images.length; i++) {
+					resetTransform(images[i]);
+					
+					images[i].onwheel=function(e) {
+						e.preventDefault();
 						
-					updateCurrentImage(images[i]);
+						updateCurrentImage(images[i]);
+							
+						var rect = images[i].getBoundingClientRect();
+						var move = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
+							
+						if (move > 0) {
+							setZoomInCursor(images[i])
+						} else {
+							setZoomOutCursor(images[i])
+						}
+							
+						if (move > 0) {
+							zoomX = e.clientX - (e. clientX - rect.left) * factor - rect.left + zoomX;
+							zoomY = e.clientY - (e.clientY - rect.top) * factor - rect.top + zoomY;
+							scale = scale * factor;
+						} else {
+							zoomX = e.clientX - (e. clientX - rect.left) / factor - rect.left + zoomX;
+							zoomY = e.clientY - (e.clientY - rect.top) / factor - rect.top + zoomY;
+							scale = scale / factor;
+						}
+							
+						var newScale = (move > 0) ? scale * factor : scale / factor;
+							
+						setTransform(currentImage, zoomX, zoomY, scale);
+					};
+	
+					images[i].onmousedown=function(e) {
+						e.preventDefault();
 						
-					var rect = images[i].getBoundingClientRect();
-					var move = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
+						updateCurrentImage(images[i]);
 						
-					if (move > 0) {
+						start = { x : e.clientX - zoomX, y : e.clientY - zoomY };
+						panning = true;
+						
+						setGrabbingCursor(images[i]);
+					};
+					
+					images[i].onmouseup=function(e) {
+						panning = false;
+						
 						setZoomInCursor(images[i])
-					} else {
-						setZoomOutCursor(images[i])
-					}
+					};
+					
+					images[i].onmousemove=function(e) {
+						e.preventDefault();
 						
-					if (move > 0) {
-						zoomX = e.clientX - (e. clientX - rect.left) * factor - rect.left + zoomX;
-						zoomY = e.clientY - (e.clientY - rect.top) * factor - rect.top + zoomY;
-						scale = scale * factor;
-					} else {
-						zoomX = e.clientX - (e. clientX - rect.left) / factor - rect.left + zoomX;
-						zoomY = e.clientY - (e.clientY - rect.top) / factor - rect.top + zoomY;
-						scale = scale / factor;
-					}
+						if (!panning) {
+							return;
+						}
 						
-					var newScale = (move > 0) ? scale * factor : scale / factor;
+						zoomX = e.clientX - start.x;
+						zoomY = e.clientY - start.y;
 						
-					setTransform(currentImage, zoomX, zoomY, scale);
-				};
-
-				images[i].onmousedown=function(e) {
-					e.preventDefault();
+						setTransform(images[i], zoomX, zoomY, scale);
+					};
 					
-					updateCurrentImage(images[i]);
-					
-					start = { x : e.clientX - zoomX, y : e.clientY - zoomY };
-					panning = true;
-					
-					setGrabbingCursor(images[i]);
-				};
+					images[i].addEventListener('contextmenu', function (e) {
+						e.preventDefault();
+						
+						resetAllImages();
+						return false;
+					}, false);
+				}
 				
-				images[i].onmouseup=function(e) {
-					panning = false;
-					
-					setZoomInCursor(images[i])
-				};
-				
-				images[i].onmousemove=function(e) {
-					e.preventDefault();
-					
-					if (!panning) {
-						return;
-					}
-					
-					zoomX = e.clientX - start.x;
-					zoomY = e.clientY - start.y;
-					
-					setTransform(images[i], zoomX, zoomY, scale);
-				};
-				
-				images[i].addEventListener('contextmenu', function (e) {
-					e.preventDefault();
-					
-					resetAllImages();
-					return false;
-				}, false);
+				} catch (error) {
+				  alert(error);
+				}
 			}
+			
+			window.Fluent = new Vue({
+				el: '#app',
+				data: { 
+					contents: 'Ready...', 
+				},
+				mounted: function() {
+					this.refresh(); 
+				},
+				updated: function() {
+					this.refresh(); 
+				},
+				methods: {
+					refresh: function() {
+						this.$nextTick(function() {
+							var blocks = this.$el.querySelectorAll('pre code');
+							for (var idx = 0; idx < blocks.length; idx++) {
+								hljs.highlightBlock(blocks[idx]);
+							}
+							MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+						});
+					},
+					check: function() {
+						alert('Check: ' + this.contents); 
+					},
+					clear: function() { 
+						this.contents = 'Cleared...'; 
+					},
+					set: function(source) {
+						this.contents = source;
+						refreshImages();
+					},
+					scrollTo: function(anchorname) {
+						location.hash = '#' + anchorname;
+					},
+					images: function() {
+						refreshImages();
+					},
+				},
+			});
+			
 		</script>
 		
 	</body>

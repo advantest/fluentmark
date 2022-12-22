@@ -171,6 +171,11 @@ public class ViewJob extends Job {
 					} else {
 						Log.error("JavaScript execution (set page contents) failed.");
 					}
+					
+//					ok = browser.execute("Fluent.images");
+//					if (!ok) {
+//						Log.error("JavaScript execution (image zoom styling) failed.");
+//					}
 				}
 			}
 		});
