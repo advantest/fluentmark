@@ -40,6 +40,8 @@ public class ViewJob extends Job {
 		TYPESET;
 	}
 	
+	private boolean updateImagesOnly = false;
+	
 	void setAnchorForNextPageLoad(String anchor) {
 		this.currentAnchorToScrollTo = anchor;
 	}
@@ -117,6 +119,16 @@ public class ViewJob extends Job {
 		}
 	}
 	
+	private void updateImagesOnly() {
+		if (state != State.READY) {
+			return;
+		}
+		
+		this.updateImagesOnly = true;
+		
+		schedule(store.getInt(Prefs.VIEW_UPDATE_DELAY));
+	}
+	
 	public void scrollTo(String anchor) {
 		if (state != State.READY || browser == null || browser.isDisposed()) {
 			return;
@@ -145,6 +157,25 @@ public class ViewJob extends Job {
 		if (editor == null || view == null || browser == null || browser.isDisposed()) {
 			return Status.CANCEL_STATUS;
 		}
+		
+		if (updateImagesOnly) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (browser != null && !browser.isDisposed()) {
+						boolean ok = browser.execute("Fluent.updateImages()");
+						if (!ok) {
+							Log.error("JavaScript execution (image zoom styling) failed.");
+						}
+					}
+				}
+			});
+			
+			updateImagesOnly = false;
+			return Status.OK_STATUS;
+		}
+		
 		timer = System.nanoTime();
 
 		String html = editor.getHtml(Kind.UPDATE);
@@ -159,6 +190,7 @@ public class ViewJob extends Job {
 			@Override
 			public void run() {
 				if (browser != null && !browser.isDisposed()) {
+					
 					boolean ok = browser.execute(script);
 					if (ok) {
 						// read the temporarily saved anchor if any
@@ -171,10 +203,13 @@ public class ViewJob extends Job {
 					} else {
 						Log.error("JavaScript execution (set page contents) failed.");
 					}
+					
+					// delay update of images' styling (zoom), otherwise the image are not found within JavaScript
+					updateImagesOnly();
 				}
 			}
 		});
-
+		
 		return Status.OK_STATUS;
 	}
 
