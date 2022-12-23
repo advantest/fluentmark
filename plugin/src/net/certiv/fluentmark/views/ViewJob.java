@@ -32,6 +32,7 @@ public class ViewJob extends Job {
 	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
 	
 	private String currentAnchorToScrollTo;
+	private String previewContents;
 
 	private enum State {
 		NONE,
@@ -72,12 +73,18 @@ public class ViewJob extends Job {
 
 		load();
 	}
+	
+	public String getHtmlViewContents() {
+		return this.previewContents;
+	}
 
 	public boolean load() {
 		return load(false);
 	}
 
 	public boolean load(boolean firebug) {
+		this.previewContents = null;
+		
 		FluentEditor editor = view.getEditor();
 		if (editor == null) return false;
 
@@ -179,7 +186,11 @@ public class ViewJob extends Job {
 		timer = System.nanoTime();
 
 		String html = editor.getHtml(Kind.UPDATE);
-		if (html.isEmpty()) return Status.CANCEL_STATUS;
+		this.previewContents = html;
+		
+		if (html.isEmpty()) {
+			return Status.CANCEL_STATUS;
+		}
 
 		String script = String.format(Render, StringEscapeUtils.escapeEcmaScript(html));
 		if (mathjax) state = State.READY;

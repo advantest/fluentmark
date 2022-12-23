@@ -22,20 +22,29 @@ import org.eclipse.swt.widgets.Text;
 public class SourceCodeDialog extends Dialog {
 	
 	private final String sourceCode;
+	private final String contents;
 	private final String title;
 
-	public SourceCodeDialog(Shell parentShell, String title, String sourceCode) {
+	public SourceCodeDialog(Shell parentShell, String title, String pageSourceCode, String contentsSourceCode) {
 		super(parentShell);
-		this.sourceCode = sourceCode;
+		this.sourceCode = pageSourceCode;
+		this.contents = contentsSourceCode;
 		this.title = title;
 	}
 	
 	@Override
     protected Control createDialogArea(Composite parent) {
         Composite container = (Composite) super.createDialogArea(parent);
-        Text textField = new Text(container, SWT.MULTI | SWT.READ_ONLY);
-        textField.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-        textField.setText(sourceCode);
+        
+        String text = this.sourceCode;
+        
+        if (this.contents != null && !this.contents.isBlank()) {
+        	text = text.replace("<span id=\"app\" v-html=\"contents\"></span>", String.format("<span id=\"app\" v-html=\"contents\">\n%s\n</span>", this.contents));
+        }
+        
+        Text textField = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
+            textField.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+            textField.setText(text);
         return container;
     }
 	

@@ -68,6 +68,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	public FluentPreview() {
 		viewpart = this;
 	}
+	
+	public String getHtmlViewContents() {
+		if (viewjob != null) {
+			return viewjob.getHtmlViewContents();
+		}
+		return null;
+	}
 
 	/** Callback to create and initialize the browser. */
 	@Override
