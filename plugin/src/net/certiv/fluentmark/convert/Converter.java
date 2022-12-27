@@ -68,12 +68,12 @@ public class Converter {
 		}
 	}
 
-	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions) {
+	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions, Kind kind) {
 		String text;
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
 				text = getText(filePath, doc, regions, true);
-				return usePandoc(basepath, text);
+				return usePandoc(basepath, text, kind);
 			case Prefs.KEY_BLACKFRIDAY:
 				text = getText(filePath, doc, regions, false);
 				return useBlackFriday(basepath, text);
@@ -97,13 +97,16 @@ public class Converter {
 	}
 
 	// Use Pandoc
-	private String usePandoc(String basepath, String text) {
+	private String usePandoc(String basepath, String text, Kind kind) {
 		String cmd = store.getString(Prefs.EDITOR_PANDOC_PROGRAM);
 		if (cmd.trim().isEmpty()) return "";
 
 		List<String> args = new ArrayList<>();
 		args.add(cmd);
 		args.add("--no-highlight"); // use highlightjs instead
+		if (Kind.EXPORT.equals(kind)) {
+			args.add("-s");
+		}
 		if (store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC)) args.add("--toc");
 		if (store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX)) args.add("--mathjax");
 		if (!store.getBoolean(Prefs.EDITOR_PANDOC_SMART)) {
