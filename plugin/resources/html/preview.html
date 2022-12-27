@@ -11,14 +11,14 @@
 			%styles%
 		</style>
 		<style>
-			img {
+			figure {
 			  	transform-origin: 0 0;
   				transform: scale(1) translate(0px, 0px);
   				cursor: zoom-in;
   				display: inline-block;
 			}
 			@media print { 
-				img {
+				figure {
 					max-width : 100%;
 					max-height: 99vh;
 					-webkit-transform: none; /* Safari and Chrome */
@@ -104,7 +104,7 @@
 			}
 			
 			function resetAllImages() {
-				var allImages = document.getElementsByTagName('img')
+				var allImages = document.getElementsByTagName('figure')
 				for (let n = 0; n < allImages.length; n++) {
 					untagCurrentZoomableImage(allImages[n]);
 					resetTransform(allImages[n]);
@@ -128,7 +128,7 @@
 					start = null;
 					panning = false;
 						
-					var allImages = document.getElementsByTagName('img')
+					var allImages = document.getElementsByTagName('figure')
 					for (let n = 0; n < allImages.length; n++) {
 						if (allImages[n] == currentImage) {
 							tagCurrentZoomableImage(allImages[n]);
@@ -151,7 +151,7 @@
 				start = null;
 				panning = false;
 					
-				var images = document.getElementsByTagName('img')
+				var images = document.getElementsByTagName('figure')
 				//alert("# Images: " + images.length);
 				
 				for (let i = 0; i < images.length; i++) {
