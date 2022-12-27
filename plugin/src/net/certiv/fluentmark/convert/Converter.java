@@ -197,12 +197,12 @@ public class Converter {
 				case Partitions.DOTBLOCK:
 					if (store.getBoolean(Prefs.EDITOR_DOTMODE_ENABLED)) {
 						text = filter(text, DOTBEG, DOTEND);
-						text = DotGen.runDot(text);
+						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.UMLBLOCK:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-						text = UmlGen.uml2svg(text);
+						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.PLANTUML_INCLUDE:
@@ -217,6 +217,16 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
+		String dotDiagram = convertDot2Svg(dotSourcCode);
+		return createHtmlFigure(dotDiagram);
+	}
+	
+	private String translatePumlCodeToHtmlFigure(String pumlSourcCode) {
+		String pumlDiagram = convertPlantUml2Svg(pumlSourcCode);
+		return createHtmlFigure(pumlDiagram);
 	}
 	
 	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
@@ -306,6 +316,14 @@ public class Converter {
 		return null;
 	}
 	
+	private String convertDot2Svg(String dotCode) {
+		String svgDiagram = "";
+        if (dotCode != null) {
+        	svgDiagram = DotGen.runDot(dotCode);
+        }
+        return svgDiagram;
+	}
+	
 	private String convertPlantUml2Svg(String plantUmlCode) {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
@@ -320,6 +338,18 @@ public class Converter {
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);
         	figureText = figureText.replace("%caption%", figureCaption);
+        	
+        	return figureText;
+        }
+        
+        return null;
+	}
+	
+	private String createHtmlFigure(String svgCode) {
+		String figureText = FileUtils.fromBundle("resources/html/figure.html");
+        
+        if (figureText != null) {
+        	figureText = figureText.replace("%image%", svgCode);
         	
         	return figureText;
         }
