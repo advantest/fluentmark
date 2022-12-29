@@ -229,6 +229,29 @@
 				}
 			}
 			
+			function reloadLocalImages() {
+				try {
+				var foundImages = document.body.getElementsByTagName('img');
+				var imgUrl = null;
+				
+				for (var k = 0; k < foundImages.length; k++) {
+					if (foundImages[k].src != null) {
+						imgUrl = foundImages[k].src;
+						
+						if (!imgUrl.startsWith('http://') && !imgUrl.startsWith('https://')) {
+							fetch(imgUrl, {cache: 'reload', mode: 'no-cors'})
+								.then(response => {
+									foundImages[k].src = response.url;
+								});
+						}
+					}
+				}
+				} catch (error) {
+					alert (error);
+				}
+			}
+
+			
 			window.Fluent = new Vue({
 				el: '#app',
 				data: { 
@@ -263,6 +286,7 @@
 						location.hash = '#' + anchorname;
 					},
 					updateImages: function() {
+						reloadLocalImages();
 						refreshImages();
 					},
 				},

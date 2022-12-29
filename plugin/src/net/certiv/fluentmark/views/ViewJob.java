@@ -85,13 +85,21 @@ public class ViewJob extends Job {
 	public boolean load(boolean firebug) {
 		this.previewContents = null;
 		
-		FluentEditor editor = view.getEditor();
-		if (editor == null) return false;
+		FluentEditor editor = view.getActiveFluentEditor();
+		if (editor == null) {
+			editor = view.getLatestActiveFluentEditor();
+			if (editor == null) {
+				return false;
+			}
+		}
 
 		IEditorInput input = editor.getEditorInput();
-		if (input == null) return false;
+		if (input == null) {
+			return false;
+		}
 
 		state = State.LOAD;
+		
 		if (editor.useMathJax()) {
 			mathjax = true;
 			func = new DoneFunction(browser, "typeset");
@@ -99,14 +107,20 @@ public class ViewJob extends Job {
 			mathjax = false;
 			func = null;
 		}
+		
 		browser.addProgressListener(watcher);
+		
 		timer = System.nanoTime();
+		
 		String content = editor.getHtml(Kind.VIEW);
+		
 		if (firebug) {
 			String script = FileUtils.fromBundle("resources/html/firebug.html") + Strings.EOL;
 			content = content.replaceFirst("</head>", script + "</head>");
 		}
+		
 		browser.setText(content);
+		
 		return true;
 	}
 
@@ -160,8 +174,16 @@ public class ViewJob extends Job {
 	/** The job to run when scheduled */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		FluentEditor editor = view.getEditor();
-		if (editor == null || view == null || browser == null || browser.isDisposed()) {
+		if (view == null) {
+			return Status.CANCEL_STATUS;
+		}
+		
+		FluentEditor editor = view.getActiveFluentEditor();
+		if (editor == null) {
+			editor = view.getLatestActiveFluentEditor();
+		}
+		
+		if (editor == null || browser == null || browser.isDisposed()) {
 			return Status.CANCEL_STATUS;
 		}
 		

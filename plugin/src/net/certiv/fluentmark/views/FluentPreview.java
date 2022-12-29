@@ -63,6 +63,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	private static FluentPreview viewpart;
 	private Browser browser;
 	private ViewJob viewjob;
+	private FluentEditor latestActiveEditor;
 	private IEditorInput currentEditorInput;
 
 	public FluentPreview() {
@@ -84,7 +85,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser.setJavascriptEnabled(true);
 		browser.setText(NO_CONTENT_TEXT);
 
-		currentEditorInput = this.getEditorInput();
+		latestActiveEditor = this.getActiveFluentEditor();
+		currentEditorInput = this.getActiveEditorInput();
 
 		browser.addLocationListener(new FluentBrowserUrlListener(this));
 
@@ -111,6 +113,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 				// it's not the same file as before, reload the HTML file header in our preview
 				viewjob.load();
 			}
+			latestActiveEditor = currentEditor;
 			currentEditorInput = editorInput;
 			
 			viewjob.update();
@@ -122,6 +125,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		// a FluentEditor was closed and no other FluentEditor became active
 		if (part instanceof FluentEditor
 				&& (getActivePage().getActiveEditor() == null || !(getActivePage().getActiveEditor() instanceof FluentEditor) )) {
+			latestActiveEditor = null;
 			currentEditorInput = null;
 			browser.setText(NO_CONTENT_TEXT);
 		}
@@ -171,7 +175,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		return getSite().getWorkbenchWindow().getActivePage();
 	}
 
-	protected FluentEditor getEditor() {
+	protected FluentEditor getActiveFluentEditor() {
 		IEditorPart editor = getActivePage().getActiveEditor();
 		if (editor != null && editor instanceof FluentEditor) {
 			return (FluentEditor) editor;
@@ -179,18 +183,26 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		return null;
 	}
 
-	protected ISourceViewer getSourceViewer() {
-		FluentEditor editor = getEditor();
+	protected ISourceViewer getActiveSourceViewer() {
+		FluentEditor editor = getActiveFluentEditor();
 		if (editor == null) return null;
 		return editor.getViewer();
 	}
 	
-	protected IEditorInput getEditorInput() {
-		FluentEditor editor = this.getEditor();
+	protected IEditorInput getActiveEditorInput() {
+		FluentEditor editor = this.getActiveFluentEditor();
 		if (editor != null) {
 			return editor.getEditorInput();
 		}
 		return null;
+	}
+	
+	IEditorInput getCurrentEditorInput() {
+		return this.currentEditorInput;
+	}
+	
+	FluentEditor getLatestActiveFluentEditor() {
+		return this.latestActiveEditor;
 	}
 
 	protected IPreferenceStore getPreferenceStore() {
@@ -201,7 +213,7 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	public void dispose() {
 		getPreferenceStore().removePropertyChangeListener(this);
 		getActivePage().removePartListener(this);
-		ITextViewer srcViewer = getSourceViewer();
+		ITextViewer srcViewer = getActiveSourceViewer();
 		if (srcViewer != null) {
 			srcViewer.removeTextListener(this);
 		}
@@ -216,6 +228,9 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 			browser.dispose();
 		}
 		browser = null;
+		
+		this.latestActiveEditor = null;
+		this.currentEditorInput = null;
 		
 		super.dispose();
 	}
