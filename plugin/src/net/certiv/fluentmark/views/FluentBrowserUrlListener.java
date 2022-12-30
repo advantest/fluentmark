@@ -21,6 +21,7 @@ import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.IPath;
@@ -28,6 +29,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 
@@ -44,6 +53,7 @@ import net.certiv.fluentmark.editor.FluentEditor;
 public class FluentBrowserUrlListener implements LocationListener {
 
 	private static final String FILE_EXTENSION_MARKDOWN = "md";
+	private static final String FILE_EXTENSION_JAVA = "java";
 	private static final String URL_SCHEME_ABOUT = "about";
 	private static final String URL_SCHEME_FILE = "file";
 	private static final String URL_SCHEME_SPECIFIC_PART_BLANK = "blank";
@@ -95,6 +105,54 @@ public class FluentBrowserUrlListener implements LocationListener {
 		if (fileInWorkspace != null) {
 			if (!hasMarkdownFileExtension(fileInWorkspace)) {
 				event.doit = false;
+				
+				if (hasFileExtension(fileInWorkspace, FILE_EXTENSION_JAVA)
+						&& isLinkToAnchor(targetUri)) {
+					IProject project = fileInWorkspace.getProject();
+					IJavaElement element = JavaCore.create(fileInWorkspace);
+					
+					if (element != null && element instanceof ICompilationUnit) {
+						ICompilationUnit compilationUnit = (ICompilationUnit) element;
+						
+						String memberReference = targetUri.getFragment();
+						IType primaryType = compilationUnit.findPrimaryType();
+						
+						if (primaryType != null) {
+							if (memberReference.contains("(")) {
+								String[] signatureParts = memberReference.split("[\\(\\),]");
+								int numParams = signatureParts.length - 1;
+								String methodName = signatureParts[0];
+								try {
+									for (IMethod method: primaryType.getMethods()) {
+										if (method.getElementName().equals(methodName)
+												&& method.getNumberOfParameters() == numParams) {
+											
+											// TODO check parameter types
+											
+											IEditorPart javaEditor = JavaUI.openInEditor(compilationUnit);
+											JavaUI.revealInEditor(javaEditor, (IJavaElement) method);
+											return;
+										}
+									}
+								} catch (JavaModelException | PartInitException e) {
+									Log.error(String.format("Could not open type and method %s in web browser", targetUri), e );
+								}
+							} else {
+								IField field = primaryType.getField(memberReference);
+								
+								IEditorPart javaEditor;
+								try {
+									javaEditor = JavaUI.openInEditor(compilationUnit);
+									JavaUI.revealInEditor(javaEditor, (IJavaElement) field);
+									return;
+								} catch (PartInitException | JavaModelException e) {
+									Log.error(String.format("Could not open type and field %s in web browser", targetUri), e );
+								}
+							}
+						}
+					}
+				}
+				
 				openFileInDefaultEditor(fileInWorkspace);
 				return;
 			}
@@ -172,10 +230,14 @@ public class FluentBrowserUrlListener implements LocationListener {
 				&& URL_SCHEME_FILE.equals(uri.getScheme()));
 	}
 	
-	private boolean hasMarkdownFileExtension(IFile file) {
-		return (file != null
+	private boolean hasFileExtension(IFile file, String fileExtension) {
+		return (file != null && fileExtension != null
 				&& file.getFileExtension() != null
-				&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension()));
+				&& fileExtension.equalsIgnoreCase(file.getFileExtension()));
+	}
+	
+	private boolean hasMarkdownFileExtension(IFile file) {
+		return hasFileExtension(file, FILE_EXTENSION_MARKDOWN);
 	}
 	
 	private boolean hasMarkdownFileExtension(IFileStore fileStore) {
