@@ -7,22 +7,27 @@
  ******************************************************************************/
 package net.certiv.fluentmark.preferences;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Locale;
+import org.eclipse.swt.graphics.RGB;
+
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.osgi.framework.Bundle;
+
+import java.util.Locale;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import java.io.IOException;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.spell.SpellingEngine;
@@ -64,7 +69,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_TASK_TAGS, true);
 		store.setDefault(EDITOR_TASK_TAGS_DEFINED, "TODO,FIXME,NOTE");
 
-		store.setDefault(EDITOR_MD_CONVERTER, KEY_TXTMARK);
+		store.setDefault(EDITOR_MD_CONVERTER, KEY_PANDOC);
 
 		store.setDefault(EDITOR_UMLMODE_ENABLED, false);
 		store.setDefault(EDITOR_DOTMODE_ENABLED, false);
