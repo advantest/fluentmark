@@ -68,12 +68,12 @@ public class Converter {
 		}
 	}
 
-	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions) {
+	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions, Kind kind) {
 		String text;
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
 				text = getText(filePath, doc, regions, true);
-				return usePandoc(basepath, text);
+				return usePandoc(basepath, text, kind);
 			case Prefs.KEY_BLACKFRIDAY:
 				text = getText(filePath, doc, regions, false);
 				return useBlackFriday(basepath, text);
@@ -97,13 +97,16 @@ public class Converter {
 	}
 
 	// Use Pandoc
-	private String usePandoc(String basepath, String text) {
+	private String usePandoc(String basepath, String text, Kind kind) {
 		String cmd = store.getString(Prefs.EDITOR_PANDOC_PROGRAM);
 		if (cmd.trim().isEmpty()) return "";
 
 		List<String> args = new ArrayList<>();
 		args.add(cmd);
 		args.add("--no-highlight"); // use highlightjs instead
+		if (Kind.EXPORT.equals(kind)) {
+			args.add("-s");
+		}
 		if (store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC)) args.add("--toc");
 		if (store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX)) args.add("--mathjax");
 		if (!store.getBoolean(Prefs.EDITOR_PANDOC_SMART)) {
@@ -197,12 +200,12 @@ public class Converter {
 				case Partitions.DOTBLOCK:
 					if (store.getBoolean(Prefs.EDITOR_DOTMODE_ENABLED)) {
 						text = filter(text, DOTBEG, DOTEND);
-						text = DotGen.runDot(text);
+						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.UMLBLOCK:
 					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
-						text = UmlGen.uml2svg(text);
+						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.PLANTUML_INCLUDE:
@@ -217,6 +220,16 @@ public class Converter {
 		}
 
 		return String.join(" ", parts);
+	}
+	
+	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
+		String dotDiagram = convertDot2Svg(dotSourcCode);
+		return createHtmlFigure(dotDiagram);
+	}
+	
+	private String translatePumlCodeToHtmlFigure(String pumlSourcCode) {
+		String pumlDiagram = convertPlantUml2Svg(pumlSourcCode);
+		return createHtmlFigure(pumlDiagram);
 	}
 	
 	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
@@ -306,6 +319,14 @@ public class Converter {
 		return null;
 	}
 	
+	private String convertDot2Svg(String dotCode) {
+		String svgDiagram = "";
+        if (dotCode != null) {
+        	svgDiagram = DotGen.runDot(dotCode);
+        }
+        return svgDiagram;
+	}
+	
 	private String convertPlantUml2Svg(String plantUmlCode) {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
@@ -320,6 +341,18 @@ public class Converter {
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);
         	figureText = figureText.replace("%caption%", figureCaption);
+        	
+        	return figureText;
+        }
+        
+        return null;
+	}
+	
+	private String createHtmlFigure(String svgCode) {
+		String figureText = FileUtils.fromBundle("resources/html/figure.html");
+        
+        if (figureText != null) {
+        	figureText = figureText.replace("%image%", svgCode);
         	
         	return figureText;
         }

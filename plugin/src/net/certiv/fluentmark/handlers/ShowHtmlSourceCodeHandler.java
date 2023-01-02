@@ -27,9 +27,14 @@ public class ShowHtmlSourceCodeHandler extends AbstractHandler implements IHandl
 		IWorkbenchPart part = HandlerUtil.getActivePart(event);
 		if (part instanceof FluentPreview) {
 			FluentPreview view = (FluentPreview) part;
-			String contents = view.getBrowser().getText();
+			String pageSourceCode = view.getBrowser().getText();
+			String contents = null;
 			
-			SourceCodeDialog dialog = new SourceCodeDialog(view.getSite().getShell(), "HTML Source Code", contents);
+			if ("webkit".equals(view.getBrowser().getBrowserType())) {
+				contents = view.getHtmlViewContents();
+			}
+			
+			SourceCodeDialog dialog = new SourceCodeDialog(view.getSite().getShell(), "HTML Source Code", pageSourceCode, contents);
 			dialog.open();
 		}
 		return null;

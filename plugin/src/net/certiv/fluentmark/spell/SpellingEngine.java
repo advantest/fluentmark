@@ -10,6 +10,7 @@ package net.certiv.fluentmark.spell;
 import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -41,7 +42,7 @@ public class SpellingEngine extends TextSpellingEngine {
 		try {
 			regions = filter.exec(doc, regions);
 		} catch (BadLocationException | BadPartitioningException e) {
-			Log.error("Failed to filter doc partitions.", e);
+			Log.log(IStatus.WARNING, IStatus.ERROR, "Fluent Mark Spelling Engine: Failed to filter doc partitions.", e);
 		}
 
 		super.check(doc, regions, checker, collector, monitor);

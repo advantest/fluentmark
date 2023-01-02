@@ -84,7 +84,7 @@ public class HtmlGen {
 			filePath = new Path(uri.getPath());
 		}
 		
-		return build(kind, convert(filePath, basepath), basepath, filePath);
+		return build(kind, convert(filePath, basepath, kind), basepath, filePath);
 	}
 
 	private String build(Kind kind, String content, String base, IPath filePath) {
@@ -126,7 +126,7 @@ public class HtmlGen {
 		return sb.toString();
 	}
 
-	private String convert(IPath filePath, String basepath) {
+	private String convert(IPath filePath, String basepath, Kind kind) {
 		IDocument doc = editor.getDocument();
 		int beg = 0;
 		int len = doc.getLength();
@@ -139,7 +139,7 @@ public class HtmlGen {
 			return "";
 		}
 
-		return converter.convert(filePath, basepath, doc, regions);
+		return converter.convert(filePath, basepath, doc, regions, kind);
 	}
 
 	// path is the searchable base for the style to use; returns the content

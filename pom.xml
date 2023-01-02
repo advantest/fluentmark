@@ -33,6 +33,9 @@
 	    <module>target-platform/2022-09</module>
 		<module>plugin</module>
 		<module>feature</module>
+		<module>com.advantest.fluentmark.extensions.ui</module>
+		<module>com.advantest.fluentmark.extensions.svgbuilder</module>
+		<module>com.advantest.fluentmark.extensions.feature</module>
 		<module>site</module>
 		<module>tests/com.advantest.fluentmark.tests</module>
 	</modules>

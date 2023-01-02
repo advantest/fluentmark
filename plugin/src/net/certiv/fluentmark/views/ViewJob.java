@@ -32,6 +32,7 @@ public class ViewJob extends Job {
 	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
 	
 	private String currentAnchorToScrollTo;
+	private String previewContents;
 
 	private enum State {
 		NONE,
@@ -39,6 +40,8 @@ public class ViewJob extends Job {
 		READY,
 		TYPESET;
 	}
+	
+	private boolean updateImagesOnly = false;
 	
 	void setAnchorForNextPageLoad(String anchor) {
 		this.currentAnchorToScrollTo = anchor;
@@ -70,19 +73,33 @@ public class ViewJob extends Job {
 
 		load();
 	}
+	
+	public String getHtmlViewContents() {
+		return this.previewContents;
+	}
 
 	public boolean load() {
 		return load(false);
 	}
 
 	public boolean load(boolean firebug) {
-		FluentEditor editor = view.getEditor();
-		if (editor == null) return false;
+		this.previewContents = null;
+		
+		FluentEditor editor = view.getActiveFluentEditor();
+		if (editor == null) {
+			editor = view.getLatestActiveFluentEditor();
+			if (editor == null) {
+				return false;
+			}
+		}
 
 		IEditorInput input = editor.getEditorInput();
-		if (input == null) return false;
+		if (input == null) {
+			return false;
+		}
 
 		state = State.LOAD;
+		
 		if (editor.useMathJax()) {
 			mathjax = true;
 			func = new DoneFunction(browser, "typeset");
@@ -90,14 +107,20 @@ public class ViewJob extends Job {
 			mathjax = false;
 			func = null;
 		}
+		
 		browser.addProgressListener(watcher);
+		
 		timer = System.nanoTime();
+		
 		String content = editor.getHtml(Kind.VIEW);
+		
 		if (firebug) {
 			String script = FileUtils.fromBundle("resources/html/firebug.html") + Strings.EOL;
 			content = content.replaceFirst("</head>", script + "</head>");
 		}
+		
 		browser.setText(content);
+		
 		return true;
 	}
 
@@ -115,6 +138,16 @@ public class ViewJob extends Job {
 				schedule(SHORT);
 				break;
 		}
+	}
+	
+	private void updateImagesOnly() {
+		if (state != State.READY) {
+			return;
+		}
+		
+		this.updateImagesOnly = true;
+		
+		schedule(store.getInt(Prefs.VIEW_UPDATE_DELAY));
 	}
 	
 	public void scrollTo(String anchor) {
@@ -141,14 +174,45 @@ public class ViewJob extends Job {
 	/** The job to run when scheduled */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		FluentEditor editor = view.getEditor();
-		if (editor == null || view == null || browser == null || browser.isDisposed()) {
+		if (view == null) {
 			return Status.CANCEL_STATUS;
 		}
+		
+		FluentEditor editor = view.getActiveFluentEditor();
+		if (editor == null) {
+			editor = view.getLatestActiveFluentEditor();
+		}
+		
+		if (editor == null || browser == null || browser.isDisposed()) {
+			return Status.CANCEL_STATUS;
+		}
+		
+		if (updateImagesOnly) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (browser != null && !browser.isDisposed()) {
+						boolean ok = browser.execute("Fluent.updateImages()");
+						if (!ok) {
+							Log.error("JavaScript execution (image zoom styling) failed.");
+						}
+					}
+				}
+			});
+			
+			updateImagesOnly = false;
+			return Status.OK_STATUS;
+		}
+		
 		timer = System.nanoTime();
 
 		String html = editor.getHtml(Kind.UPDATE);
-		if (html.isEmpty()) return Status.CANCEL_STATUS;
+		this.previewContents = html;
+		
+		if (html.isEmpty()) {
+			return Status.CANCEL_STATUS;
+		}
 
 		String script = String.format(Render, StringEscapeUtils.escapeEcmaScript(html));
 		if (mathjax) state = State.READY;
@@ -159,6 +223,7 @@ public class ViewJob extends Job {
 			@Override
 			public void run() {
 				if (browser != null && !browser.isDisposed()) {
+					
 					boolean ok = browser.execute(script);
 					if (ok) {
 						// read the temporarily saved anchor if any
@@ -171,10 +236,13 @@ public class ViewJob extends Job {
 					} else {
 						Log.error("JavaScript execution (set page contents) failed.");
 					}
+					
+					// delay update of images' styling (zoom), otherwise the image are not found within JavaScript
+					updateImagesOnly();
 				}
 			}
 		});
-
+		
 		return Status.OK_STATUS;
 	}
 
