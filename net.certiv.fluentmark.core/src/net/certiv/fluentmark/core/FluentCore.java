@@ -3,7 +3,7 @@ package net.certiv.fluentmark.core;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class Activator implements BundleActivator {
+public class FluentCore implements BundleActivator {
 
 	private static BundleContext context;
 
@@ -12,11 +12,11 @@ public class Activator implements BundleActivator {
 	}
 
 	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+		FluentCore.context = bundleContext;
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+		FluentCore.context = null;
 	}
 
 }
