@@ -31,7 +31,8 @@
 
 	<modules>
 	    <module>target-platform/2022-09</module>
-		<module>plugin</module>
+		<module>net.certiv.fluentmark.core</module>
+		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
 		<module>com.advantest.fluentmark.extensions.ui</module>
 		<module>com.advantest.fluentmark.extensions.svgbuilder</module>
@@ -93,7 +94,7 @@
 					<useJdk>BREE</useJdk>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
@@ -143,7 +144,7 @@
 					</environments>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 
 		<pluginManagement>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FluentMark Core
+Bundle-SymbolicName: net.certiv.fluentmark.core
+Bundle-Version: 1.2.4.qualifier
+Bundle-Activator: net.certiv.fluentmark.core.Activator
+Bundle-Vendor: Certiv Analytics
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: net.certiv.fluentmark.core
+Bundle-ActivationPolicy: lazy
