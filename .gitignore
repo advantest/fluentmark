@@ -3,3 +3,4 @@ tests/com.advantest.fluentmark.tests/target
 com.advantest.fluentmark.extensions.ui/target
 com.advantest.fluentmark.extensions.feature/target
 com.advantest.fluentmark.extensions.svgbuilder/target
+net.certiv.fluentmark.core/lib
