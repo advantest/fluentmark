@@ -28,7 +28,7 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="net.certiv.fluentmark.editor.FluentDocumentSetupParticipant"
+            class="net.certiv.fluentmark.ui.editor.FluentDocumentSetupParticipant"
             extensions="md,mdown,mkd,text">
       </participant>
    </extension>
@@ -36,8 +36,8 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="net.certiv.fluentmark.editor.FluentEditor"
-            contributorClass="net.certiv.fluentmark.editor.FluentActionBarContributor"
+            class="net.certiv.fluentmark.ui.editor.FluentEditor"
+            contributorClass="net.certiv.fluentmark.ui.editor.FluentActionBarContributor"
             default="true"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.editor.FluentEditor"
@@ -85,15 +85,15 @@
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-            annotationImageProvider="net.certiv.fluentmark.editor.AnnotationImageProvider"
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
             annotationType="net.certiv.fluentmark.ui.error">
       </specification>
       <specification
-            annotationImageProvider="net.certiv.fluentmark.editor.AnnotationImageProvider"
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
             annotationType="net.certiv.fluentmark.ui.warning">
       </specification>
       <specification
-            annotationImageProvider="net.certiv.fluentmark.editor.AnnotationImageProvider"
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
             annotationType="net.certiv.fluentmark.ui.info">
       </specification>
       
@@ -128,7 +128,7 @@
     <extension
        point="org.eclipse.ui.editors.templates">
     	<contextType
-           class="net.certiv.fluentmark.editor.assist.SourceTemplateContextType"
+           class="net.certiv.fluentmark.ui.editor.assist.SourceTemplateContextType"
            id="net.certiv.fluentmark.templateContext"
            name="Fluent Editor"
            registryId="net.certiv.fluentmark.templates">
@@ -145,7 +145,7 @@
    <extension
          point="org.eclipse.ui.workbench.texteditor.spellingEngine">
       <engine
-            class="net.certiv.fluentmark.spell.SpellingEngine"
+            class="net.certiv.fluentmark.ui.spell.SpellingEngine"
             default="true"
             id="net.certiv.fluentmark.spell.SpellingEngine"
             label="FluentMark spelling engine">
@@ -157,7 +157,7 @@
       <view
             allowMultiple="false"
             category="net.certiv.certivtools"
-            class="net.certiv.fluentmark.views.FluentPreview"
+            class="net.certiv.fluentmark.ui.views.FluentPreview"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.views.FluentPreview"
             name="FluentMark View"
@@ -169,43 +169,43 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="net.certiv.certivtools.prefs.TopLevelPage"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageEditor"
             id="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
             name="FluentMark">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageAppearance"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageAppearance"
             id="net.certiv.fluentmark.preferences.PrefPageAppearance"
             name="Appearance">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageConvert"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageConvert"
             id="net.certiv.fluentmark.preferences.PrefPageConvert"
             name="Converters">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageSpeller"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageSpeller"
             id="net.certiv.fluentmark.preferences.PrefPageSpeller"
             name="Spelling">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageStyles"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageStyles"
             id="net.certiv.fluentmark.preferences.PrefPageStyles"
             name="Stylesheets">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageTemplates"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageTemplates"
             id="net.certiv.fluentmark.preferences.PrefPageTemplates"
             name="Templates">
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
-            class="net.certiv.fluentmark.preferences.pages.PrefPageFolding"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageFolding"
             id="net.certiv.fluentmark.preferences.pages.PrefPageFolding"
             name="Folding">
       </page>
@@ -213,7 +213,7 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="net.certiv.fluentmark.preferences.PrefsInit">
+            class="net.certiv.fluentmark.ui.preferences.PrefsInit">
       </initializer>
    </extension>
 
@@ -362,76 +362,76 @@
       </category>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.OpenMdViewHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.OpenMdViewHandler"
             id="net.certiv.fluentmark.openView"
             name="Open FluentMark View">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.OpenStylesheetsHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.OpenStylesheetsHandler"
             description="Open stylesheets preference"
             id="net.certiv.fluentmark.openStylesheets"
             name="OpenStylesheets">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ExportHtmlHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ExportHtmlHandler"
             description="Export as Html"
             id="net.certiv.fluentmark.exportHtml"
             name="ExportHTML">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ExportPdfHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ExportPdfHandler"
             description="Export as PDF"
             id="net.certiv.fluentmark.exportPdf"
             name="ExportPDF">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.RefreshViewHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.RefreshViewHandler"
             description="Refresh view"
             id="net.certiv.fluentmark.refreshView"
             name="Refresh view">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.FormatHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.FormatHandler"
             description="Format"
             id="net.certiv.fluentmark.format"
             name="Format">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.UnwrapHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.UnwrapHandler"
             description="Unwrap text"
             id="net.certiv.fluentmark.unwrap"
             name="Unwrap">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ToggleHiddenCommentHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ToggleHiddenCommentHandler"
             description="Toggle Hidden Comment"
             id="net.certiv.fluentmark.hiddenComment"
             name="Hidden Comment ">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ToggleVisibleCommentHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ToggleVisibleCommentHandler"
             description="Toggle Visible Comment"
             id="net.certiv.fluentmark.visibleComment"
             name="Visible Comment">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.BoldHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.BoldHandler"
             description="Bold"
             id="net.certiv.fluentmark.bold"
             name="Bold">
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ItalicHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ItalicHandler"
             description="Italic"
             id="net.certiv.fluentmark.italic"
             name="Italic">
@@ -444,7 +444,7 @@
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            defaultHandler="net.certiv.fluentmark.handlers.ShowHtmlSourceCodeHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ShowHtmlSourceCodeHandler"
             description="Show the HTML code generated from the given Markdown code"
             id="net.certiv.fluentmark.showHtmlCode"
             name="Show HTML source code">
@@ -454,7 +454,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="net.certiv.fluentmark.handlers.OpenMdViewHandler"
+            class="net.certiv.fluentmark.ui.handlers.OpenMdViewHandler"
             commandId="net.certiv.fluentmark.openView">
          <activeWhen>
             <reference
@@ -468,7 +468,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.OpenStylesheetsHandler"
+            class="net.certiv.fluentmark.ui.handlers.OpenStylesheetsHandler"
             commandId="net.certiv.fluentmark.openStylesheets">
          <activeWhen>
             <reference
@@ -482,7 +482,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.ExportHtmlHandler"
+            class="net.certiv.fluentmark.ui.handlers.ExportHtmlHandler"
             commandId="net.certiv.fluentmark.exportHtml">
          <activeWhen>
             <reference
@@ -496,7 +496,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.ExportPdfHandler"
+            class="net.certiv.fluentmark.ui.handlers.ExportPdfHandler"
             commandId="net.certiv.fluentmark.exportPdf">
          <activeWhen>
             <reference
@@ -510,7 +510,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.FormatHandler"
+            class="net.certiv.fluentmark.ui.handlers.FormatHandler"
             commandId="net.certiv.fluentmark.format">
          <activeWhen>
             <reference
@@ -524,7 +524,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.UnwrapHandler"
+            class="net.certiv.fluentmark.ui.handlers.UnwrapHandler"
             commandId="net.certiv.fluentmark.unwrap">
          <activeWhen>
             <reference
@@ -538,7 +538,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.ToggleHiddenCommentHandler"
+            class="net.certiv.fluentmark.ui.handlers.ToggleHiddenCommentHandler"
             commandId="net.certiv.fluentmark.hiddenComment">
          <activeWhen>
             <reference
@@ -552,7 +552,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.ToggleVisibleCommentHandler"
+            class="net.certiv.fluentmark.ui.handlers.ToggleVisibleCommentHandler"
             commandId="net.certiv.fluentmark.visibleComment">
          <activeWhen>
             <reference
@@ -566,7 +566,7 @@
          </enabledWhen>
       </handler>
       <handler
-            class="net.certiv.fluentmark.handlers.BoldHandler"
+            class="net.certiv.fluentmark.ui.handlers.BoldHandler"
             commandId="net.certiv.fluentmark.bold">
          <activeWhen>
             <reference
@@ -581,7 +581,7 @@
       </handler>
       
       <handler
-            class="net.certiv.fluentmark.handlers.ItalicHandler"
+            class="net.certiv.fluentmark.ui.handlers.ItalicHandler"
             commandId="net.certiv.fluentmark.italic">
          <activeWhen>
             <reference
@@ -596,7 +596,7 @@
       </handler>
       
       <handler
-            class="net.certiv.fluentmark.handlers.FirebugHandler"
+            class="net.certiv.fluentmark.ui.handlers.FirebugHandler"
             commandId="net.certiv.fluentmark.firebug">
          <activeWhen>
             <reference
@@ -669,7 +669,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="net.certiv.certivtools.wizards"
-            class="net.certiv.fluentmark.wizards.FluentNewWizard"
+            class="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.wizards.FluentNewWizard"
             name="FluentMark file">

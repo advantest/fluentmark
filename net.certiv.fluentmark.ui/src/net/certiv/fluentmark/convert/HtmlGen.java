@@ -26,11 +26,11 @@ import java.net.URL;
 import java.io.File;
 import java.io.IOException;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.editor.Partitions;
+import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.Log;
+import net.certiv.fluentmark.ui.editor.Partitions;
 
 /**
  * Generate Html files for:

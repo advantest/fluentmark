@@ -13,9 +13,9 @@ import java.io.ByteArrayOutputStream;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
+import net.certiv.fluentmark.ui.Log;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;

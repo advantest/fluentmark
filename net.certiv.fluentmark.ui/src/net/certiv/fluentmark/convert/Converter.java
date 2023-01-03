@@ -39,12 +39,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.markdown.Lines;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.editor.Partitions;
+import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.Log;
+import net.certiv.fluentmark.ui.editor.Partitions;
 
 public class Converter {
 

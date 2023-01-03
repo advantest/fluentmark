@@ -28,8 +28,6 @@ import java.io.IOException;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.PagePart;
@@ -40,6 +38,8 @@ import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.core.util.Temps;
+import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.Log;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;

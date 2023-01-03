@@ -18,7 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.certiv.fluentmark.editor.Partitions;
+import net.certiv.fluentmark.ui.editor.Partitions;
+import net.certiv.fluentmark.ui.editor.text.rules.PumlFileInclusionRule;
 
 public class PumlFileInclusionRuleTest {
 	

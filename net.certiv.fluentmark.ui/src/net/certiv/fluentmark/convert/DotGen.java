@@ -9,10 +9,10 @@ package net.certiv.fluentmark.convert;
 import java.util.List;
 import java.util.Map;
 
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
+import net.certiv.fluentmark.ui.Log;
 
 public class DotGen {
 
