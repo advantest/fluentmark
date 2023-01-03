@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
@@ -144,8 +143,7 @@ public class HtmlGen {
 		if (pathUrl != null) return pathUrl;
 
 		// 3) read the file identified by the pref key 'EDITOR_CSS_EXTERNAL' from the filesystem
-		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
-		String customCss = store.getString(IConfigurationProvider.EDITOR_CSS_EXTERNAL);
+		String customCss = configurationProvider.getCustomCssSettingsFile();
 		if (!customCss.isEmpty()) {
 			File file = new File(customCss);
 			if (file.isFile() && file.getName().endsWith("." + IConfigurationProvider.CSS)) {
@@ -154,7 +152,7 @@ public class HtmlGen {
 		}
 
 		// 4) read the file identified by the pref key 'EDITOR_CSS_BUILTIN' from the bundle
-		String builtinCss = store.getString(IConfigurationProvider.EDITOR_CSS_BUILTIN);
+		String builtinCss = configurationProvider.getBuiltinCssSettingsFile();
 		if (!builtinCss.isEmpty()) {
 			try {
 				URI uri = new URI(builtinCss.replace(".css", ".min.css"));

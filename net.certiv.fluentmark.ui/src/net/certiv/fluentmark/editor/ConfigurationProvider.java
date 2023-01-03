@@ -86,7 +86,12 @@ public class ConfigurationProvider implements IConfigurationProvider {
 
 	@Override
 	public boolean addTableOfContents() {
-		switch (getConverterType()) {
+		return addTableOfContents(getConverterType());
+	}
+	
+	@Override
+	public boolean addTableOfContents(ConverterType converter) {
+		switch (converter) {
 			case PANDOC:
 				return store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC);
 			case BLACKFRIDAY:
@@ -116,6 +121,16 @@ public class ConfigurationProvider implements IConfigurationProvider {
 	@Override
 	public boolean isTxtMarkExtendedMode() {
 		return store.getBoolean(Prefs.EDITOR_TXTMARK_EXTENDED);
+	}
+
+	@Override
+	public String getCustomCssSettingsFile() {
+		return store.getString(IConfigurationProvider.EDITOR_CSS_EXTERNAL);
+	}
+
+	@Override
+	public String getBuiltinCssSettingsFile() {
+		return store.getString(IConfigurationProvider.EDITOR_CSS_BUILTIN);
 	}
 
 }

@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -22,8 +21,6 @@ import org.eclipse.text.edits.TextEdit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import java.awt.Desktop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,10 +37,9 @@ import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.markdown.SourceRange;
 import net.certiv.fluentmark.core.markdown.Type;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.preferences.Prefs;
+import net.certiv.fluentmark.core.util.Temps;
 import net.certiv.fluentmark.util.Cmd;
 import net.certiv.fluentmark.util.FileUtils;
-import net.certiv.fluentmark.util.Temps;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -65,8 +61,12 @@ public class PdfGen {
 			"\\includegraphics[width=0.8\\textwidth]{%s}" + Strings.EOL + //
 			"\\end{center}" + Strings.EOL + //
 			"\\end{figure}" + Strings.EOL;
+	
+	private IConfigurationProvider configurationProvider;
 
-	private PdfGen() {}
+	public PdfGen(IConfigurationProvider configProvider) {
+		this.configurationProvider = configProvider;
+	}
 
 	/**
 	 * Generate and Save PDF_OPS
@@ -77,7 +77,7 @@ public class PdfGen {
 	 * @param template the latex template
 	 * @param pathname the output pathname
 	 */
-	public static void save(String base, IDocument doc, PageRoot model, String template, String pathname) {
+	public Job save(String base, IDocument doc, PageRoot model, String template, String pathname) {
 
 		Job job = new Job("Pdf generating") {
 
@@ -103,18 +103,6 @@ public class PdfGen {
 						return makeStatus(IStatus.ERROR, "Error: " + err);
 					}
 
-					// open the converted document
-					if (FluentUI.getDefault().getPreferenceStore().getBoolean(Prefs.EDITOR_PDF_OPEN)) {
-						if (Desktop.isDesktopSupported()) {
-							try {
-								Desktop.getDesktop().open(out);
-							} catch (Exception e) {
-								String msg = String.format("Cannot open %s (%s)", pathname, e.getMessage());
-								return makeStatus(IStatus.ERROR, msg);
-							}
-						}
-					}
-
 					return makeStatus(IStatus.OK, "");
 
 				} finally {
@@ -125,9 +113,11 @@ public class PdfGen {
 
 		job.setPriority(Job.SHORT);
 		job.schedule();
+		
+		return job;
 	}
 
-	protected static File buildGraphs(IDocument doc, PageRoot model) throws IOException {
+	protected File buildGraphs(IDocument doc, PageRoot model) throws IOException {
 		File dir = getTmpFolder();
 
 		// evaluate parts representing dot and uml code blocks
@@ -179,11 +169,10 @@ public class PdfGen {
 		return dir;
 	}
 
-	protected static String convert(String base, String template, String content, File out) {
-		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
+	protected String convert(String base, String template, String content, File out) {
 		List<String> ops = new ArrayList<>();
 
-		String cmd = store.getString(Prefs.EDITOR_PANDOC_PROGRAM);
+		String cmd = configurationProvider.getPandocCommand();
 		if (cmd.trim().isEmpty()) return "";
 
 		ops.add(cmd);
@@ -191,7 +180,7 @@ public class PdfGen {
 
 		ops.add("--pdf-engine=xelatex");
 		if (!template.isEmpty()) ops.add("--template=" + template);
-		if (store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC)) ops.add("--table-of-contents");
+		if (configurationProvider.addTableOfContents(ConverterType.PANDOC)) ops.add("--table-of-contents");
 
 		ops.add("-o");
 		ops.add(out.getPath());
@@ -230,8 +219,8 @@ public class PdfGen {
 		return new SourceRange(begOffset, endOffset - begOffset, dotBegLine, dotEndLine);
 	}
 
-	private static boolean dot2pdf(File file, String data) {
-		String cmd = FluentUI.getDefault().getPreferenceStore().getString(Prefs.EDITOR_DOT_PROGRAM);
+	private boolean dot2pdf(File file, String data) {
+		String cmd = configurationProvider.getDotCommand();
 		if (cmd.trim().isEmpty() || data.trim().isEmpty()) return false;
 
 		// generate a new value by executing dot

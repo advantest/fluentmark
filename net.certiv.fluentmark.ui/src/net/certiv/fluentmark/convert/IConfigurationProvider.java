@@ -33,6 +33,8 @@ public interface IConfigurationProvider {
 	
 	boolean addTableOfContents();
 	
+	boolean addTableOfContents(ConverterType converter);
+	
 	boolean isSmartMode();
 	
 	boolean isTxtMarkSafeMode();
@@ -42,5 +44,9 @@ public interface IConfigurationProvider {
 	boolean isDotEnabled();
 	
 	boolean isPlantUMLEnabled();
+	
+	String getCustomCssSettingsFile();
+	
+	String getBuiltinCssSettingsFile();
 
 }

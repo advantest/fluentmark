@@ -50,11 +50,13 @@ public class Converter {
 	
 	private final IConfigurationProvider configurationProvider;
 	private final DotGen dotGen;
+	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
 		this.dotGen = new DotGen(configProvider);
+		this.umlGen = new UmlGen(configProvider);
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 	}
 
@@ -321,7 +323,7 @@ public class Converter {
 	private String convertPlantUml2Svg(String plantUmlCode) {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
-        	svgDiagram = UmlGen.uml2svg(plantUmlCode);
+        	svgDiagram = umlGen.uml2svg(plantUmlCode);
         }
         return svgDiagram;
 	}

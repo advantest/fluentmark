@@ -6,8 +6,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +13,8 @@ import java.io.ByteArrayOutputStream;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.LRUCache;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -29,21 +25,24 @@ public class UmlGen {
 
 	private static final Map<Integer, String> umlCache = new LRUCache<>(20);
 
-	private UmlGen() {}
+	private IConfigurationProvider configurationProvider;
 
-	public static String uml2svg(List<String> lines) {
+	public UmlGen(IConfigurationProvider configProvider) {
+		this.configurationProvider = configProvider;
+	}
+
+	public String uml2svg(List<String> lines) {
 		return uml2svg(String.join(Strings.EOL, lines));
 	}
 
-	public static String uml2svg(String data) {
+	public String uml2svg(String data) {
 
 		// return cached value, if present
 		int key = data.hashCode();
 		String value = umlCache.get(key);
 		if (value != null) return value;
 
-		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
-		String dotexe = store.getString(Prefs.EDITOR_DOT_PROGRAM);
+		String dotexe = configurationProvider.getDotCommand();
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
