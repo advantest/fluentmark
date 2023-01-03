@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.util;
+package net.certiv.fluentmark.core.util;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -17,12 +17,9 @@ import org.eclipse.core.runtime.URIUtil;
 
 import org.osgi.framework.Bundle;
 
-import java.util.LinkedHashMap;
-
+import java.net.URISyntaxException;
 import java.net.URL;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -37,13 +34,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.Log;
-import net.certiv.fluentmark.core.util.Strings;
 
 public final class FileUtils {
 
@@ -86,18 +76,16 @@ public final class FileUtils {
 	 * 
 	 * @param pathname of the file within the bundle.
 	 * @return null if not found.
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 * @throws  
 	 */
-	public static String fromBundle(String pathname) {
-		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
+	public static String fromBundle(String pathname, String bundleId) throws IOException, URISyntaxException {
+		Bundle bundle = Platform.getBundle(bundleId);
 		URL url = bundle.getEntry(pathname);
 		if (url == null) return null;
-		try {
-			url = FileLocator.toFileURL(url);
-			return read(URIUtil.toFile(URIUtil.toURI(url)));
-		} catch (Exception e) {
-			Log.error(e);
-			return "";
-		}
+		url = FileLocator.toFileURL(url);
+		return read(URIUtil.toFile(URIUtil.toURI(url)));
 	}
 
 	public static String read(File file) throws RuntimeException {
@@ -190,55 +178,8 @@ public final class FileUtils {
 		file.delete();
 		if (!file.exists()) return;
 
-		// if (file.isDirectory() && isSymLink(file)
-		// && (Utils.getOperatingSystem().contains("linux") ||
-		// Utils.getOperatingSystem().contains("unix"))) {
-		// String path = file.getAbsolutePath();
-		// DotGen p = new DotGen((new StringBuilder("rm -f ")).append(path).toString());
-		// p.run();
-		// p.waitFor(1000L);
-		// if (!file.exists()) {
-		// return;
-		// } else {
-		// throw new RuntimeException(new IOException((new StringBuilder("Could not delete
-		// file")).append(file)
-		// .append("; ").append(p.getError()).toString()));
-		// }
-		// } else {
-		// throw new RuntimeException(
-		// new IOException((new StringBuilder("Could not delete file ")).append(file).toString()));
-		// }
-
 		throw new RuntimeException(
 				new IOException((new StringBuilder("Could not delete file ")).append(file).toString()));
 	}
 
-	@SuppressWarnings("unchecked")
-	public static LinkedHashMap<String, String> getTemplateMap() {
-		LinkedHashMap<String, String> map = null;
-		File file = getTemplateStateFile();
-		if (file != null && file.isFile()) {
-			try (XMLDecoder coder = new XMLDecoder(new BufferedInputStream(new FileInputStream(file)));) {
-				map = (LinkedHashMap<String, String>) coder.readObject();
-			} catch (FileNotFoundException e) {}
-		}
-		if (map == null) {
-			map = new LinkedHashMap<>();
-		}
-		return map;
-	}
-
-	public static boolean putTemplateMap(LinkedHashMap<String, String> map) {
-		File file = getTemplateStateFile();
-		try (XMLEncoder coder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(file)));) {
-			coder.writeObject(map);
-			return true;
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-	}
-
-	private static File getTemplateStateFile() {
-		return FluentUI.getDefault().getStateLocation().append("TemplateMap.xml").toFile();
-	}
 }

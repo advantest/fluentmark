@@ -39,7 +39,6 @@ import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.handlers.dialog.PdfDialog;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.FileUtils;
 
 public class ExportPdfHandler extends AbstractHandler {
 
@@ -97,10 +96,10 @@ public class ExportPdfHandler extends AbstractHandler {
 						
 					});
 
-					LinkedHashMap<String, String> map = FileUtils.getTemplateMap();
+					LinkedHashMap<String, String> map = FluentUI.getTemplateMap();
 					map.put(source.getFullPath().toString(), template); // by WS relative source pathname
 					map.put(source.getName(), template); // by source filename
-					FileUtils.putTemplateMap(map);
+					FluentUI.putTemplateMap(map);
 				}
 			}
 		}

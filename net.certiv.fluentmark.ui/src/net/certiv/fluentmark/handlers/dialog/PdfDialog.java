@@ -1,10 +1,10 @@
 package net.certiv.fluentmark.handlers.dialog;
 
-import java.util.LinkedHashMap;
-
 import org.eclipse.core.resources.IFile;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -20,10 +20,11 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.LinkedHashMap;
+
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.handlers.ExportPdfHandler;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.FileUtils;
 import net.certiv.fluentmark.util.SwtUtil;
 
 public class PdfDialog extends MessageDialog {
@@ -98,7 +99,7 @@ public class PdfDialog extends MessageDialog {
 	// returns the pathname or the default ident
 	private String findLast() {
 		// key=document[pathname|name]; value=template pathname
-		LinkedHashMap<String, String> map = FileUtils.getTemplateMap();
+		LinkedHashMap<String, String> map = FluentUI.getTemplateMap();
 		String pathname = map.get(source.getFullPath().toString()); // by WS relative source file pathname
 		if (invalid(pathname)) pathname = map.get(source.getName()); // by source filename
 		return invalid(pathname) ? Default : pathname;

@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.net.URISyntaxException;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -37,11 +39,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.markdown.Lines;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.editor.Partitions;
 import net.certiv.fluentmark.util.Cmd;
-import net.certiv.fluentmark.util.FileUtils;
 
 public class Converter {
 
@@ -329,7 +332,12 @@ public class Converter {
 	}
 	
 	private String createHtmlFigure(String svgCode, String figureCaption) {
-		String figureText = FileUtils.fromBundle("resources/html/puml-include.html");
+		String figureText;
+		try {
+			figureText = FileUtils.fromBundle("resources/html/puml-include.html", FluentUI.PLUGIN_ID);
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
         
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);
@@ -342,7 +350,12 @@ public class Converter {
 	}
 	
 	private String createHtmlFigure(String svgCode) {
-		String figureText = FileUtils.fromBundle("resources/html/figure.html");
+		String figureText;
+		try {
+			figureText = FileUtils.fromBundle("resources/html/figure.html", FluentUI.PLUGIN_ID);
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
         
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);

@@ -7,28 +7,33 @@
  ******************************************************************************/
 package net.certiv.fluentmark.handlers;
 
-import java.awt.Desktop;
-import java.io.File;
-
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.core.resources.IFile;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
+
+import java.awt.Desktop;
+
+import java.io.File;
+
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.convert.Kind;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.FileUtils;
 
 public class ExportHtmlHandler extends AbstractHandler {
 

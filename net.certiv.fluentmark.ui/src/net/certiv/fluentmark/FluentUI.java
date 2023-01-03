@@ -14,25 +14,42 @@
  */
 package net.certiv.fluentmark;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
+
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 
 import net.certiv.fluentmark.editor.FluentTextTools;
 import net.certiv.fluentmark.editor.color.ColorManager;
@@ -210,4 +227,34 @@ public class FluentUI extends AbstractUIPlugin {
 			Log.error(e);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static LinkedHashMap<String, String> getTemplateMap() {
+		LinkedHashMap<String, String> map = null;
+		File file = getTemplateStateFile();
+		if (file != null && file.isFile()) {
+			try (XMLDecoder coder = new XMLDecoder(new BufferedInputStream(new FileInputStream(file)));) {
+				map = (LinkedHashMap<String, String>) coder.readObject();
+			} catch (FileNotFoundException e) {}
+		}
+		if (map == null) {
+			map = new LinkedHashMap<>();
+		}
+		return map;
+	}
+
+	public static boolean putTemplateMap(LinkedHashMap<String, String> map) {
+		File file = getTemplateStateFile();
+		try (XMLEncoder coder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(file)));) {
+			coder.writeObject(map);
+			return true;
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+	}
+
+	private static File getTemplateStateFile() {
+		return FluentUI.getDefault().getStateLocation().append("TemplateMap.xml").toFile();
+	}
+	
 }

@@ -16,15 +16,19 @@ import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.widgets.Display;
 
+import java.net.URISyntaxException;
+
+import java.io.IOException;
+
 import java.math.BigDecimal;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.Kind;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.FileUtils;
 
 public class ViewJob extends Job {
 
@@ -115,8 +119,13 @@ public class ViewJob extends Job {
 		String content = editor.getHtml(Kind.VIEW);
 		
 		if (firebug) {
-			String script = FileUtils.fromBundle("resources/html/firebug.html") + Strings.EOL;
-			content = content.replaceFirst("</head>", script + "</head>");
+			String script;
+			try {
+				script = FileUtils.fromBundle("resources/html/firebug.html", FluentUI.PLUGIN_ID) + Strings.EOL;
+				content = content.replaceFirst("</head>", script + "</head>");
+			} catch (IOException | URISyntaxException e) {
+				FluentUI.log(IStatus.ERROR, "Could not load firebug.html from bundle", e);
+			}
 		}
 		
 		browser.setText(content);

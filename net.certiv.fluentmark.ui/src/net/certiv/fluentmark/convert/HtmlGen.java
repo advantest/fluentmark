@@ -24,12 +24,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.Partitions;
-import net.certiv.fluentmark.util.FileUtils;
 
 /**
  * Generate Html files for:
@@ -62,18 +63,22 @@ public class HtmlGen {
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
 	public String getHtml(IDocument document, IPath filePath, String basepath, Kind kind) {
-		return build(kind, convert(document, filePath, basepath, kind), basepath, filePath);
+		try {
+			return build(kind, convert(document, filePath, basepath, kind), basepath, filePath);
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	private String build(Kind kind, String content, String base, IPath filePath) {
+	private String build(Kind kind, String content, String base, IPath filePath) throws IOException, URISyntaxException {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
 				sb.append("<html><head>" + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentUI.PLUGIN_ID) + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentUI.PLUGIN_ID) + Strings.EOL);
 				if (configurationProvider.useMathJax()) {
-					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
+					sb.append(FileUtils.fromBundle("resources/html/mathjax.html", FluentUI.PLUGIN_ID) + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
 				sb.append(getStyle(filePath) + Strings.EOL);
@@ -91,7 +96,7 @@ public class HtmlGen {
 				break;
 
 			case VIEW:
-				String preview = FileUtils.fromBundle("resources/html/preview.html");
+				String preview = FileUtils.fromBundle("resources/html/preview.html", FluentUI.PLUGIN_ID);
 				preview = preview.replaceFirst("%path%", filePath.toString());
 				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
 				break;
