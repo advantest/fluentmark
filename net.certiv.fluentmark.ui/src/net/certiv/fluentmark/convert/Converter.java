@@ -53,20 +53,14 @@ public class Converter {
 	private static final Pattern DOTEND = Pattern.compile("(~~~+|```+)\\s*", Pattern.DOTALL);
 	private static final BlockEmitter emitter = new DotCodeBlockEmitter();
 	private IPreferenceStore store;
+	
+	private IConfigurationProvider configurationProvider;
 
-	public Converter() {
-		super();
+	public Converter(IConfigurationProvider configProvider) {
 		store = FluentUI.getDefault().getPreferenceStore();
+		this.configurationProvider = configProvider;
 	}
 
-	public boolean useMathJax() {
-		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
-			case Prefs.KEY_PANDOC:
-				return store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX);
-			default:
-				return false;
-		}
-	}
 
 	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions, Kind kind) {
 		String text;

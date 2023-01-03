@@ -1,9 +1,5 @@
 package net.certiv.fluentmark.convert;
 
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPathEditorInput;
-import org.eclipse.ui.IURIEditorInput;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -33,7 +29,6 @@ import java.io.File;
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.Partitions;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.FileUtils;
@@ -55,12 +50,12 @@ import net.certiv.fluentmark.util.FileUtils;
  */
 public class HtmlGen {
 
-	private FluentEditor editor;
 	private Converter converter;
+	private IConfigurationProvider configurationProvider;
 
-	public HtmlGen(FluentEditor editor, Converter converter) {
-		this.editor = editor;
+	public HtmlGen(Converter converter, IConfigurationProvider configProvider) {
 		this.converter = converter;
+		this.configurationProvider = configProvider;
 	}
 
 	/**
@@ -68,23 +63,8 @@ public class HtmlGen {
 	 *
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
-	public String getHtml(Kind kind) {
-		IEditorInput input = editor.getEditorInput();
-		if (input == null) return "";
-		
-		String basepath = null;
-		IPath filePath = null;
-		if (input instanceof IPathEditorInput) {
-			filePath = ((IPathEditorInput) input).getPath();
-			basepath = filePath.removeLastSegments(1).addTrailingSeparator().toString();
-		} else if (input instanceof IURIEditorInput) {
-			URI uri = ((IURIEditorInput) input).getURI();
-			basepath = uri.getPath();
-			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
-			filePath = new Path(uri.getPath());
-		}
-		
-		return build(kind, convert(filePath, basepath, kind), basepath, filePath);
+	public String getHtml(IDocument document, IPath filePath, String basepath, Kind kind) {
+		return build(kind, convert(document, filePath, basepath, kind), basepath, filePath);
 	}
 
 	private String build(Kind kind, String content, String base, IPath filePath) {
@@ -94,7 +74,7 @@ public class HtmlGen {
 				sb.append("<html><head>" + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
-				if (editor.useMathJax()) {
+				if (configurationProvider.useMathJax()) {
 					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
@@ -126,20 +106,19 @@ public class HtmlGen {
 		return sb.toString();
 	}
 
-	private String convert(IPath filePath, String basepath, Kind kind) {
-		IDocument doc = editor.getDocument();
+	private String convert(IDocument document, IPath filePath, String basepath, Kind kind) {
 		int beg = 0;
-		int len = doc.getLength();
+		int len = document.getLength();
 
 		ITypedRegion[] regions;
 		try {
-			regions = TextUtilities.computePartitioning(doc, Partitions.PARTITIONING, beg, len, false);
+			regions = TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
 		} catch (BadLocationException e) {
 			Log.error("Failed to compute partitions. " + beg, e);
 			return "";
 		}
 
-		return converter.convert(filePath, basepath, doc, regions, kind);
+		return converter.convert(filePath, basepath, document, regions, kind);
 	}
 
 	// path is the searchable base for the style to use; returns the content

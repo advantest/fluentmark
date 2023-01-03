@@ -40,9 +40,11 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -92,10 +94,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import java.net.URI;
+
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.Converter;
 import net.certiv.fluentmark.convert.HtmlGen;
+import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.convert.Kind;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
@@ -147,9 +152,11 @@ public class FluentEditor extends TextEditor
 	private boolean disableSelResponse;
 	private HtmlGen htmlGen;
 	private ModelUpdater modelUpdater;
+	private IConfigurationProvider configProvider;
 
 	public FluentEditor() {
 		super();
+		this.configProvider = new ConfigurationProvider();
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
@@ -206,8 +213,8 @@ public class FluentEditor extends TextEditor
 		setDocumentProvider(getDocumentProvider());
 		int tabWidth = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
 		pageModel = new PageRoot(this, getLineDelimiter(), tabWidth);
-		converter = new Converter();
-		htmlGen = new HtmlGen(this, converter);
+		converter = new Converter(this.configProvider);
+		htmlGen = new HtmlGen(converter, this.configProvider);
 		
 		pageModelUpdater = new PageModelUpdater();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(pageModelUpdater, POST_CHANGE_EVENT);
@@ -614,14 +621,29 @@ public class FluentEditor extends TextEditor
 		IDocument doc = getDocument();
 		return doc == null ? null : doc.get();
 	}
+	
+	public boolean useMathJax() {
+		return this.configProvider.useMathJax();
+	}
 
 	/** Returns the Html content. */
 	public String getHtml(Kind kind) {
-		return htmlGen.getHtml(kind);
-	}
-
-	public boolean useMathJax() {
-		return converter.useMathJax();
+		IEditorInput input = this.getEditorInput();
+		if (input == null) return "";
+		
+		String basepath = null;
+		IPath filePath = null;
+		if (input instanceof IPathEditorInput) {
+			filePath = ((IPathEditorInput) input).getPath();
+			basepath = filePath.removeLastSegments(1).addTrailingSeparator().toString();
+		} else if (input instanceof IURIEditorInput) {
+			URI uri = ((IURIEditorInput) input).getURI();
+			basepath = uri.getPath();
+			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
+			filePath = new Path(uri.getPath());
+		}
+		
+		return htmlGen.getHtml(getDocument(), filePath, basepath, kind);
 	}
 
 	/**
