@@ -7,11 +7,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.convert;
 
-import java.util.List;
-
 import com.github.rjeschke.txtmark.BlockEmitter;
 
-import net.certiv.fluentmark.util.Strings;
+import java.util.List;
+
+import net.certiv.fluentmark.core.util.Strings;
 
 public class DotCodeBlockEmitter implements BlockEmitter {
 

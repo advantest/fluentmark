@@ -1,15 +1,20 @@
-package net.certiv.fluentmark.editor.assist;
+package net.certiv.fluentmark.core.marker;
+
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 
-import net.certiv.fluentmark.dot.Record;
-import net.certiv.fluentmark.util.Strings;
+import net.certiv.fluentmark.core.dot.DotRecord;
+import net.certiv.fluentmark.core.util.Strings;
 
 public class DotProblem {
+	
+	/** DOT marker type. */
+	public static final String TYPE = "net.certiv.fluentmark.core.marker.dot"; //$NON-NLS-1$
 
 	private final int severity;
 	private final String cause;
@@ -21,12 +26,12 @@ public class DotProblem {
 
 	private IMarker marker;
 
-	public DotProblem(int severity, String cause, Token token, Record record) {
+	public DotProblem(int severity, String cause, Token token, DotRecord record) {
 		this.severity = severity;
 		this.token = token;
-		this.res = record.res;
-		this.offset = record.docOffset;
-		this.line = record.docLine;
+		this.res = record.resource;
+		this.offset = record.documentOffset;
+		this.line = record.documentLineNumber;
 		this.tabWidth = record.tabWidth;
 
 		this.cause = String.format(cause, getLine(), getCharPos() + 1);
@@ -36,7 +41,7 @@ public class DotProblem {
 		if (marker == null) {
 			try {
 				marker = res.createMarker(IMarker.PROBLEM);
-				marker.setAttribute(IMarker.SOURCE_ID, DotAnnotation.TYPE);
+				marker.setAttribute(IMarker.SOURCE_ID, TYPE);
 				marker.setAttribute(IMarker.SEVERITY, severity);
 				marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 				marker.setAttribute(IMarker.MESSAGE, cause);
@@ -101,9 +106,4 @@ public class DotProblem {
 		return cause;
 	}
 
-	// public ICompletionProposal[] getProposals() {}
-	//
-	// public ICompletionProposal[] getProposals(IQuickAssistInvocationContext context) {
-	// return getProposals();
-	// }
 }

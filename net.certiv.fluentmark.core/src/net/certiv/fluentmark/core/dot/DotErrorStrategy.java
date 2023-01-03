@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Parser;

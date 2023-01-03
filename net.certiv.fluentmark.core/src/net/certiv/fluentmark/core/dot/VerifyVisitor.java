@@ -1,37 +1,34 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
+
+import org.eclipse.core.resources.IMarker;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IStatus;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.dot.AttrMap.Props;
-import net.certiv.fluentmark.dot.gen.DotLexer;
-import net.certiv.fluentmark.dot.gen.DotParser.AttrListContext;
-import net.certiv.fluentmark.dot.gen.DotParser.AttrStmtContext;
-import net.certiv.fluentmark.dot.gen.DotParser.AttributeContext;
-import net.certiv.fluentmark.dot.gen.DotParser.EdgeStmtContext;
-import net.certiv.fluentmark.dot.gen.DotParser.NodeStmtContext;
-import net.certiv.fluentmark.dot.gen.DotParser.StmtContext;
-import net.certiv.fluentmark.dot.gen.DotParserBaseListener;
-import net.certiv.fluentmark.editor.assist.DotProblem;
-import net.certiv.fluentmark.editor.color.DotColors;
-import net.certiv.fluentmark.editor.text.DotReconcilingStrategy.DotProblemCollector;
+import net.certiv.fluentmark.core.dot.AttrMap.Props;
+import net.certiv.fluentmark.core.dot.gen.DotLexer;
+import net.certiv.fluentmark.core.dot.gen.DotParser.AttrListContext;
+import net.certiv.fluentmark.core.dot.gen.DotParser.AttrStmtContext;
+import net.certiv.fluentmark.core.dot.gen.DotParser.AttributeContext;
+import net.certiv.fluentmark.core.dot.gen.DotParser.EdgeStmtContext;
+import net.certiv.fluentmark.core.dot.gen.DotParser.NodeStmtContext;
+import net.certiv.fluentmark.core.dot.gen.DotParser.StmtContext;
+import net.certiv.fluentmark.core.dot.gen.DotParserBaseListener;
+import net.certiv.fluentmark.core.marker.DotProblem;
 
 public class VerifyVisitor {
 
 	public static final VerifyVisitor INST = new VerifyVisitor();
 	private static final ContextVisitor visitor = INST.new ContextVisitor();
 
-	private Record record;
+	private DotRecord record;
 	private DotProblemCollector collector;
 
 	/**
 	 * Verifies the semantic and attribute value correctness of the DOT spec described by the given
 	 * record. Issues are reported to the given collector.
 	 */
-	public void check(Record record, DotProblemCollector collector) {
+	public void check(DotRecord record, DotProblemCollector collector) {
 		this.record = record;
 		this.collector = collector;
 		ParseTreeWalker.DEFAULT.walk(visitor, record.tree);
@@ -39,7 +36,6 @@ public class VerifyVisitor {
 
 	private void report(int severity, Kind kind, Token token, String cause) {
 		DotProblem problem = new DotProblem(severity, cause, token, record);
-		FluentUI.log(IStatus.INFO, problem.toString());
 		collector.accept(problem);
 	}
 

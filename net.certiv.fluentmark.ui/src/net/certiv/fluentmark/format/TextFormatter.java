@@ -8,10 +8,11 @@
 package net.certiv.fluentmark.format;
 
 import java.text.BreakIterator;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.util.Strings;
+import net.certiv.fluentmark.core.util.Strings;
 
 public class TextFormatter {
 

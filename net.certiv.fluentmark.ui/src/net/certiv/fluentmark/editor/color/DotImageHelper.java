@@ -12,11 +12,15 @@
 package net.certiv.fluentmark.editor.color;
 
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+
+import net.certiv.fluentmark.core.dot.DotColors;
 
 public class DotImageHelper {
 

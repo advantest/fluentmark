@@ -1,6 +1,6 @@
 // Generated from D:/DevFiles/Eclipse/Fluentmark/net.certiv.fluentmark/plugin/src/net/certiv/fluentmark/dot/DotLexer.g4 by ANTLR 4.7.1
 
-	package net.certiv.fluentmark.dot.gen;
+	package net.certiv.fluentmark.core.dot.gen;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

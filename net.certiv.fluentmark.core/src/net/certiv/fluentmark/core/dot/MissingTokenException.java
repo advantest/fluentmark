@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
@@ -8,6 +8,8 @@ import org.antlr.v4.runtime.RecognitionException;
  * DefaultErrorStrategy#reportMissingToken().
  */
 public class MissingTokenException extends RecognitionException {
+
+	private static final long serialVersionUID = 1521061786561517859L;
 
 	public MissingTokenException(Parser recognizer) {
 		super(recognizer, recognizer.getInputStream(), recognizer.getContext());

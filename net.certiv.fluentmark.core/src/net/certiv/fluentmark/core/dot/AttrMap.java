@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -7,20 +7,8 @@
  ******************************************************************************/
 package net.certiv.fluentmark.preferences.pages;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.jface.preference.ColorSelector;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
+
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -32,14 +20,27 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+
+import org.eclipse.core.runtime.Preferences;
+
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.preference.ColorSelector;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,11 +50,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.editor.FluentSourceViewer;
 import net.certiv.fluentmark.editor.Partitions;
@@ -65,7 +72,6 @@ import net.certiv.fluentmark.preferences.PreferencesAdapter;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.PreviewSourceUpdater;
 import net.certiv.fluentmark.preferences.ScrolledPageContent;
-import net.certiv.fluentmark.util.Strings;
 import net.certiv.fluentmark.util.SwtUtil;
 
 /**

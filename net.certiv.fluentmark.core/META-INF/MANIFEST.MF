@@ -45,6 +45,9 @@ Export-Package: com.github.rjeschke.txtmark,
  jcckit.transformation,
  jcckit.util,
  net.certiv.fluentmark.core,
+ net.certiv.fluentmark.core.dot,
+ net.certiv.fluentmark.core.marker,
+ net.certiv.fluentmark.core.util,
  net.sourceforge.plantuml,
  net.sourceforge.plantuml.acearth,
  net.sourceforge.plantuml.activitydiagram,
@@ -267,7 +270,6 @@ Export-Package: com.github.rjeschke.txtmark,
  org.objectweb.asm.util,
  org.objectweb.asm.xml,
  org.parboiled,
- org.parboiled,
  org.parboiled.annotations,
  org.parboiled.buffers,
  org.parboiled.common,
@@ -307,7 +309,9 @@ Bundle-ClassPath: .,
  lib/txtmark-0.13.jar,
  lib/plantuml-1.2022.7.jar
 Bundle-Vendor: Certiv Analytics
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: com.google.guava;bundle-version="30.1.0",
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources;bundle-version="3.15.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.certiv.fluentmark.core
 Bundle-ActivationPolicy: lazy

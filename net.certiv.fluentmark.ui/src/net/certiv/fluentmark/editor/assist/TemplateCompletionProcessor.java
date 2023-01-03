@@ -7,15 +7,9 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.assist;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.eclipse.swt.graphics.Image;
+
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -30,10 +24,19 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.texteditor.ITextEditor;
 
-import net.certiv.fluentmark.util.Strings;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import net.certiv.fluentmark.core.util.Strings;
 
 public class TemplateCompletionProcessor extends org.eclipse.jface.text.templates.TemplateCompletionProcessor {
 

@@ -1,4 +1,6 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
+
+import org.eclipse.core.resources.IMarker;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
@@ -15,21 +17,17 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IStatus;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.editor.assist.DotProblem;
-import net.certiv.fluentmark.editor.text.DotReconcilingStrategy.DotProblemCollector;
-import net.certiv.fluentmark.util.Reflect;
-import net.certiv.fluentmark.util.Strings;
+import net.certiv.fluentmark.core.marker.DotProblem;
+import net.certiv.fluentmark.core.util.Reflect;
+import net.certiv.fluentmark.core.util.Strings;
 
 public class DotErrorListener extends BaseErrorListener {
 
-	private Record record;
+	private DotRecord record;
 	private DotProblemCollector collector;
 
-	public void setup(Record record, DotProblemCollector collector) {
+	public void setup(DotRecord record, DotProblemCollector collector) {
 		this.record = record;
 		this.collector = collector;
 	}
@@ -40,7 +38,6 @@ public class DotErrorListener extends BaseErrorListener {
 
 		String cause = evalError(recognizer, symbol, line, charPos, e);
 		DotProblem problem = new DotProblem(IMarker.SEVERITY_ERROR, cause, e.getOffendingToken(), record);
-		FluentUI.log(IStatus.ERROR, problem.toString());
 		collector.accept(problem);
 	}
 

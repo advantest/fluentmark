@@ -32,11 +32,11 @@ import java.io.File;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.Partitions;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.FileUtils;
-import net.certiv.fluentmark.util.Strings;
 
 /**
  * Generate Html files for:

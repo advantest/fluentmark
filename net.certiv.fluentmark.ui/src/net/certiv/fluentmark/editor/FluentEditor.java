@@ -62,6 +62,7 @@ import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.ITextViewerExtension6;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -95,7 +96,8 @@ import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.Converter;
 import net.certiv.fluentmark.convert.HtmlGen;
 import net.certiv.fluentmark.convert.Kind;
-import net.certiv.fluentmark.dot.Record;
+import net.certiv.fluentmark.core.dot.DotRecord;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.color.IColorManager;
 import net.certiv.fluentmark.editor.folding.FoldingStructureProvider;
 import net.certiv.fluentmark.editor.folding.IFoldingStructureProvider;
@@ -109,7 +111,6 @@ import net.certiv.fluentmark.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.outline.operations.CommandManager;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.LRUCache;
-import net.certiv.fluentmark.util.Strings;
 
 /**
  * Text editor with markdown support.
@@ -134,7 +135,7 @@ public class FluentEditor extends TextEditor
 	private IPropertyChangeListener prefChangeListener;
 	// private SemanticHighlightingManager semanticManager;
 
-	private final LRUCache<IRegion, Record> parseRecords = new LRUCache<>(25);
+	private final LRUCache<IRegion, DotRecord> parseRecords = new LRUCache<>(25);
 
 	private boolean pageDirty = true;
 
@@ -849,12 +850,13 @@ public class FluentEditor extends TextEditor
 
 	public void uninstallOccurrencesFinder() {}
 
-	public Record getParseRecord(ITypedRegion region) {
+	public DotRecord getParseRecord(ITypedRegion region) {
 		return parseRecords.get(region);
 	}
 
-	public void setParseRecord(Record record) {
-		parseRecords.put(record.region, record);
+	public void setParseRecord(DotRecord record) {
+		IRegion region = new Region(record.documentOffset, record.length);
+		parseRecords.put(region, record);
 	}
 
 	@Override

@@ -1,18 +1,18 @@
-// Generated from D:/DevFiles/Eclipse/Fluentmark/net.certiv.fluentmark/plugin/src/net/certiv/fluentmark/dot/Dot.g4 by ANTLR 4.7.1
+// Generated from D:/DevFiles/Eclipse/Fluentmark/net.certiv.fluentmark/plugin/src/net/certiv/fluentmark/dot/DotParser.g4 by ANTLR 4.7.1
 
-	package net.certiv.fluentmark.dot.gen;
+	package net.certiv.fluentmark.core.dot.gen;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
- * This class provides an empty implementation of {@link DotVisitor},
+ * This class provides an empty implementation of {@link DotParserVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
  * of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public class DotBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements DotVisitor<T> {
+public class DotParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements DotParserVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -68,14 +68,14 @@ public class DotBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements Do
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubgraph(DotParser.SubgraphContext ctx) { return visitChildren(ctx); }
+	@Override public T visitValue(DotParser.ValueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPort(DotParser.PortContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubgraph(DotParser.SubgraphContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -90,4 +90,25 @@ public class DotBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements Do
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitNodeId(DotParser.NodeIdContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitPort(DotParser.PortContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitId(DotParser.IdContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitCompass(DotParser.CompassContext ctx) { return visitChildren(ctx); }
 }

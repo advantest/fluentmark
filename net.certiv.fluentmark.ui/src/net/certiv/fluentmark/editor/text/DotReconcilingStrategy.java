@@ -39,14 +39,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.dot.DotSourceParser;
+import net.certiv.fluentmark.core.dot.DotProblemCollector;
+import net.certiv.fluentmark.core.dot.DotRecord;
+import net.certiv.fluentmark.core.dot.DotSourceParser;
+import net.certiv.fluentmark.core.marker.DotProblem;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.Partitions;
 import net.certiv.fluentmark.editor.assist.DotAnnotation;
-import net.certiv.fluentmark.editor.assist.DotProblem;
+import net.certiv.fluentmark.preferences.Prefs;
 
 public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension {
 
+	private static final String ErrMsgExtract = "Failed to extract DOT text from document.";
 	protected static final String ErrMsg = "DOT reconcile error";
 
 	private IDocument doc;
@@ -59,7 +63,7 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		this.editor = (FluentEditor) editor;
 		this.viewer = viewer;
 
-		reconciler = new DotSourceParser(this.editor);
+		reconciler = new DotSourceParser();
 	}
 
 	@Override
@@ -96,6 +100,8 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		} catch (BadLocationException e) {
 			return;
 		}
+		
+		int tabWidth = editor.getPrefsStore().getDefaultInt(Prefs.EDITOR_TAB_WIDTH);;
 
 		for (ITypedRegion partition : partitions) {
 			if (partition.getType().equals(Partitions.DOTBLOCK)) {
@@ -103,7 +109,26 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 
 					@Override
 					public void run() throws Exception {
-						reconciler.eval(doc, partition, collector);
+						int docOffset = -1;
+						int docLine = -1;
+						String text = null;
+						try {
+							docLine = doc.getLineOfOffset(partition.getOffset()) + 1; // trim markup
+							docOffset = doc.getLineOffset(docLine);
+
+							int endLine = doc.getLineOfOffset(partition.getOffset() + partition.getLength()) - 1;
+							int endOffset = doc.getLineOffset(endLine);
+
+							text = doc.get(docOffset, endOffset - docOffset);
+						} catch (BadLocationException e) {
+							FluentUI.log(IStatus.ERROR, ErrMsgExtract, e);
+							return;
+						}
+
+						IResource res = ResourceUtil.getResource(editor.getEditorInput());
+						
+						DotRecord record = reconciler.eval(text, docLine, docOffset, tabWidth, res, collector);
+						editor.setParseRecord(record);
 					}
 
 					@Override
@@ -120,17 +145,17 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 	protected DotProblemCollector createDotProblemCollector() {
 		IAnnotationModel model = viewer.getAnnotationModel();
 		if (model == null) return null;
-		return new DotProblemCollector(model);
+		return new ReconsilingStrategyDotProblemCollector(model);
 	}
 
-	public class DotProblemCollector {
+	public class ReconsilingStrategyDotProblemCollector implements DotProblemCollector {
 
 		private IAnnotationModel model;
 		private Map<Annotation, Position> annotations;
 		private Object lock;
 
 		/** Initializes this collector with the given annotation model. */
-		public DotProblemCollector(IAnnotationModel model) {
+		public ReconsilingStrategyDotProblemCollector(IAnnotationModel model) {
 			Assert.isLegal(model != null);
 			this.model = model;
 			if (model instanceof ISynchronizable) {
@@ -146,6 +171,20 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 
 		public void accept(DotProblem problem) {
 			annotations.put(new DotAnnotation(problem), new Position(problem.getOffset(), problem.getLength()));
+			
+			int severity = IStatus.INFO;
+			switch (problem.getSeverity()) {
+			case IMarker.SEVERITY_ERROR:
+				severity = IStatus.ERROR;
+				break;
+			case IMarker.SEVERITY_WARNING:
+				severity = IStatus.WARNING;
+				break;
+			default:
+				break;
+			}
+			
+			FluentUI.log(severity, problem.toString());
 		}
 
 		public void endCollecting() {

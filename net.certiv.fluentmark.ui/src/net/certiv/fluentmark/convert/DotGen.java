@@ -11,10 +11,10 @@ import java.util.Map;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.Cmd;
 import net.certiv.fluentmark.util.LRUCache;
-import net.certiv.fluentmark.util.Strings;
 
 public class DotGen {
 

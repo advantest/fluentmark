@@ -1,8 +1,5 @@
 package net.certiv.fluentmark.format;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -12,7 +9,11 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.dialog.tables.TableModel;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.model.ISourceRange;
@@ -20,7 +21,6 @@ import net.certiv.fluentmark.model.PagePart;
 import net.certiv.fluentmark.model.PageRoot;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.Indent;
-import net.certiv.fluentmark.util.Strings;
 
 public class Formatter {
 

@@ -7,15 +7,15 @@
  ******************************************************************************/
 package net.certiv.fluentmark.dialog.tables;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.swt.SWT;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.model.PagePart;
 import net.certiv.fluentmark.model.PageRoot;
-import net.certiv.fluentmark.util.Strings;
 
 public class TableModel {
 

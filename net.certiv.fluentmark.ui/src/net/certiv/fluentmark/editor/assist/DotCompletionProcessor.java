@@ -7,9 +7,12 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.assist;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.jface.viewers.StyledString;
+
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.eclipse.jface.text.BadLocationException;
@@ -29,15 +32,15 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.texteditor.ITextEditor;
 
-import net.certiv.fluentmark.dot.Attr;
-import net.certiv.fluentmark.dot.AttrMap;
-import net.certiv.fluentmark.dot.ContextVisitor;
-import net.certiv.fluentmark.dot.Record;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import net.certiv.fluentmark.core.dot.Attr;
+import net.certiv.fluentmark.core.dot.AttrMap;
+import net.certiv.fluentmark.core.dot.ContextVisitor;
+import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.Partitions;
 
@@ -210,13 +213,13 @@ public class DotCompletionProcessor implements IContentAssistProcessor {
 		ITypedRegion region = doc.getPartition(offset);
 		if (region == null || !region.getType().equals(Partitions.DOTBLOCK)) return Collections.emptyList();
 
-		Record record = editor.getParseRecord(region);
+		DotRecord record = editor.getParseRecord(region);
 		if (record == null) return Collections.emptyList();
 
 		return createSuggestions(doc, region, record, offset, prefix);
 	}
 
-	private List<String> createSuggestions(IDocument doc, ITypedRegion region, Record record, int offset, String prefix)
+	private List<String> createSuggestions(IDocument doc, ITypedRegion region, DotRecord record, int offset, String prefix)
 			throws BadLocationException {
 
 		int lnum = doc.getLineOfOffset(region.getOffset());

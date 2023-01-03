@@ -17,9 +17,9 @@ import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.LRUCache;
-import net.certiv.fluentmark.util.Strings;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;

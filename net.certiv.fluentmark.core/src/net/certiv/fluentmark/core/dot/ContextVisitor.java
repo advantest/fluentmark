@@ -1,9 +1,9 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import net.certiv.fluentmark.dot.gen.DotParserBaseListener;
+import net.certiv.fluentmark.core.dot.gen.DotParserBaseListener;
 
 public class ContextVisitor {
 
@@ -17,7 +17,7 @@ public class ContextVisitor {
 	 * @param offset the target offset
 	 * @return the narrowest containing node
 	 */
-	public ParserRuleContext getNode(Record record, int offset) {
+	public ParserRuleContext getNode(DotRecord record, int offset) {
 		visitor.offset = offset;
 		ParseTreeWalker.DEFAULT.walk(visitor, record.tree);
 		return visitor.last;

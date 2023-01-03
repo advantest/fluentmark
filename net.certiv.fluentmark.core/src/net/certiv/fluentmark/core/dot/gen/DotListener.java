@@ -1,6 +1,6 @@
-// Generated from D:/DevFiles/Eclipse/Fluentmark/net.certiv.fluentmark/plugin/src/net/certiv/fluentmark/dot/DotParser.g4 by ANTLR 4.7.1
+// Generated from D:/DevFiles/Eclipse/Fluentmark/net.certiv.fluentmark/plugin/src/net/certiv/fluentmark/dot/Dot.g4 by ANTLR 4.7.1
 
-	package net.certiv.fluentmark.dot.gen;
+	package net.certiv.fluentmark.core.dot.gen;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  * This interface defines a complete listener for a parse tree produced by
  * {@link DotParser}.
  */
-public interface DotParserListener extends ParseTreeListener {
+public interface DotListener extends ParseTreeListener {
 	/**
 	 * Enter a parse tree produced by {@link DotParser#graph}.
 	 * @param ctx the parse tree
@@ -80,16 +80,6 @@ public interface DotParserListener extends ParseTreeListener {
 	 */
 	void exitAttribute(DotParser.AttributeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link DotParser#value}.
-	 * @param ctx the parse tree
-	 */
-	void enterValue(DotParser.ValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link DotParser#value}.
-	 * @param ctx the parse tree
-	 */
-	void exitValue(DotParser.ValueContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link DotParser#subgraph}.
 	 * @param ctx the parse tree
 	 */
@@ -99,6 +89,16 @@ public interface DotParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSubgraph(DotParser.SubgraphContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DotParser#port}.
+	 * @param ctx the parse tree
+	 */
+	void enterPort(DotParser.PortContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DotParser#port}.
+	 * @param ctx the parse tree
+	 */
+	void exitPort(DotParser.PortContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DotParser#edgeRhs}.
 	 * @param ctx the parse tree
@@ -119,34 +119,4 @@ public interface DotParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNodeId(DotParser.NodeIdContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link DotParser#port}.
-	 * @param ctx the parse tree
-	 */
-	void enterPort(DotParser.PortContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link DotParser#port}.
-	 * @param ctx the parse tree
-	 */
-	void exitPort(DotParser.PortContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link DotParser#id}.
-	 * @param ctx the parse tree
-	 */
-	void enterId(DotParser.IdContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link DotParser#id}.
-	 * @param ctx the parse tree
-	 */
-	void exitId(DotParser.IdContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link DotParser#compass}.
-	 * @param ctx the parse tree
-	 */
-	void enterCompass(DotParser.CompassContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link DotParser#compass}.
-	 * @param ctx the parse tree
-	 */
-	void exitCompass(DotParser.CompassContext ctx);
 }

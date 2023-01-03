@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.util;
+package net.certiv.fluentmark.core.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

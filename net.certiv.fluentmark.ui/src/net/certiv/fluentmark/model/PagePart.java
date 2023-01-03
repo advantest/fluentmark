@@ -11,9 +11,9 @@ import java.util.Set;
 
 import net.certiv.fluentmark.convert.DotGen;
 import net.certiv.fluentmark.convert.UmlGen;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.model.Lines.Line;
 import net.certiv.fluentmark.util.FloorKeyMap;
-import net.certiv.fluentmark.util.Strings;
 
 public class PagePart extends Parent {
 

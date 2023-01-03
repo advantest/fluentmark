@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 public enum Attr {
 	ARROWHEAD("arrowhead"),

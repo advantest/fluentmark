@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 
 public class Cmd {
 

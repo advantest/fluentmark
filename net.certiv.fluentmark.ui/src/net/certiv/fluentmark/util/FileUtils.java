@@ -7,8 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.util;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.URIUtil;
+
+import org.osgi.framework.Bundle;
+
+import java.util.LinkedHashMap;
+
+import java.net.URL;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -25,19 +37,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.util.LinkedHashMap;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.URIUtil;
-import org.osgi.framework.Bundle;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.util.Strings;
 
 public final class FileUtils {
 

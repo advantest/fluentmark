@@ -9,7 +9,7 @@
  * Contributors:
  *     Tamas Miklossy (itemis AG) - initial API and implementation (bug #461506)
  *******************************************************************************/
-package net.certiv.fluentmark.editor.color;
+package net.certiv.fluentmark.core.dot;
 
 import java.util.ArrayList;
 import java.util.List;

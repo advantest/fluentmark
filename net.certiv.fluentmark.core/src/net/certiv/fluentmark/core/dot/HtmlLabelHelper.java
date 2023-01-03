@@ -10,7 +10,7 @@
  *     Matthias Wienand (itemis AG) - initial API and implementation
  *     Tamas Miklossy   (itemis AG) - initial API and implementation
  *******************************************************************************/
-package net.certiv.fluentmark.dot;
+package net.certiv.fluentmark.core.dot;
 
 import java.util.Arrays;
 import java.util.HashMap;
