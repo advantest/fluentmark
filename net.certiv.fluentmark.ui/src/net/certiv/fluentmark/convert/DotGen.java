@@ -9,10 +9,8 @@ package net.certiv.fluentmark.convert;
 import java.util.List;
 import java.util.Map;
 
-import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.Cmd;
 import net.certiv.fluentmark.util.LRUCache;
 
@@ -21,14 +19,18 @@ public class DotGen {
 	private static final String[] DOTOPS = new String[] { "", "-Tsvg" };
 	private static final Map<Integer, String> dotCache = new LRUCache<>(20);
 
-	private DotGen() {}
+	private IConfigurationProvider configurationProvider;
 
-	public static String runDot(List<String> lines) {
+	public DotGen(IConfigurationProvider configProvider) {
+		this.configurationProvider = configProvider;
+	}
+	
+	public String runDot(List<String> lines) {
 		return runDot(String.join(Strings.EOL, lines));
 	}
 
-	public static String runDot(String data) {
-		String cmd = FluentUI.getDefault().getPreferenceStore().getString(Prefs.EDITOR_DOT_PROGRAM);
+	public String runDot(String data) {
+		String cmd = configurationProvider.getDotCommand();
 		if (data.trim().isEmpty() || cmd.trim().isEmpty()) return "";
 
 		// return cached value, if present
@@ -55,4 +57,5 @@ public class DotGen {
 
 		return value;
 	}
+	
 }

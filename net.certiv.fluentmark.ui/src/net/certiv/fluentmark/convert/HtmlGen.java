@@ -30,7 +30,6 @@ import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.Partitions;
-import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.FileUtils;
 
 /**
@@ -135,27 +134,27 @@ public class HtmlGen {
 	private URL findStyle(IPath path) throws Exception {
 		// 1) look for a file having the same name as the input file, beginning in the
 		// current directory, parent directories, and the current project directory.
-		IPath style = path.removeFileExtension().addFileExtension(Prefs.CSS);
+		IPath style = path.removeFileExtension().addFileExtension(IConfigurationProvider.CSS);
 		URL pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
 
 		// 2) look for a file with the name 'advantest.css' in the same set of directories
-		style = path.removeLastSegments(1).append(Prefs.CSS_DEFAULT);
+		style = path.removeLastSegments(1).append(IConfigurationProvider.CSS_DEFAULT);
 		pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
 
 		// 3) read the file identified by the pref key 'EDITOR_CSS_EXTERNAL' from the filesystem
 		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
-		String customCss = store.getString(Prefs.EDITOR_CSS_EXTERNAL);
+		String customCss = store.getString(IConfigurationProvider.EDITOR_CSS_EXTERNAL);
 		if (!customCss.isEmpty()) {
 			File file = new File(customCss);
-			if (file.isFile() && file.getName().endsWith("." + Prefs.CSS)) {
+			if (file.isFile() && file.getName().endsWith("." + IConfigurationProvider.CSS)) {
 				return toURL(file);
 			}
 		}
 
 		// 4) read the file identified by the pref key 'EDITOR_CSS_BUILTIN' from the bundle
-		String builtinCss = store.getString(Prefs.EDITOR_CSS_BUILTIN);
+		String builtinCss = store.getString(IConfigurationProvider.EDITOR_CSS_BUILTIN);
 		if (!builtinCss.isEmpty()) {
 			try {
 				URI uri = new URI(builtinCss.replace(".css", ".min.css"));
@@ -169,7 +168,7 @@ public class HtmlGen {
 
 		// 5) read 'advantest.css' from the bundle
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
-		URL url = FileLocator.find(bundle, new Path(Prefs.CSS_RESOURCE_DIR + Prefs.CSS_DEFAULT), null);
+		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		url = FileLocator.toFileURL(url);
 		return url;
 	}

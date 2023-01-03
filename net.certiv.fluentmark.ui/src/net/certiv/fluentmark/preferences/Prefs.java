@@ -13,11 +13,6 @@ import net.certiv.fluentmark.FluentUI;
 
 public interface Prefs extends PrefsSpelling {
 
-	// preference related values
-	String CSS_RESOURCE_DIR = "resources/css/";
-	String CSS = "css";
-	String CSS_DEFAULT = "advantest.css";
-
 	// preference store keys
 
 	String MD_ID = "net.certiv.fluentmark";
@@ -119,9 +114,6 @@ public interface Prefs extends PrefsSpelling {
 
 	String EDITOR_GITHUB_SYNTAX = MD_ID + ".github_Syntax";
 	String EDITOR_MULTIMARKDOWN_METADATA = MD_ID + ".multiMarkdown_Metadata";
-
-	String EDITOR_CSS_BUILTIN = MD_ID + ".markdown_Css";
-	String EDITOR_CSS_EXTERNAL = "";
 
 	String EDITOR_FORMATTING_ENABLED = MD_ID + ".formattingEnabled";
 	String EDITOR_FORMATTING_COLUMN = MD_ID + ".formattingCol";

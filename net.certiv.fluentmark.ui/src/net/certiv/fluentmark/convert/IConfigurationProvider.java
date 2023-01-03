@@ -11,6 +11,36 @@ package net.certiv.fluentmark.convert;
 
 public interface IConfigurationProvider {
 	
+	String CSS_RESOURCE_DIR = "resources/css/";
+	String CSS = "css";
+	String CSS_DEFAULT = "advantest.css";
+	
+	String EDITOR_CSS_BUILTIN = "net.certiv.fluentmark.markdown_Css";
+	String EDITOR_CSS_EXTERNAL = "";
+	
+	
+	ConverterType getConverterType();
+	
+	String getPandocCommand();
+	
+	String getDotCommand();
+	
+	String getBlackFridayCommand();
+	
+	String getExternalCommand();
+	
 	boolean useMathJax();
+	
+	boolean addTableOfContents();
+	
+	boolean isSmartMode();
+	
+	boolean isTxtMarkSafeMode();
+	
+	boolean isTxtMarkExtendedMode();
+	
+	boolean isDotEnabled();
+	
+	boolean isPlantUMLEnabled();
 
 }

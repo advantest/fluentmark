@@ -12,21 +12,110 @@ package net.certiv.fluentmark.editor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.convert.ConverterType;
 import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.preferences.Prefs;
+import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 
 public class ConfigurationProvider implements IConfigurationProvider {
 	
 	private final IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
 
 	@Override
+	public ConverterType getConverterType() {
+		String converterKey = store.getString(Prefs.EDITOR_MD_CONVERTER);
+		switch (converterKey) {
+			case Prefs.KEY_PANDOC:
+				return ConverterType.PANDOC;
+			case Prefs.KEY_BLACKFRIDAY:
+				return ConverterType.BLACKFRIDAY;
+			case Prefs.KEY_MARDOWNJ:
+				return ConverterType.MARKDOWNJ;
+			case Prefs.KEY_PEGDOWN:
+				return ConverterType.PEGDOWN;
+			case Prefs.KEY_COMMONMARK:
+				return ConverterType.COMMONMARK;
+			case Prefs.KEY_TXTMARK:
+				return ConverterType.TXTMARK;
+			case Prefs.EDITOR_EXTERNAL_COMMAND:
+				return ConverterType.OTHER;
+			default:
+				return null;
+		}
+	}
+	
+	@Override
+	public boolean isPlantUMLEnabled() {
+		return store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED);
+	}
+	
+	@Override
+	public boolean isDotEnabled() {
+		return store.getBoolean(Prefs.EDITOR_DOTMODE_ENABLED);
+	}
+
+	@Override
 	public boolean useMathJax() {
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
-		case Prefs.KEY_PANDOC:
-			return store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX);
-		default:
-			return false;
+			case Prefs.KEY_PANDOC:
+				return store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX);
+			default:
+				return false;
+		}
 	}
+
+	@Override
+	public String getPandocCommand() {
+		return store.getString(Prefs.EDITOR_PANDOC_PROGRAM);
+	}
+	
+	@Override
+	public String getDotCommand() {
+		return store.getString(Prefs.EDITOR_DOT_PROGRAM);
+	}
+	
+	@Override
+	public String getBlackFridayCommand() {
+		return store.getString(Prefs.EDITOR_BLACKFRIDAY_PROGRAM);
+	}
+	
+	@Override
+	public String getExternalCommand() {
+		return store.getString(PrefPageEditor.EDITOR_EXTERNAL_COMMAND);
+	}
+
+	@Override
+	public boolean addTableOfContents() {
+		switch (getConverterType()) {
+			case PANDOC:
+				return store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC);
+			case BLACKFRIDAY:
+				return store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_ADDTOC);
+			default:
+				return false;
+		}
+	}
+
+	@Override
+	public boolean isSmartMode() {
+		switch (getConverterType()) {
+			case PANDOC:
+				return !store.getBoolean(Prefs.EDITOR_PANDOC_SMART);
+			case BLACKFRIDAY:
+				return store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_SMART);
+			default:
+				return false;
+		}
+	}
+
+	@Override
+	public boolean isTxtMarkSafeMode() {
+		return store.getBoolean(Prefs.EDITOR_TXTMARK_SAFEMODE);
+	}
+
+	@Override
+	public boolean isTxtMarkExtendedMode() {
+		return store.getBoolean(Prefs.EDITOR_TXTMARK_EXTENDED);
 	}
 
 }

@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Path;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
@@ -38,12 +37,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.markdown.Lines;
 import net.certiv.fluentmark.editor.Partitions;
-import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.preferences.pages.PrefPageEditor;
 import net.certiv.fluentmark.util.Cmd;
 import net.certiv.fluentmark.util.FileUtils;
 
@@ -51,39 +47,40 @@ public class Converter {
 
 	private static final Pattern DOTBEG = Pattern.compile("(~~~+|```+)\\s*dot\\s*", Pattern.DOTALL);
 	private static final Pattern DOTEND = Pattern.compile("(~~~+|```+)\\s*", Pattern.DOTALL);
-	private static final BlockEmitter emitter = new DotCodeBlockEmitter();
-	private IPreferenceStore store;
 	
-	private IConfigurationProvider configurationProvider;
+	private final IConfigurationProvider configurationProvider;
+	private final DotGen dotGen;
+	private final BlockEmitter emitter;
 
 	public Converter(IConfigurationProvider configProvider) {
-		store = FluentUI.getDefault().getPreferenceStore();
 		this.configurationProvider = configProvider;
+		this.dotGen = new DotGen(configProvider);
+		this.emitter = new DotCodeBlockEmitter(dotGen);
 	}
 
 
 	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions, Kind kind) {
 		String text;
-		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
-			case Prefs.KEY_PANDOC:
+		switch (configurationProvider.getConverterType()) {
+			case PANDOC:
 				text = getText(filePath, doc, regions, true);
 				return usePandoc(basepath, text, kind);
-			case Prefs.KEY_BLACKFRIDAY:
+			case BLACKFRIDAY:
 				text = getText(filePath, doc, regions, false);
 				return useBlackFriday(basepath, text);
-			case Prefs.KEY_MARDOWNJ:
+			case MARKDOWNJ:
 				text = getText(filePath, doc, regions, false);
 				return useMarkDownJ(basepath, text);
-			case Prefs.KEY_PEGDOWN:
+			case PEGDOWN:
 				text = getText(filePath, doc, regions, false);
 				return usePegDown(basepath, text);
-			case Prefs.KEY_COMMONMARK:
+			case COMMONMARK:
 				text = getText(filePath, doc, regions, false);
 				return useCommonMark(basepath, text);
-			case Prefs.KEY_TXTMARK:
+			case TXTMARK:
 				text = getText(filePath, doc, regions, false);
 				return useTxtMark(basepath, text);
-			case Prefs.EDITOR_EXTERNAL_COMMAND:
+			case OTHER:
 				text = getText(filePath, doc, regions, false);
 				return useExternal(basepath, text);
 		}
@@ -92,7 +89,7 @@ public class Converter {
 
 	// Use Pandoc
 	private String usePandoc(String basepath, String text, Kind kind) {
-		String cmd = store.getString(Prefs.EDITOR_PANDOC_PROGRAM);
+		String cmd = configurationProvider.getPandocCommand();
 		if (cmd.trim().isEmpty()) return "";
 
 		List<String> args = new ArrayList<>();
@@ -101,9 +98,9 @@ public class Converter {
 		if (Kind.EXPORT.equals(kind)) {
 			args.add("-s");
 		}
-		if (store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC)) args.add("--toc");
-		if (store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX)) args.add("--mathjax");
-		if (!store.getBoolean(Prefs.EDITOR_PANDOC_SMART)) {
+		if (configurationProvider.addTableOfContents()) args.add("--toc");
+		if (configurationProvider.useMathJax()) args.add("--mathjax");
+		if (configurationProvider.isSmartMode()) {
 			args.add("-f");
 			args.add("markdown-smart");
 		} else {
@@ -114,15 +111,15 @@ public class Converter {
 
 	// Use BlackFriday
 	private String useBlackFriday(String basepath, String text) {
-		String cmd = store.getString(Prefs.EDITOR_BLACKFRIDAY_PROGRAM);
+		String cmd = configurationProvider.getBlackFridayCommand();
 		if (cmd.trim().isEmpty()) return "";
 
 		List<String> args = new ArrayList<>();
 		args.add(cmd);
-		if (store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_ADDTOC)) {
+		if (configurationProvider.addTableOfContents()) {
 			args.add("-toc");
 		}
-		if (store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_SMART)) {
+		if (configurationProvider.isSmartMode()) {
 			args.add("-smartypants");
 			args.add("-fractions");
 		}
@@ -152,9 +149,9 @@ public class Converter {
 
 	// Use TxtMark
 	private String useTxtMark(String basepath, String text) {
-		boolean safeMode = store.getBoolean(Prefs.EDITOR_TXTMARK_SAFEMODE);
-		boolean extended = store.getBoolean(Prefs.EDITOR_TXTMARK_EXTENDED);
-		boolean dotMode = store.getBoolean(Prefs.EDITOR_DOTMODE_ENABLED);
+		boolean safeMode = configurationProvider.isTxtMarkSafeMode();
+		boolean extended = configurationProvider.isTxtMarkExtendedMode();
+		boolean dotMode = configurationProvider.isDotEnabled();
 
 		Builder builder = Configuration.builder();
 		if (safeMode) builder.enableSafeMode();
@@ -166,7 +163,7 @@ public class Converter {
 
 	// Use external command
 	private String useExternal(String basepath, String text) {
-		String cmd = store.getString(PrefPageEditor.EDITOR_EXTERNAL_COMMAND);
+		String cmd = configurationProvider.getExternalCommand();
 		if (cmd.trim().isEmpty()) {
 			return "Specify an external markdown converter command in preferences.";
 		}
@@ -192,18 +189,18 @@ public class Converter {
 					if (!inclFM) continue;
 					break;
 				case Partitions.DOTBLOCK:
-					if (store.getBoolean(Prefs.EDITOR_DOTMODE_ENABLED)) {
+					if (configurationProvider.isDotEnabled()) {
 						text = filter(text, DOTBEG, DOTEND);
 						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.UMLBLOCK:
-					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
+					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
 				case Partitions.PLANTUML_INCLUDE:
-					if (store.getBoolean(Prefs.EDITOR_UMLMODE_ENABLED)) {
+					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
@@ -316,7 +313,7 @@ public class Converter {
 	private String convertDot2Svg(String dotCode) {
 		String svgDiagram = "";
         if (dotCode != null) {
-        	svgDiagram = DotGen.runDot(dotCode);
+        	svgDiagram = dotGen.runDot(dotCode);
         }
         return svgDiagram;
 	}

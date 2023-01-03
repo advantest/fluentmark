@@ -15,9 +15,12 @@ import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
 import net.certiv.fluentmark.core.util.Strings;
 
 public class DotCodeBlockEmitter implements BlockEmitter {
+	
+	private final DotGen dotGen;
 
-	public DotCodeBlockEmitter() {
+	public DotCodeBlockEmitter(DotGen dotGen) {
 		super();
+		this.dotGen = dotGen;
 	}
 
 	@Override
@@ -26,7 +29,7 @@ public class DotCodeBlockEmitter implements BlockEmitter {
 
 		switch (meta) {
 			case CodeBlockConstants.CODE_BLOCK_DOT:
-				out.append(DotGen.runDot(lines));
+				out.append(dotGen.runDot(lines));
 				break;
 			default:
 				out.append("<pre><code class=\"" + meta + "\">");

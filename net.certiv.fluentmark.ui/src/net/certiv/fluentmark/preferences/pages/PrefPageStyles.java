@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.preferences.Prefs;
 
 public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbenchPreferencePage, Prefs {
@@ -69,15 +70,15 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 		addField(new BooleanFieldEditor(EDITOR_MULTIMARKDOWN_METADATA, "Support Multi-Markdown Metadata", pane));
 
 		// Browser CSS
-		addField(new ComboFieldEditor(EDITOR_CSS_BUILTIN, "Built-in Stylesheet", builtins(), pane));
-		addField(new FileFieldEditor(EDITOR_CSS_EXTERNAL, "External Stylesheet", pane));
+		addField(new ComboFieldEditor(IConfigurationProvider.EDITOR_CSS_BUILTIN, "Built-in Stylesheet", builtins(), pane));
+		addField(new FileFieldEditor(IConfigurationProvider.EDITOR_CSS_EXTERNAL, "External Stylesheet", pane));
 	}
 
 	// build list of built-in stylesheets
 	// key=name, value=bundle cache URL as string
 	private String[][] builtins() {
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
-		URL url = bundle.getEntry(CSS_RESOURCE_DIR);
+		URL url = bundle.getEntry(IConfigurationProvider.CSS_RESOURCE_DIR);
 		File dir = null;
 		try {
 			url = FileLocator.toFileURL(url); // extracts to bundle cache
@@ -91,7 +92,7 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 		List<String> cssNames = new ArrayList<>();
 		if (dir.isDirectory()) {
 			for (String name : dir.list()) {
-				if (name.endsWith("." + CSS) && !name.endsWith(".min." + CSS)) {
+				if (name.endsWith("." + IConfigurationProvider.CSS) && !name.endsWith(".min." + IConfigurationProvider.CSS)) {
 					cssNames.add(name);
 				}
 			}

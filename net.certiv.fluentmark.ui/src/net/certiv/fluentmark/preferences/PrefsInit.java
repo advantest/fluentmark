@@ -30,6 +30,7 @@ import java.net.URL;
 import java.io.IOException;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.spell.SpellingEngine;
 import net.certiv.spellchecker.SpellCheckEngine;
 
@@ -92,8 +93,8 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_EXTERNAL_COMMAND, "");
 		store.setDefault(EDITOR_SECTION_NUMBERS, true);
 
-		store.setDefault(EDITOR_CSS_BUILTIN, cssDefault());
-		store.setDefault(EDITOR_CSS_EXTERNAL, "");
+		store.setDefault(IConfigurationProvider.EDITOR_CSS_BUILTIN, cssDefault());
+		store.setDefault(IConfigurationProvider.EDITOR_CSS_EXTERNAL, "");
 		store.setDefault(EDITOR_GITHUB_SYNTAX, true);
 		store.setDefault(EDITOR_MULTIMARKDOWN_METADATA, true);
 
@@ -231,11 +232,11 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 	// create bundle cache URL for the default stylesheet
 	private String cssDefault() {
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
-		URL url = FileLocator.find(bundle, new Path(CSS_RESOURCE_DIR + CSS_DEFAULT), null);
+		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		try {
 			url = FileLocator.toFileURL(url);
 			return url.toURI().toString();
 		} catch (IOException | URISyntaxException e) {}
-		return CSS_DEFAULT; // really an error
+		return IConfigurationProvider.CSS_DEFAULT; // really an error
 	}
 }

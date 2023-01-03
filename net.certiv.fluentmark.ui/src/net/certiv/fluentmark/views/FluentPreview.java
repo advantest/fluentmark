@@ -25,6 +25,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.PartListener;
@@ -115,8 +116,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		switch (event.getProperty()) {
-			case EDITOR_CSS_EXTERNAL:
-			case EDITOR_CSS_BUILTIN:
+			case IConfigurationProvider.EDITOR_CSS_EXTERNAL:
+			case IConfigurationProvider.EDITOR_CSS_BUILTIN:
 				if (viewjob != null) viewjob.load();
 		}
 	}
