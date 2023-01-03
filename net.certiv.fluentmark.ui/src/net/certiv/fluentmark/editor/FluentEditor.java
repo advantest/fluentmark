@@ -108,6 +108,7 @@ import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
 import net.certiv.fluentmark.core.markdown.PagePart;
 import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.color.IColorManager;
 import net.certiv.fluentmark.editor.folding.FoldingStructureProvider;
@@ -117,7 +118,6 @@ import net.certiv.fluentmark.outline.FluentOutlinePage;
 import net.certiv.fluentmark.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.outline.operations.CommandManager;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.LRUCache;
 
 /**
  * Text editor with markdown support.
