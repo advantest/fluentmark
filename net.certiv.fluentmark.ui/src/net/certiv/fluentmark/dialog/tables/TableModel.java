@@ -13,9 +13,9 @@ import org.eclipse.swt.SWT;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
 
 public class TableModel {
 

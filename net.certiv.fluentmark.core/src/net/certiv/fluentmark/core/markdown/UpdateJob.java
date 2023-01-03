@@ -1,13 +1,15 @@
-package net.certiv.fluentmark.model;
-
-import java.util.ArrayList;
-import java.util.List;
+package net.certiv.fluentmark.core.markdown;
 
 import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UpdateJob extends Job {
 
@@ -33,7 +35,12 @@ public class UpdateJob extends Job {
 			queue.clear();
 		}
 
-		task.root.updateModel(task.res, task.text);
+		try {
+			task.root.updateModel(task.res, task.text);
+		} catch (CoreException e) {
+			return e.getStatus();
+		}
+		
 		return Status.OK_STATUS;
 	}
 

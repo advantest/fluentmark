@@ -5,12 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 import java.util.Arrays;
 import java.util.Comparator;
 
-import net.certiv.fluentmark.model.Lines.Line;
+import net.certiv.fluentmark.core.markdown.Lines.Line;
+
 
 public class SourceRange implements ISourceRange {
 

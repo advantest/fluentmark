@@ -7,17 +7,12 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.folding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import org.eclipse.core.runtime.Assert;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -32,17 +27,24 @@ import org.eclipse.jface.text.source.projection.IProjectionPosition;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.SourceRange;
 import net.certiv.fluentmark.editor.DocumentCharacterIterator;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.editor.IReconcilingListener;
-import net.certiv.fluentmark.editor.ISourceReference;
 import net.certiv.fluentmark.editor.Partitions;
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.SourceRange;
 import net.certiv.fluentmark.preferences.Prefs;
 
 /** Implementation of a {@link IFoldingStructureProvider}. */

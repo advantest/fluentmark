@@ -5,15 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 import java.util.Set;
 
-import net.certiv.fluentmark.convert.DotGen;
-import net.certiv.fluentmark.convert.UmlGen;
+import net.certiv.fluentmark.core.markdown.Lines.Line;
+import net.certiv.fluentmark.core.util.FloorKeyMap;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.model.Lines.Line;
-import net.certiv.fluentmark.util.FloorKeyMap;
 
 public class PagePart extends Parent {
 
@@ -109,10 +107,10 @@ public class PagePart extends Parent {
 
 		} else if (meta.startsWith("~~~") || meta.startsWith("```")) {
 			meta = Strings.trimLeadingPunctuation(meta).trim();
-			if (meta.isEmpty()) meta = DotGen.PLAIN;
+			if (meta.isEmpty()) meta = CodeBlockConstants.PLAIN;
 
 		} else if (meta.startsWith("@start")) {
-			meta = UmlGen.UML;
+			meta = CodeBlockConstants.CODE_BLOCK_UML;
 		}
 		return meta;
 	}

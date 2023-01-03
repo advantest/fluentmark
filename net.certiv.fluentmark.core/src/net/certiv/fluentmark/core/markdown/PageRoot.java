@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -13,9 +13,10 @@ import org.eclipse.core.resources.IResource;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.SafeRunner;
-
-import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.core.runtime.Status;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,22 +24,17 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.Lines.Line;
+import net.certiv.fluentmark.core.util.FloorKeyMap;
 
-import net.certiv.fluentmark.Log;
-import net.certiv.fluentmark.convert.DotGen;
-import net.certiv.fluentmark.editor.IDocumentChangedListener;
-import net.certiv.fluentmark.model.Lines.Line;
-import net.certiv.fluentmark.util.FloorKeyMap;
-
-public class PageRoot extends Parent implements IDocumentChangedListener {
+public class PageRoot extends Parent {
 
 	/** Maximum length for a task tag message */
 	private static final int MSG_MAXLEN = 60;
 
-	private final UpdateJob modelJob = new UpdateJob("Model updater");
 	public static PageRoot MODEL;
 
 	/** Collection of listeners for Dsl element deltas */
@@ -50,11 +46,13 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 	private Headers headers;		// all header page parts
 	private Lines lines;			// all lines
 	private FloorKeyMap lineMap;
+	private final int tabWidth;
 
-	public PageRoot(IOffsetProvider offsetProvider, String lineDelimiter) {
+	public PageRoot(IOffsetProvider offsetProvider, String lineDelimiter, int tabWidth) {
 		super(lineDelimiter);
 		MODEL = this;
 		this.offsetProvider = offsetProvider;
+		this.tabWidth = tabWidth;
 		init();
 	}
 
@@ -62,13 +60,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 		headers = new Headers(MODEL);
 	}
 
-
-	@Override
-	public void documentChanged(DocumentEvent event) {
-		modelJob.trigger(this, getResource(), event.getDocument().get());
-	}
-
-	protected void fire() {
+	protected void fire() throws CoreException {
 		IElementChangedListener[] listeners;
 		synchronized (elementChangedListeners) {
 			listeners = new IElementChangedListener[elementChangedListeners.size()];
@@ -77,6 +69,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 		int offset = offsetProvider.getCursorOffset();
 		IElement part = partAtOffset(offset);
 		final ElementChangedEvent event = new ElementChangedEvent(this, part, ElementChangedEvent.POST_CHANGE);
+		List<Throwable> exceptions = new ArrayList<>();
 		for (IElementChangedListener listener : listeners) {
 			SafeRunner.run(new ISafeRunnable() {
 
@@ -87,9 +80,18 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 
 				@Override
 				public void handleException(Throwable exception) {
-					Log.error("Exception during change notification", exception);
+					exceptions.add(exception);
 				}
 			});
+		}
+		if (!exceptions.isEmpty()) {
+			List<IStatus> childStatus = exceptions.stream()
+					.map(e -> new Status(IStatus.ERROR, FluentCore.PLUGIN_ID, -1, "Failed propagating model change", e))
+					.collect(Collectors.toList());
+			MultiStatus status = new MultiStatus(FluentCore.PLUGIN_ID, IStatus.ERROR,
+					childStatus.toArray(new IStatus[childStatus.size()]),
+					"Exception(s) during change notification", exceptions.get(0));
+			throw new CoreException(status);
 		}
 	}
 
@@ -113,17 +115,18 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 	 *
 	 * @param text
 	 * @param resource
+	 * @throws CoreException 
 	 */
-	public void updateModel(IResource resource, String text) {
-		long begTime = System.nanoTime();
+	public void updateModel(IResource resource, String text) throws CoreException {
+//		long begTime = System.nanoTime();
 		clearModel();
 		set(resource, text);
 		parse();
-		long elapsed = System.nanoTime() - begTime;
-		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, RoundingMode.HALF_UP).toString();
-		if (value.indexOf('.') > 2) {
-			Log.info("Model updated (ms): " + value);
-		}
+//		long elapsed = System.nanoTime() - begTime;
+//		String value = BigDecimal.valueOf(elapsed, 6).setScale(2, RoundingMode.HALF_UP).toString();
+//		if (value.indexOf('.') > 2) {
+//			Log.info("Model updated (ms): " + value);
+//		}
 		fire();
 	}
 
@@ -196,7 +199,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 
 	public boolean isDotCodeBlock(int offset) {
 		PagePart part = partAtOffset(offset);
-		if (part.getMeta().startsWith(DotGen.DOT)) return true;
+		if (part.getMeta().startsWith(CodeBlockConstants.CODE_BLOCK_DOT)) return true;
 		return false;
 	}
 
@@ -390,7 +393,7 @@ public class PageRoot extends Parent implements IDocumentChangedListener {
 						case LIST:
 							part.addListMarkedLine(idx);
 						case QUOTE:
-							int level = Lines.computeLevel(lines.getText(idx));
+							int level = Lines.computeLevel(lines.getText(idx), tabWidth);
 							part.setLevel(level);
 							break;
 						default:

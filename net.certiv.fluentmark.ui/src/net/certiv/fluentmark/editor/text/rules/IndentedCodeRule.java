@@ -13,11 +13,10 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.editor.PartitionScanner;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.Indent;
 
 public class IndentedCodeRule implements IPredicateRule {
 
@@ -244,7 +243,7 @@ public class IndentedCodeRule implements IPredicateRule {
 
 	private boolean isCodeIndent(String indents) {
 		// exclude lists & quotes
-		int level = Indent.measureIndentInSpaces(indents, tabWidth);
+		int level = net.certiv.fluentmark.core.util.Indent.measureIndentInSpaces(indents, tabWidth);
 		if (level >= 4) return true;
 		return false;
 	}

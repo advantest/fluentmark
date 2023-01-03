@@ -5,15 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.certiv.fluentmark.FluentUI;
-import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.FloorKeyMap;
-import net.certiv.fluentmark.util.Indent;
+import net.certiv.fluentmark.core.util.FloorKeyMap;
+import net.certiv.fluentmark.core.util.Indent;
 
 public class Lines {
 	
@@ -233,9 +231,8 @@ public class Lines {
 		clear();
 	}
 
-	public static int computeLevel(String text) {
-		int width = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
-		return Indent.measureIndentInSpaces(text, width);
+	public static int computeLevel(String text, int tabWidth) {
+		return Indent.measureIndentInSpaces(text, tabWidth);
 	}
 
 	@Override

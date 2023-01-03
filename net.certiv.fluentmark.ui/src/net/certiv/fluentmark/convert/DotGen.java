@@ -21,9 +21,6 @@ public class DotGen {
 	private static final String[] DOTOPS = new String[] { "", "-Tsvg" };
 	private static final Map<Integer, String> dotCache = new LRUCache<>(20);
 
-	public static final String DOT = "dot";
-	public static final String PLAIN = "nohighlight";
-
 	private DotGen() {}
 
 	public static String runDot(List<String> lines) {

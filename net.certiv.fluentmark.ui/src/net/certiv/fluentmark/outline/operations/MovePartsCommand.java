@@ -7,9 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.outline.operations;
 
-import java.util.Comparator;
-import java.util.List;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.DeleteEdit;
@@ -17,8 +14,12 @@ import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.PagePart;
+import java.util.Comparator;
+import java.util.List;
+
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.PagePart;
+
 
 /**
  * A command that moves parts within a document.

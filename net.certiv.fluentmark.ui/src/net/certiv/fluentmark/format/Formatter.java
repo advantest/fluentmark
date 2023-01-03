@@ -13,14 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.dialog.tables.TableModel;
 import net.certiv.fluentmark.editor.FluentEditor;
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
 import net.certiv.fluentmark.preferences.Prefs;
-import net.certiv.fluentmark.util.Indent;
 
 public class Formatter {
 
@@ -143,7 +142,7 @@ public class Formatter {
 		if (len <= 0) return;
 
 		String listItem = part.getSublistContent(mark);
-		int indent = Indent.measureIndentInTabs(listItem, tabWidth);
+		int indent = net.certiv.fluentmark.core.util.Indent.measureIndentInTabs(listItem, tabWidth);
 		int markWidth = listMarkWidth(listItem);
 		listItem = TextFormatter.wrap(listItem, cols, part.getLineDelim(), tabWidth * indent,
 				(tabWidth * indent) + markWidth);

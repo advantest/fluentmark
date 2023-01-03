@@ -29,8 +29,6 @@ public class UmlGen {
 
 	private static final Map<Integer, String> umlCache = new LRUCache<>(20);
 
-	public static final String UML = "uml";
-
 	private UmlGen() {}
 
 	public static String uml2svg(List<String> lines) {

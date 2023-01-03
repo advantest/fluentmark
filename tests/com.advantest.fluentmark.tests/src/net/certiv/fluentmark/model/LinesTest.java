@@ -19,6 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import net.certiv.fluentmark.core.markdown.Lines;
+import net.certiv.fluentmark.core.markdown.Type;
+
 
 public class LinesTest {
 	

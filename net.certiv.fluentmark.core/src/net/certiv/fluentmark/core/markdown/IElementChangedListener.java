@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 /**
  * An element changed listener receives notification of changes to C elements

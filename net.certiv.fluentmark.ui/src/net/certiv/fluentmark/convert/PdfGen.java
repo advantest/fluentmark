@@ -33,12 +33,13 @@ import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
+import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.SourceRange;
+import net.certiv.fluentmark.core.markdown.Type;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
-import net.certiv.fluentmark.model.SourceRange;
-import net.certiv.fluentmark.model.Type;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.util.Cmd;
 import net.certiv.fluentmark.util.FileUtils;
@@ -136,7 +137,7 @@ public class PdfGen {
 			ISourceRange range = part.getSourceRange();
 
 			switch (part.getMeta()) {
-				case DotGen.DOT:
+				case CodeBlockConstants.CODE_BLOCK_DOT:
 					ISourceRange subRange = calcDotRange(range);
 					if (subRange == null) continue;
 
@@ -153,7 +154,7 @@ public class PdfGen {
 					if (ok) edit.addChild(splice(doc, range, tmpfile));
 					break;
 
-				case UmlGen.UML:
+				case CodeBlockConstants.CODE_BLOCK_UML:
 					tmpfile = createTmpFile(dir, "eps");
 					if (tmpfile == null) continue;
 

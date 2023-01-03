@@ -7,6 +7,8 @@
  ******************************************************************************/
 package net.certiv.fluentmark.editor.strategies;
 
+import org.eclipse.ui.texteditor.ITextEditor;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -17,13 +19,12 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.Type;
 import net.certiv.fluentmark.editor.FluentEditor;
-import net.certiv.fluentmark.model.Type;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
 import net.certiv.fluentmark.preferences.Prefs;
 
 /**

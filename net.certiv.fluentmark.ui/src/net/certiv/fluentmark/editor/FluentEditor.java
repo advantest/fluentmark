@@ -41,6 +41,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -97,15 +98,16 @@ import net.certiv.fluentmark.convert.Converter;
 import net.certiv.fluentmark.convert.HtmlGen;
 import net.certiv.fluentmark.convert.Kind;
 import net.certiv.fluentmark.core.dot.DotRecord;
+import net.certiv.fluentmark.core.markdown.IOffsetProvider;
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.editor.color.IColorManager;
 import net.certiv.fluentmark.editor.folding.FoldingStructureProvider;
 import net.certiv.fluentmark.editor.folding.IFoldingStructureProvider;
 import net.certiv.fluentmark.editor.text.SmartBackspaceManager;
-import net.certiv.fluentmark.model.IOffsetProvider;
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
 import net.certiv.fluentmark.outline.FluentOutlinePage;
 import net.certiv.fluentmark.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.outline.operations.CommandManager;
@@ -144,6 +146,7 @@ public class FluentEditor extends TextEditor
 	private PageModelUpdater pageModelUpdater;
 	private boolean disableSelResponse;
 	private HtmlGen htmlGen;
+	private ModelUpdater modelUpdater;
 
 	public FluentEditor() {
 		super();
@@ -201,13 +204,15 @@ public class FluentEditor extends TextEditor
 		SourceViewerConfiguration config = tools.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
-		pageModel = new PageRoot(this, getLineDelimiter());
+		int tabWidth = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
+		pageModel = new PageRoot(this, getLineDelimiter(), tabWidth);
 		converter = new Converter();
 		htmlGen = new HtmlGen(this, converter);
 		
 		pageModelUpdater = new PageModelUpdater();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(pageModelUpdater, POST_CHANGE_EVENT);
-		this.addDocChangeListener(pageModel);
+		modelUpdater = new ModelUpdater(pageModel, getResource());
+		this.addDocChangeListener(modelUpdater);
 	}
 
 	private void createListeners() {
@@ -349,7 +354,9 @@ public class FluentEditor extends TextEditor
 	@Override
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(pageModelUpdater);
-		removeDocChangeListener(pageModel);
+		if (modelUpdater != null) {
+			removeDocChangeListener(modelUpdater);
+		}
 		removePreferenceStoreListener();
 		uninstallSemanticHighlighting();
 		parseRecords.clear();
@@ -589,8 +596,12 @@ public class FluentEditor extends TextEditor
 		String text = getText();
 		if (text == null) text = "";
 		IResource resource = ResourceUtil.getResource(getEditorInput());
-		pageModel.updateModel(resource, text);
 		pageDirty = false;
+		try {
+			pageModel.updateModel(resource, text);
+		} catch (CoreException e) {
+			FluentUI.log(IStatus.ERROR, "Failed updating model", e);
+		}
 	}
 
 	/** Make the store visible outside of the editor */

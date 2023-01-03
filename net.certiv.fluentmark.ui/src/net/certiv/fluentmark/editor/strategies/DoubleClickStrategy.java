@@ -23,13 +23,13 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import net.certiv.fluentmark.Log;
-import net.certiv.fluentmark.convert.DotGen;
+import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.ISourceRange;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.dialog.graphs.DotDialog;
 import net.certiv.fluentmark.dialog.tables.TableDialog;
 import net.certiv.fluentmark.editor.FluentEditor;
-import net.certiv.fluentmark.model.ISourceRange;
-import net.certiv.fluentmark.model.PagePart;
-import net.certiv.fluentmark.model.PageRoot;
 
 public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 
@@ -52,7 +52,7 @@ public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 
 		switch (part.getKind()) {
 			case CODE_BLOCK:
-				if (part.getMeta().toLowerCase().equals(DotGen.DOT)) {
+				if (part.getMeta().toLowerCase().equals(CodeBlockConstants.CODE_BLOCK_DOT)) {
 					runDotEditor();
 					return;
 				}

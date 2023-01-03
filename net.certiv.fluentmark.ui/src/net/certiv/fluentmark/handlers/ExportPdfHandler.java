@@ -7,23 +7,26 @@
  ******************************************************************************/
 package net.certiv.fluentmark.handlers;
 
-import java.util.LinkedHashMap;
-
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.text.Document;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.core.resources.IFile;
+
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+
+import org.eclipse.jface.text.Document;
+import org.eclipse.swt.widgets.Shell;
+
+import java.util.LinkedHashMap;
+
 import net.certiv.fluentmark.convert.PdfGen;
+import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.handlers.dialog.PdfDialog;
-import net.certiv.fluentmark.model.PageRoot;
 import net.certiv.fluentmark.util.FileUtils;
 
 public class ExportPdfHandler extends AbstractHandler {

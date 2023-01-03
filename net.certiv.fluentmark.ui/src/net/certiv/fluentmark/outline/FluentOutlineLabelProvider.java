@@ -7,18 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.outline;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jface.resource.ImageDescriptor;
+
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
+
 import org.eclipse.swt.graphics.Image;
 
-import net.certiv.fluentmark.FluentUI;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.certiv.fluentmark.FluentImages;
-import net.certiv.fluentmark.model.PagePart;
+import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.core.markdown.PagePart;
 
 public class FluentOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
 

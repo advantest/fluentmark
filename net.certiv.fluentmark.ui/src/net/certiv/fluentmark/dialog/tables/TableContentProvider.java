@@ -9,7 +9,8 @@ package net.certiv.fluentmark.dialog.tables;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 
-import net.certiv.fluentmark.model.PagePart;
+import net.certiv.fluentmark.core.markdown.PagePart;
+
 
 public class TableContentProvider extends ArrayContentProvider {
 

@@ -31,7 +31,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import junit.framework.TestCase;
-import net.certiv.fluentmark.convert.UmlGen;
+import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.IOffsetProvider;
+import net.certiv.fluentmark.core.markdown.IParent;
+import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.Type;
 
 
 public class PageRootTest extends TestCase {
@@ -44,6 +49,8 @@ public class PageRootTest extends TestCase {
 //        bot = new SWTBot();
 //    }
 	
+	private static final int TAB_WIDTH = 4;
+	
 	private PageRoot pageModel = null;
 	private OffsetProviderMock offsetProvider = null;
 	private IFile markdownFile = null;
@@ -51,7 +58,7 @@ public class PageRootTest extends TestCase {
 	@Before
 	public void setUp() {
 		offsetProvider = new OffsetProviderMock();
-		pageModel = new PageRoot(offsetProvider, "\n");
+		pageModel = new PageRoot(offsetProvider, "\n", TAB_WIDTH);
 		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root = workspace.getRoot();
@@ -84,7 +91,7 @@ public class PageRootTest extends TestCase {
 	}
 	
 	@Test
-	public void testParsing_Bug_HMR_43() throws IOException {
+	public void testParsing_Bug_HMR_43() throws Exception {
 		// given
 		String text = readTextFromFile("resources/md/bug-hmr-43.md");
 		
@@ -99,11 +106,11 @@ public class PageRootTest extends TestCase {
 		assertEquals(0, part.getChildList().size());
 		assertTrue(part instanceof PagePart);
 		PagePart pagePart = (PagePart) part;
-		assertEquals(UmlGen.UML, pagePart.getMeta());
+		assertEquals(CodeBlockConstants.CODE_BLOCK_UML, pagePart.getMeta());
 	}
 	
 	@Test
-	public void testParsing_Comments() throws IOException {
+	public void testParsing_Comments() throws Exception {
 		// given
 		String text = readTextFromFile("resources/md/comments.md");
 		

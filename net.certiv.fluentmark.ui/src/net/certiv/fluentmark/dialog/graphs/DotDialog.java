@@ -10,7 +10,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ToolBar;
 
-import net.certiv.fluentmark.model.PagePart;
+import net.certiv.fluentmark.core.markdown.PagePart;
+
 
 public class DotDialog extends MessageDialog {
 

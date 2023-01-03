@@ -5,6 +5,8 @@ import org.osgi.framework.BundleContext;
 
 public class FluentCore implements BundleActivator {
 
+	public static final String PLUGIN_ID = "net.certiv.fluentmark.core";
+	
 	private static BundleContext context;
 
 	static BundleContext getContext() {

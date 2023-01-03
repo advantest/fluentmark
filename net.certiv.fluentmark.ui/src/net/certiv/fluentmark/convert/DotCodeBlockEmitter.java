@@ -11,6 +11,7 @@ import com.github.rjeschke.txtmark.BlockEmitter;
 
 import java.util.List;
 
+import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
 import net.certiv.fluentmark.core.util.Strings;
 
 public class DotCodeBlockEmitter implements BlockEmitter {
@@ -21,10 +22,10 @@ public class DotCodeBlockEmitter implements BlockEmitter {
 
 	@Override
 	public void emitBlock(StringBuilder out, List<String> lines, String meta) {
-		meta = meta == null || meta.isEmpty() ? meta = DotGen.PLAIN : meta;
+		meta = meta == null || meta.isEmpty() ? meta = CodeBlockConstants.PLAIN : meta;
 
 		switch (meta) {
-			case DotGen.DOT:
+			case CodeBlockConstants.CODE_BLOCK_DOT:
 				out.append(DotGen.runDot(lines));
 				break;
 			default:
