@@ -42,9 +42,9 @@ import java.nio.file.Paths;
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.markdown.Lines;
+import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.editor.Partitions;
-import net.certiv.fluentmark.util.Cmd;
 
 public class Converter {
 

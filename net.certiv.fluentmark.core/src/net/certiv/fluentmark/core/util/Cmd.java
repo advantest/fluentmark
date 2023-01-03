@@ -4,7 +4,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.util;
+package net.certiv.fluentmark.core.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.core.util.Strings;
 
 public class Cmd {
@@ -56,8 +55,7 @@ public class Cmd {
 			return sb.toString();
 
 		} catch (IOException e) {
-			Log.error("Cmd execution error: " + e.getMessage(), e);
-			return "";
+			throw new RuntimeException("Cmd execution error: " + e.getMessage(), e);
 		}
 	}
 
