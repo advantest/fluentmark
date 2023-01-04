@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.RGB;
 
 
 /**
- * Extends {@link net.certiv.fluentmark.editor.color.jdt.ui.text.IColorManager} with
+ * Extends {@link net.certiv.fluentmark.ui.editor.color.IColorManager} with
  * the ability to bind and un-bind colors.
  *
  * @since 2.0
