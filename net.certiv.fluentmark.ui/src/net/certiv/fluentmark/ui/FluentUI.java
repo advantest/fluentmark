@@ -62,7 +62,7 @@ import net.certiv.fluentmark.ui.preferences.Prefs;
 public class FluentUI extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "net.certiv.fluentmark"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "net.certiv.fluentmark.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static FluentUI plugin;
