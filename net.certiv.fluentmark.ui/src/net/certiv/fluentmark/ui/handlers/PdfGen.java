@@ -4,7 +4,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this
  * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.ui.handlers;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import java.nio.charset.Charset;
 
+import net.certiv.fluentmark.convert.ConverterType;
+import net.certiv.fluentmark.convert.IConfigurationProvider;
 import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.PagePart;
