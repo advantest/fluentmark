@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.editor.text.rules;
+package net.certiv.fluentmark.ui.editor.text.rules;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.certiv.fluentmark.core.convert.Partitions;
-import net.certiv.fluentmark.ui.editor.text.rules.PumlFileInclusionRule;
+
 
 public class PumlFileInclusionRuleTest {
 	

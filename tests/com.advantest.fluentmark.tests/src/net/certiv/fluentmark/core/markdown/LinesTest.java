@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,9 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import net.certiv.fluentmark.core.markdown.Lines;
-import net.certiv.fluentmark.core.markdown.Type;
 
 
 public class LinesTest {

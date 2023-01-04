@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.editor.text.rules;
+package net.certiv.fluentmark.ui.editor.text.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 

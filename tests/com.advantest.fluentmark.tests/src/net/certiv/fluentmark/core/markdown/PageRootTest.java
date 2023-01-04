@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.model;
+package net.certiv.fluentmark.core.markdown;
 
 
 
