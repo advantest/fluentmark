@@ -50,6 +50,7 @@ import java.net.URL;
 
 import java.io.File;
 
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
@@ -369,6 +370,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 		if (fileStore == null
 				|| !fileStore.fetchInfo().exists()
 				|| fileStore.fetchInfo().isDirectory()) {
+			FluentUI.log(IStatus.WARNING, String.format("Unable to open workspace-external file %s. File does not exists or is a directory.", fileStore));
 			return null;
 		}
 		
