@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -87,6 +88,38 @@ public class Converter {
 		}
 		return "";
 	}
+	
+	private String combineOutputsForHtml(CmdResult result) {
+		if (result.errOutput == null || result.errOutput.isEmpty()) {
+			return result.stdOutput;
+		}
+		
+		int indexOfBodyTag = result.stdOutput.indexOf("<body>");
+		if (indexOfBodyTag < 0) {
+			indexOfBodyTag = result.stdOutput.indexOf("<BODY>");
+		}
+		
+		if (indexOfBodyTag < 0) {
+			return StringEscapeUtils.escapeHtml4(result.errOutput) + result.stdOutput; 
+		}
+		
+		// 6 is the length of "<body>"
+		int insertIndex = indexOfBodyTag + 6;
+		
+		StringBuilder stringBuilder = new StringBuilder();
+		// append everything from stdOut including <body>
+		stringBuilder.append(result.stdOutput.substring(0, insertIndex));
+		
+		// append the error messages and warnings, escaped for HTML, and on a separate paragraph
+		stringBuilder.append("<p>");
+		stringBuilder.append(StringEscapeUtils.escapeHtml4(result.errOutput));
+		stringBuilder.append("</p>");
+		
+		// append the remainder of the stdOut
+		stringBuilder.append(result.stdOutput.substring(insertIndex));
+		
+		return stringBuilder.toString();
+	}
 
 	// Use Pandoc
 	private String usePandoc(String basepath, String text, Kind kind) {
@@ -111,10 +144,7 @@ public class Converter {
 		}
 		
 		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
-		
-		// TODO handle error output from CmdResult
-		
-		return result.stdOutput;
+		return combineOutputsForHtml(result);
 	}
 
 	// Use BlackFriday
@@ -135,10 +165,7 @@ public class Converter {
 		}
 		
 		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
-		
-		// TODO handle error output from CmdResult
-		
-		return result.stdOutput;
+		return combineOutputsForHtml(result);
 	}
 
 	// Use MarkdownJ
@@ -185,10 +212,7 @@ public class Converter {
 		String[] args = Cmd.parse(cmd);
 		if (args.length > 0) {
 			CmdResult result = Cmd.process(args, basepath, text);
-			
-			// TODO handle error output from CmdResult
-			
-			return result.stdOutput; 
+			return combineOutputsForHtml(result); 
 		}
 		return "";
 	}

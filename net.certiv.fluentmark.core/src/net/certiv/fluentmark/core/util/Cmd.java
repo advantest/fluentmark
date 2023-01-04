@@ -73,6 +73,10 @@ public class Cmd {
 		CmdResult(String stdOutput, String errOutput) {
 			this.stdOutput = stdOutput;
 			this.errOutput = errOutput;
+			
+			if (stdOutput == null) {
+				stdOutput = "";
+			}
 		}
 		
 		public boolean hasErrors() {
