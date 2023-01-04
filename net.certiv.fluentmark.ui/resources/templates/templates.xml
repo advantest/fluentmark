@@ -5,8 +5,8 @@
 	<template
 		name="h1"
 		description="%describe.h1"
-		id="net.certiv.fluentmark.templates.h1"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.h1"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.h1
 	</template>
@@ -14,8 +14,8 @@
 	<template
 		name="h2"
 		description="%describe.h2"
-		id="net.certiv.fluentmark.templates.h2"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.h2"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.h2
 	</template>
@@ -23,8 +23,8 @@
 	<template
 		name="h3"
 		description="%describe.h3"
-		id="net.certiv.fluentmark.templates.h3"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.h3"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.h3
 	</template>
@@ -32,8 +32,8 @@
 	<template
 		name="h4"
 		description="%describe.h4"
-		id="net.certiv.fluentmark.templates.h4"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.h4"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.h4
 	</template>
@@ -42,8 +42,8 @@
 	<template
 		name="h5"
 		description="%describe.h5"
-		id="net.certiv.fluentmark.templates.h5"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.h5"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.h5
 	</template>
@@ -51,8 +51,8 @@
 	<template
 		name="link"
 		description="%describe.link"
-		id="net.certiv.fluentmark.templates.link"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.link"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.link
 	</template>
@@ -60,8 +60,8 @@
 	<template
 		name="image"
 		description="%describe.image"
-		id="net.certiv.fluentmark.templates.image"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.image"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.image
 	</template>
@@ -69,8 +69,8 @@
 	<template
 		name="header_id"
 		description="%describe.header_id"
-		id="net.certiv.fluentmark.templates.header_id"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.header_id"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.header_id
 	</template>
@@ -78,8 +78,8 @@
 	<template
 		name="comment"
 		description="%describe.comment"
-		id="net.certiv.fluentmark.templates.comment"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.comment"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.comment
 	</template>
@@ -87,8 +87,8 @@
 	<template
 		name="comment_hidden"
 		description="%describe.comment_hidden"
-		id="net.certiv.fluentmark.templates.comment_hidden"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.comment_hidden"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.comment_hidden
 	</template>
@@ -96,8 +96,8 @@
 	<template
 		name="code_block"
 		description="%describe.code_block"
-		id="net.certiv.fluentmark.templates.code_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.code_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.code_block
 	</template>
@@ -105,8 +105,8 @@
 	<template
 		name="table"
 		description="%describe.table"
-		id="net.certiv.fluentmark.templates.table"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.table"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.table
 	</template>
@@ -114,8 +114,8 @@
 	<template
 		name="uml_block"
 		description="%describe.uml_block"
-		id="net.certiv.fluentmark.templates.uml_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.uml_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.uml_block
 	</template>
@@ -123,8 +123,8 @@
 	<template
 		name="wireframe_block"
 		description="%describe.wireframe_block"
-		id="net.certiv.fluentmark.templates.wireframe_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.wireframe_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.wireframe_block
 	</template>
@@ -132,8 +132,8 @@
 	<template
 		name="mindmap_block"
 		description="%describe.mindmap_block"
-		id="net.certiv.fluentmark.templates.mindmap_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.mindmap_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.mindmap_block
 	</template>
@@ -141,8 +141,8 @@
 	<template
 		name="json_block"
 		description="%describe.json_block"
-		id="net.certiv.fluentmark.templates.json_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.json_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.json_block
 	</template>
@@ -150,8 +150,8 @@
 	<template
 		name="yaml_block"
 		description="%describe.yaml_block"
-		id="net.certiv.fluentmark.templates.yaml_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.yaml_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.yaml_block
 	</template>
@@ -159,8 +159,8 @@
 	<template
 		name="gantt_block"
 		description="%describe.gantt_block"
-		id="net.certiv.fluentmark.templates.gantt_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.gantt_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.gantt_block
 	</template>
@@ -168,8 +168,8 @@
 	<template
 		name="wbs_block"
 		description="%describe.wbs_block"
-		id="net.certiv.fluentmark.templates.wbs_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.wbs_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.wbs_block
 	</template>
@@ -177,8 +177,8 @@
 	<template
 		name="dot_block"
 		description="%describe.dot_block"
-		id="net.certiv.fluentmark.templates.dot_block"
-		context="net.certiv.fluentmark.templateContext"
+		id="net.certiv.fluentmark.ui.templates.dot_block"
+		context="net.certiv.fluentmark.ui.templateContext"
 		enabled="true"
 		autoinsert="false">%template.dot_block
 	</template>
