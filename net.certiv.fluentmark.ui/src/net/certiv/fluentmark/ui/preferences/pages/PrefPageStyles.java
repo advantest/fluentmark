@@ -10,6 +10,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -84,6 +85,8 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 			url = FileLocator.toFileURL(url); // extracts to bundle cache
 			dir = new File(url.toURI());
 		} catch (IOException | URISyntaxException e) {
+			FluentUI.log(IStatus.ERROR, "Could not load built-in CSS files from bundle", e);
+			
 			String[][] values = new String[1][2];
 			values[0][0] = "<invalid resources/ >";
 			values[0][1] = "";

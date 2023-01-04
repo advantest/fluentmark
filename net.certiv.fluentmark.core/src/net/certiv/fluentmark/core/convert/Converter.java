@@ -90,7 +90,9 @@ public class Converter {
 	// Use Pandoc
 	private String usePandoc(String basepath, String text, Kind kind) {
 		String cmd = configurationProvider.getPandocCommand();
-		if (cmd.trim().isEmpty()) return "";
+		if (cmd.trim().isEmpty()) {
+			throw new IllegalStateException("No pandoc command set in preferences.");
+		}
 
 		List<String> args = new ArrayList<>();
 		args.add(cmd);

@@ -116,7 +116,14 @@ public class ViewJob extends Job {
 		
 		timer = System.nanoTime();
 		
-		String content = editor.getHtml(Kind.VIEW);
+		String content;
+		try {
+			content = editor.getHtml(Kind.VIEW);
+		} catch (Exception e) {
+			FluentUI.log(IStatus.ERROR, "Translation to HTML failed.", e);
+			browser.setText("Failure during Markdown to HTML translation. See error log for details.");
+			return false;
+		}
 		
 		if (firebug) {
 			String script;
