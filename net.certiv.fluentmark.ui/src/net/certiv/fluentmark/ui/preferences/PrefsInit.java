@@ -29,6 +29,7 @@ import java.net.URL;
 
 import java.io.IOException;
 
+import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.spell.SpellingEngine;
@@ -231,7 +232,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 	// create bundle cache URL for the default stylesheet
 	private String cssDefault() {
-		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
+		Bundle bundle = Platform.getBundle(FluentCore.PLUGIN_ID);
 		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		try {
 			url = FileLocator.toFileURL(url);
