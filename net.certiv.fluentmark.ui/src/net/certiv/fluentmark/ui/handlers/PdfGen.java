@@ -28,8 +28,8 @@ import java.io.IOException;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.convert.ConverterType;
-import net.certiv.fluentmark.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.convert.ConverterType;
+import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.PagePart;

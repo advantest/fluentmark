@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import java.math.BigDecimal;
 
-import net.certiv.fluentmark.convert.Kind;
+import net.certiv.fluentmark.core.convert.Kind;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;

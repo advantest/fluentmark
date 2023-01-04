@@ -29,7 +29,7 @@ import java.net.URL;
 
 import java.io.IOException;
 
-import net.certiv.fluentmark.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.spell.SpellingEngine;
 import net.certiv.spellchecker.SpellCheckEngine;

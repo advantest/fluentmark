@@ -11,8 +11,8 @@ package net.certiv.fluentmark.ui.editor;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import net.certiv.fluentmark.convert.ConverterType;
-import net.certiv.fluentmark.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.convert.ConverterType;
+import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 import net.certiv.fluentmark.ui.preferences.pages.PrefPageEditor;

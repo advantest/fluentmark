@@ -6,7 +6,6 @@ Bundle-SymbolicName: net.certiv.fluentmark.ui;singleton:=true
 Bundle-Version: 1.2.4.qualifier
 Export-Package: net.certiv.fluentmark.ui,
  net.certiv.fluentmark.ui.actions,
- net.certiv.fluentmark.convert,
  net.certiv.fluentmark.ui.dialog.graphs,
  net.certiv.fluentmark.ui.dialog.tables,
  net.certiv.fluentmark.ui.editor,

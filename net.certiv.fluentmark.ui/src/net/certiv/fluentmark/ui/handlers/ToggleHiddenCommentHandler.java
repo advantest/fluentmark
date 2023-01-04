@@ -28,7 +28,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 

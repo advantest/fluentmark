@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.Attr;
 import net.certiv.fluentmark.core.dot.AttrMap;
 import net.certiv.fluentmark.core.dot.ContextVisitor;

@@ -39,7 +39,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Shell;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;

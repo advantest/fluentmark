@@ -7,9 +7,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.strategies;
 
-import java.util.Arrays;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.ITextEditorExtension2;
+import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
 import org.eclipse.core.runtime.Assert;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -25,13 +30,10 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ITextEditorExtension2;
-import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import net.certiv.fluentmark.convert.Partitions;
+import java.util.Arrays;
+
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;

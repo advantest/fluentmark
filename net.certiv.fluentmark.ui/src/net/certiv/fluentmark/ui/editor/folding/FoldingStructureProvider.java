@@ -38,7 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
 import net.certiv.fluentmark.core.markdown.SourceRange;

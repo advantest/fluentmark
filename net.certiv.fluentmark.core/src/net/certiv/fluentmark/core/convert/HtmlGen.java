@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.osgi.framework.Bundle;
 
 import java.util.List;
@@ -25,10 +24,9 @@ import java.net.URL;
 import java.io.File;
 import java.io.IOException;
 
+import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.Log;
 
 /**
  * Generate Html files for:
@@ -74,10 +72,10 @@ public class HtmlGen {
 		switch (kind) {
 			case EXPORT:
 				sb.append("<html><head>" + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentUI.PLUGIN_ID) + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentUI.PLUGIN_ID) + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentCore.PLUGIN_ID) + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentCore.PLUGIN_ID) + Strings.EOL);
 				if (configurationProvider.useMathJax()) {
-					sb.append(FileUtils.fromBundle("resources/html/mathjax.html", FluentUI.PLUGIN_ID) + Strings.EOL);
+					sb.append(FileUtils.fromBundle("resources/html/mathjax.html", FluentCore.PLUGIN_ID) + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
 				sb.append(getStyle(filePath) + Strings.EOL);
@@ -95,7 +93,7 @@ public class HtmlGen {
 				break;
 
 			case VIEW:
-				String preview = FileUtils.fromBundle("resources/html/preview.html", FluentUI.PLUGIN_ID);
+				String preview = FileUtils.fromBundle("resources/html/preview.html", FluentCore.PLUGIN_ID);
 				preview = preview.replaceFirst("%path%", filePath.toString());
 				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
 				break;
@@ -114,9 +112,8 @@ public class HtmlGen {
 			URL url = findStyle(path);
 			return FileUtils.read(url);
 		} catch (Exception e) {
-			Log.error("Failed reading stylesheet", e);
+			throw new RuntimeException(String.format("Failed reading stylesheet from path %s", path), e);
 		}
-		return "";
 	}
 
 	private URL findStyle(IPath path) throws Exception {
@@ -149,12 +146,12 @@ public class HtmlGen {
 				File file = URIUtil.toFile(URIUtil.toURI(url));
 				if (file.isFile()) return url;
 			} catch (URISyntaxException e) {
-				MessageDialog.openInformation(null, "Default CSS from bundle", builtinCss);
+				throw new RuntimeException(String.format("Could not load deafault CSS file from bundle. file: %s", builtinCss), e);
 			}
 		}
 
 		// 5) read 'advantest.css' from the bundle
-		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
+		Bundle bundle = Platform.getBundle(FluentCore.PLUGIN_ID);
 		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		url = FileLocator.toFileURL(url);
 		return url;

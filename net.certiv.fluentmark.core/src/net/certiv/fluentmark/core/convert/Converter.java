@@ -4,7 +4,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
@@ -37,11 +37,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.Lines;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.Log;
 
 public class Converter {
 
@@ -311,7 +310,7 @@ public class Converter {
 						Paths.get(file.getAbsolutePath()),
 						StandardCharsets.UTF_8);
 			} catch (IOException e) {
-				Log.error(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
+				throw new RuntimeException(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
 			}
 		}
 		return null;
@@ -336,7 +335,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode, String figureCaption) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/puml-include.html", FluentUI.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/puml-include.html", FluentCore.PLUGIN_ID);
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -354,7 +353,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/figure.html", FluentUI.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/figure.html", FluentCore.PLUGIN_ID);
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}

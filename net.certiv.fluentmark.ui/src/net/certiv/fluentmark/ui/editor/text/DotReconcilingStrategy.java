@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotProblemCollector;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.dot.DotSourceParser;

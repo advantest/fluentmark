@@ -33,7 +33,7 @@ import java.net.URL;
 import java.io.File;
 import java.io.IOException;
 
-import net.certiv.fluentmark.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 

@@ -18,7 +18,7 @@ import org.eclipse.jface.text.rules.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.editor.text.rules.DotCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;

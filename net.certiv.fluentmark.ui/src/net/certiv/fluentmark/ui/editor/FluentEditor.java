@@ -99,11 +99,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import java.net.URI;
 
-import net.certiv.fluentmark.convert.Converter;
-import net.certiv.fluentmark.convert.HtmlGen;
-import net.certiv.fluentmark.convert.IConfigurationProvider;
-import net.certiv.fluentmark.convert.Kind;
-import net.certiv.fluentmark.convert.Partitions;
+import net.certiv.fluentmark.core.convert.Converter;
+import net.certiv.fluentmark.core.convert.HtmlGen;
+import net.certiv.fluentmark.core.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.convert.Kind;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
 import net.certiv.fluentmark.core.markdown.ISourceRange;

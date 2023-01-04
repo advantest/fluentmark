@@ -1,4 +1,4 @@
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 public enum Kind {
 	MIN,

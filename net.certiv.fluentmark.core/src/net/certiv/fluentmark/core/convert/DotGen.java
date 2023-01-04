@@ -4,7 +4,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,6 @@ import java.util.Map;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.ui.Log;
 
 public class DotGen {
 
@@ -52,7 +51,7 @@ public class DotGen {
 		if (value != null && !value.trim().isEmpty()) {
 			dotCache.put(key, value);
 		} else {
-			Log.error("Dot created no output for" + Strings.EOL + data);
+			throw new IllegalStateException("Dot created no output for" + Strings.EOL + data);
 		}
 
 		return value;

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 import java.util.LinkedHashMap;
 

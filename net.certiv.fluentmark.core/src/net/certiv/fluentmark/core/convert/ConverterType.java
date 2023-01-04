@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 public enum ConverterType {
 	PANDOC,

@@ -4,7 +4,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.convert;
+package net.certiv.fluentmark.core.convert;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,6 @@ import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
-import net.certiv.fluentmark.ui.Log;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -52,7 +51,7 @@ public class UmlGen {
 			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
 			value = new String(os.toByteArray(), Charset.forName("UTF-8"));
 		} catch (Exception e) {
-			Log.error("PlantUML exception on" + Strings.EOL + data, e);
+			throw new RuntimeException("PlantUML exception on" + Strings.EOL + data, e);
 		}
 
 		// update cache if valid value
