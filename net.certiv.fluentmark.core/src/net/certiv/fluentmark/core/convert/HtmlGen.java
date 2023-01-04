@@ -71,6 +71,11 @@ public class HtmlGen {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
+				String bodyContent = extractBodyContentsFrom(content);
+				if (bodyContent == null) {
+					return content;
+				}
+				
 				sb.append("<html><head>" + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentCore.PLUGIN_ID) + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentCore.PLUGIN_ID) + Strings.EOL);
@@ -81,7 +86,9 @@ public class HtmlGen {
 				sb.append(getStyle(filePath) + Strings.EOL);
 				sb.append("</style>" + Strings.EOL);
 				sb.append("</head><body>" + Strings.EOL);
-				sb.append(content + Strings.EOL);
+				
+				sb.append(bodyContent + Strings.EOL);
+				
 				sb.append("</body></html>");
 				break;
 
@@ -104,6 +111,22 @@ public class HtmlGen {
 		}
 
 		return sb.toString();
+	}
+	
+	private String extractBodyContentsFrom(String htmlCode) {
+		String[] parts = htmlCode.split("(<body>|<BODY>)");
+		
+		if (parts.length != 2) {
+			return null;
+		}
+		
+		parts = parts[1].split("(<\\/body>|<\\/BODY>)");
+		
+		if (parts.length != 2) {
+			return null;
+		}
+		
+		return parts[0];
 	}
 
 	// path is the searchable base for the style to use; returns the content
