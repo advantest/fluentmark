@@ -15,7 +15,7 @@ public interface Prefs extends PrefsSpelling {
 
 	// preference store keys
 
-	String MD_ID = "net.certiv.fluentmark";
+	String MD_ID = "net.certiv.fluentmark.ui";
 	String EDITOR_TAB_WIDTH = MD_ID + ".tabWidth";
 	String EDITOR_TAB_CHAR = MD_ID + ".tabChar";
 
