@@ -34,6 +34,7 @@ import java.net.URL;
 import java.io.File;
 import java.io.IOException;
 
+import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
@@ -78,7 +79,7 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 	// build list of built-in stylesheets
 	// key=name, value=bundle cache URL as string
 	private String[][] builtins() {
-		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
+		Bundle bundle = Platform.getBundle(FluentCore.PLUGIN_ID);
 		URL url = bundle.getEntry(IConfigurationProvider.CSS_RESOURCE_DIR);
 		File dir = null;
 		try {
