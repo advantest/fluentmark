@@ -11,7 +11,7 @@ import org.eclipse.osgi.util.NLS;
 
 public final class FoldingMessages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.editor.folding.FoldingMessages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.editor.folding.FoldingMessages";//$NON-NLS-1$
 
 	private FoldingMessages() {}
 

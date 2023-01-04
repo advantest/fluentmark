@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
  */
 public class ActionMessages {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.actions.ActionMessages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.actions.ActionMessages"; //$NON-NLS-1$
 
 	public static String CollapseAllAction_0;
 	public static String CollapseAllAction_1;

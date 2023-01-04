@@ -11,7 +11,7 @@ import org.eclipse.osgi.util.NLS;
 
 class Messages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.editor.assist.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.editor.assist.messages"; //$NON-NLS-1$
 
 	public static String MarkupTemplateCompletionProcessor_contextName;
 

@@ -11,7 +11,7 @@ import org.eclipse.osgi.util.NLS;
 
 class Messages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.outline.dnd"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.outline.dnd"; //$NON-NLS-1$
 
 	public static String OutlineDropTargetListener_0;
 	public static String OutlineDropTargetListener_1;
