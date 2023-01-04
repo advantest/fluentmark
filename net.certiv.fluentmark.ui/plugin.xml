@@ -7,7 +7,7 @@
             id="net.certiv.fluentmark.editorVisible">
 			<with variable="activePartId">
     			<equals
-          			value="net.certiv.fluentmark.editor.FluentEditor">
+          			value="net.certiv.fluentmark.ui.editor.FluentEditor">
     			</equals>
 			</with>
       </definition>
@@ -40,7 +40,7 @@
             contributorClass="net.certiv.fluentmark.ui.editor.FluentActionBarContributor"
             default="true"
             icon="icons/obj16/fluentmark_doc.png"
-            id="net.certiv.fluentmark.editor.FluentEditor"
+            id="net.certiv.fluentmark.ui.editor.FluentEditor"
             name="FluentMark Editor"
             symbolicFontName="org.eclipse.jface.textfont">
          <contentTypeBinding
@@ -159,7 +159,7 @@
             category="net.certiv.certivtools"
             class="net.certiv.fluentmark.ui.views.FluentPreview"
             icon="icons/obj16/fluentmark_doc.png"
-            id="net.certiv.fluentmark.views.FluentPreview"
+            id="net.certiv.fluentmark.ui.views.FluentPreview"
             name="FluentMark View"
             restorable="false">
       </view>
@@ -321,7 +321,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:net.certiv.fluentmark.views.FluentPreview">
+            locationURI="toolbar:net.certiv.fluentmark.ui.views.FluentPreview">
          <command
                commandId="net.certiv.fluentmark.refreshView"
                icon="icons/obj16/refresh.gif"

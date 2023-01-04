@@ -9,9 +9,11 @@ package net.certiv.fluentmark.ui.editor.folding;
 
 import org.eclipse.osgi.util.NLS;
 
+import net.certiv.fluentmark.ui.FluentUI;
+
 public final class FoldingMessages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.editor.folding.FoldingMessages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = FluentUI.PLUGIN_ID + ".editor.folding.FoldingMessages";//$NON-NLS-1$
 
 	private FoldingMessages() {}
 

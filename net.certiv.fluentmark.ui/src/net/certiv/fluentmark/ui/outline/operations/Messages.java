@@ -9,9 +9,11 @@ package net.certiv.fluentmark.ui.outline.operations;
 
 import org.eclipse.osgi.util.NLS;
 
+import net.certiv.fluentmark.ui.FluentUI;
+
 class Messages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.outline.operations"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = FluentUI.PLUGIN_ID + ".outline.operations"; //$NON-NLS-1$
 
 	public static String MoveSectionsCommand_invalidTargetLocation_self;
 

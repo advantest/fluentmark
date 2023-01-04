@@ -129,7 +129,7 @@ import net.certiv.fluentmark.ui.preferences.Prefs;
 public class FluentEditor extends TextEditor
 		implements CommandManager, IShowInTarget, IShowInSource, IReconcilingListener, IOffsetProvider {
 
-	public static final String ID = "net.certiv.fluentmark.editor.FluentEditor";
+	public static final String ID = FluentUI.PLUGIN_ID + ".editor.FluentEditor";
 	
 	private static final int POST_CHANGE_EVENT = IResourceChangeEvent.POST_CHANGE;
 

@@ -9,9 +9,11 @@ package net.certiv.fluentmark.ui.editor.assist;
 
 import org.eclipse.osgi.util.NLS;
 
+import net.certiv.fluentmark.ui.FluentUI;
+
 class Messages extends NLS {
 
-	private static final String BUNDLE_NAME = "net.certiv.fluentmark.ui.editor.assist.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = FluentUI.PLUGIN_ID + ".editor.assist.messages"; //$NON-NLS-1$
 
 	public static String MarkupTemplateCompletionProcessor_contextName;
 
