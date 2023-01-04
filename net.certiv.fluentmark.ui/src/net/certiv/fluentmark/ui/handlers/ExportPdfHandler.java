@@ -44,11 +44,9 @@ public class ExportPdfHandler extends AbstractHandler {
 	private IFile source;
 	private String template;
 	private String destination;
-	private final PdfGen pdfGen;
 
-	public ExportPdfHandler(IConfigurationProvider configurationProvider) {
+	public ExportPdfHandler() {
 		super();
-		this.pdfGen = new PdfGen(configurationProvider);
 	}
 
 	public void setTemplate(String pathname) {
@@ -74,6 +72,9 @@ public class ExportPdfHandler extends AbstractHandler {
 					String basepath = source.getLocation().removeLastSegments(1).addTrailingSeparator().toString();
 					Document doc = new Document(editor.getDocument().get());
 					PageRoot model = editor.getPageModel(true);
+					
+					IConfigurationProvider configurationProvider = editor.getConfigurationProvider();
+					PdfGen pdfGen = new PdfGen(configurationProvider);
 					
 					Job saveJob = pdfGen.save(basepath, doc, model, template, destination);
 					saveJob.addJobChangeListener(new JobChangeAdapter() {

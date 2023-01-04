@@ -163,6 +163,10 @@ public class FluentEditor extends TextEditor
 		this.configProvider = new ConfigurationProvider();
 	}
 	
+	public IConfigurationProvider getConfigurationProvider() {
+		return this.configProvider;
+	}
+	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
 	private class EditorSelectionChangedListener extends AbstractSelectionChangedListener {
 
