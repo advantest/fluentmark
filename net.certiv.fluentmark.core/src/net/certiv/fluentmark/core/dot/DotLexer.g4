@@ -1,7 +1,7 @@
 lexer grammar DotLexer ;
 
 @header {
-	package net.certiv.fluentmark.dot.gen;
+	package net.certiv.fluentmark.core.dot.gen;
 }
 
 COMMA  : ',' ;

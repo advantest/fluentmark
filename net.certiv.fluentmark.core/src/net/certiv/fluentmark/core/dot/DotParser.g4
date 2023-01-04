@@ -5,7 +5,7 @@ options {
 }
 
 @header {
-	package net.certiv.fluentmark.dot.gen;
+	package net.certiv.fluentmark.core.dot.gen;
 }
 
 graph
