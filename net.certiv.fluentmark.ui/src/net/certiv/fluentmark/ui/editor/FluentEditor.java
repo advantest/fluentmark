@@ -160,7 +160,6 @@ public class FluentEditor extends TextEditor
 
 	public FluentEditor() {
 		super();
-		this.configProvider = new ConfigurationProvider();
 	}
 	
 	public IConfigurationProvider getConfigurationProvider() {
@@ -216,6 +215,7 @@ public class FluentEditor extends TextEditor
 		initEditorPreferenceStore();
 		colorManager = FluentUI.getDefault().getColorMgr();
 		tools = FluentUI.getDefault().getTextTools();
+		this.configProvider = new ConfigurationProvider();
 		SourceViewerConfiguration config = tools.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
