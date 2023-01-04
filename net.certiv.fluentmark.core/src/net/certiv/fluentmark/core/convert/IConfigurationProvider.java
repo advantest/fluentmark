@@ -9,13 +9,15 @@
  */
 package net.certiv.fluentmark.core.convert;
 
+import net.certiv.fluentmark.core.FluentCore;
+
 public interface IConfigurationProvider {
 	
 	String CSS_RESOURCE_DIR = "resources/css/";
 	String CSS = "css";
 	String CSS_DEFAULT = "advantest.css";
 	
-	String EDITOR_CSS_BUILTIN = "net.certiv.fluentmark.markdown_Css";
+	String EDITOR_CSS_BUILTIN = FluentCore.PLUGIN_ID + ".markdown_Css";
 	String EDITOR_CSS_EXTERNAL = "";
 	
 	

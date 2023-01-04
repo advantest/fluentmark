@@ -129,16 +129,16 @@
        point="org.eclipse.ui.editors.templates">
     	<contextType
            class="net.certiv.fluentmark.ui.editor.assist.SourceTemplateContextType"
-           id="net.certiv.fluentmark.templateContext"
+           id="net.certiv.fluentmark.ui.templateContext"
            name="Fluent Editor"
-           registryId="net.certiv.fluentmark.templates">
+           registryId="net.certiv.fluentmark.ui.templates">
 	    </contextType>
      <include
            file="resources/templates/templates.xml"
            translations="resources/templates/templates.properties">
      </include>
      <contextTypeRegistry
-           id="net.certiv.fluentmark.templates">
+           id="net.certiv.fluentmark.ui.templates">
      </contextTypeRegistry>
 	</extension>
 
@@ -147,7 +147,7 @@
       <engine
             class="net.certiv.fluentmark.ui.spell.SpellingEngine"
             default="true"
-            id="net.certiv.fluentmark.spell.SpellingEngine"
+            id="net.certiv.fluentmark.ui.spell.SpellingEngine"
             label="FluentMark spelling engine">
       </engine>
    </extension>
@@ -224,7 +224,7 @@
             allPopups="false"
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="net.certiv.fluentmark.MarkdownEditor">
+               id="net.certiv.fluentmark.ui.MarkdownEditor">
             <command
                   commandId="net.certiv.fluentmark.bold"
                   icon="icons/etool16/style_bold.png"
@@ -671,7 +671,7 @@
             category="net.certiv.certivtools.wizards"
             class="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             icon="icons/obj16/fluentmark_doc.png"
-            id="net.certiv.fluentmark.wizards.FluentNewWizard"
+            id="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             name="FluentMark file">
       </wizard>
    </extension>

@@ -10,9 +10,11 @@ package net.certiv.fluentmark.ui.editor.assist;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;
 
+import net.certiv.fluentmark.ui.FluentUI;
+
 public class SourceTemplateContextType extends TemplateContextType {
 
-	public static final String ID = "net.certiv.fluentmark.templateContext"; //$NON-NLS-1$
+	public static final String ID = FluentUI.PLUGIN_ID + ".templateContext"; //$NON-NLS-1$
 
 	public SourceTemplateContextType() {
 		super(ID, Messages.MarkupTemplateCompletionProcessor_contextName);

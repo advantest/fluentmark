@@ -7,20 +7,21 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.assist;
 
+import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
+import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
+
+import org.eclipse.jface.text.templates.ContextTypeRegistry;
+import org.eclipse.jface.text.templates.persistence.TemplateStore;
+
 import java.io.IOException;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 
-import org.eclipse.jface.text.templates.ContextTypeRegistry;
-import org.eclipse.jface.text.templates.persistence.TemplateStore;
-import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
-import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
-
 public class CustomTemplateAccess {
 
 	// preference store key used to store the template.xml content as a string
-	private static final String CUSTOM_TEMPLATES_KEY = "net.certiv.fluentmark.customtemplates"; //$NON-NLS-1$
+	private static final String CUSTOM_TEMPLATES_KEY = FluentUI.PLUGIN_ID + ".customtemplates"; //$NON-NLS-1$
 
 	private static CustomTemplateAccess instance;
 
