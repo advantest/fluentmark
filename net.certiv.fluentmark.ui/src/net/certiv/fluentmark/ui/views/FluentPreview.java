@@ -63,9 +63,10 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		latestActiveEditor = this.getActiveFluentEditor();
 		currentEditorInput = this.getActiveEditorInput();
 
-		browser.addLocationListener(new FluentBrowserUrlListener(this, viewjob));
-
 		viewjob = new ViewJob(viewpart);
+		
+		browser.addLocationListener(new FluentBrowserUrlListener(this, viewjob));
+		
 		getPreferenceStore().addPropertyChangeListener(this);
 		getActivePage().addPartListener(this);
 	}
