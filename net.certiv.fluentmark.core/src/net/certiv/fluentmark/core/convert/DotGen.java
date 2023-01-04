@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.certiv.fluentmark.core.util.Cmd;
+import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 
@@ -41,9 +42,21 @@ public class DotGen {
 		String[] args = DOTOPS;
 		args[0] = cmd;
 
+		CmdResult result = Cmd.process(args, null, data);
+		
+		if (result.hasErrors()) {
+			throw new IllegalStateException("Problems occured while translating DOT code:\n\n" + result.errOutput);
+		}
+		
+		String output = result.stdOutput; 
+		
+		if (output == null) {
+			output = "";
+		}
+		
 		StringBuilder out = new StringBuilder();
 		out.append("<div class=\"dot\">");
-		out.append(Cmd.process(args, null, data).replaceAll("\\R", "").replaceFirst("\\<\\!DOC.+?\\>", ""));
+		out.append(output.replaceAll("\\R", "").replaceFirst("\\<\\!DOC.+?\\>", ""));
 		out.append("</div>" + Strings.EOL);
 		value = out.toString();
 

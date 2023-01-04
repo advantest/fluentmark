@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import net.certiv.fluentmark.core.util.Strings;
-
 public class Cmd {
 
 	/**
@@ -29,17 +27,21 @@ public class Cmd {
 	 * @param text
 	 * @return output data
 	 */
-	public static synchronized String process(String[] cmd, String base, String data) {
+	public static synchronized CmdResult process(String[] cmd, String base, String data) {
 		final StringBuilder sb = new StringBuilder();
+		final StringBuilder errSb = new StringBuilder();
 		final ProcessBuilder pb = new ProcessBuilder(cmd);
 		try {
 			if (base != null) pb.directory(new File(base));
-			pb.redirectErrorStream(true);
+			pb.redirectErrorStream(false);
 			Process process = pb.start();
 
 			// prep for ouput from the process
 			InputStreamReader in = new InputStreamReader(process.getInputStream());
 			BufferedReader br = new BufferedReader(in);
+			
+			InputStreamReader errIn = new InputStreamReader(process.getErrorStream());
+			BufferedReader errBr = new BufferedReader(errIn);
 
 			// prep and feed input to the processs
 			OutputStreamWriter out = new OutputStreamWriter(process.getOutputStream());
@@ -52,11 +54,31 @@ public class Cmd {
 			while ((line = br.readLine()) != null) {
 				sb.append(line + Strings.EOL);
 			}
-			return sb.toString();
-
+			
+			while((line = errBr.readLine()) != null) {
+				errSb.append(line + Strings.EOL);
+			}
+			
+			return new CmdResult(sb.toString(), errSb.toString());
 		} catch (IOException e) {
 			throw new RuntimeException("Cmd execution error: " + e.getMessage(), e);
 		}
+	}
+	
+	public static final class CmdResult {
+		
+		public final String stdOutput;
+		public final String errOutput;
+		
+		CmdResult(String stdOutput, String errOutput) {
+			this.stdOutput = stdOutput;
+			this.errOutput = errOutput;
+		}
+		
+		public boolean hasErrors() {
+			return errOutput != null && !errOutput.isBlank();
+		}
+		
 	}
 
 	/**

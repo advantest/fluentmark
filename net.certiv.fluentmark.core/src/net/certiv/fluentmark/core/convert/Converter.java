@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.Lines;
 import net.certiv.fluentmark.core.util.Cmd;
+import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
 
 public class Converter {
@@ -108,13 +109,20 @@ public class Converter {
 		} else {
 			args.add("--ascii");
 		}
-		return Cmd.process(args.toArray(new String[args.size()]), basepath, text);
+		
+		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
+		
+		// TODO handle error output from CmdResult
+		
+		return result.stdOutput;
 	}
 
 	// Use BlackFriday
 	private String useBlackFriday(String basepath, String text) {
 		String cmd = configurationProvider.getBlackFridayCommand();
-		if (cmd.trim().isEmpty()) return "";
+		if (cmd.trim().isEmpty()) {
+			throw new IllegalStateException("No BlackFriday command set in preferences.");
+		}
 
 		List<String> args = new ArrayList<>();
 		args.add(cmd);
@@ -125,8 +133,12 @@ public class Converter {
 			args.add("-smartypants");
 			args.add("-fractions");
 		}
-
-		return Cmd.process(args.toArray(new String[args.size()]), basepath, text);
+		
+		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
+		
+		// TODO handle error output from CmdResult
+		
+		return result.stdOutput;
 	}
 
 	// Use MarkdownJ
@@ -172,7 +184,11 @@ public class Converter {
 
 		String[] args = Cmd.parse(cmd);
 		if (args.length > 0) {
-			return Cmd.process(args, basepath, text);
+			CmdResult result = Cmd.process(args, basepath, text);
+			
+			// TODO handle error output from CmdResult
+			
+			return result.stdOutput; 
 		}
 		return "";
 	}

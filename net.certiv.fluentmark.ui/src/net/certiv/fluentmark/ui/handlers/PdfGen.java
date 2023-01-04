@@ -37,6 +37,7 @@ import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.markdown.SourceRange;
 import net.certiv.fluentmark.core.markdown.Type;
 import net.certiv.fluentmark.core.util.Cmd;
+import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.core.util.Temps;
@@ -188,7 +189,12 @@ public class PdfGen {
 		ops.add(out.getPath());
 
 		String[] args = ops.toArray(new String[ops.size()]);
-		return Cmd.process(args, base, content);
+		CmdResult result = Cmd.process(args, base, content);
+		
+		if (result.hasErrors()) {
+			FluentUI.log(IStatus.ERROR, "Problems occured while generating PDF file:\n\n" + result.errOutput);
+		}
+		return result.stdOutput;
 	}
 
 	// clean up temporary files
@@ -230,7 +236,13 @@ public class PdfGen {
 		args[0] = cmd;
 		args[DOT2PDF.length - 1] = file.getPath();
 
-		Cmd.process(args, null, data);
+		CmdResult result = Cmd.process(args, null, data);
+		
+		if (result.hasErrors()) {
+			FluentUI.log(IStatus.ERROR, "Problems occured while translating DOT diagram to PDF file:\n\n" + result.errOutput);
+			return false;
+		}
+		
 		return true;
 	}
 
