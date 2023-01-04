@@ -73,9 +73,9 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		store.setDefault(EDITOR_MD_CONVERTER, KEY_PANDOC);
 
-		store.setDefault(EDITOR_UMLMODE_ENABLED, false);
-		store.setDefault(EDITOR_DOTMODE_ENABLED, false);
-		store.setDefault(EDITOR_DOT_PROGRAM, "");
+		store.setDefault(EDITOR_UMLMODE_ENABLED, true);
+		store.setDefault(EDITOR_DOTMODE_ENABLED, true);
+		store.setDefault(EDITOR_DOT_PROGRAM, "/usr/bin/dot");
 
 		store.setDefault(EDITOR_TXTMARK_SAFEMODE, false);
 		store.setDefault(EDITOR_TXTMARK_EXTENDED, true);
@@ -85,9 +85,9 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_BLACKFRIDAY_PROGRAM, "");
 
 		store.setDefault(EDITOR_PANDOC_ADDTOC, false);
-		store.setDefault(EDITOR_PANDOC_MATHJAX, false);
+		store.setDefault(EDITOR_PANDOC_MATHJAX, true);
 		store.setDefault(EDITOR_PANDOC_SMART, true);
-		store.setDefault(EDITOR_PANDOC_PROGRAM, "");
+		store.setDefault(EDITOR_PANDOC_PROGRAM, "/usr/bin/pandoc");
 		store.setDefault(EDITOR_PANDOC_TEMPLATES, "");
 		store.setDefault(EDITOR_PANDOC_TEMPLATE, "");
 
