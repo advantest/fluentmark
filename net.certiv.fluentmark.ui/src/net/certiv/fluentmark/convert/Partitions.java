@@ -5,9 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor;
-
-import org.eclipse.jface.text.IDocument;
+package net.certiv.fluentmark.convert;
 
 public class Partitions {
 
@@ -34,10 +32,4 @@ public class Partitions {
 		return LEGAL_TYPES;
 	}
 
-	public static String[] getContentTypes() {
-		String[] dest = new String[LEGAL_TYPES.length + 1];
-		dest[0] = IDocument.DEFAULT_CONTENT_TYPE;
-		System.arraycopy(LEGAL_TYPES, 0, dest, 1, LEGAL_TYPES.length);
-		return dest;
-	}
 }

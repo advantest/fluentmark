@@ -13,9 +13,6 @@ import org.eclipse.core.runtime.Path;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
 import org.markdownj.MarkdownProcessor;
 import org.pegdown.PegDownProcessor;
 
@@ -29,6 +26,7 @@ import java.util.regex.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import java.net.URISyntaxException;
 
@@ -44,7 +42,6 @@ import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.Partitions;
 
 public class Converter {
 
@@ -63,30 +60,29 @@ public class Converter {
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 	}
 
-
-	public String convert(IPath filePath, String basepath, IDocument doc, ITypedRegion[] regions, Kind kind) {
+	public String convert(IPath filePath, String basepath, List<String> regionTexts, Map<Integer,String> regionTypes, Kind kind) {
 		String text;
 		switch (configurationProvider.getConverterType()) {
 			case PANDOC:
-				text = getText(filePath, doc, regions, true);
+				text = getText(filePath, regionTexts, regionTypes, true);
 				return usePandoc(basepath, text, kind);
 			case BLACKFRIDAY:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return useBlackFriday(basepath, text);
 			case MARKDOWNJ:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return useMarkDownJ(basepath, text);
 			case PEGDOWN:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return usePegDown(basepath, text);
 			case COMMONMARK:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return useCommonMark(basepath, text);
 			case TXTMARK:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return useTxtMark(basepath, text);
 			case OTHER:
-				text = getText(filePath, doc, regions, false);
+				text = getText(filePath, regionTexts, regionTypes, false);
 				return useExternal(basepath, text);
 		}
 		return "";
@@ -179,19 +175,25 @@ public class Converter {
 		}
 		return "";
 	}
-
-	private String getText(IPath filePath, IDocument doc, ITypedRegion[] regions, boolean inclFM) {
+	
+	private String getText(IPath filePath, List<String> regionTexts, Map<Integer,String> regionTypes, boolean includeFrontMatter) {
 		List<String> parts = new ArrayList<>();
-		for (ITypedRegion region : regions) {
-			String text = null;
-			try {
-				text = doc.get(region.getOffset(), region.getLength());
-			} catch (BadLocationException e) {
-				continue;
+		
+		if (regionTexts.size() != regionTypes.keySet().size()) {
+			throw new IllegalArgumentException("Number of region texts and number of their types do not match.");
+		}
+		
+		for (int i = 0; i < regionTexts.size(); i++) {
+			String text = regionTexts.get(i);
+			String regionType = regionTypes.get(i);
+			
+			if (text == null || regionType == null) {
+				throw new IllegalArgumentException(String.format("No region text or nor region type given for index %d. Region type: %s", i, regionType));
 			}
-			switch (region.getType()) {
+			
+			switch (regionType) {
 				case Partitions.FRONT_MATTER:
-					if (!inclFM) continue;
+					if (!includeFrontMatter) continue;
 					break;
 				case Partitions.DOTBLOCK:
 					if (configurationProvider.isDotEnabled()) {
@@ -217,7 +219,7 @@ public class Converter {
 
 		return String.join(" ", parts);
 	}
-	
+
 	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
 		String dotDiagram = convertDot2Svg(dotSourcCode);
 		return createHtmlFigure(dotDiagram);

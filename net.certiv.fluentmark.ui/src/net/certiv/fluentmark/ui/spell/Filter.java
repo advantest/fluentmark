@@ -10,7 +10,7 @@ package net.certiv.fluentmark.ui.spell;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.ui.editor.Partitions;
+import net.certiv.fluentmark.convert.Partitions;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;

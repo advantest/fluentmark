@@ -37,12 +37,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.certiv.fluentmark.convert.Partitions;
 import net.certiv.fluentmark.core.dot.Attr;
 import net.certiv.fluentmark.core.dot.AttrMap;
 import net.certiv.fluentmark.core.dot.ContextVisitor;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.editor.Partitions;
 
 public class DotCompletionProcessor implements IContentAssistProcessor {
 

@@ -38,13 +38,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.certiv.fluentmark.convert.Partitions;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
 import net.certiv.fluentmark.core.markdown.SourceRange;
 import net.certiv.fluentmark.ui.editor.DocumentCharacterIterator;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.editor.IReconcilingListener;
-import net.certiv.fluentmark.ui.editor.Partitions;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 /** Implementation of a {@link IFoldingStructureProvider}. */

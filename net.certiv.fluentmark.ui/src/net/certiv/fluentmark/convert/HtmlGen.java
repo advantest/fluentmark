@@ -12,11 +12,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
 import org.osgi.framework.Bundle;
+
+import java.util.List;
+import java.util.Map;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -30,7 +29,6 @@ import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.Partitions;
 
 /**
  * Generate Html files for:
@@ -56,15 +54,16 @@ public class HtmlGen {
 		this.converter = converter;
 		this.configurationProvider = configProvider;
 	}
-
+	
 	/**
 	 * Gets the current document content with a header as determined by kind.
 	 *
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
-	public String getHtml(IDocument document, IPath filePath, String basepath, Kind kind) {
+	public String buildHtml(IPath filePath, String basepath, List<String> regionTexts, Map<Integer,String> regionTypes, Kind kind) {
+		String text = converter.convert(filePath, basepath, regionTexts, regionTypes, kind);
 		try {
-			return build(kind, convert(document, filePath, basepath, kind), basepath, filePath);
+			return build(kind, text, basepath, filePath);
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -107,21 +106,6 @@ public class HtmlGen {
 		}
 
 		return sb.toString();
-	}
-
-	private String convert(IDocument document, IPath filePath, String basepath, Kind kind) {
-		int beg = 0;
-		int len = document.getLength();
-
-		ITypedRegion[] regions;
-		try {
-			regions = TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
-		} catch (BadLocationException e) {
-			Log.error("Failed to compute partitions. " + beg, e);
-			return "";
-		}
-
-		return converter.convert(filePath, basepath, document, regions, kind);
 	}
 
 	// path is the searchable base for the style to use; returns the content

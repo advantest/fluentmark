@@ -38,13 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.certiv.fluentmark.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotProblemCollector;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.dot.DotSourceParser;
 import net.certiv.fluentmark.core.marker.DotProblem;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.editor.Partitions;
 import net.certiv.fluentmark.ui.editor.assist.DotAnnotation;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 

@@ -31,10 +31,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
+import net.certiv.fluentmark.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.editor.Partitions;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager.UndoSpec;
 import net.certiv.fluentmark.ui.preferences.Prefs;
