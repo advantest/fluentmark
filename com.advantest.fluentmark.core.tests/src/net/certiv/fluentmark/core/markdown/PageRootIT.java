@@ -11,6 +11,9 @@ package net.certiv.fluentmark.core.markdown;
 
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -18,9 +21,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -30,24 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import junit.framework.TestCase;
-import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
-import net.certiv.fluentmark.core.markdown.IOffsetProvider;
-import net.certiv.fluentmark.core.markdown.IParent;
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
-import net.certiv.fluentmark.core.markdown.Type;
 
-
-public class PageRootTest extends TestCase {
-	
-//	private static SWTBot bot;
-//	
-//	@BeforeEach
-//    public void beforeClass() throws Exception {
-//        // don't use SWTWorkbenchBot here which relies on Platform 3.x
-//        bot = new SWTBot();
-//    }
+public class PageRootIT {
 	
 	private static final int TAB_WIDTH = 4;
 	
@@ -55,7 +42,7 @@ public class PageRootTest extends TestCase {
 	private OffsetProviderMock offsetProvider = null;
 	private IFile markdownFile = null;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		offsetProvider = new OffsetProviderMock();
 		pageModel = new PageRoot(offsetProvider, "\n", TAB_WIDTH);
@@ -67,7 +54,7 @@ public class PageRootTest extends TestCase {
 		markdownFile = folder.getFile("test.md");
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		pageModel.dispose();
 		offsetProvider = null;

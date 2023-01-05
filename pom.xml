@@ -38,7 +38,8 @@
 		<module>com.advantest.fluentmark.extensions.svgbuilder</module>
 		<module>com.advantest.fluentmark.extensions.feature</module>
 		<module>site</module>
-		<module>tests/com.advantest.fluentmark.tests</module>
+		<module>com.advantest.fluentmark.core.tests</module>
+		<module>com.advantest.fluentmark.ui.tests</module>
 	</modules>
 
 	<repositories>
