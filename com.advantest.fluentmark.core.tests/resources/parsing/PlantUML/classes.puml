@@ -1,0 +1,11 @@
+@startuml
+
+interface List
+
+class ArrayList
+class LinkedList
+
+List <|.. ArrayList
+List <|.. LinkedList
+
+@enduml
