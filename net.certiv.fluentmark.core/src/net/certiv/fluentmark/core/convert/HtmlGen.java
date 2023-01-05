@@ -11,10 +11,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
+import org.eclipse.jface.text.IDocument;
 import org.osgi.framework.Bundle;
-
-import java.util.List;
-import java.util.Map;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -58,15 +56,15 @@ public class HtmlGen {
 	 *
 	 * @param kind defines the intended use of the HTML: for export, for the embedded view, or minimal.
 	 */
-	public String buildHtml(IPath filePath, String basepath, List<String> regionTexts, Map<Integer,String> regionTypes, Kind kind) {
-		String text = converter.convert(filePath, basepath, regionTexts, regionTypes, kind);
+	public String buildHtml(IPath filePath, String basepath, IDocument document, Kind kind) {
+		String text = converter.convert(filePath, basepath, document, kind);
 		try {
 			return build(kind, text, basepath, filePath);
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	private String build(Kind kind, String content, String base, IPath filePath) throws IOException, URISyntaxException {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {

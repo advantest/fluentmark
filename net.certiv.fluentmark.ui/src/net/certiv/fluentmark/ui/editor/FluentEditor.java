@@ -66,7 +66,6 @@ import org.eclipse.jface.text.ITextViewerExtension6;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -91,10 +90,8 @@ import javax.swing.event.EventListenerList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java.net.URI;
@@ -651,45 +648,7 @@ public class FluentEditor extends TextEditor
 			filePath = new Path(uri.getPath());
 		}
 		
-		Map<Integer,String> regionTypes = new HashMap<>();
-		List<String> regionTexts = extractRegionTextsAndTypes(regionTypes);
-		
-		return htmlGen.buildHtml(filePath, basepath, regionTexts, regionTypes, kind);
-	}
-	
-	private ITypedRegion[] computePartitions(IDocument document) {
-		int beg = 0;
-		int len = document.getLength();
-
-		try {
-			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
-		} catch (BadLocationException e) {
-			Log.error("Failed to compute partitions. " + beg, e);
-		}
-		return null;
-	}
-	
-	private List<String> extractRegionTextsAndTypes(Map<Integer,String> regionTypesToFill) {
-		IDocument document = getDocument();
-		ITypedRegion[] typedRegions = computePartitions(getDocument());
-		List<String> regionTexts = new ArrayList<>(typedRegions.length);
-		
-		int i = 0;
-		for (ITypedRegion typedRegion: typedRegions) {
-			String text = null;
-			try {
-				text = document.get(typedRegion.getOffset(), typedRegion.getLength());
-			} catch (BadLocationException e) {
-				FluentUI.log(IStatus.ERROR, "Wrong partition bounds!", e);
-				return null;
-			}
-			
-			regionTexts.add(text);
-			regionTypesToFill.put(i, typedRegion.getType());
-			i++;
-		}
-		
-		return regionTexts;
+		return htmlGen.buildHtml(filePath, basepath, getDocument(), kind);
 	}
 	
 	/**

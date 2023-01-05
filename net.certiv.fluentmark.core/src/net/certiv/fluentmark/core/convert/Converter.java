@@ -14,6 +14,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.TextUtilities;
 import org.markdownj.MarkdownProcessor;
 import org.pegdown.PegDownProcessor;
 
@@ -27,7 +31,6 @@ import java.util.regex.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import java.net.URISyntaxException;
 
@@ -61,32 +64,45 @@ public class Converter {
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 	}
 
-	public String convert(IPath filePath, String basepath, List<String> regionTexts, Map<Integer,String> regionTypes, Kind kind) {
+	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
+		ITypedRegion[] typedRegions = computePartitions(document);
+		
 		String text;
 		switch (configurationProvider.getConverterType()) {
 			case PANDOC:
-				text = getText(filePath, regionTexts, regionTypes, true);
+				text = getText(filePath, document, typedRegions, true);
 				return usePandoc(basepath, text, kind);
 			case BLACKFRIDAY:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return useBlackFriday(basepath, text);
 			case MARKDOWNJ:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return useMarkDownJ(basepath, text);
 			case PEGDOWN:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return usePegDown(basepath, text);
 			case COMMONMARK:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return useCommonMark(basepath, text);
 			case TXTMARK:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return useTxtMark(basepath, text);
 			case OTHER:
-				text = getText(filePath, regionTexts, regionTypes, false);
+				text = getText(filePath, document, typedRegions, false);
 				return useExternal(basepath, text);
 		}
 		return "";
+	}
+	
+	private ITypedRegion[] computePartitions(IDocument document) {
+		int beg = 0;
+		int len = document.getLength();
+
+		try {
+			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
+		} catch (BadLocationException e) {
+			return new ITypedRegion[0];
+		}
 	}
 	
 	private String combineOutputsForHtml(CmdResult result) {
@@ -217,20 +233,23 @@ public class Converter {
 		return "";
 	}
 	
-	private String getText(IPath filePath, List<String> regionTexts, Map<Integer,String> regionTypes, boolean includeFrontMatter) {
-		List<String> parts = new ArrayList<>();
-		
-		if (regionTexts.size() != regionTypes.keySet().size()) {
-			throw new IllegalArgumentException("Number of region texts and number of their types do not match.");
+	private String getText(IPath filePath, IDocument document, ITypedRegion[] typedRegions, boolean includeFrontMatter) {
+		if (typedRegions == null || typedRegions.length == 0) {
+			return document.get();
 		}
 		
-		for (int i = 0; i < regionTexts.size(); i++) {
-			String text = regionTexts.get(i);
-			String regionType = regionTypes.get(i);
+		List<String> parts = new ArrayList<>();
+		
+		String text, regionType;
+		for (ITypedRegion typedRegion: typedRegions) {
 			
-			if (text == null || regionType == null) {
-				throw new IllegalArgumentException(String.format("No region text or nor region type given for index %d. Region type: %s", i, regionType));
+			try {
+				text = document.get(typedRegion.getOffset(), typedRegion.getLength());
+			} catch (BadLocationException e) {
+				return document.get();
 			}
+			
+			regionType = typedRegion.getType();
 			
 			switch (regionType) {
 				case Partitions.FRONT_MATTER:
