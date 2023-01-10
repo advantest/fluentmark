@@ -118,7 +118,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-421</artifactId>
+							<artifactId>eclipse-425</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 					</target>
