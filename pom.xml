@@ -42,16 +42,6 @@
 
 	<repositories>
 		<repository>
-			<id>2022-09</id> <!-- Eclipse 4.25 -->
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/releases/2022-09</url>
-		</repository>
-		<repository>
-			<id>orbit-libs</id>
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/tools/orbit/downloads/drops/R20220830213456/repository</url>
-		</repository>
-		<repository>
 			<id>tools</id>
 			<layout>p2</layout>
 			<!-- <url>https://www.certiv.net/updates/net.certiv.tools.site/</url> -->
