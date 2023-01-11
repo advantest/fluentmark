@@ -227,7 +227,7 @@ public class Converter {
 			parts.add(text);
 		}
 
-		return String.join(" ", parts);
+		return String.join("", parts);
 	}
 	
 	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
