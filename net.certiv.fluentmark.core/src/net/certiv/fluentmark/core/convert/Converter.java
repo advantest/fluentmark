@@ -271,13 +271,21 @@ public class Converter {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
+				case Partitions.COMMENT:
+					if (!text.isEmpty()
+							&& text.startsWith("<!---")
+							&& text.endsWith("--->")) {
+						// hide "hidden comment" (remove / ignore it)
+						continue;
+					}
+					break;
 				default:
 					break;
 			}
 			parts.add(text);
 		}
 
-		return String.join(" ", parts);
+		return String.join("", parts);
 	}
 
 	private String translateDotCodeToHtmlFigure(String dotSourcCode) {

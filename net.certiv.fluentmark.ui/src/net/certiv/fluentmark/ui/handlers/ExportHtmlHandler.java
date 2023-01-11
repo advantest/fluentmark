@@ -12,9 +12,14 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -32,6 +37,7 @@ import java.io.File;
 import net.certiv.fluentmark.core.convert.Kind;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -63,6 +69,19 @@ public class ExportHtmlHandler extends AbstractHandler {
 			if (pathname != null) {
 				String html = editor.getHtml(Kind.EXPORT);
 				FileUtils.write(new File(pathname), html);
+			}
+			
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			if (workspace != null) {
+				IFile newFile = workspace.getRoot().getFileForLocation(new Path(pathname));
+				
+				if (newFile != null) {
+					try {
+						newFile.getParent().refreshLocal(IResource.DEPTH_ONE, null);
+					} catch (CoreException e) {
+						Log.error(String.format("Could not refresh generated file %s.", pathname), e);
+					}
+				}
 			}
 
 			if (FluentUI.getDefault().getPreferenceStore().getBoolean(Prefs.EDITOR_HTML_OPEN)) {

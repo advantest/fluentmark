@@ -1,7 +1,3 @@
-tests/com.advantest.fluentmark.tests/bin
-tests/com.advantest.fluentmark.tests/target
-com.advantest.fluentmark.extensions.ui/target
-com.advantest.fluentmark.extensions.feature/target
-com.advantest.fluentmark.extensions.svgbuilder/target
+**/target
+**/bin
 net.certiv.fluentmark.core/lib
-net.certiv.fluentmark.core/target

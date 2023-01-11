@@ -111,6 +111,7 @@ public class HtmlGen {
 		return sb.toString();
 	}
 	
+	
 	private String extractBodyContentsFrom(String htmlCode) {
 		String[] parts = htmlCode.split("(<body>|<BODY>)");
 		
@@ -126,7 +127,7 @@ public class HtmlGen {
 		
 		return parts[0];
 	}
-
+	
 	// path is the searchable base for the style to use; returns the content
 	private String getStyle(IPath path) {
 		try {
