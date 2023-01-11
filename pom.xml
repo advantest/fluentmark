@@ -24,6 +24,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- Beware of mixing usage of tycho >= 2.7.x and older versions with the same Maven repo.
+		     see: https://github.com/eclipse-tycho/tycho/issues/725
+		     If you do and encounter problem, you could try deleting / moving
+		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
 		<tycho.version>2.3.0</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>11</java.version>
@@ -41,16 +45,6 @@
 	</modules>
 
 	<repositories>
-		<repository>
-			<id>2022-09</id> <!-- Eclipse 4.25 -->
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/releases/2022-09</url>
-		</repository>
-		<repository>
-			<id>orbit-libs</id>
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/tools/orbit/downloads/drops/R20220830213456/repository</url>
-		</repository>
 		<repository>
 			<id>tools</id>
 			<layout>p2</layout>
@@ -118,7 +112,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-421</artifactId>
+							<artifactId>eclipse-425</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 					</target>

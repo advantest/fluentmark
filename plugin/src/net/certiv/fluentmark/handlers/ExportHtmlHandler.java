@@ -7,24 +7,35 @@
  ******************************************************************************/
 package net.certiv.fluentmark.handlers;
 
-import java.awt.Desktop;
-import java.io.File;
-
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
+
+import java.awt.Desktop;
+
+import java.io.File;
+
 import net.certiv.fluentmark.FluentUI;
+import net.certiv.fluentmark.Log;
 import net.certiv.fluentmark.convert.Kind;
 import net.certiv.fluentmark.editor.FluentEditor;
 import net.certiv.fluentmark.preferences.Prefs;
@@ -58,6 +69,19 @@ public class ExportHtmlHandler extends AbstractHandler {
 			if (pathname != null) {
 				String html = editor.getHtml(Kind.EXPORT);
 				FileUtils.write(new File(pathname), html);
+			}
+			
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			if (workspace != null) {
+				IFile newFile = workspace.getRoot().getFileForLocation(new Path(pathname));
+				
+				if (newFile != null) {
+					try {
+						newFile.getParent().refreshLocal(IResource.DEPTH_ONE, null);
+					} catch (CoreException e) {
+						Log.error(String.format("Could not refresh generated file %s.", pathname), e);
+					}
+				}
 			}
 
 			if (FluentUI.getDefault().getPreferenceStore().getBoolean(Prefs.EDITOR_HTML_OPEN)) {
