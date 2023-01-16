@@ -7,15 +7,18 @@
  ******************************************************************************/
 package net.certiv.fluentmark;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.eclipse.jface.resource.ImageDescriptor;
+
+import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Bundle of all images used by the Markdown plugin.
@@ -29,6 +32,8 @@ public class FluentImages {
 	private static String prefix;
 	private static int prefixLen;
 
+	// see https://wiki.eclipse.org/User_Interface_Guidelines#Folder_Structure
+	
 	public static final String OBJ = "obj16/"; //$NON-NLS-1$
 	public static final String TOOL = "etool16/"; //$NON-NLS-1$
 	private static final String LCL = "lcl16/"; //$NON-NLS-1$

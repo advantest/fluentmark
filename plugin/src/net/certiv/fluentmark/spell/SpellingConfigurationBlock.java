@@ -7,17 +7,18 @@
  ******************************************************************************/
 package net.certiv.fluentmark.spell;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Set;
+import org.eclipse.swt.graphics.Point;
+
+import org.eclipse.ui.ide.dialogs.EncodingFieldEditor;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.preference.PreferenceStore;
@@ -25,7 +26,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -36,14 +36,20 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.ide.dialogs.EncodingFieldEditor;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Set;
+
+import java.io.File;
 
 import net.certiv.fluentmark.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.preferences.OverlayPreferenceStore.OverlayKey;
-import net.certiv.fluentmark.util.SwtUtil;
 import net.certiv.fluentmark.preferences.Prefs;
 import net.certiv.fluentmark.preferences.ScrolledPageContent;
+import net.certiv.fluentmark.util.SwtUtil;
 import net.certiv.spellchecker.SpellCheckEngine;
 import net.certiv.spellchecker.etc.IStatusChangeListener;
 import net.certiv.spellchecker.etc.StatusInfo;
@@ -333,12 +339,16 @@ public class SpellingConfigurationBlock extends AbstractConfigurationBlock imple
 	@Override
 	protected void comboFieldChanged(Combo combo, Object oData) {
 		if (combo == localeCombo) {
-			ControlData data = (ControlData) oData;
-			String value = data.getValue(combo.getSelectionIndex());
-			Locale locale = SpellCheckEngine.convertToLocale(value);
-			locale = SpellCheckEngine.findClosestLocale(locale);
-			if (locale != null) value = locale.toString();
-			getPreferenceStore().setValue(data.getKey(), value);
+			if (oData != null) {
+				ControlData data = (ControlData) oData;
+				String value = data.getValue(combo.getSelectionIndex());
+				Locale locale = SpellCheckEngine.convertToLocale(value);
+				locale = SpellCheckEngine.findClosestLocale(locale);
+				if (locale != null) {
+					value = locale.toString();
+				}
+				getPreferenceStore().setValue(data.getKey(), value);
+			}
 		}
 	}
 

@@ -6,15 +6,12 @@
  ******************************************************************************/
 package net.certiv.fluentmark.preferences.pages;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -24,9 +21,17 @@ import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.osgi.framework.Bundle;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import java.io.File;
+import java.io.IOException;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.preferences.Prefs;
@@ -68,7 +73,7 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 		addField(new FileFieldEditor(EDITOR_CSS_EXTERNAL, "External Stylesheet", pane));
 	}
 
-	// build list of builtin stylesheets
+	// build list of built-in stylesheets
 	// key=name, value=bundle cache URL as string
 	private String[][] builtins() {
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
@@ -90,6 +95,7 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 					cssNames.add(name);
 				}
 			}
+			Collections.sort(cssNames);
 		}
 
 		String[][] values = new String[cssNames.size()][2];

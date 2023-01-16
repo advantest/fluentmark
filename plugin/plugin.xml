@@ -226,6 +226,65 @@
          <toolbar
                id="net.certiv.fluentmark.MarkdownEditor">
             <command
+                  commandId="net.certiv.fluentmark.bold"
+                  icon="icons/etool16/style_bold.png"
+                  style="push"
+                  tooltip="Toggle bold font">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.italic"
+                  icon="icons/etool16/style_italic.png"
+                  style="push"
+                  tooltip="Toggle italic font">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.hiddenComment"
+                  icon="icons/etool16/comment-hidden.png"
+                  style="push"
+                  tooltip="Toggle hidden comment">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.visibleComment"
+                  icon="icons/etool16/comment-visible.png"
+                  style="push"
+                  tooltip="Toggle visible comment">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.format"
+                  icon="icons/etool16/cpyqual_menu.png"
+                  style="push"
+                  tooltip="Format code">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <separator
+                  name="net.certiv.fluentmark.separator"
+                  visible="true">
+            </separator>
+            <command
                   commandId="net.certiv.fluentmark.openView"
                   icon="icons/obj16/fluentmark_doc.png"
                   style="push"
@@ -276,6 +335,13 @@
                label="Stylesheets"
                style="push"
                tooltip="Open stylesheet preferences">
+         </command>
+         <command
+               commandId="net.certiv.fluentmark.showHtmlCode"
+               icon="icons/etool16/html_tag_obj.png"
+               label="Source Code"
+               style="push"
+               tooltip="Show HTML source code">
          </command>
          <command
                commandId="net.certiv.fluentmark.firebug"
@@ -336,6 +402,7 @@
             name="Format">
       </command>
       <command
+            categoryId="net.certiv.fluentmark.commands"
             defaultHandler="net.certiv.fluentmark.handlers.UnwrapHandler"
             description="Unwrap text"
             id="net.certiv.fluentmark.unwrap"
@@ -374,6 +441,13 @@
             description="Firebug"
             id="net.certiv.fluentmark.firebug"
             name="Firebug">
+      </command>
+      <command
+            categoryId="net.certiv.fluentmark.commands"
+            defaultHandler="net.certiv.fluentmark.handlers.ShowHtmlSourceCodeHandler"
+            description="Show the HTML code generated from the given Markdown code"
+            id="net.certiv.fluentmark.showHtmlCode"
+            name="Show HTML source code">
       </command>
    </extension>
 

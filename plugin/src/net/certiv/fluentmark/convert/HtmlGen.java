@@ -41,16 +41,16 @@ import net.certiv.fluentmark.util.Strings;
 /**
  * Generate Html files for:
  * <ul>
- * <li>Preview
- * <ul>
- * <li>Base html to be loaded to the browser
- * <li>Body to be updated to the base
- * </ul>
- * <li>Export
- * <ul>
- * <li>Full, self contanied Html document
- * <li>Minimal Html document
- * </ul>
+ *   <li>Preview
+ *   <ul>
+ *     <li>Base html to be loaded to the browser
+ *     <li>Body to be updated to the base
+ *   </ul>
+ *   <li>Export
+ *   <ul>
+ *     <li>Full, self contanied Html document
+ *     <li>Minimal Html document
+ *   </ul>
  * </ul>
  */
 public class HtmlGen {
@@ -73,24 +73,29 @@ public class HtmlGen {
 		if (input == null) return "";
 		
 		String basepath = null;
-		IPath pathname = null;
+		IPath filePath = null;
 		if (input instanceof IPathEditorInput) {
-			pathname = ((IPathEditorInput) input).getPath();
-			basepath = pathname.removeLastSegments(1).addTrailingSeparator().toString();
+			filePath = ((IPathEditorInput) input).getPath();
+			basepath = filePath.removeLastSegments(1).addTrailingSeparator().toString();
 		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput) input).getURI();
 			basepath = uri.getPath();
 			basepath = basepath.substring(0, basepath.lastIndexOf('/') + 1);
-			pathname = new Path(uri.getPath());
+			filePath = new Path(uri.getPath());
 		}
 		
-		return build(kind, convert(basepath), basepath, pathname);
+		return build(kind, convert(filePath, basepath, kind), basepath, filePath);
 	}
 
-	private String build(Kind kind, String content, String base, IPath pathname) {
+	private String build(Kind kind, String content, String base, IPath filePath) {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
+				String bodyContent = extractBodyContentsFrom(content);
+				if (bodyContent == null) {
+					return content;
+				}
+				
 				sb.append("<html><head>" + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
@@ -98,10 +103,12 @@ public class HtmlGen {
 					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
-				sb.append(getStyle(pathname) + Strings.EOL);
+				sb.append(getStyle(filePath) + Strings.EOL);
 				sb.append("</style>" + Strings.EOL);
 				sb.append("</head><body>" + Strings.EOL);
-				sb.append(content + Strings.EOL);
+				
+				sb.append(bodyContent + Strings.EOL);
+				
 				sb.append("</body></html>");
 				break;
 
@@ -114,8 +121,8 @@ public class HtmlGen {
 
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
-				preview = preview.replaceFirst("%path%", pathname.toString());
-				sb.append(preview.replaceFirst("%styles%", getStyle(pathname)));
+				preview = preview.replaceFirst("%path%", filePath.toString());
+				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
 				break;
 
 			case UPDATE:
@@ -125,8 +132,25 @@ public class HtmlGen {
 
 		return sb.toString();
 	}
+	
+	
+	private String extractBodyContentsFrom(String htmlCode) {
+		String[] parts = htmlCode.split("(<body>|<BODY>)");
+		
+		if (parts.length != 2) {
+			return null;
+		}
+		
+		parts = parts[1].split("(<\\/body>|<\\/BODY>)");
+		
+		if (parts.length != 2) {
+			return null;
+		}
+		
+		return parts[0];
+	}
 
-	private String convert(String basepath) {
+	private String convert(IPath filePath, String basepath, Kind kind) {
 		IDocument doc = editor.getDocument();
 		int beg = 0;
 		int len = doc.getLength();
@@ -139,7 +163,7 @@ public class HtmlGen {
 			return "";
 		}
 
-		return converter.convert(basepath, doc, regions);
+		return converter.convert(filePath, basepath, doc, regions, kind);
 	}
 
 	// path is the searchable base for the style to use; returns the content
@@ -160,7 +184,7 @@ public class HtmlGen {
 		URL pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
 
-		// 2) look for a file with the name 'markdown.css' in the same set of directories
+		// 2) look for a file with the name 'advantest.css' in the same set of directories
 		style = path.removeLastSegments(1).append(Prefs.CSS_DEFAULT);
 		pathUrl = find(style);
 		if (pathUrl != null) return pathUrl;
@@ -188,7 +212,7 @@ public class HtmlGen {
 			}
 		}
 
-		// 5) read 'markdown.css' from the bundle
+		// 5) read 'advantest.css' from the bundle
 		Bundle bundle = Platform.getBundle(FluentUI.PLUGIN_ID);
 		URL url = FileLocator.find(bundle, new Path(Prefs.CSS_RESOURCE_DIR + Prefs.CSS_DEFAULT), null);
 		url = FileLocator.toFileURL(url);

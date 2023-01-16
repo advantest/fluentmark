@@ -7,25 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.outline;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -40,18 +21,11 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.window.ToolTip;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
+
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
+
+import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionFactory;
@@ -61,12 +35,47 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
-import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.GroupMarker;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.window.ToolTip;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import net.certiv.fluentmark.FluentUI;
 import net.certiv.fluentmark.actions.CollapseAllAction;
 import net.certiv.fluentmark.actions.CompositeActionGroup;
 import net.certiv.fluentmark.actions.ExpandAllAction;
+import net.certiv.fluentmark.actions.HideNonHeadingsAction;
 import net.certiv.fluentmark.actions.OpenViewActionGroup;
 import net.certiv.fluentmark.actions.ToggleLinkingAction;
 import net.certiv.fluentmark.editor.FluentEditor;
@@ -87,7 +96,7 @@ import net.certiv.fluentmark.preferences.Prefs;
  * <code>FluentUI.getDefault().getPluginId() + ".outline"</code>.
  */
 public class FluentOutlinePage extends ContentOutlinePage implements IShowInSource, IShowInTarget {
-
+	
 	/**
 	 * Content provider for the children of a PageRoot
 	 *
@@ -196,13 +205,38 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 	 * @see TreeViewer
 	 */
 	public static class OutlineViewer extends TreeViewer {
+		
+		private HideNonHeadingsFilter hideNonHeadingsFilter = new HideNonHeadingsFilter();
 
 		public OutlineViewer(Tree tree) {
 			super(tree);
 			setAutoExpandLevel(ALL_LEVELS);
 			setUseHashlookup(true);
 		}
-
+		
+		public void setHeadingsOnlyFilter(boolean enabled) {
+			
+			List<ViewerFilter> filters = Arrays.asList(getFilters());
+			List<ViewerFilter> changedFilters = null;
+			
+			if (enabled && !filters.contains(hideNonHeadingsFilter)) {
+				changedFilters = new ArrayList<>(filters.size() + 1);
+				changedFilters.addAll(filters);
+				changedFilters.add(hideNonHeadingsFilter);
+			}
+			
+			if (!enabled && filters.contains(hideNonHeadingsFilter)) {
+				changedFilters = filters.stream()
+					.filter(f -> f != hideNonHeadingsFilter)
+					.collect(Collectors.toList());
+			}
+			
+			if (changedFilters != null) {
+				ViewerFilter[] newFilters = changedFilters.toArray(new ViewerFilter[changedFilters.size()]);
+				setFilters(newFilters);
+			}
+		}
+		
 		protected boolean filtered(PagePart parent, PagePart child) {
 			Object[] result = new Object[] { child };
 			ViewerFilter[] filters = getFilters();
@@ -276,12 +310,14 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 	private static final String ACTION_CUT = "cut";
 	private static final String ACTION_PASTE = "paste";
 	private static final String ACTION_DELETE = "delete";
+	private static final String ACTION_HIDE_NON_HEADINGS = "hide_non_headings";
 
 	static Object[] NO_CHILDREN = new Object[0];
 
 	private PageRoot input;
 	private Menu menu;
 	protected OutlineViewer viewer;
+	private ChildrenProvider contentProvider;
 
 	private FluentEditor editor;
 	protected IPreferenceStore store;
@@ -318,7 +354,8 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 	public void createControl(Composite parent) {
 		Tree tree = new Tree(parent, SWT.MULTI);
 		viewer = new OutlineViewer(tree);
-		viewer.setContentProvider(new ChildrenProvider());
+		contentProvider = new ChildrenProvider();
+		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(new FluentOutlineLabelProvider());
 		viewer.setInput(input);
 
@@ -369,6 +406,7 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 		setAction(ACTION_EXPAND, new ExpandAllAction(viewer));
 		setAction(ACTION_COLLAPSE, new CollapseAllAction(viewer));
 		setAction(ACTION_TOGGLE, new ToggleLinkingAction(editor));
+		setAction(ACTION_HIDE_NON_HEADINGS, new HideNonHeadingsAction(viewer, editor));
 
 		setAction(ACTION_COPY, new OutlineCopyAction(this));
 		setAction(ACTION_CUT, new OutlineCutAction(this));
@@ -428,6 +466,7 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 		mgr.appendToGroup(ICommonMenuConstants.GROUP_SHOW, actions.get(ACTION_TOGGLE));
 		mgr.appendToGroup(ICommonMenuConstants.GROUP_VIEWER_SETUP, actions.get(ACTION_EXPAND));
 		mgr.appendToGroup(ICommonMenuConstants.GROUP_VIEWER_SETUP, actions.get(ACTION_COLLAPSE));
+		mgr.appendToGroup(ICommonMenuConstants.GROUP_VIEWER_SETUP, actions.get(ACTION_HIDE_NON_HEADINGS));
 
 		mgr.update(false);
 	}

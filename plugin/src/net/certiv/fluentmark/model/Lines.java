@@ -16,6 +16,8 @@ import net.certiv.fluentmark.util.FloorKeyMap;
 import net.certiv.fluentmark.util.Indent;
 
 public class Lines {
+	
+	public static final String PATTERN_PLANTUML_INCLUDE = "!\\[.+\\]\\(.+\\.puml\\)";
 
 	protected static class Line {
 
@@ -167,6 +169,8 @@ public class Lines {
 		if (priorblank && nxtblank && curTxt.startsWith("___")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("***")) return Type.HRULE;
 		if (priorblank && nxtblank && curTxt.startsWith("---")) return Type.HRULE;
+		
+		if (curTxt.matches(PATTERN_PLANTUML_INCLUDE)) return Type.PLANTUML_INCLUDE;
 
 		if (curTxt.matches("(\\|\\s?\\:?---+\\:?\\s?)+\\|.*")) return Type.TABLE;
 
@@ -180,6 +184,8 @@ public class Lines {
 		if (curTxt.matches("\\[\\^?\\d+\\]\\:\\s+.*")) return Type.REFERENCE;
 
 		if (curTxt.matches("\\</?\\w+(\\s+.*?)?/?\\>.*")) return Type.HTML_BLOCK;
+		if (curTxt.startsWith("<!--") && !curTxt.startsWith("<!---")) return Type.HTML_BLOCK;
+		if (curTxt.startsWith("-->")) return Type.HTML_BLOCK;
 
 		if (curTxt.startsWith("```")) return Type.CODE_BLOCK;
 		if (curTxt.startsWith("~~~")) return Type.CODE_BLOCK;
@@ -204,6 +210,17 @@ public class Lines {
 			boolean ok = kind != null ? kind == identifyKind(idx) : true;
 			ok = ok && (exact != null) ? lineList.get(idx).text.startsWith(exact) : ok;
 			if (ok) return idx;
+		}
+		return length() - 1;
+	}
+	
+	public int nextContaining(int mark, String containedText) {
+		for (int idx = mark; idx < length(); idx++) {
+			boolean found = (containedText != null)
+					&& lineList.get(idx).text.contains(containedText); 
+			if (found) {
+				return idx;
+			}
 		}
 		return length() - 1;
 	}

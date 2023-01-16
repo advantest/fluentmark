@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="eclipse-425">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20220830213456/repository"/>
+			<unit id="com.google.guava" version="30.1.0.v20210127-2300"/>
+			<unit id="org.antlr.runtime" version="3.5.2.v20200724-1452"/>
+			<unit id="org.antlr.runtime" version="4.7.2.v20200218-0804"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2022-09"/>
+			<unit id="epp.package.java" version="4.25.0.20220908-1200"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.23.500.v20220826-1025"/>
+			<unit id="org.eclipse.swt.tools.feature.feature.group" version="3.108.600.v20220826-1037"/>
+			<unit id="org.eclipse.swtbot.eclipse.feature.group" version="4.0.0.202206011610"/>
+			<unit id="org.eclipse.swtbot.eclipse.gef.feature.group" version="4.0.0.202206011610"/>
+			<unit id="org.eclipse.swtbot.feature.group" version="4.0.0.202206011610"/>
+			<unit id="org.eclipse.swtbot.ide.feature.group" version="4.0.0.202206011610"/>
+			<unit id="org.eclipse.egit.feature.group" version="6.3.0.202209071007-r"/>
+			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="6.3.0.202209071007-r"/>
+			<unit id="org.eclipse.jgit.feature.group" version="6.3.0.202209071007-r"/>
+			<unit id="org.eclipse.jdt.feature.group" version="3.18.1300.v20220831-1800"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="http://hallvard.github.io/plantuml"/>
+			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.27.202209082104"/>
+			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.27.202209082104"/>
+			<unit id="net.sourceforge.plantuml.lib.elk.feature.feature.group" version="0.7.1"/>
+			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2022.7"/>
+			<unit id="net.sourceforge.plantuml.lib.jlatexmath.feature.feature.group" version="1.0.7"/>
+		</location>
+	</locations>
+</target>
