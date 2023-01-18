@@ -6,9 +6,7 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.commonmark.node.Node;
@@ -42,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.markdown.Lines;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -56,12 +53,14 @@ public class Converter {
 	private final DotGen dotGen;
 	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
+	private final PumlIncludeStatementConverter pumlInclusionConverter;
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
 		this.dotGen = new DotGen(configProvider);
 		this.umlGen = new UmlGen(configProvider);
 		this.emitter = new DotCodeBlockEmitter(dotGen);
+		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
@@ -299,9 +298,9 @@ public class Converter {
 	}
 	
 	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
-		String figureCaption = readCaptionFrom(markdownCodeWithPumlIncludeStatement);
-		IPath relativePumlFilePath = readPumlFilePath(markdownCodeWithPumlIncludeStatement);
-        String remainingLine = getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
+		String figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
+		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
+        String remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
         
         String pumlFileContent = readPumlFile(currentMarkdownFilePath, relativePumlFilePath);
         String pumlDiagram = convertPlantUml2Svg(pumlFileContent);
@@ -315,61 +314,13 @@ public class Converter {
         return markdownCodeWithPumlIncludeStatement;
 	}
 	
-	private String getRemainderOfThePumlIncludeLine(String pumlIncludeLine) {
-		if (pumlIncludeLine == null) {
-			return null;
-		}
-		
-		String remainingLine = "";
-        int endOfPattern = findEndOfPumlFileInclusionStatement(pumlIncludeLine);
-        if (endOfPattern < pumlIncludeLine.length()) {
-        	remainingLine = pumlIncludeLine.substring(endOfPattern);
-        }
-        return remainingLine;
-	}
-	
-	private int findEndOfPumlFileInclusionStatement(String text) {
-		Pattern p = Pattern.compile(Lines.PATTERN_PLANTUML_INCLUDE);
-        Matcher m = p.matcher(text);
-        m.find();
-        return m.end();
-	}
-	
-	private IPath readPumlFilePath(String pumlFileInclusionStatement) {
-		// we get something like ![any text](path/to/some/file.puml)
-		// and want to extract the path to the puml file
-		Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
-        Matcher m = p.matcher(pumlFileInclusionStatement);
-        
-        m.find();
-        int indexOfFirstPathCharacter = m.end();
-        String pumlFilePath = pumlFileInclusionStatement.substring(indexOfFirstPathCharacter);
-        
-        int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
-        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
-        
-        return new Path(pumlFilePath);
-	}
-	
 	private String readPumlFile(IPath currentMarkdownFilePath, IPath relativePumlFilePath) {
-		// remove file name, so that we get the current folder's path, then append the relative path of the target puml file
-        IPath absolutePumlFilePath = currentMarkdownFilePath.removeLastSegments(1).append(relativePumlFilePath);
+        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
         
         File file = absolutePumlFilePath.toFile();
         String pumlFileContent = readTextFromFile(file);
         
         return pumlFileContent;
-	}
-	
-	private String readCaptionFrom(String pumlFileInclusionStatement) {
-		// we get something like ![The image's caption](path/to/some/file.puml)
-		// and want to extract the caption text
-		Assert.isTrue(pumlFileInclusionStatement != null && pumlFileInclusionStatement.startsWith("!["));
-		
-		String caption = pumlFileInclusionStatement.substring(2);
-		
-		int indexOfLastCaptionCharacter = caption.indexOf(']');
-		return caption.substring(0, indexOfLastCaptionCharacter);
 	}
 	
 	private String readTextFromFile(File file) {
