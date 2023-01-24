@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+		<groupId>net.certiv.fluentmark</groupId>
+		<artifactId>Fluentmark</artifactId>
+		<version>1.2.4-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>com.advantest.fluentmark.core.tests</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+  
+  <name>FluentMark Core tests</name>
+  
+  <build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<showEclipseLog>true</showEclipseLog>
+					<useUIHarness>false</useUIHarness>
+					<showEclipseLog>true</showEclipseLog>
+					<includes>
+          				<include>**/*Test.java</include>
+          				<include>**/*IT.java</include>
+			        </includes>
+			        <providerHint>junit57</providerHint>
+				</configuration>
+			</plugin>
+			
+		</plugins>
+  </build>
+
+</project>
