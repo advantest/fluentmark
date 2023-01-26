@@ -7,11 +7,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.markdown;
 
+import org.eclipse.core.runtime.CoreException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.eclipse.core.runtime.CoreException;
 
 public abstract class Parent extends Element implements IParent {
 
@@ -133,7 +133,13 @@ public abstract class Parent extends Element implements IParent {
 
 	@Override
 	public int hashCode() {
-		return getContent().hashCode();
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getSourceRange().getOffset());
+		builder.append(':');
+		builder.append(this.getSourceRange().getLength());
+		builder.append(':');
+		builder.append(getContent());
+		return builder.toString().hashCode();
 	}
 
 	@Override
@@ -141,7 +147,10 @@ public abstract class Parent extends Element implements IParent {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (obj instanceof Parent) {
-			return getContent().equals(((Parent) obj).getContent());
+			Parent other = (Parent) obj;
+			return this.getSourceRange().getOffset() == other.getSourceRange().getOffset()
+					&& this.getSourceRange().getLength() == other.getSourceRange().getLength()
+					&& this.getContent().equals(other.getContent());
 		}
 		return false;
 	}
