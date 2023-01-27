@@ -41,18 +41,28 @@ public class PumlIncludeStatementConverter {
 		// and want to extract the path to the puml file
         Matcher m = PUML_INCLUSION_PATTERN.matcher(pumlFileInclusionStatement);
         
-        m.find();
+        boolean found = m.find();
+        if (!found) {
+        	return null;
+        }
+        
         int indexOfFirstPathCharacter = m.end();
         String pumlFilePath = pumlFileInclusionStatement.substring(indexOfFirstPathCharacter);
         
         int indexOfFirstCharacterAfterPath = pumlFilePath.lastIndexOf(')');
-        pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
+        if (indexOfFirstCharacterAfterPath > -1) {
+        	pumlFilePath = pumlFilePath.substring(0, indexOfFirstCharacterAfterPath);
+        }
         
         return pumlFilePath;
 	}
 	
 	public IPath readPumlFilePath(String pumlFileInclusionStatement) {
-        return new Path(readPumlFilePathText(pumlFileInclusionStatement));
+		String pathText = readPumlFilePathText(pumlFileInclusionStatement);
+		if (pathText == null) {
+			return null;
+		}
+        return new Path(pathText);
 	}
 	
 	String getRemainderOfThePumlIncludeLine(String pumlIncludeLine) {
