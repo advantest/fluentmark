@@ -15,7 +15,7 @@ import net.certiv.fluentmark.core.util.Indent;
 
 public class Lines {
 	
-	public static final String PATTERN_PLANTUML_INCLUDE = "!\\[.+\\]\\(.+\\.puml\\)";
+	public static final String PATTERN_PLANTUML_INCLUDE = "!\\[.*\\]\\(.*\\.puml\\)";
 
 	protected static class Line {
 

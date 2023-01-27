@@ -20,6 +20,11 @@ import net.certiv.fluentmark.core.markdown.Lines;
 
 public class PumlIncludeStatementConverter {
 	
+	// compare Lines.PATTERN_PLANTUML_INCLUDE
+	private static final String PUML_INCLUSION_PATTERN_REGEX = "!\\[.*\\]\\(";
+	
+	private final Pattern PUML_INCLUSION_PATTERN = Pattern.compile(PUML_INCLUSION_PATTERN_REGEX);
+	
 	String readCaptionFrom(String pumlFileInclusionStatement) {
 		// we get something like ![The image's caption](path/to/some/file.puml)
 		// and want to extract the caption text
@@ -34,8 +39,7 @@ public class PumlIncludeStatementConverter {
 	public String readPumlFilePathText(String pumlFileInclusionStatement) {
 		// we get something like ![any text](path/to/some/file.puml)
 		// and want to extract the path to the puml file
-		Pattern p = Pattern.compile("!\\[.+\\]\\("); // compare Lines.PATTERN_PLANTUML_INCLUDE
-        Matcher m = p.matcher(pumlFileInclusionStatement);
+        Matcher m = PUML_INCLUSION_PATTERN.matcher(pumlFileInclusionStatement);
         
         m.find();
         int indexOfFirstPathCharacter = m.end();
