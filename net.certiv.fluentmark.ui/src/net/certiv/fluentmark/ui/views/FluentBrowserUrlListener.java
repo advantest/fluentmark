@@ -29,19 +29,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
-
-import java.util.ArrayList;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -53,6 +45,7 @@ import java.io.File;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
+import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 public class FluentBrowserUrlListener implements LocationListener {
 
@@ -65,10 +58,12 @@ public class FluentBrowserUrlListener implements LocationListener {
 	
 	private final FluentPreview preview;
 	private final ViewJob viewJob;
+	private final JavaCodeMemberResolver javaMemberResolver;
 	
 	FluentBrowserUrlListener(FluentPreview preview, ViewJob viewJob) {
 		this.preview = preview;
 		this.viewJob = viewJob;
+		this.javaMemberResolver = new JavaCodeMemberResolver();
 	}
 	
 	@Override
@@ -414,143 +409,26 @@ public class FluentBrowserUrlListener implements LocationListener {
 	}
 	
 	private IEditorPart openJavaFileAndMemberInJavaEditor(IFile javaFile, URI fileUriWithMemberReference) {
-		IJavaElement element = JavaCore.create(javaFile);
-		
-		if (element == null || !(element instanceof ICompilationUnit) || fileUriWithMemberReference.getFragment() == null) {
+		if (javaFile == null || fileUriWithMemberReference == null || fileUriWithMemberReference.getFragment() == null) {
 			return null;
 		}
-		
-		ICompilationUnit compilationUnit = (ICompilationUnit) element;
 		
 		// URI part following the '#'
 		String memberReference = fileUriWithMemberReference.getFragment();
 		
-		IType primaryType = compilationUnit.findPrimaryType();
+		IMember member = this.javaMemberResolver.findJavaMember(javaFile, memberReference);
 		
-		if (primaryType == null) {
+		if (member == null) {
 			return null;
 		}
 		
-		if (memberReference.contains("(")) {
-			// memberReference is in this case the method signature, e.g. "doSomething(String, boolean, int)"
-			IMethod method = findMethod(primaryType, memberReference);
-			
-			if (method == null) {
-				return null;
-			}
-			
-			try {
-				return JavaUI.openInEditor((IJavaElement) method);
-			} catch (PartInitException | JavaModelException e) {
-				Log.error(String.format("Could not open type and method %s in web browser", fileUriWithMemberReference), e );
-			}
-			
-		} else {
-			// memberReference is in this case the field name
-			IField field = primaryType.getField(memberReference);
-			
-			if (!field.exists()) {
-				return null;
-			}
-			
-			try {
-				return JavaUI.openInEditor((IJavaElement) field);
-			} catch (PartInitException | JavaModelException e) {
-				Log.error(String.format("Could not open type and field %s in web browser", fileUriWithMemberReference), e );
-			}
-		}
-		
-		return null;
-	}
-	
-	private IMethod findMethod(IType parentType, String methodSignature) {
-		String[] signatureParts = methodSignature.split("[\\(\\)]");
-		String methodName = signatureParts[0];
-		String methodParametersPart = signatureParts.length > 1 ? signatureParts[1] : "";
-		//String[] methodParameters = methodParametersPart.split(",\\s*");
-		String[] methodParameters = parseMethodParameters(methodParametersPart);
-		int numParams = methodParameters.length;
-		
 		try {
-			for (IMethod method: parentType.getMethods()) {
-				if (method.getElementName().equals(methodName)
-						&& method.getNumberOfParameters() == numParams) {
-					
-					String[] parameterTypes = method.getParameterTypes();
-					boolean equalParameterTypes = true;
-					for (int i = 0; equalParameterTypes && i < parameterTypes.length; i++) {
-						String simpleType = Signature.getSignatureSimpleName(parameterTypes[i]);
-						if (!methodParameters[i].equals(simpleType)) {
-							equalParameterTypes = false;
-						}
-					}
-					
-					if (equalParameterTypes) {
-						return method;
-					}
-				}
-			}
-		} catch (JavaModelException e) {
-			Log.log(IStatus.WARNING, -1, "Could not access methods in type " + parentType.getFullyQualifiedName(), e);
+			return JavaUI.openInEditor(member);
+		} catch (PartInitException | JavaModelException e) {
+			Log.error(String.format("Could not open type and Java member '%s' in web browser", fileUriWithMemberReference), e );
 		}
 		
 		return null;
-	}
-	
-	/*
-	 * Parses parameter type lists like
-	 * (int, boolean, Character[], List<Map<K,V>>)
-	 * 
-	 * Such list are common in method signatures as the are used in Javadoc links, e.g.
-	 * {@link ClassName#getSomething(int, boolean, Character[], List<Map<K,V>>)}
-	 * 
-	 * We use the same syntax in Markdown to point to a certain method in a Java class.
-	 * 
-	 * String.split(",") does not work with string like in the example above, since commas
-	 * are also contained in parameter types like List<Map<K,V>>. Thus, we have to
-	 * do a more complicated parsing of the parameter list.
-	 */
-	private String[] parseMethodParameters(String methodParametersList) {
-		ArrayList<String> parameters = new ArrayList<>();
-		int pos = 0;
-		int begin = 0;
-		int countTypeParamBrackets = 0;
-		String param;
-		
-		while (pos < methodParametersList.length()) {
-			char currentChar = methodParametersList.charAt(pos);
-			
-			if (currentChar == ','
-					&& countTypeParamBrackets == 0) {
-				if (pos == 0) {
-					return null;
-				}
-				
-				param = methodParametersList.substring(begin, pos);
-				parameters.add(param);
-				begin = pos + 1;
-			} else if (currentChar == ' '
-					&& countTypeParamBrackets == 0) {
-				begin = pos +1;
-			} else if (currentChar == '<') {
-				countTypeParamBrackets++;
-			} else if (currentChar == '>') {
-				countTypeParamBrackets--;
-			}
-			
-			if (countTypeParamBrackets < 0) {
-				return null;
-			}
-			
-			pos++;
-		}
-		
-		if (begin < methodParametersList.length()) {
-			param = methodParametersList.substring(begin, methodParametersList.length());
-			parameters.add(param);
-		}
-		
-		return parameters.toArray(new String[parameters.size()]);
 	}
 	
 }

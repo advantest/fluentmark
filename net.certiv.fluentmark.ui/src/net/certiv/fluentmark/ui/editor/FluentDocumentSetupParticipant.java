@@ -7,15 +7,19 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
+import org.eclipse.core.runtime.IPath;
+
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipantExtension;
 import org.eclipse.core.filebuffers.LocationKind;
-import org.eclipse.core.runtime.IPath;
+
 import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.ui.FluentUI;
 
-/** FluentDocumentSetupParticipant */
+/**
+ * Reacts to IDocument changes and allows for calculating partitions or validating and creating (problem) markers, for example. 
+ */
 public class FluentDocumentSetupParticipant implements IDocumentSetupParticipant, IDocumentSetupParticipantExtension {
 
 	private FluentTextTools textTools;

@@ -112,12 +112,12 @@ public class FluentTextTools {
 
 	/** Factory method for creating an dsl editor specific document partitioner */
 	public IDocumentPartitioner createDocumentPartitioner() {
-		IPartitionTokenScanner scanner = createPartitionScanner();
+		IPartitionTokenScanner scanner = getPartitionScanner();
 		if (scanner == null) return null;
 		return new FastPartitioner(scanner, legalContentTypes);
 	}
 
-	public IPartitionTokenScanner createPartitionScanner() {
+	public IPartitionTokenScanner getPartitionScanner() {
 		if (partitionScanner == null) {
 			partitionScanner = new PartitionScanner();
 		}
