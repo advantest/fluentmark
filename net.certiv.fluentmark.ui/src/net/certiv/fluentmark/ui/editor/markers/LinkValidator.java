@@ -207,7 +207,7 @@ public class LinkValidator implements ITypedRegionValidator {
 				endOffset += 1;
 			}
 			
-			MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
@@ -285,7 +285,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		File targetFile = absolutePath.toFile();
 		
 		if (!targetFile.exists()) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced file '%s' does not exist. Full path: %s", resourceRelativePath.toString(), targetFile.getAbsolutePath()),
 					lineNumber,
 					offset,
@@ -293,7 +293,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		}
 		
 		if (!targetFile.isFile()) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Full path: %s",
 							resourceRelativePath.toString(), targetFile.getAbsolutePath()),
 					lineNumber,
@@ -323,7 +323,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
 					lineNumber,
 					offset,
@@ -334,7 +334,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		try {
 			uri = new URI(uriText);
 		} catch (URISyntaxException e) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
@@ -370,13 +370,13 @@ public class LinkValidator implements ITypedRegionValidator {
 		}
 		
 		if (statusCode >= 400) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		} else if (statusCode == -404) {
-			return MarkerCreator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to exist.", uriText),
 					lineNumber,
 					offset,
@@ -446,7 +446,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		}
 		
 		// we didn't find any target anchor ==> create a marker
-		return MarkerCreator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
+		return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
 				String.format("There is no section with the given anchor '%s' in this Markdown document '%s'.", sectionAnchor, currentResource.getLocation().toString()),
 				lineNumber,
 				offset,
@@ -471,7 +471,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		
 		if (member == null || !member.exists()) {
 			// we didn't find the referenced class member ==> create a problem marker
-			return MarkerCreator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
 					String.format("There is no class member (field or method) corresponding to the given anchor '%s' in the Java file '%s'.", memberReference, absolutePath.toString()),
 					lineNumber,
 					offset,
