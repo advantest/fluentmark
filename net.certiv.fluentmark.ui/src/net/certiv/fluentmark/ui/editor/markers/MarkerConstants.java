@@ -9,8 +9,10 @@
  */
 package net.certiv.fluentmark.ui.editor.markers;
 
+import net.certiv.fluentmark.ui.FluentUI;
+
 public interface MarkerConstants {
 	
-	static final String MARKER_ID_MARKDOWN_PROBLEM = "com.advantest.fluentmark.extensions.markers.markdown";
+	static final String MARKER_ID_MARKDOWN_PROBLEM = FluentUI.PLUGIN_ID + ".markers.markdown";
 
 }

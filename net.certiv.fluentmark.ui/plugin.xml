@@ -68,7 +68,7 @@
    
    
    <extension
-         id="com.advantest.fluentmark.extensions.markers.markdown"
+         id="markers.markdown"
          name="Markdown Problem"
          point="org.eclipse.core.resources.markers">
       <super
