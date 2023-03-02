@@ -32,6 +32,14 @@
             extensions="md,mdown,mkd,text">
       </participant>
    </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="net.certiv.fluentmark.ui.editor.markers.ValidationDocumentSetupParticipant"
+            contentTypeId="net.certiv.fluentmark.contentType"
+            extensions="md">
+      </participant>
+   </extension>
 
    <extension
          point="org.eclipse.ui.editors">
@@ -55,6 +63,19 @@
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
+      </super>
+   </extension>
+   
+   
+   <extension
+         id="com.advantest.fluentmark.extensions.markers.markdown"
+         name="Markdown Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
       </super>
    </extension>
 
