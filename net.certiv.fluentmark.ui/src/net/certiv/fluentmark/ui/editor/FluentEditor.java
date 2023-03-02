@@ -114,6 +114,7 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.editor.folding.FoldingStructureProvider;
 import net.certiv.fluentmark.ui.editor.folding.IFoldingStructureProvider;
+import net.certiv.fluentmark.ui.editor.markers.MarkerCalculator;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager;
 import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
@@ -285,6 +286,8 @@ public class FluentEditor extends TextEditor
 		if (projectionProvider != null) {
 			projectionProvider.initialize();
 		}
+		
+		MarkerCalculator.get().scheduleMarkerCalculation(doc, getResource());
 	}
 
 	private void connectPartitioningToElement(IEditorInput input, IDocument document) {
