@@ -178,7 +178,6 @@ public class TableDialog extends MessageDialog {
 			TableItem[] items = table.getSelection();
 			if (items == null || items.length == 0) return;
 			int target = table.indexOf(items[0]);
-			if (target < 1) return;
 
 			tableModel.addRow(target + 2);
 			viewer.refresh();
