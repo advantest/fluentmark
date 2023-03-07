@@ -21,11 +21,11 @@ public class TableModel {
 
 	public static class Row {
 
-		int num; // doc line #
+		Integer num; // doc line, if already present #
 		int row; // table row #
 		String[] data;
 
-		public Row(int num, int row, String[] data) {
+		public Row(Integer num, int row, String[] data) {
 			this.num = num;
 			this.row = row;
 			this.data = data;
@@ -104,9 +104,14 @@ public class TableModel {
 		if (target <= rows.size()) {
 			rows.add(target, new Row(numCols));
 		}
+		int lastLine = part.getEndLine();
 		for (int idx = 0, num = part.getBeginLine(); idx < rows.size(); idx++) {
 			rows.get(idx).row = idx;
-			rows.get(idx).num = num;
+			if (num <= lastLine) {
+				rows.get(idx).num = num;
+			} else {
+				rows.get(idx).num = null;
+			}
 			num++;
 		}
 	}
@@ -179,11 +184,15 @@ public class TableModel {
 			if (aligns[col] == SWT.RIGHT || aligns[col] == SWT.CENTER) sb.append(":");
 			sb.append("|");
 		}
-		String existing = part.getPageModel().getText(row.num);
-		int mark = existing.lastIndexOf("|");
-		if (mark < existing.length() - 1) {
-			sb.append(existing.substring(mark + 1));
+		
+		if (row.num != null) {
+			String existing = part.getPageModel().getText(row.num);
+			int mark = existing.lastIndexOf("|");
+			if (mark < existing.length() - 1) {
+				sb.append(existing.substring(mark + 1));
+			}
 		}
+		
 		sb.append(part.getLineDelim());
 	}
 
@@ -206,12 +215,14 @@ public class TableModel {
 			sb.append("|");
 		}
 		
-		// FIXME Check if the row number is one that existed before the table dialog were opened!
-		String existing = part.getPageModel().getText(row.num);
-		int mark = existing.lastIndexOf("|");
-		if (mark < existing.length() - 1) {
-			sb.append(existing.substring(mark + 1));
+		if (row.num != null) {
+			String existing = part.getPageModel().getText(row.num);
+			int mark = existing.lastIndexOf("|");
+			if (mark < existing.length() - 1) {
+				sb.append(existing.substring(mark + 1));
+			}
 		}
+		
 		sb.append(part.getLineDelim());
 	}
 
