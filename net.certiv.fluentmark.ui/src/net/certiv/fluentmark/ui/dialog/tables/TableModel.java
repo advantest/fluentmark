@@ -205,6 +205,8 @@ public class TableModel {
 			sb.append(Strings.dup(" ", padRight));
 			sb.append("|");
 		}
+		
+		// FIXME Check if the row number is one that existed before the table dialog were opened!
 		String existing = part.getPageModel().getText(row.num);
 		int mark = existing.lastIndexOf("|");
 		if (mark < existing.length() - 1) {
