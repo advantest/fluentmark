@@ -264,7 +264,7 @@ public class TableDialog extends MessageDialog {
 	 */
 	public TableDialog(PagePart part, int style) {
 		super(Display.getCurrent().getActiveShell(), "Table Editor", null, null, MessageDialog.NONE,
-				new String[] { "Apply", "Cancel" }, 1);
+				new String[] { "Apply", "Cancel" }, 0);
 		this.part = part;
 		this.style = style;
 		setShellStyle(getShellStyle() | SWT.RESIZE);
