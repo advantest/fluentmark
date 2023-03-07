@@ -298,7 +298,7 @@ public class TableDialog extends MessageDialog {
 		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).applyTo(viewer.getControl());
 
 		table = viewer.getTable();
-		table.setHeaderVisible(true);
+		table.setHeaderVisible(false);
 		table.setLinesVisible(true);
 
 		cellMgr = new TableViewerFocusCellManager(viewer, new FocusCellOwnerDrawHighlighter(viewer));
