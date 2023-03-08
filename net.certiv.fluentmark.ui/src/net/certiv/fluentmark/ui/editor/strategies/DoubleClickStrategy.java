@@ -102,10 +102,19 @@ public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 				TableDialog dialog = new TableDialog(part);
 				int ret = dialog.open();
 				if (ret == 0) {
-					String newTable = dialog.build();
+					String newTable = null;
+					try {
+						newTable = dialog.build();
+					} catch (Exception e) {
+						Log.error("Failed to build new table for part " + part + " (" + e.getMessage() + ")", e);
+						return Status.CANCEL_STATUS;
+					}
+					
 					ISourceRange range = part.getSourceRange();
 					editor.getViewer().setSelectedRange(range.getOffset(), 0);
-					TextEdit edit = new ReplaceEdit(range.getOffset(), range.getLength(), newTable);
+					
+					TextEdit edit = new ReplaceEdit(range.getOffset(), range.getLength() - 1, newTable);
+					
 					try {
 						edit.apply(editor.getDocument());
 					} catch (MalformedTreeException | BadLocationException e) {

@@ -178,7 +178,6 @@ public class TableDialog extends MessageDialog {
 			TableItem[] items = table.getSelection();
 			if (items == null || items.length == 0) return;
 			int target = table.indexOf(items[0]);
-			if (target < 1) return;
 
 			tableModel.addRow(target + 2);
 			viewer.refresh();
@@ -264,7 +263,7 @@ public class TableDialog extends MessageDialog {
 	 */
 	public TableDialog(PagePart part, int style) {
 		super(Display.getCurrent().getActiveShell(), "Table Editor", null, null, MessageDialog.NONE,
-				new String[] { "Apply", "Cancel" }, 1);
+				new String[] { "Apply", "Cancel" }, 0);
 		this.part = part;
 		this.style = style;
 		setShellStyle(getShellStyle() | SWT.RESIZE);
@@ -298,7 +297,7 @@ public class TableDialog extends MessageDialog {
 		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).applyTo(viewer.getControl());
 
 		table = viewer.getTable();
-		table.setHeaderVisible(true);
+		table.setHeaderVisible(false);
 		table.setLinesVisible(true);
 
 		cellMgr = new TableViewerFocusCellManager(viewer, new FocusCellOwnerDrawHighlighter(viewer));
