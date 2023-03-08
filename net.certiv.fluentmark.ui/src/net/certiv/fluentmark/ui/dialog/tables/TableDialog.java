@@ -381,4 +381,17 @@ public class TableDialog extends MessageDialog {
 		createColumns();
 		viewer.refresh();
 	}
+
+	@Override
+	protected void buttonPressed(int buttonId) {
+		// if apply button pushed
+		if (buttonId == 0) {
+			// First, apply the last changes in an active cell editor to the TableModel,
+			// otherwise the changes are lost
+			viewer.applyEditorValue();
+		}
+		
+		super.buttonPressed(buttonId);
+	}
+
 }
