@@ -43,6 +43,7 @@ import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
+import net.certiv.fluentmark.ui.editor.assist.FileLinkContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
@@ -240,6 +241,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
 		processor.addDelegate(templatesProcessor);
 		if (enableHippie) processor.addDelegate(hippieProcessor);
+		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
 
 		ContentAssistant assistant = new ContentAssistant();
 		configure(assistant, fPreferenceStore);
