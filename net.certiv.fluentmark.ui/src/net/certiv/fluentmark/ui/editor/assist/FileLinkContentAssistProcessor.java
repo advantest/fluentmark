@@ -36,7 +36,7 @@ import net.certiv.fluentmark.ui.FluentUI;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
-	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '[', '/' };
+	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
 	private ITextEditor editor;
@@ -134,15 +134,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 							&& !linkTextLeftFromCursor.endsWith("/")) {
 						filePathSegment = '/' + filePathSegment;
 					}
-					if (fileInDir.isDirectory()) {
-						filePathSegment += '/';
-					}
 					proposals.add(new CompletionProposal(filePathSegment, offset, linkTextRightFromCursor.length(), filePathSegment.length()));
 				}
 				
 				String parentDir = currentDir.getParent();
 				if (parentDir != null) {
-					String toParentPathSegment = "../";
+					String toParentPathSegment = "..";
 					if (!linkTextLeftFromCursor.isBlank()
 							&& !linkTextLeftFromCursor.endsWith("/")) {
 						toParentPathSegment = '/' + toParentPathSegment;
@@ -152,10 +149,6 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
-			
-//			return new CompletionProposal[]
-//					{ new CompletionProposal("Test Proposal 1", offset, 0, "Test Proposal 1".length()),
-//						new CompletionProposal("Test Proposal 2", offset, 0, "Test Proposal 2".length())};
 		} catch (BadLocationException e) {
 			FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", e);
 			return NO_PROPOSALS;
@@ -193,7 +186,6 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
 	@Override
 	public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -204,19 +196,16 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
 	@Override
 	public char[] getContextInformationAutoActivationCharacters() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getErrorMessage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IContextInformationValidator getContextInformationValidator() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -245,11 +245,16 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 
 		ContentAssistant assistant = new ContentAssistant();
 		configure(assistant, fPreferenceStore);
+		
+		assistant.enableAutoActivation(true);
+		assistant.setAutoActivationDelay(500);
+		assistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
 
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
 		assistant.setContentAssistProcessor(processor, Partitions.DOTBLOCK);
+		assistant.setContentAssistProcessor(processor, Partitions.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
