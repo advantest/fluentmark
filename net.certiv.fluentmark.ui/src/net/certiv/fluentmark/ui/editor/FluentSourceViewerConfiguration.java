@@ -239,9 +239,9 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		}
 
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
+		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
 		processor.addDelegate(templatesProcessor);
 		if (enableHippie) processor.addDelegate(hippieProcessor);
-		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
 
 		ContentAssistant assistant = new ContentAssistant();
 		configure(assistant, fPreferenceStore);
