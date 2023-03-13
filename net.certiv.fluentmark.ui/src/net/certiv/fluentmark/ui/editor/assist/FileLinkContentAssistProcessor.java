@@ -31,6 +31,9 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import java.io.File;
 
@@ -130,7 +133,25 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			if (currentDir != null) {
-				File[] files = currentDir.listFiles();
+				List<File> files = Arrays.asList(currentDir.listFiles());
+				files.sort(new Comparator<File>() {
+
+					@Override
+					public int compare(File file1, File file2) {
+						boolean file1IsFile = file1.isFile();
+						boolean file2IsFile = file2.isFile();
+						
+						if (file1IsFile && !file2IsFile) {
+							return -1;
+						} else if (file2IsFile && !file1IsFile) {
+							return 1;
+						}
+						
+						return file1.getName().compareTo(file2.getName());
+					}
+					
+				});
+				
 				for (File fileInDir : files) {
 					// skip the file we have already open in editor
 					if (fileInDir.equals(currentEditorsMarkdownFile.getLocation().toFile())) {
