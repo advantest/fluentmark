@@ -9,6 +9,8 @@
  */
 package net.certiv.fluentmark.ui.editor.assist;
 
+import org.eclipse.swt.graphics.Image;
+
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 
 import java.io.File;
 
+import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
@@ -129,15 +132,26 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			if (currentDir != null) {
 				File[] files = currentDir.listFiles();
 				for (File fileInDir : files) {
+					// skip the file we have already open in editor
 					if (fileInDir.equals(currentEditorsMarkdownFile.getLocation().toFile())) {
 						continue;
 					}
+					
 					String filePathSegment = fileInDir.getName();
 					if (!linkTextLeftFromCursor.isBlank()
 							&& !linkTextLeftFromCursor.endsWith("/")) {
 						filePathSegment = '/' + filePathSegment;
 					}
-					proposals.add(new CompletionProposal(filePathSegment, offset, linkTextRightFromCursor.length(), filePathSegment.length()));
+					
+					
+					Image img = null;
+					if (fileInDir.isDirectory()) {
+						img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER); 
+					} else {
+						img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FILE);
+					}
+					
+					proposals.add(new CompletionProposal(filePathSegment, offset, linkTextRightFromCursor.length(), filePathSegment.length(), img, null, null, null));
 				}
 				
 				String parentDir = currentDir.getParent();
@@ -147,7 +161,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 							&& !linkTextLeftFromCursor.endsWith("/")) {
 						toParentPathSegment = '/' + toParentPathSegment;
 					}
-					proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length()));
+					
+					Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP); 
+					proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length(), img, null, null, null));
 				}
 			}
 			
