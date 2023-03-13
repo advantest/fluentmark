@@ -97,13 +97,13 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				return NO_PROPOSALS;
 			}
 			
-			IFile markdownFile = getCurrentEditorsMarkdownFile();
-			if (markdownFile == null) {
+			IFile currentEditorsMarkdownFile = getCurrentEditorsMarkdownFile();
+			if (currentEditorsMarkdownFile == null) {
 				return NO_PROPOSALS;
 			}
 			
 			IPath currentResourcesAbsolutePath = readCurrentResourcePath(
-					getCurrentEditorsMarkdownFile(), linkTextLeftFromCursor);
+					currentEditorsMarkdownFile, linkTextLeftFromCursor);
 			
 			// no proposals if the path is invalid
 			File currentFile = currentResourcesAbsolutePath.toFile();
@@ -114,7 +114,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 			
 			File currentDir =  null;
-			if (currentResourcesAbsolutePath.equals(markdownFile.getLocation())) {
+			if (currentResourcesAbsolutePath.equals(currentEditorsMarkdownFile.getLocation())) {
 				currentDir = currentFile.getParentFile();
 			} else {
 				if (currentFile.isDirectory()) {
@@ -129,6 +129,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			if (currentDir != null) {
 				File[] files = currentDir.listFiles();
 				for (File fileInDir : files) {
+					if (fileInDir.equals(currentEditorsMarkdownFile.getLocation().toFile())) {
+						continue;
+					}
 					String filePathSegment = fileInDir.getName();
 					if (!linkTextLeftFromCursor.isBlank()
 							&& !linkTextLeftFromCursor.endsWith("/")) {
