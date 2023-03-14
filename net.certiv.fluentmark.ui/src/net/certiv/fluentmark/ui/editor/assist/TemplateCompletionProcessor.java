@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class TemplateCompletionProcessor extends org.eclipse.jface.text.templates.TemplateCompletionProcessor {
@@ -82,7 +83,7 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 
 	@Override
 	protected Image getImage(Template template) {
-		return null;
+		return FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_TEMPLATE);
 	}
 
 	@Override
