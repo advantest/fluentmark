@@ -11,7 +11,10 @@ import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import org.eclipse.core.runtime.IStatus;
+
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
@@ -36,12 +39,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.certiv.fluentmark.core.util.Strings;
+import net.certiv.fluentmark.ui.FluentUI;
 
 public class TemplateCompletionProcessor extends org.eclipse.jface.text.templates.TemplateCompletionProcessor {
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}"); //$NON-NLS-1$
 	private static final Template[] NO_TEMPLATES = new Template[0];
+	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
+	
+	private static final Set<String> IN_LINE_TEMPLATE_NAMES = new HashSet<>();
+	static {
+		IN_LINE_TEMPLATE_NAMES.add("link");
+		IN_LINE_TEMPLATE_NAMES.add("image");
+		IN_LINE_TEMPLATE_NAMES.add("header_id");
+	}
 
 	private final SourceTemplateContextType contextType;
 	private Templates templates;
@@ -108,6 +119,25 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 	 */
 	@Override
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
+		boolean inEmptyLine = false;
+		String currentLine;
+		
+		IDocument document = viewer.getDocument();
+		try {
+			int currentLineNumber = document.getLineOfOffset(offset);
+			int lineOffset = document.getLineOffset(currentLineNumber);
+			int lineLength = document.getLineLength(currentLineNumber);
+			
+			currentLine = lineLength > 0 ? document.get(lineOffset, lineLength) : "";
+			
+			if (currentLine.isBlank() && currentLine.length() <= 1) {
+				inEmptyLine = true;
+			}
+		} catch (BadLocationException ex) {
+			FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", ex);
+			return NO_PROPOSALS;
+		}
+		
 
 		ITextSelection selection = (ITextSelection) viewer.getSelectionProvider().getSelection();
 
@@ -151,6 +181,26 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 			}
 			boolean selectionBasedMatch = isSelectionBasedMatch(template, context);
 			if (template.getName().startsWith(prefix) || selectionBasedMatch) {
+				
+				// only propose section id snippets in header lines with no existing section id
+				if ("header_id".equals(template.getName())
+						&& (!currentLine.startsWith("#")
+								|| currentLine.matches("#+.*\\{#.*\\} *\\n"))) {
+					continue;
+				}
+				
+				if (!inEmptyLine) {
+					// only propose code snippets that can be used in non-empty lines
+					if (!IN_LINE_TEMPLATE_NAMES.contains(template.getName())) {
+						continue;
+					}
+					
+					// do not propose other snippets than section id for header lines
+					if (currentLine.startsWith("#")
+							&& !"header_id".equals(template.getName())) {
+						continue;
+					}
+				}
 
 				int relevance = getRelevance(template, lineOffset, prefix);
 				if (selectionBasedMatch) {
