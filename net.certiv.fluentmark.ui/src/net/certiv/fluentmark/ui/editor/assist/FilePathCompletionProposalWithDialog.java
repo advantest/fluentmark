@@ -29,6 +29,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
+import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.dialog.FindFileDialog;
 
@@ -117,7 +118,7 @@ public class FilePathCompletionProposalWithDialog implements ICompletionProposal
 
 	@Override
 	public Image getImage() {
-		return null;
+		return FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_LIST);
 	}
 
 	@Override
