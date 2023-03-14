@@ -43,6 +43,7 @@ import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
+import net.certiv.fluentmark.ui.editor.assist.FileLinkContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
@@ -238,16 +239,22 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		}
 
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
+		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
 		processor.addDelegate(templatesProcessor);
 		if (enableHippie) processor.addDelegate(hippieProcessor);
 
 		ContentAssistant assistant = new ContentAssistant();
 		configure(assistant, fPreferenceStore);
+		
+		assistant.enableAutoActivation(true);
+		assistant.setAutoActivationDelay(500);
+		assistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
 
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
 		assistant.setContentAssistProcessor(processor, Partitions.DOTBLOCK);
+		assistant.setContentAssistProcessor(processor, Partitions.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
