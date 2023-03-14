@@ -133,6 +133,10 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			if (currentDir != null) {
+				proposals.add(new FilePathCompletionProposalWithDialog(editor,
+						offset - linkTextLeftFromCursor.length(), linkTextLeftFromCursor.length() + linkTextRightFromCursor.length()));
+				
+				
 				List<File> files = Arrays.asList(currentDir.listFiles());
 				files.sort(new Comparator<File>() {
 
