@@ -72,11 +72,14 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			int lineLength = document.getLineLength(currentLine);
 			
 			String lineLeftFromCursor = lineLength > 0 ? document.get(lineOffset, offset - lineOffset) : "";
-			String lineRightFromCursor = lineLength > 0 ? document.get(offset, lineOffset + lineLength - offset - 1) : "";
+			String lineRightFromCursor = lineLength > 0 ? document.get(offset, lineOffset + lineLength - offset) : "";
 			
 			ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 			
 			addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile,
+					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			
+			addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
@@ -128,6 +131,88 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		String linkTextRightFromCursor = lineRightFromCursor.substring(0, indexOfClosingRoundBracket);
+		
+		addFilePathProposals(proposals, currentEditorsMarkdownFile,
+				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+	}
+	
+	private void addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
+			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
+		/*
+		 *  Try to detect if we're in a statement like
+		 *  [important]: ../../src/main/java/com/advantest/module/SomeClass.java "Important File"
+		 *  or
+		 *     [important]:
+		 *        ../../src/main/java/com/advantest/module/SomeClass.java
+		 *            'Some Important File Description
+		 *            spanning over
+		 *            multiple lines'
+		 *  where the cursor is between the ":" and the optional title.
+		 *  See https://spec.commonmark.org/0.30/#link-reference-definitions
+		 */
+		
+		int indexOfColon = lineLeftFromCursor.lastIndexOf(':');
+		int lineOfColon = -1;
+		
+		if (indexOfColon < 0 && currentLine - 1 >= 0) {
+			int prevLineNumber = currentLine - 1;
+			String previousLine;
+			try {
+				int prevLineOffset = document.getLineOffset(prevLineNumber);
+				int prevLineLength =  document.getLineLength(prevLineNumber);
+				previousLine = document.get(prevLineOffset, prevLineLength);
+			} catch (BadLocationException e) {
+				FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", e);
+				return;
+			}
+			
+			// abort if the previous line does not only contain the link label (then it's not a link reference definition)
+			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*\\n")) {
+				return;
+			}
+			
+			indexOfColon = previousLine.lastIndexOf(':');
+			if (indexOfColon >= 0) {
+				lineOfColon = prevLineNumber;
+			}
+		} else {
+			lineOfColon = currentLine;
+			
+			// abort if we don't find the mandatory link label (then it's not a link reference definition)
+			String textLeftFromColon = lineLeftFromCursor.substring(0, indexOfColon);
+			if (!textLeftFromColon.matches(" {0,3}\\[.*\\]")) {
+				return;
+			}
+		}
+		
+		String linkTextLeftFromCursor = "";
+		if (lineOfColon == currentLine) {
+			linkTextLeftFromCursor = indexOfColon + 1 <= offset ? lineLeftFromCursor.substring(indexOfColon + 1) : "";
+			linkTextLeftFromCursor = linkTextLeftFromCursor.trim();
+		} else {
+			linkTextLeftFromCursor = lineLeftFromCursor.trim();
+		}
+		
+		// abort if the remainder of the line doesn't look like being a link reference definition
+		if (!lineRightFromCursor.matches(".*( \\t)*('\")*\\n*")) {
+			return;
+		}
+		
+		int indexOfTitleBegin = lineRightFromCursor.indexOf('\'');
+		int indexOfTitleBegin2 = lineRightFromCursor.indexOf('"');
+		if (indexOfTitleBegin2 >= 0 && (indexOfTitleBegin == -1 || indexOfTitleBegin > indexOfTitleBegin2)) {
+			indexOfTitleBegin = indexOfTitleBegin2;
+		}
+		
+		String linkTextRightFromCursor = indexOfTitleBegin >= 0 ? lineRightFromCursor.substring(0, indexOfTitleBegin) : lineRightFromCursor;
+		linkTextRightFromCursor = linkTextRightFromCursor.trim();
+		
+		addFilePathProposals(proposals, currentEditorsMarkdownFile,
+				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+	}
+	
+	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			int offset, String linkTextLeftFromCursor, String linkTextRightFromCursor) {
 		
 		// no proposals in case of web addresses
 		if (linkTextLeftFromCursor.startsWith("http://")
