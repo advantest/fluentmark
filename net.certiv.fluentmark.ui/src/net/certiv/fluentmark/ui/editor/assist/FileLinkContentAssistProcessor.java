@@ -222,8 +222,18 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			return;
 		}
 		
+		String linkTextLeftFromCursorWithoutLastPartialSegment = linkTextLeftFromCursor;
+		String lastPathSegmentPart = "";
+		int indexOfLastSlash = linkTextLeftFromCursor.lastIndexOf('/');
+		if (indexOfLastSlash >= 0) {
+			linkTextLeftFromCursorWithoutLastPartialSegment = linkTextLeftFromCursor.substring(0, indexOfLastSlash);
+			if (indexOfLastSlash + 1 < linkTextLeftFromCursor.length()) {
+				lastPathSegmentPart = linkTextLeftFromCursor.substring(indexOfLastSlash + 1);
+			}
+		}
+		
 		IPath currentResourcesAbsolutePath = readCurrentResourcePath(
-				currentEditorsMarkdownFile, linkTextLeftFromCursor);
+				currentEditorsMarkdownFile, linkTextLeftFromCursorWithoutLastPartialSegment);
 		
 		// no proposals if the path is invalid
 		File currentFile = currentResourcesAbsolutePath.toFile();
@@ -274,6 +284,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		for (File fileInDir : files) {
 			// skip the file we have already open in editor
 			if (fileInDir.equals(currentEditorsMarkdownFile.getLocation().toFile())) {
+				continue;
+			}
+			
+			// skip files that do not match the given file name prefix
+			if (lastPathSegmentPart.length() > 0
+					&& !fileInDir.getName().startsWith(lastPathSegmentPart)) {
 				continue;
 			}
 			
