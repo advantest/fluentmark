@@ -31,6 +31,9 @@ public class UpdateJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		Task task;
 		synchronized (queue) {
+			if (queue.size() <= 0) {
+				return Status.CANCEL_STATUS;
+			}
 			task = queue.get(queue.size() - 1);
 			queue.clear();
 		}
