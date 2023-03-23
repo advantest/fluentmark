@@ -83,6 +83,13 @@
 			<artifactId>plantuml</artifactId>
 			<version>1.2022.7</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-all</artifactId>
+			<version>0.64.0</version>
+		</dependency>
+
 
 	</dependencies>
 
@@ -199,6 +206,34 @@
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
+
+							</artifactItems>
+
+							<outputDirectory>lib</outputDirectory>
+							<stripVersion>false</stripVersion>
+							<overWriteRelease>true</overWriteRelease>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>copy-flexmark</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+
+								<artifactItem>
+									<groupId>com.vladsch.flexmark</groupId>
+    								<artifactId>flexmark-all</artifactId>
+    								<version>0.64.0</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
 
 							</artifactItems>
 
