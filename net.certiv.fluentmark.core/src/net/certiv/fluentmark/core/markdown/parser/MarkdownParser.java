@@ -25,6 +25,7 @@ public class MarkdownParser {
 	
 	public MarkdownParser() {
 		options = new MutableDataSet();
+		options.set(Parser.BLANK_LINES_IN_AST, true);
         options.set(Parser.EXTENSIONS, Arrays.asList(
         		TablesExtension.create(),
         		StrikethroughExtension.create(),
