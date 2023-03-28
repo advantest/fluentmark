@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.core.render.html;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 
 import net.certiv.fluentmark.core.markdown.parser.MarkdownParser;
@@ -26,6 +27,11 @@ public class MarkdownToHtmlRenderer {
 	
 	public String renderHtml(Node markdownAstNode) {
 		return htmlRenderer.render(markdownAstNode);
+	}
+	
+	public String renderHtml(String markdownSourceCode) {
+		Document markdownAst = this.parser.parseMarkdownCode(markdownSourceCode);
+		return renderHtml(markdownAst);
 	}
 
 }
