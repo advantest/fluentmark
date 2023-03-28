@@ -9,6 +9,7 @@
  */
 package net.certiv.fluentmark.core.markdown.parser;
 
+import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -18,6 +19,11 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 
 import java.util.Arrays;
 
+/**
+ * Markdown source code parser based on
+ * <a href="https://github.com/vsch/flexmark-java">Flexmark</a>
+ * with a selection of extensions.
+ */
 public class MarkdownParser {
 	
 	private final MutableDataSet options;
@@ -27,9 +33,18 @@ public class MarkdownParser {
 		options = new MutableDataSet();
 		options.set(Parser.BLANK_LINES_IN_AST, true);
         options.set(Parser.EXTENSIONS, Arrays.asList(
+        		
+        		// see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
         		TablesExtension.create(),
+        		
+        		// see https://github.com/vsch/flexmark-java/wiki/Extensions#gfm-strikethroughsubscript
         		StrikethroughExtension.create(),
-        		AutolinkExtension.create()));
+        		
+        		// see https://github.com/vsch/flexmark-java/wiki/Extensions#autolink
+        		AutolinkExtension.create(),
+        		
+        		// see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
+        		AttributesExtension.create()));
         parser = Parser.builder(options).build();
 	}
 	
