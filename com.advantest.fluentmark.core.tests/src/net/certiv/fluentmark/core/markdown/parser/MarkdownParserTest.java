@@ -33,6 +33,7 @@ import com.vladsch.flexmark.ext.tables.TableRow;
 import com.vladsch.flexmark.ext.tables.TableSeparator;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
 import net.certiv.fluentmark.core.TestFileUtil;
 
@@ -166,8 +167,21 @@ public class MarkdownParserTest {
 		TableRow tableRow = (TableRow) tableBody.getFirstChild(); 
 		
 		assertEquals(1, tableRow.getRowNumber());
-		
-		assertEquals("12", ((TableCell) tableRow.getFirstChild()).getText().toString());
+		assertEquals(4, countCellsInRow(tableRow));
+		assertEquals("first cell", ((TableCell) tableRow.getFirstChild()).getText().toString());
+	}
+	
+	private int countCellsInRow(TableRow row) {
+		ReversiblePeekingIterator<Node> iterator = row.getChildIterator();
+		int numberOfRows = 0;
+		Node childNode = null;
+		while (iterator.hasNext()) {
+			childNode = iterator.next();
+			if (childNode instanceof TableCell) {
+				numberOfRows++;
+			}
+		}
+		return numberOfRows;
 	}
 
 }

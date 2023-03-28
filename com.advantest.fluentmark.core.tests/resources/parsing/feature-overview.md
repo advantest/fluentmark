@@ -81,11 +81,10 @@ public class CustomInterpreter extends ExpressionInterpreter {
 
 ## Tables
 
-
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
+| Right aligned | Left aligned | Default | Centered          |
+|--------------:|:-------------|---------|:-----------------:|
+|  first cell   |  7           |    A    | longer text here  |
+|  abc 123      |  194236723   |   Xyz   |   123             |
 
 : Pipe table
 

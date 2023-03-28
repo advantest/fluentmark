@@ -65,14 +65,14 @@
 	<classpathentry kind="lib" path="lib/flexmark-jira-converter-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-pdf-converter-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-profile-pegdown-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-builder-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-collection-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-dependency-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-format-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-html-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-misc-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-options-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-util-visitor-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-builder-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-collection-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-dependency-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-format-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-html-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-misc-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-options-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-visitor-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-youtrack-converter-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/fontbox-2.0.24.jar"/>
 	<classpathentry kind="lib" path="lib/graphics2d-0.32.jar"/>
