@@ -16,6 +16,10 @@
 
 	<name>FluentMark core</name>
 	<description>Markdown parser and converter</description>
+	
+	<properties>
+		<flexmark-version>0.64.0</flexmark-version>
+	</properties>
 
 	<dependencies>
 
@@ -87,7 +91,7 @@
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-all</artifactId>
-			<version>0.64.0</version>
+			<version>${flexmark-version}</version>
 		</dependency>
 
 
@@ -95,13 +99,36 @@
 
 	<build>
 		<plugins>
-
+		
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.6.8</version>
+				<executions>
+					<execution>
+						<id>copy-flexmark-sources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://github.com/vsch/flexmark-java/archive/refs/tags/${flexmark-version}.zip</url>
+							<outputFileName>flexmark-java-${flexmark-version}.zip</outputFileName>
+							<unpack>false</unpack>
+							<outputDirectory>${project.basedir}/lib</outputDirectory>
+							<overwrite>false</overwrite>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.0.0</version>
 				<executions>
+					
+				
 					<execution>
 						<id>copy</id>
 						<phase>process-resources</phase>
@@ -229,11 +256,10 @@
 								<artifactItem>
 									<groupId>com.vladsch.flexmark</groupId>
     								<artifactId>flexmark-all</artifactId>
-    								<version>0.64.0</version>
+    								<version>${flexmark-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-
 
 							</artifactItems>
 
@@ -245,6 +271,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 		</plugins>
 	</build>
 
