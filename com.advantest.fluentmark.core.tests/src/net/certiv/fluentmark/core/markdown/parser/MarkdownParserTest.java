@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
-import com.vladsch.flexmark.util.ast.BlankLine;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 
@@ -41,11 +40,6 @@ public class MarkdownParserTest {
 		Heading firstHeading = (Heading) currentNode;
 		
 		assertEquals("Short FluentMark features and syntax overview", firstHeading.getText().toString());
-		
-		currentNode = currentNode.getNext();
-		
-		assertNotNull(currentNode);
-		assertTrue(currentNode instanceof BlankLine);
 		
 		currentNode = currentNode.getNext();
 		

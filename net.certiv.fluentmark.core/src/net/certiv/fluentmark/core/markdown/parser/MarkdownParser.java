@@ -31,7 +31,7 @@ public class MarkdownParser {
 	
 	public MarkdownParser() {
 		options = new MutableDataSet();
-		options.set(Parser.BLANK_LINES_IN_AST, true);
+		options.set(Parser.BLANK_LINES_IN_AST, false);
         options.set(Parser.EXTENSIONS, Arrays.asList(
         		
         		// see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
@@ -44,6 +44,7 @@ public class MarkdownParser {
         		AutolinkExtension.create(),
         		
         		// see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
+        		// needed e.g. for setting custom heading anchor IDs
         		AttributesExtension.create()));
         parser = Parser.builder(options).build();
 	}
