@@ -35,7 +35,7 @@
 	<classpathentry kind="lib" path="lib/flexmark-ext-admonition-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-anchorlink-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-aside-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-ext-attributes-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-autolink-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-definition-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-emoji-0.64.0.jar"/>
@@ -54,7 +54,7 @@
 	<classpathentry kind="lib" path="lib/flexmark-ext-media-tags-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-resizable-image-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-superscript-0.64.0.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-ext-tables-0.64.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.0.jar" sourcepath="lib/flexmark-java-0.64.0.zip"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-toc-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-typographic-0.64.0.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-ext-wikilink-0.64.0.jar"/>

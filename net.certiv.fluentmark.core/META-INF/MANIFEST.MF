@@ -5,6 +5,8 @@ Bundle-SymbolicName: net.certiv.fluentmark.core;singleton:=true
 Bundle-Version: 1.3.0.qualifier
 Export-Package: com.vladsch.flexmark.ast,
  com.vladsch.flexmark.ast.util,
+ com.vladsch.flexmark.ext.attributes,
+ com.vladsch.flexmark.ext.tables,
  com.vladsch.flexmark.util.ast,
  com.vladsch.flexmark.util.builder,
  com.vladsch.flexmark.util.collection,
