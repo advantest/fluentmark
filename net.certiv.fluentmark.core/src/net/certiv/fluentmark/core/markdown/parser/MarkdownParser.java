@@ -16,6 +16,7 @@ import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.data.SharedDataKeys;
 
 import java.util.Arrays;
 
@@ -46,6 +47,8 @@ public class MarkdownParser {
         		// see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
         		// needed e.g. for setting custom heading anchor IDs
         		AttributesExtension.create()));
+        options.set(SharedDataKeys.INDENT_SIZE, 2);
+        options.set(SharedDataKeys.GENERATE_HEADER_ID, false);
         parser = Parser.builder(options).build();
 	}
 	
