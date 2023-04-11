@@ -12,6 +12,7 @@ package net.certiv.fluentmark.core.render.html;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 
 import net.certiv.fluentmark.core.markdown.parser.MarkdownParser;
 
@@ -22,6 +23,8 @@ public class MarkdownToHtmlRenderer {
 	
 	public MarkdownToHtmlRenderer() {
 		parser = new MarkdownParser();
+		MutableDataSet settings = parser.getSettings();
+		settings.set(HtmlRenderer.RENDER_HEADER_ID, true);
 		this.htmlRenderer = HtmlRenderer.builder(parser.getSettings()).build();
 	}
 	
