@@ -35,6 +35,7 @@ import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import java.io.File;
@@ -341,10 +342,79 @@ public class LinkValidator implements ITypedRegionValidator {
 					offset + uriText.length());
 		}
 		
+		
 		HttpClient client = HttpClient.newBuilder()
-		  .version(Version.HTTP_2)
-		  .followRedirects(Redirect.NEVER)
-		  .build();
+				  .version(Version.HTTP_2)
+				  .followRedirects(Redirect.NEVER)
+				  .build();
+		
+		if (uriText.startsWith("https://REMOVED.advantest.com/")) {
+			String urlWithoutQueryParameters = removeQueryParametersInUrl(uriText);
+			String ticketNumber = extractLastUrlSegment(urlWithoutQueryParameters);
+			
+			if (!ticketNumber.matches("[A-Z0-9][A-Z_0-9]{0,9}-[0-9]+")) {
+				// we cannot parse and check this URL
+				FluentUI.log(IStatus.WARNING, String.format("Could not parse and check URI \"%s\".", uriText));
+				return null;
+			}
+			
+			String lhRequestUrl = "https://REMOVED.advantest.com/api/jira-service/issue/" + ticketNumber;
+			try {
+				uri = new URI(lhRequestUrl);
+			} catch (URISyntaxException e1) {
+				FluentUI.log(IStatus.WARNING, String.format("Could not create valid lhTracer request URI: %s.", lhRequestUrl));
+				return null;
+			}
+			
+			HttpRequest lhHttpRequest = HttpRequest.newBuilder()
+				      .method("GET", HttpRequest.BodyPublishers.noBody())    
+				      .uri(uri)
+				      .timeout(Duration.ofSeconds(10))
+				      .build();
+			
+			int statusCode = -1;
+			String errorMessage = null;
+			try {
+				HttpResponse<String> response = client.send(lhHttpRequest, BodyHandlers.ofString()); 
+ 				statusCode = response.statusCode();
+			} catch (IOException | InterruptedException e) {
+				errorMessage = e.getMessage();
+				statusCode = -404;
+			}
+			
+			switch (statusCode) {
+			case 200:
+				// Ticket exists in Jira / Jira --> do nothing
+				return null;
+			case 204:
+				// Ticket does not exist --> create error message
+				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
+						String.format("The referenced Jira ticket %s does not exist. The URL '%s' is invalid. ", ticketNumber, uriText),
+						lineNumber,
+						offset,
+						offset + uriText.length());
+			case 404:
+				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got status code 404).", lhRequestUrl));
+				return null;
+			case -404:
+				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got en exception %s).", lhRequestUrl, errorMessage));
+				return null;
+
+			default:
+				FluentUI.log(IStatus.WARNING, String.format("Received unexpected status code %s for lhTracer Request URL %s.", statusCode, lhRequestUrl));
+				return null;
+			}
+		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
+			
+		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
+			
+		} else {
+			
+		}
+		
+		
+		
+		
 		
 		// we only need HTTP HEAD, no page content, just reachability
 		Builder httpRequestBuilder = HttpRequest.newBuilder()
@@ -386,6 +456,27 @@ public class LinkValidator implements ITypedRegionValidator {
 		//}
 		
 		return null;
+	}
+	
+	private String removeQueryParametersInUrl(String urlText) {
+		if (urlText.contains("?")) {
+			String[] urlParts = urlText.split("\\?");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[0];
+			}
+			
+		}
+		return urlText;
+	}
+	
+	private String extractLastUrlSegment(String urlText) {
+		if (urlText.contains("/")) {
+			String[] urlParts = urlText.split("/");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[urlParts.length - 1];
+			}
+		}
+		return urlText;
 	}
 	
 	private IMarker checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
