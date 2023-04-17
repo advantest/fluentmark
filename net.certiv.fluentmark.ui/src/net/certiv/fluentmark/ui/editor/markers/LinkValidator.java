@@ -34,7 +34,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
@@ -349,8 +348,8 @@ public class LinkValidator implements ITypedRegionValidator {
 				  .build();
 		
 		if (uriText.startsWith("https://REMOVED.advantest.com/")) {
-			String urlWithoutQueryParameters = removeQueryParametersInUrl(uriText);
-			String ticketNumber = extractLastUrlSegment(urlWithoutQueryParameters);
+			String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
+			String ticketNumber = extractLastUrlSegment(urlWithoutQueryParametersAndAnchors);
 			
 			if (!ticketNumber.matches("[A-Z0-9][A-Z_0-9]{0,9}-[0-9]+")) {
 				// we cannot parse and check this URL
@@ -406,61 +405,69 @@ public class LinkValidator implements ITypedRegionValidator {
 			}
 		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
 			
+			
+			
 		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
+			if (uriText.startsWith("https://REMOVED.advantest.com/tracker/")) {
+				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
+						String.format("The given  CB link %s is invalid. Please use a link of the form 'https://REMOVED.advantest.com/issue/x' where x is an ID. ", uriText),
+						lineNumber,
+						offset,
+						offset + uriText.length());
+			}
 			
+			// TODO implement the remaining cases
 		} else {
+			// for any other URL, do the following
 			
+			// we only need HTTP HEAD, no page content, just reachability
+			HttpRequest headRequest = HttpRequest.newBuilder()
+				      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
+				      .uri(uri)
+				      .timeout(Duration.ofSeconds(2))
+				      .build();
+			
+			int statusCode = -1;
+			String errorMessage = null;
+			try {
+				statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode(); 
+			} catch (IOException | InterruptedException e) {
+				errorMessage = e.getMessage();
+				statusCode = -404;
+			}
+			
+			if (statusCode >= 400) {
+				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+						String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
+						lineNumber,
+						offset,
+						offset + uriText.length());
+			} else if (statusCode == -404) {
+				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+						String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
+						lineNumber,
+						offset,
+						offset + uriText.length());
+			}
 		}
-		
-		
-		
-		
-		
-		// we only need HTTP HEAD, no page content, just reachability
-		Builder httpRequestBuilder = HttpRequest.newBuilder()
-		      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
-		      .uri(uri)
-		      .timeout(Duration.ofSeconds(2));
-		
-		// TODO authenticate in case of Advantest-internal web sites Jira, Confluence, etc.
-		/*
-		 * if (linkTarget.startsWith("https://REMOVED.advantest.com/") ||
-		 * linkTarget.startsWith("https://REMOVED.advantest.com/")) { httpRequestBuilder
-		 * = httpRequestBuilder // TODO Save user's personal access token somewhere
-		 * .header("Authorization", "Bearer <Personal-Access-Token>"); }
-		 */
-		
-		HttpRequest headRequest = httpRequestBuilder.build();
-		
-		int statusCode = -1;
-		try {
-			statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode();
-		} catch (IOException | InterruptedException e) {
-			statusCode = -404;
-		}
-		
-		if (statusCode >= 400) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		} else if (statusCode == -404) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' seems not to exist.", uriText),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		} //else if (statusCode >= 300) {
-		//	FluentmarkAeUiActivator.log(IStatus.WARNING, String.format("Could not check URL %s. HTTP status code %s.", linkTarget, statusCode));
-		//}
 		
 		return null;
 	}
 	
-	private String removeQueryParametersInUrl(String urlText) {
+	private String removeQueryParametersFromUrl(String urlText) {
 		if (urlText.contains("?")) {
 			String[] urlParts = urlText.split("\\?");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[0];
+			}
+			
+		}
+		return urlText;
+	}
+	
+	private String removeAnchorFromUrl(String urlText) {
+		if (urlText.contains("#")) {
+			String[] urlParts = urlText.split("#");
 			if (urlParts != null && urlParts.length >= 0) {
 				return urlParts[0];
 			}
