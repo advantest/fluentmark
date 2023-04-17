@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
@@ -40,6 +41,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.io.File;
 import java.io.IOException;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -378,6 +380,9 @@ public class LinkValidator implements ITypedRegionValidator {
  				statusCode = response.statusCode();
 			} catch (IOException | InterruptedException e) {
 				errorMessage = e.getMessage();
+				if (errorMessage == null) {
+					errorMessage = e.getClass().getName();
+				}
 				statusCode = -404;
 			}
 			
@@ -443,6 +448,12 @@ public class LinkValidator implements ITypedRegionValidator {
 				
 				String space = uriParts[0];
 				String title = uriParts[1];
+				title = URLEncoder.encode(title, Charset.forName("UTF-8"));
+				
+				// TODO Check why lhTracer is expecting %20 (space) instead of %2B (+) in the title, e.g.
+				// https://REMOVED.advantest.com/api/confluence-service/space-title/STSRD/PGES%20-%20Product%20Generation%20Eco%20System
+				// instead of
+				// https://REMOVED.advantest.com/api/confluence-service/space-title/STSRD/PGES%2B-%2BProduct%2BGeneration%2BEco%2BSystem
 				
 				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/space-title/" + space + "/" + title;
 			}
