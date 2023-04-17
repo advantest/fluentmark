@@ -413,8 +413,8 @@ public class LinkValidator implements ITypedRegionValidator {
 				String pageId = null;
 				for (int i = 0; pageId == null && i < uriParts.length; i++) {
 					if (uriParts[i].startsWith("pageId=")) {
-						uriParts = uriParts[i].split("0");
-						pageId = uriParts[0];
+						uriParts = uriParts[i].split("=");
+						pageId = uriParts[1];
 					}
 				}
 				
