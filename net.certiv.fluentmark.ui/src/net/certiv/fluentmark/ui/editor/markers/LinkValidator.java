@@ -404,9 +404,95 @@ public class LinkValidator implements ITypedRegionValidator {
 				return null;
 			}
 		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
+			String lhRequestUrl = null;
+			
+			if (uriText.startsWith("https://REMOVED.advantest.com/vs/pages/viewpage.action?")
+					&& uriText.contains("pageId=")) {
+				String[] uriParts = uriText.split("\\?");
+				uriParts = uriParts[1].split("&");
+				String pageId = null;
+				for (int i = 0; pageId == null && i < uriParts.length; i++) {
+					if (uriParts[i].startsWith("pageId=")) {
+						uriParts = uriParts[i].split("0");
+						pageId = uriParts[0];
+					}
+				}
+				
+				if (pageId == null) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not parse page ID in URL %s.", uriText));
+					return null;
+				}
+				
+				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/page-id/" + pageId;
+			} else if (uriText.startsWith("https://REMOVED.advantest.com/vs/x/")) {
+				String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
+				String tinyUrlId = extractLastUrlSegment(urlWithoutQueryParametersAndAnchors);
+				
+				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/tiny-url/" + tinyUrlId;
+			} else if (uriText.startsWith("https://REMOVED.advantest.com/vs/display/")) {
+				String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
+				int index = "https://REMOVED.advantest.com/vs/display/".length();
+				String spaceAndTitle = urlWithoutQueryParametersAndAnchors.substring(index);
+				String[] uriParts = spaceAndTitle.split("/");
+				
+				if (uriParts.length != 2
+						|| spaceAndTitle.contains("~")) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not parse space and title in URL %s.", uriText));
+					return null;
+				}
+				
+				String space = uriParts[0];
+				String title = uriParts[1];
+				
+				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/space-title/" + space + "/" + title;
+			}
 			
 			
+			try {
+				uri = new URI(lhRequestUrl);
+			} catch (URISyntaxException e1) {
+				FluentUI.log(IStatus.WARNING, String.format("Could not create valid lhTracer request URI: %s.", lhRequestUrl));
+				return null;
+			}
 			
+			HttpRequest lhHttpRequest = HttpRequest.newBuilder()
+				      .method("GET", HttpRequest.BodyPublishers.noBody())    
+				      .uri(uri)
+				      .timeout(Duration.ofSeconds(10))
+				      .build();
+			
+			int statusCode = -1;
+			String errorMessage = null;
+			try {
+				HttpResponse<String> response = client.send(lhHttpRequest, BodyHandlers.ofString()); 
+ 				statusCode = response.statusCode();
+			} catch (IOException | InterruptedException e) {
+				errorMessage = e.getMessage();
+				statusCode = -404;
+			}
+			
+			switch (statusCode) {
+			case 200:
+				// Page exists in Confluence / Confluence --> do nothing
+				return null;
+			case 204:
+				// Page does not exist --> create error message
+				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
+						String.format("The referenced Confluence page does not exist. The URL '%s' is invalid. ", uriText),
+						lineNumber,
+						offset,
+						offset + uriText.length());
+			case 404:
+				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got status code 404).", lhRequestUrl));
+				return null;
+			case -404:
+				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got en exception %s).", lhRequestUrl, errorMessage));
+				return null;
+
+			default:
+				FluentUI.log(IStatus.WARNING, String.format("Received unexpected status code %s for lhTracer Request URL %s.", statusCode, lhRequestUrl));
+				return null;
+			}
 		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
 			if (uriText.startsWith("https://REMOVED.advantest.com/tracker/")) {
 				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
