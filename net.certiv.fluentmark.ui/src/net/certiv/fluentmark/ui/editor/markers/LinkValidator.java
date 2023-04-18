@@ -488,6 +488,9 @@ public class LinkValidator implements ITypedRegionValidator {
  				statusCode = response.statusCode();
 			} catch (IOException | InterruptedException e) {
 				errorMessage = e.getMessage();
+				if (errorMessage == null) {
+					errorMessage = e.getClass().getName();
+				}
 				statusCode = -404;
 			}
 			
