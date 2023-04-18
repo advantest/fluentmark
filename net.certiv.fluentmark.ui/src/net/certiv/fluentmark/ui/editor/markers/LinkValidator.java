@@ -17,8 +17,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SafeRunner;
 
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
@@ -28,20 +30,20 @@ import org.eclipse.jface.text.ITypedRegion;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,6 +51,7 @@ import java.time.Duration;
 
 import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 
@@ -329,11 +332,46 @@ public class LinkValidator implements ITypedRegionValidator {
 	}
 	
 	private IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
-		// try resolving the URL
-		
 		if (uriText == null) {
 			return null;
 		}
+		
+		// run all the URI validators from extensions, first
+		List<IUriValidator> uriValidators = UriValidatorsManager.getInstance().getUriValidators();
+		for (IUriValidator uriValidator : uriValidators) {
+			if (uriValidator.isResponsibleFor(uriText)) {
+				final List<IMarker> markers = new ArrayList<>(1);
+				
+				ISafeRunnable runnable = new ISafeRunnable() {
+		            @Override
+		            public void handleException(Throwable e) {
+		            	Exception ex;
+		            	if (e instanceof Exception) {
+		            		ex = (Exception) e;
+		            	} else {
+		            		ex = new RuntimeException(e);
+		            	}
+		            	FluentUI.log(IStatus.WARNING, String.format("Could not run URI validator \"%s\".", uriValidator.getClass().getName()), ex);
+		            }
+
+		            @Override
+		            public void run() throws Exception {
+		            	if (uriValidator.isResponsibleFor(uriText)) {
+		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, getHttpClient()));
+		            	}
+		            }
+		        };
+		        SafeRunner.run(runnable);
+		        
+		        if (markers.size() > 0) {
+		        	return markers.get(0);
+		        }
+		        
+		        // do not run other validations if we found a responsible validator from extensions
+		        return null;
+			}
+		}
+		
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
@@ -358,206 +396,34 @@ public class LinkValidator implements ITypedRegionValidator {
 		
 		HttpClient client = getHttpClient();
 		
-		if (uriText.startsWith("https://REMOVED.advantest.com/")) {
-			String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
-			String ticketNumber = extractLastUrlSegment(urlWithoutQueryParametersAndAnchors);
-			
-			if (!ticketNumber.matches("[A-Z0-9][A-Z_0-9]{0,9}-[0-9]+")) {
-				// we cannot parse and check this URL
-				FluentUI.log(IStatus.WARNING, String.format("Could not parse and check URI \"%s\".", uriText));
-				return null;
-			}
-			
-			String lhRequestUrl = "https://REMOVED.advantest.com/api/jira-service/issue/" + ticketNumber;
-			try {
-				uri = new URI(lhRequestUrl);
-			} catch (URISyntaxException e1) {
-				FluentUI.log(IStatus.WARNING, String.format("Could not create valid lhTracer request URI: %s.", lhRequestUrl));
-				return null;
-			}
-			
-			HttpRequest lhHttpRequest = HttpRequest.newBuilder()
-				      .method("GET", HttpRequest.BodyPublishers.noBody())    
-				      .uri(uri)
-				      .timeout(Duration.ofSeconds(10))
-				      .build();
-			
-			int statusCode = -1;
-			String errorMessage = null;
-			try {
-				HttpResponse<String> response = client.send(lhHttpRequest, BodyHandlers.ofString()); 
- 				statusCode = response.statusCode();
-			} catch (IOException | InterruptedException e) {
-				errorMessage = e.getMessage();
-				if (errorMessage == null) {
-					errorMessage = e.getClass().getName();
-				}
-				statusCode = -404;
-			}
-			
-			switch (statusCode) {
-			case 200:
-				// Ticket exists in Jira / Jira --> do nothing
-				return null;
-			case 204:
-				// Ticket does not exist --> create error message
-				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
-						String.format("The referenced Jira ticket %s does not exist. The URL '%s' is invalid. ", ticketNumber, uriText),
-						lineNumber,
-						offset,
-						offset + uriText.length());
-			case 404:
-				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got status code 404).", lhRequestUrl));
-				return null;
-			case -404:
-				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got en exception %s).", lhRequestUrl, errorMessage));
-				return null;
-
-			default:
-				FluentUI.log(IStatus.WARNING, String.format("Received unexpected status code %s for lhTracer Request URL %s.", statusCode, lhRequestUrl));
-				return null;
-			}
-		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
-			String lhRequestUrl = null;
-			
-			if (uriText.startsWith("https://REMOVED.advantest.com/vs/pages/viewpage.action?")
-					&& uriText.contains("pageId=")) {
-				String[] uriParts = uriText.split("\\?");
-				uriParts = uriParts[1].split("&");
-				String pageId = null;
-				for (int i = 0; pageId == null && i < uriParts.length; i++) {
-					if (uriParts[i].startsWith("pageId=")) {
-						uriParts = uriParts[i].split("=");
-						pageId = uriParts[1];
-					}
-				}
-				
-				if (pageId == null) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not parse page ID in URL %s.", uriText));
-					return null;
-				}
-				
-				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/page-id/" + pageId;
-			} else if (uriText.startsWith("https://REMOVED.advantest.com/vs/x/")) {
-				String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
-				String tinyUrlId = extractLastUrlSegment(urlWithoutQueryParametersAndAnchors);
-				
-				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/tiny-url/" + tinyUrlId;
-			} else if (uriText.startsWith("https://REMOVED.advantest.com/vs/display/")) {
-				String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
-				int index = "https://REMOVED.advantest.com/vs/display/".length();
-				String spaceAndTitle = urlWithoutQueryParametersAndAnchors.substring(index);
-				String[] uriParts = spaceAndTitle.split("/");
-				
-				if (uriParts.length != 2
-						|| spaceAndTitle.contains("~")) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not parse space and title in URL %s.", uriText));
-					return null;
-				}
-				
-				String space = uriParts[0];
-				String title = uriParts[1];
-				title = URLEncoder.encode(title, Charset.forName("UTF-8"));
-				
-				// TODO Check why lhTracer is expecting %20 (space) instead of %2B (+) in the title, e.g.
-				// https://REMOVED.advantest.com/api/confluence-service/space-title/STSRD/PGES%20-%20Product%20Generation%20Eco%20System
-				// instead of
-				// https://REMOVED.advantest.com/api/confluence-service/space-title/STSRD/PGES%2B-%2BProduct%2BGeneration%2BEco%2BSystem
-				
-				lhRequestUrl = "https://REMOVED.advantest.com/api/confluence-service/space-title/" + space + "/" + title;
-			}
-			
-			
-			try {
-				uri = new URI(lhRequestUrl);
-			} catch (URISyntaxException e1) {
-				FluentUI.log(IStatus.WARNING, String.format("Could not create valid lhTracer request URI: %s.", lhRequestUrl));
-				return null;
-			}
-			
-			HttpRequest lhHttpRequest = HttpRequest.newBuilder()
-				      .method("GET", HttpRequest.BodyPublishers.noBody())    
-				      .uri(uri)
-				      .timeout(Duration.ofSeconds(10))
-				      .build();
-			
-			int statusCode = -1;
-			String errorMessage = null;
-			try {
-				HttpResponse<String> response = client.send(lhHttpRequest, BodyHandlers.ofString()); 
- 				statusCode = response.statusCode();
-			} catch (IOException | InterruptedException e) {
-				errorMessage = e.getMessage();
-				if (errorMessage == null) {
-					errorMessage = e.getClass().getName();
-				}
-				statusCode = -404;
-			}
-			
-			switch (statusCode) {
-			case 200:
-				// Page exists in Confluence / Confluence --> do nothing
-				return null;
-			case 204:
-				// Page does not exist --> create error message
-				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
-						String.format("The referenced Confluence page does not exist. The URL '%s' is invalid. ", uriText),
-						lineNumber,
-						offset,
-						offset + uriText.length());
-			case 404:
-				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got status code 404).", lhRequestUrl));
-				return null;
-			case -404:
-				FluentUI.log(IStatus.WARNING, String.format("Could not access lh Tracer with request URL %s (got en exception %s).", lhRequestUrl, errorMessage));
-				return null;
-
-			default:
-				FluentUI.log(IStatus.WARNING, String.format("Received unexpected status code %s for lhTracer Request URL %s.", statusCode, lhRequestUrl));
-				return null;
-			}
-		} else if (uriText.startsWith("https://REMOVED.advantest.com/")) {
-			if (uriText.startsWith("https://REMOVED.advantest.com/tracker/")) {
-				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
-						String.format("The given  CB link %s is invalid. Please use a link of the form 'https://REMOVED.advantest.com/issue/x' where x is an ID. ", uriText),
-						lineNumber,
-						offset,
-						offset + uriText.length());
-			}
-			
-			// TODO implement the remaining cases
-		} else {
-			// for any other URL, do the following
-			
-			// we only need HTTP HEAD, no page content, just reachability
-			HttpRequest headRequest = HttpRequest.newBuilder()
-				      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
-				      .uri(uri)
-				      .timeout(Duration.ofSeconds(2))
-				      .build();
-			
-			int statusCode = -1;
-			String errorMessage = null;
-			try {
-				statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode(); 
-			} catch (IOException | InterruptedException e) {
-				errorMessage = e.getMessage();
-				statusCode = -404;
-			}
-			
-			if (statusCode >= 400) {
-				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-						String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
-						lineNumber,
-						offset,
-						offset + uriText.length());
-			} else if (statusCode == -404) {
-				return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-						String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
-						lineNumber,
-						offset,
-						offset + uriText.length());
-			}
+		// we only need HTTP HEAD, no page content, just reachability
+		HttpRequest headRequest = HttpRequest.newBuilder()
+			      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
+			      .uri(uri)
+			      .timeout(Duration.ofSeconds(2))
+			      .build();
+		
+		int statusCode = -1;
+		String errorMessage = null;
+		try {
+			statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode(); 
+		} catch (IOException | InterruptedException e) {
+			errorMessage = e.getMessage();
+			statusCode = -404;
+		}
+		
+		if (statusCode >= 400) {
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
+					lineNumber,
+					offset,
+					offset + uriText.length());
+		} else if (statusCode == -404) {
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
+					lineNumber,
+					offset,
+					offset + uriText.length());
 		}
 		
 		return null;
