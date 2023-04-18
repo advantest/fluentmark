@@ -80,6 +80,8 @@ public class LinkValidator implements ITypedRegionValidator {
 	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
+	private HttpClient httpClient;
+	
 	
 	public LinkValidator() {
 		LINK_PATTERN = Pattern.compile(REGEX_LINK);
@@ -316,6 +318,16 @@ public class LinkValidator implements ITypedRegionValidator {
 		return absolutePath;
 	}
 	
+	private HttpClient getHttpClient() {
+		if (this.httpClient == null) {
+			this.httpClient = HttpClient.newBuilder()
+					  .version(Version.HTTP_2)
+					  .followRedirects(Redirect.NEVER)
+					  .build();
+		}
+		return this.httpClient;
+	}
+	
 	private IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
 		// try resolving the URL
 		
@@ -344,10 +356,7 @@ public class LinkValidator implements ITypedRegionValidator {
 		}
 		
 		
-		HttpClient client = HttpClient.newBuilder()
-				  .version(Version.HTTP_2)
-				  .followRedirects(Redirect.NEVER)
-				  .build();
+		HttpClient client = getHttpClient();
 		
 		if (uriText.startsWith("https://REMOVED.advantest.com/")) {
 			String urlWithoutQueryParametersAndAnchors = removeAnchorFromUrl(removeQueryParametersFromUrl(uriText));
