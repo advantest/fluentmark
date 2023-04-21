@@ -88,6 +88,11 @@ public class FluentImages {
 
 	public static String IMG_OBJS_FIXABLE_PROBLEM;
 	public static String IMG_OBJS_FIXABLE_ERROR;
+	
+	public static String DESC_OBJ_FOLDER;
+	public static String DESC_OBJ_FOLDER_UP;
+	public static String DESC_OBJ_FILE;
+	public static String DESC_OBJ_TEMPLATE;
 
 	// public static String IMG_OBJS_FOLDER = prefix + "fldr_obj.gif";
 	// public static String IMG_OBJS_TEMPLATE = prefix + "template_obj.gif";
@@ -148,6 +153,11 @@ public class FluentImages {
 
 		IMG_OBJS_FIXABLE_PROBLEM = prefix + "quickfix_warning_obj.gif"; //$NON-NLS-1$
 		IMG_OBJS_FIXABLE_ERROR = prefix + "quickfix_error_obj.gif"; //$NON-NLS-1$
+		
+		DESC_OBJ_FOLDER = prefix + "folder.png"; //$NON-NLS-1$
+		DESC_OBJ_FOLDER_UP = prefix + "folder_up.png"; //$NON-NLS-1$
+		DESC_OBJ_FILE = prefix + "file_obj.png"; //$NON-NLS-1$
+		DESC_OBJ_TEMPLATE = prefix + "template.png"; //$NON-NLS-1$
 
 		create(OBJ, IMG_MENU_COLLAPSE_ALL);
 		create(OBJ, IMG_MENU_EXPAND_ALL);
@@ -191,6 +201,11 @@ public class FluentImages {
 
 		create(OBJ, IMG_OBJS_FIXABLE_PROBLEM);
 		create(OBJ, IMG_OBJS_FIXABLE_ERROR);
+		
+		create(OBJ, DESC_OBJ_FOLDER);
+		create(OBJ, DESC_OBJ_FOLDER_UP);
+		create(OBJ, DESC_OBJ_FILE);
+		create(OBJ, DESC_OBJ_TEMPLATE);
 	}
 
 	/** Retrieve the existing managed image for the given key */

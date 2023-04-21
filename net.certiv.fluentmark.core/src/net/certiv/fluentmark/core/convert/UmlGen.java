@@ -6,10 +6,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
+import org.eclipse.core.resources.IFile;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import java.nio.charset.Charset;
 
@@ -17,8 +21,11 @@ import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.GeneratedImage;
+import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
+import net.sourceforge.plantuml.preproc.Defines;
 
 public class UmlGen {
 
@@ -63,4 +70,38 @@ public class UmlGen {
 
 		return value;
 	}
+	
+	public IFile uml2svg(IFile pumlSourceFile) {
+		
+		String dotexe = configurationProvider.getDotCommand();
+		if (!dotexe.isEmpty()) {
+			GraphvizUtils.setDotExecutable(dotexe);
+		}
+		
+		File sourceFile = new File(pumlSourceFile.getLocation().toString());
+		File targetDir = sourceFile.getParentFile();
+		File targetFile = null;
+		SourceFileReader reader;
+		try {
+			reader = new SourceFileReader(Defines.createWithFileName(sourceFile),
+					sourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
+			reader.setCheckMetadata(true);
+			List<GeneratedImage> list = reader.getGeneratedImages();
+			
+			if (!list.isEmpty()) {
+				GeneratedImage img = list.get(0);
+				targetFile = img.getPngFile();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getLocation().toString(), e);
+		}
+		
+		if (targetFile != null) {
+			IFile file = (IFile) pumlSourceFile.getParent().findMember(targetFile.getName());
+			return file;
+		}
+
+		return null;
+	}
+	
 }

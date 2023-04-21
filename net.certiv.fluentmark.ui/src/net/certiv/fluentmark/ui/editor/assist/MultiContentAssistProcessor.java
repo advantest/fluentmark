@@ -7,14 +7,16 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.assist;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author David Green
@@ -22,8 +24,6 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 public class MultiContentAssistProcessor implements IContentAssistProcessor {
 
 	private IContentAssistProcessor[] delegates;
-
-	private final char[] autoActivationCharacters = new char[0];
 
 	private final char[] contextInformationCharacters = new char[0];
 
@@ -84,7 +84,22 @@ public class MultiContentAssistProcessor implements IContentAssistProcessor {
 	}
 
 	public char[] getCompletionProposalAutoActivationCharacters() {
-		return autoActivationCharacters;
+		Set<Character> charSet = new TreeSet<Character>();
+		for (IContentAssistProcessor processor : delegates) {
+			char[] characters = processor.getCompletionProposalAutoActivationCharacters();
+			if (characters != null) {
+				for (char c : characters) {
+					charSet.add(c);
+				}
+			}
+		}
+		char[] result = new char[charSet.size()];
+		int i = 0;
+		for (Character c : charSet) {
+			result[i] = c;
+			i++;
+		}
+		return result;
 	}
 
 	public char[] getContextInformationAutoActivationCharacters() {

@@ -18,6 +18,7 @@ import org.eclipse.jface.text.rules.WordRule;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.certiv.fluentmark.core.markdown.DiagramConstants;
 import net.certiv.fluentmark.ui.editor.text.rules.UmlSymbolDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.UmlWordDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
@@ -33,14 +34,14 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 			"queue", "archimate", };
 
 	private static final String[] keywords = { 
-			"@startuml", "@enduml",
-			"@startdot", "@enddot",
-			"@startsalt", "@endsalt",
-			"@startyaml", "@endyaml", 
-			"@startjson", "@endjson", 
-			"@startmindmap", "@endmindmap", 
-			"@startgantt", "@endgantt",
-			"@startwbs", "@endwbs",
+			DiagramConstants.UML_START, DiagramConstants.UML_END,
+			DiagramConstants.DOT_START, DiagramConstants.DOT_END,
+			DiagramConstants.UML_START_SALT, DiagramConstants.UML_END_SALT,
+			DiagramConstants.UML_START_YAML, DiagramConstants.UML_END_YAML, 
+			DiagramConstants.UML_START_JSON, DiagramConstants.UML_END_JSON, 
+			DiagramConstants.UML_START_MINDMAP, DiagramConstants.UML_END_MINDMAP, 
+			DiagramConstants.UML_START_GANTT, DiagramConstants.UML_END_GANTT,
+			DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS,
 			"as", "also", "autonumber", "caption", "title", "newpage", "box", "alt", "else", "opt", "loop", "par",
 			"break", "critical", "note", "rnote", "hnote", "legend", "group", "left", "right", "of", "on", "link",
 			"over", "end", "activate", "deactivate", "destroy", "create", "footbox", "hide", "show", "skinparam",
