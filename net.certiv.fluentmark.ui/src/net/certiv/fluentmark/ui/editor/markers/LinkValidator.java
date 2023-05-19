@@ -106,14 +106,14 @@ public class LinkValidator implements ITypedRegionValidator {
 
 	@Override
 	public void validateRegion(ITypedRegion region, IDocument document, IResource resource) throws CoreException {
-		String content;
+		String regionContent;
 		try {
-			content = document.get(region.getOffset(), region.getLength());
+			regionContent = document.get(region.getOffset(), region.getLength());
 		} catch (BadLocationException e) {
 			return;
 		}
 
-		Matcher linkMatcher = LINK_PATTERN.matcher(content);
+		Matcher linkMatcher = LINK_PATTERN.matcher(regionContent);
 		boolean found = linkMatcher.find();
 		
 		// go through all the link statements in this region and check each of them
@@ -121,12 +121,12 @@ public class LinkValidator implements ITypedRegionValidator {
 			String currentLinkMatch = linkMatcher.group();
 			int startIndex = linkMatcher.start();
 			
-			validateLinkStatement(region, document, resource, currentLinkMatch, startIndex);
+			validateLinkStatement(region, document, resource, currentLinkMatch, startIndex, regionContent);
 			
 			found = linkMatcher.find();
 		}
 		
-		Matcher linkRefDefMatcher = LINK_REF_DEF_PATTERN.matcher(content);
+		Matcher linkRefDefMatcher = LINK_REF_DEF_PATTERN.matcher(regionContent);
 		found = linkRefDefMatcher.find();
 		
 		while (found) {
@@ -141,7 +141,7 @@ public class LinkValidator implements ITypedRegionValidator {
 
 
 	private void validateLinkStatement(ITypedRegion region, IDocument document, IResource resource,
-			String linkStatement, int linkStatementStartIndexInRegion) throws CoreException {
+			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
 		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
 		boolean foundPrefix = prefixMatcher.find();
@@ -149,6 +149,40 @@ public class LinkValidator implements ITypedRegionValidator {
 		int linkTargetStartIndex = prefixMatcher.end();
 		
 		String linkTarget = linkStatement.substring(linkTargetStartIndex, linkStatement.length() - 1);
+		
+		if (linkTarget.contains("(")) {
+			// In some cases the regex for links doesn't catch the last ')'. Thus we have to parse the text once again
+			// Here is an example of such a case where the regex doesn't match correctly (last ')' is missing):
+			// [a method in Java code](SomeClass.java#doSomething(String)
+			// Changing the regex to match the ')' greedy instead of lazy would result in wrong matches
+			// in lines where we have more than one link statement.
+			// The greedy match would match the last ')' in the line.
+			
+			String linkTargetWithRest = regionContent.substring(linkStatementStartIndexInRegion + linkTargetStartIndex);
+			String[] lines = linkTargetWithRest.split("\\n");
+			linkTargetWithRest = lines[0];
+			
+			// parse link statement in the current line
+			int pos = 0;
+			int roundBracketsNotClosedYet = 1;
+			int endIndex = -1;
+			while (pos < linkTargetWithRest.length() && endIndex < 0) {
+				char currentChar = linkTargetWithRest.charAt(pos);
+				
+				if (currentChar == '(') {
+					roundBracketsNotClosedYet++;
+				} else if (currentChar == ')') {
+					roundBracketsNotClosedYet--;
+					if (roundBracketsNotClosedYet == 0) {
+						endIndex = pos;
+					}
+				}
+				
+				pos++;
+			}
+			
+			linkTarget = linkTargetWithRest.substring(0, endIndex);
+		}
 		
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, resource, linkStatementStartIndexInRegion);
 	}

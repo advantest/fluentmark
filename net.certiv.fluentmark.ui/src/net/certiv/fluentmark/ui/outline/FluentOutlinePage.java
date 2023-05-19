@@ -371,7 +371,13 @@ public class FluentOutlinePage extends ContentOutlinePage implements IShowInSour
 
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				revealInEditor(event.getSelection());
+				// Do not reveal selection in editor for now,
+				// otherwise we get a strange loop
+				// where the editor sets a selection in the outline view
+				// and the outline view then changes the position in the editor,
+				// just because someone enters new text into the editor.
+				
+				//revealInEditor(event.getSelection());
 			}
 		});
 
