@@ -15,7 +15,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
 import org.markdownj.MarkdownProcessor;
 import org.pegdown.PegDownProcessor;
 
@@ -40,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.PartitionCalculator;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -64,7 +64,7 @@ public class Converter {
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		ITypedRegion[] typedRegions = computePartitions(document);
+		ITypedRegion[] typedRegions = PartitionCalculator.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {
@@ -91,17 +91,6 @@ public class Converter {
 				return useExternal(basepath, text);
 		}
 		return "";
-	}
-	
-	private ITypedRegion[] computePartitions(IDocument document) {
-		int beg = 0;
-		int len = document.getLength();
-
-		try {
-			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
-		} catch (BadLocationException e) {
-			return new ITypedRegion[0];
-		}
 	}
 	
 	private String combineOutputsForHtml(CmdResult result) {

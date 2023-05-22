@@ -18,15 +18,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.PartitionCalculator;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class MarkerCalculator {
@@ -72,6 +70,8 @@ public class MarkerCalculator {
 	}
 	
 	public void scheduleMarkerCalculation(IDocument document, IResource resource) {
+		// TODO Adapt this to handle more than one resource
+		
 		if (markerCalculatingJob != null) {
         	markerCalculatingJob.cancel();
         }
@@ -103,10 +103,8 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Calculate document partitions");
-		ITypedRegion[] typedRegions;
-		try {
-			typedRegions = TextUtilities.computePartitioning(document, Partitions.PARTITIONING, 0, document.getLength(), false);
-		} catch (BadLocationException e) {
+		ITypedRegion[] typedRegions = PartitionCalculator.computePartitions(document);
+		if (typedRegions == null || typedRegions.length == 0) {
 			return;
 		}
 		
