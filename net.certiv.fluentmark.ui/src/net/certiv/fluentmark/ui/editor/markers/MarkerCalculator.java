@@ -25,7 +25,10 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +49,8 @@ public class MarkerCalculator {
 	
 	private Job markerCalculatingJob;
 	
+	private final LinkedList<IFile> filesQueue = new LinkedList<>();
+	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
@@ -80,12 +85,7 @@ public class MarkerCalculator {
 		return null;
 	}
 	
-	public void scheduleMarkerCalculation(IDocument document, IResource resource) {
-		scheduleMarkerCalculation((ICoreRunnable) monitor ->
-			calculateMarkers(monitor, document, resource));
-	}
-	
-	public void scheduleMarkerCalculation(IFile markdownFile) {
+	public void scheduleMarkerCalculation(IDocument document, IFile markdownFile) {
 		if (markdownFile == null || !markdownFile.isAccessible()) {
 			return;
 		}
@@ -95,32 +95,65 @@ public class MarkerCalculator {
 					String.format("Expected a Markdown file, but got %s.", markdownFile.getName()));
 		}
 		
-		scheduleMarkerCalculation(new ICoreRunnable() {
-			
-			@Override
-			public void run(IProgressMonitor monitor) throws CoreException {
-				String markdownFileContents = readFileContents(markdownFile);
-				IDocument document = new Document(markdownFileContents);
-				connectPartitioningToElement(document);
-				calculateMarkers(monitor, document, markdownFile);
-			}
-			
-		});
-	}
-	
-	private void scheduleMarkerCalculation(ICoreRunnable runnable) {
-		// TODO Adapt this to handle more than one resource
-		
-		if (markerCalculatingJob != null) {
-			markerCalculatingJob.cancel();
+		synchronized(filesQueue) {
+			filesQueue.addLast(markdownFile);
 		}
 		
-		markerCalculatingJob = Job.create("Re-calculating problem markers", runnable); 
-		markerCalculatingJob.setUser(false);
-		markerCalculatingJob.setPriority(Job.DECORATE);
+		synchronized(filesDocumentsMap) {
+			if (document != null) {
+				filesDocumentsMap.put(markdownFile, document);
+			}
+		}
 		
-		// set a delay before reacting to user action to handle continuous typing
-		markerCalculatingJob.schedule(1000);
+		scheduleMarkerCalculation();
+	}
+	
+	public void scheduleMarkerCalculation(IFile markdownFile) {
+		scheduleMarkerCalculation(null, markdownFile);
+	}
+	
+	private void scheduleMarkerCalculation() {
+		if (markerCalculatingJob == null) {
+			markerCalculatingJob = Job.create("Re-calculating problem markers", new ICoreRunnable() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws CoreException {
+					while (!monitor.isCanceled()
+							&& !filesQueue.isEmpty()) {
+						
+						IFile file;
+						synchronized (filesQueue) {
+							file = filesQueue.pollFirst();
+						}
+						
+						IDocument document;
+						synchronized (filesDocumentsMap) {
+							document = filesDocumentsMap.get(file);
+							
+							if (document != null) {
+								filesDocumentsMap.remove(file);
+							}
+						}
+						
+						if (document == null) {
+							String markdownFileContents = readFileContents(file);
+							document = new Document(markdownFileContents);
+							connectPartitioningToElement(document);
+						}
+						
+						calculateMarkers(monitor, document, file);
+					}
+				}
+				
+			});
+			markerCalculatingJob.setUser(false);
+			markerCalculatingJob.setPriority(Job.DECORATE);
+		}
+
+		if (markerCalculatingJob.getState() != Job.RUNNING) {
+			// set a delay before reacting to user action to handle continuous typing
+			markerCalculatingJob.schedule(1000);
+		}
 	}
 	
 	private String readFileContents(IFile markdownFile) {
