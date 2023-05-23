@@ -9,6 +9,7 @@
  */
 package net.certiv.fluentmark.ui.editor.markers;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 
@@ -18,16 +19,26 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.nio.charset.Charset;
+
 import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.editor.FluentDocumentSetupParticipant;
 
 public class MarkerCalculator {
+
+	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private static final MarkerCalculator INSTANCE = new MarkerCalculator();
 	
@@ -70,19 +81,69 @@ public class MarkerCalculator {
 	}
 	
 	public void scheduleMarkerCalculation(IDocument document, IResource resource) {
+		scheduleMarkerCalculation((ICoreRunnable) monitor ->
+			calculateMarkers(monitor, document, resource));
+	}
+	
+	public void scheduleMarkerCalculation(IFile markdownFile) {
+		if (markdownFile == null || !markdownFile.isAccessible()) {
+			return;
+		}
+		
+		if (!"md".equalsIgnoreCase(markdownFile.getFileExtension())) {
+			throw new IllegalArgumentException(
+					String.format("Expected a Markdown file, but got %s.", markdownFile.getName()));
+		}
+		
+		scheduleMarkerCalculation(new ICoreRunnable() {
+			
+			@Override
+			public void run(IProgressMonitor monitor) throws CoreException {
+				String markdownFileContents = readFileContents(markdownFile);
+				IDocument document = new Document(markdownFileContents);
+				connectPartitioningToElement(document);
+				calculateMarkers(monitor, document, markdownFile);
+			}
+			
+		});
+	}
+	
+	private void scheduleMarkerCalculation(ICoreRunnable runnable) {
 		// TODO Adapt this to handle more than one resource
 		
 		if (markerCalculatingJob != null) {
-        	markerCalculatingJob.cancel();
-        }
-        markerCalculatingJob = Job.create("Re-calculating problem markers",
-        		(ICoreRunnable) monitor -> calculateMarkers(monitor, document, resource)); 
-        markerCalculatingJob.setUser(false);
-        markerCalculatingJob.setPriority(Job.DECORATE);
-        
-        // set a delay before reacting to user action to handle continuous typing
-        markerCalculatingJob.schedule(1000);
+			markerCalculatingJob.cancel();
+		}
+		
+		markerCalculatingJob = Job.create("Re-calculating problem markers", runnable); 
+		markerCalculatingJob.setUser(false);
+		markerCalculatingJob.setPriority(Job.DECORATE);
+		
+		// set a delay before reacting to user action to handle continuous typing
+		markerCalculatingJob.schedule(1000);
 	}
+	
+	private String readFileContents(IFile markdownFile) {
+		try (InputStream fileInputStream = markdownFile.getContents()) {
+			return new String(fileInputStream.readAllBytes(), UTF8);
+		} catch (IOException | CoreException e) {
+			FluentUI.log(IStatus.ERROR,
+					String.format("Couldn't read file %s", markdownFile.getFullPath().toString()), e);
+		}
+		
+		return null;
+	}
+	
+	private void connectPartitioningToElement(IDocument document) {
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 extension = (IDocumentExtension3) document;
+			if (extension.getDocumentPartitioner(Partitions.PARTITIONING) == null) {
+				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(FluentUI.getDefault().getTextTools());
+				participant.setup(document);
+			}
+		}
+	}
+	
 	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IResource resource) throws CoreException {
 		if (monitor.isCanceled()) {
