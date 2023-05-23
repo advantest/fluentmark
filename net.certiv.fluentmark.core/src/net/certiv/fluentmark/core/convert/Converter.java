@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.markdown.PartitionCalculator;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -64,7 +63,7 @@ public class Converter {
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		ITypedRegion[] typedRegions = PartitionCalculator.computePartitions(document);
+		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {

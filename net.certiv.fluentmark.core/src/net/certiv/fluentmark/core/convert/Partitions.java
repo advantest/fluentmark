@@ -7,6 +7,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.TextUtilities;
+
 public class Partitions {
 
 	// unique partitioning type
@@ -31,5 +36,16 @@ public class Partitions {
 	public static String[] getLegalContentTypes() {
 		return LEGAL_TYPES;
 	}
+	
+	public static ITypedRegion[] computePartitions(IDocument document) {
+		int beg = 0;
+		int len = document.getLength();
 
+		try {
+			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
+		} catch (BadLocationException e) {
+			return new ITypedRegion[0];
+		}
+	}
+	
 }

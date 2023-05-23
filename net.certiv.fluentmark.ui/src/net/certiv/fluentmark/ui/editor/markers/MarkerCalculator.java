@@ -24,7 +24,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.PartitionCalculator;
+import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class MarkerCalculator {
@@ -103,8 +103,10 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Calculate document partitions");
-		ITypedRegion[] typedRegions = PartitionCalculator.computePartitions(document);
+		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
 		if (typedRegions == null || typedRegions.length == 0) {
+			FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", resource.getLocation().toString()));
+			
 			return;
 		}
 		
