@@ -31,6 +31,7 @@
     <stringAttribute key="pde.version" value="3.3"/>
     <stringAttribute key="product" value="org.eclipse.platform.ide"/>
     <setAttribute key="selected_target_bundles">
+        <setEntry value="com.google.gson@default:default"/>
         <setEntry value="com.google.guava@default:default"/>
         <setEntry value="com.ibm.icu*67.1.0.v20200706-1749@default:default"/>
         <setEntry value="com.jcraft.jsch@default:default"/>
@@ -374,6 +375,7 @@
     <setAttribute key="selected_workspace_bundles">
         <setEntry value="com.advantest.fluentmark.extensions.svgbuilder@default:default"/>
         <setEntry value="com.advantest.fluentmark.extensions.ui@default:default"/>
+        <setEntry value="com.advantest.fluentmark.extensions.validations@default:default"/>
         <setEntry value="net.certiv.fluentmark.core@default:default"/>
         <setEntry value="net.certiv.fluentmark.ui@default:default"/>
         <setEntry value="net.certiv.spellchecker@default:default"/>

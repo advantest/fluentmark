@@ -16,7 +16,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 
@@ -42,9 +42,9 @@ public class ValidationDocumentSetupParticipant implements IDocumentSetupPartici
 				
                 if (activeEditor != null) {
                     IEditorInput editorInput = activeEditor.getEditorInput();
-                    IResource resource = editorInput.getAdapter(IResource.class);
+                    IFile file = editorInput.getAdapter(IFile.class);
                     
-                    MarkerCalculator.get().scheduleMarkerCalculation(document, resource);
+                    MarkerCalculator.get().scheduleMarkerCalculation(document, file);
                 }
 			}
 			

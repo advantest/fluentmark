@@ -9,6 +9,7 @@
  */
 package net.certiv.fluentmark.ui.editor.markers;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 
@@ -18,18 +19,29 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.editor.FluentDocumentSetupParticipant;
 
 public class MarkerCalculator {
+
+	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private static final MarkerCalculator INSTANCE = new MarkerCalculator();
 	
@@ -37,6 +49,8 @@ public class MarkerCalculator {
 	
 	private Job markerCalculatingJob;
 	
+	private final LinkedList<IFile> filesQueue = new LinkedList<>();
+	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
@@ -71,18 +85,98 @@ public class MarkerCalculator {
 		return null;
 	}
 	
-	public void scheduleMarkerCalculation(IDocument document, IResource resource) {
-		if (markerCalculatingJob != null) {
-        	markerCalculatingJob.cancel();
-        }
-        markerCalculatingJob = Job.create("Re-calculating problem markers",
-        		(ICoreRunnable) monitor -> calculateMarkers(monitor, document, resource)); 
-        markerCalculatingJob.setUser(false);
-        markerCalculatingJob.setPriority(Job.DECORATE);
-        
-        // set a delay before reacting to user action to handle continuous typing
-        markerCalculatingJob.schedule(1000);
+	public void scheduleMarkerCalculation(IDocument document, IFile markdownFile) {
+		if (markdownFile == null || !markdownFile.isAccessible()) {
+			return;
+		}
+		
+		if (!"md".equalsIgnoreCase(markdownFile.getFileExtension())) {
+			throw new IllegalArgumentException(
+					String.format("Expected a Markdown file, but got %s.", markdownFile.getName()));
+		}
+		
+		synchronized(filesQueue) {
+			filesQueue.addLast(markdownFile);
+		}
+		
+		synchronized(filesDocumentsMap) {
+			if (document != null) {
+				filesDocumentsMap.put(markdownFile, document);
+			}
+		}
+		
+		scheduleMarkerCalculation();
 	}
+	
+	public void scheduleMarkerCalculation(IFile markdownFile) {
+		scheduleMarkerCalculation(null, markdownFile);
+	}
+	
+	private void scheduleMarkerCalculation() {
+		if (markerCalculatingJob == null) {
+			markerCalculatingJob = Job.create("Re-calculating problem markers", new ICoreRunnable() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws CoreException {
+					while (!monitor.isCanceled()
+							&& !filesQueue.isEmpty()) {
+						
+						IFile file;
+						synchronized (filesQueue) {
+							file = filesQueue.pollFirst();
+						}
+						
+						IDocument document;
+						synchronized (filesDocumentsMap) {
+							document = filesDocumentsMap.get(file);
+							
+							if (document != null) {
+								filesDocumentsMap.remove(file);
+							}
+						}
+						
+						if (document == null) {
+							String markdownFileContents = readFileContents(file);
+							document = new Document(markdownFileContents);
+							connectPartitioningToElement(document);
+						}
+						
+						calculateMarkers(monitor, document, file);
+					}
+				}
+				
+			});
+			markerCalculatingJob.setUser(false);
+			markerCalculatingJob.setPriority(Job.DECORATE);
+		}
+
+		if (markerCalculatingJob.getState() != Job.RUNNING) {
+			// set a delay before reacting to user action to handle continuous typing
+			markerCalculatingJob.schedule(1000);
+		}
+	}
+	
+	private String readFileContents(IFile markdownFile) {
+		try (InputStream fileInputStream = markdownFile.getContents()) {
+			return new String(fileInputStream.readAllBytes(), UTF8);
+		} catch (IOException | CoreException e) {
+			FluentUI.log(IStatus.ERROR,
+					String.format("Couldn't read file %s", markdownFile.getFullPath().toString()), e);
+		}
+		
+		return null;
+	}
+	
+	private void connectPartitioningToElement(IDocument document) {
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 extension = (IDocumentExtension3) document;
+			if (extension.getDocumentPartitioner(Partitions.PARTITIONING) == null) {
+				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(FluentUI.getDefault().getTextTools());
+				participant.setup(document);
+			}
+		}
+	}
+	
 	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IResource resource) throws CoreException {
 		if (monitor.isCanceled()) {
@@ -103,10 +197,10 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Calculate document partitions");
-		ITypedRegion[] typedRegions;
-		try {
-			typedRegions = TextUtilities.computePartitioning(document, Partitions.PARTITIONING, 0, document.getLength(), false);
-		} catch (BadLocationException e) {
+		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
+		if (typedRegions == null || typedRegions.length == 0) {
+			FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", resource.getLocation().toString()));
+			
 			return;
 		}
 		

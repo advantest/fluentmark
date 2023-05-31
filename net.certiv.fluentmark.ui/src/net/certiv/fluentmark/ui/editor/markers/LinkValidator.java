@@ -17,8 +17,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SafeRunner;
 
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
@@ -28,13 +30,15 @@ import org.eclipse.jface.text.ITypedRegion;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import java.io.File;
@@ -47,6 +51,7 @@ import java.time.Duration;
 
 import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 
@@ -78,6 +83,8 @@ public class LinkValidator implements ITypedRegionValidator {
 	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
+	private HttpClient httpClient;
+	
 	
 	public LinkValidator() {
 		LINK_PATTERN = Pattern.compile(REGEX_LINK);
@@ -99,14 +106,14 @@ public class LinkValidator implements ITypedRegionValidator {
 
 	@Override
 	public void validateRegion(ITypedRegion region, IDocument document, IResource resource) throws CoreException {
-		String content;
+		String regionContent;
 		try {
-			content = document.get(region.getOffset(), region.getLength());
+			regionContent = document.get(region.getOffset(), region.getLength());
 		} catch (BadLocationException e) {
 			return;
 		}
 
-		Matcher linkMatcher = LINK_PATTERN.matcher(content);
+		Matcher linkMatcher = LINK_PATTERN.matcher(regionContent);
 		boolean found = linkMatcher.find();
 		
 		// go through all the link statements in this region and check each of them
@@ -114,12 +121,12 @@ public class LinkValidator implements ITypedRegionValidator {
 			String currentLinkMatch = linkMatcher.group();
 			int startIndex = linkMatcher.start();
 			
-			validateLinkStatement(region, document, resource, currentLinkMatch, startIndex);
+			validateLinkStatement(region, document, resource, currentLinkMatch, startIndex, regionContent);
 			
 			found = linkMatcher.find();
 		}
 		
-		Matcher linkRefDefMatcher = LINK_REF_DEF_PATTERN.matcher(content);
+		Matcher linkRefDefMatcher = LINK_REF_DEF_PATTERN.matcher(regionContent);
 		found = linkRefDefMatcher.find();
 		
 		while (found) {
@@ -134,7 +141,7 @@ public class LinkValidator implements ITypedRegionValidator {
 
 
 	private void validateLinkStatement(ITypedRegion region, IDocument document, IResource resource,
-			String linkStatement, int linkStatementStartIndexInRegion) throws CoreException {
+			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
 		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
 		boolean foundPrefix = prefixMatcher.find();
@@ -142,6 +149,40 @@ public class LinkValidator implements ITypedRegionValidator {
 		int linkTargetStartIndex = prefixMatcher.end();
 		
 		String linkTarget = linkStatement.substring(linkTargetStartIndex, linkStatement.length() - 1);
+		
+		if (linkTarget.contains("(")) {
+			// In some cases the regex for links doesn't catch the last ')'. Thus we have to parse the text once again
+			// Here is an example of such a case where the regex doesn't match correctly (last ')' is missing):
+			// [a method in Java code](SomeClass.java#doSomething(String)
+			// Changing the regex to match the ')' greedy instead of lazy would result in wrong matches
+			// in lines where we have more than one link statement.
+			// The greedy match would match the last ')' in the line.
+			
+			String linkTargetWithRest = regionContent.substring(linkStatementStartIndexInRegion + linkTargetStartIndex);
+			String[] lines = linkTargetWithRest.split("\\n");
+			linkTargetWithRest = lines[0];
+			
+			// parse link statement in the current line
+			int pos = 0;
+			int roundBracketsNotClosedYet = 1;
+			int endIndex = -1;
+			while (pos < linkTargetWithRest.length() && endIndex < 0) {
+				char currentChar = linkTargetWithRest.charAt(pos);
+				
+				if (currentChar == '(') {
+					roundBracketsNotClosedYet++;
+				} else if (currentChar == ')') {
+					roundBracketsNotClosedYet--;
+					if (roundBracketsNotClosedYet == 0) {
+						endIndex = pos;
+					}
+				}
+				
+				pos++;
+			}
+			
+			linkTarget = linkTargetWithRest.substring(0, endIndex);
+		}
 		
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, resource, linkStatementStartIndexInRegion);
 	}
@@ -314,12 +355,57 @@ public class LinkValidator implements ITypedRegionValidator {
 		return absolutePath;
 	}
 	
+	private HttpClient getHttpClient() {
+		if (this.httpClient == null) {
+			this.httpClient = HttpClient.newBuilder()
+					  .version(Version.HTTP_2)
+					  .followRedirects(Redirect.NEVER)
+					  .build();
+		}
+		return this.httpClient;
+	}
+	
 	private IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
-		// try resolving the URL
-		
 		if (uriText == null) {
 			return null;
 		}
+		
+		// run all the URI validators from extensions, first
+		List<IUriValidator> uriValidators = UriValidatorsManager.getInstance().getUriValidators();
+		for (IUriValidator uriValidator : uriValidators) {
+			if (uriValidator.isResponsibleFor(uriText)) {
+				final List<IMarker> markers = new ArrayList<>(1);
+				
+				ISafeRunnable runnable = new ISafeRunnable() {
+		            @Override
+		            public void handleException(Throwable e) {
+		            	Exception ex;
+		            	if (e instanceof Exception) {
+		            		ex = (Exception) e;
+		            	} else {
+		            		ex = new RuntimeException(e);
+		            	}
+		            	FluentUI.log(IStatus.WARNING, String.format("Could not run URI validator \"%s\".", uriValidator.getClass().getName()), ex);
+		            }
+
+		            @Override
+		            public void run() throws Exception {
+		            	if (uriValidator.isResponsibleFor(uriText)) {
+		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, getHttpClient()));
+		            	}
+		            }
+		        };
+		        SafeRunner.run(runnable);
+		        
+		        if (markers.size() > 0) {
+		        	return markers.get(0);
+		        }
+		        
+		        // do not run other validations if we found a responsible validator from extensions
+		        return null;
+			}
+		}
+		
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
@@ -341,31 +427,22 @@ public class LinkValidator implements ITypedRegionValidator {
 					offset + uriText.length());
 		}
 		
-		HttpClient client = HttpClient.newBuilder()
-		  .version(Version.HTTP_2)
-		  .followRedirects(Redirect.NEVER)
-		  .build();
+		
+		HttpClient client = getHttpClient();
 		
 		// we only need HTTP HEAD, no page content, just reachability
-		Builder httpRequestBuilder = HttpRequest.newBuilder()
-		      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
-		      .uri(uri)
-		      .timeout(Duration.ofSeconds(2));
-		
-		// TODO authenticate in case of Advantest-internal web sites Jira, Confluence, etc.
-		/*
-		 * if (linkTarget.startsWith("https://REMOVED.advantest.com/") ||
-		 * linkTarget.startsWith("https://REMOVED.advantest.com/")) { httpRequestBuilder
-		 * = httpRequestBuilder // TODO Save user's personal access token somewhere
-		 * .header("Authorization", "Bearer <Personal-Access-Token>"); }
-		 */
-		
-		HttpRequest headRequest = httpRequestBuilder.build();
+		HttpRequest headRequest = HttpRequest.newBuilder()
+			      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
+			      .uri(uri)
+			      .timeout(Duration.ofSeconds(2))
+			      .build();
 		
 		int statusCode = -1;
+		String errorMessage = null;
 		try {
-			statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode();
+			statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode(); 
 		} catch (IOException | InterruptedException e) {
+			errorMessage = e.getMessage();
 			statusCode = -404;
 		}
 		
@@ -377,15 +454,45 @@ public class LinkValidator implements ITypedRegionValidator {
 					offset + uriText.length());
 		} else if (statusCode == -404) {
 			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' seems not to exist.", uriText),
+					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
 					lineNumber,
 					offset,
 					offset + uriText.length());
-		} //else if (statusCode >= 300) {
-		//	FluentmarkAeUiActivator.log(IStatus.WARNING, String.format("Could not check URL %s. HTTP status code %s.", linkTarget, statusCode));
-		//}
+		}
 		
 		return null;
+	}
+	
+	private String removeQueryParametersFromUrl(String urlText) {
+		if (urlText.contains("?")) {
+			String[] urlParts = urlText.split("\\?");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[0];
+			}
+			
+		}
+		return urlText;
+	}
+	
+	private String removeAnchorFromUrl(String urlText) {
+		if (urlText.contains("#")) {
+			String[] urlParts = urlText.split("#");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[0];
+			}
+			
+		}
+		return urlText;
+	}
+	
+	private String extractLastUrlSegment(String urlText) {
+		if (urlText.contains("/")) {
+			String[] urlParts = urlText.split("/");
+			if (urlParts != null && urlParts.length >= 0) {
+				return urlParts[urlParts.length - 1];
+			}
+		}
+		return urlText;
 	}
 	
 	private IMarker checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {

@@ -583,14 +583,27 @@ public class FluentEditor extends TextEditor
 	}
 
 	public String getLineDelimiter(IDocument doc) {
+		String lineDelimiter = null;
 		try {
-			if (doc != null) return doc.getLineDelimiter(0);
+			if (doc != null) {
+				lineDelimiter = doc.getLineDelimiter(0);
+			}
 		} catch (BadLocationException e) {}
 
+		if (lineDelimiter != null) {
+			return lineDelimiter;
+		}
+		
 		// workspace preference
 		IScopeContext[] scopeContext = new IScopeContext[] { InstanceScope.INSTANCE };
-		return Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR,
+		lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR,
 				Strings.EOL, scopeContext);
+		
+		if (lineDelimiter != null) {
+			return lineDelimiter;
+		}
+		
+		return System.lineSeparator();
 	}
 
 	public PageRoot getPageModel() {
