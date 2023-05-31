@@ -19,6 +19,7 @@
 	
 	<properties>
 		<flexmark-version>0.64.0</flexmark-version>
+		<plantuml-lib-version>1.2023.5</plantuml-lib-version>
 	</properties>
 
 	<dependencies>
@@ -85,7 +86,7 @@
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
 			<artifactId>plantuml</artifactId>
-			<version>1.2022.7</version>
+			<version>${plantuml-lib-version}</version>
 		</dependency>
 		
 		<dependency>
@@ -229,7 +230,7 @@
 								<artifactItem>
 									<groupId>net.sourceforge.plantuml</groupId>
 									<artifactId>plantuml</artifactId>
-									<version>1.2022.7</version>
+									<version>${plantuml-lib-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
