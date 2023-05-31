@@ -25,6 +25,7 @@ public class MarkdownToHtmlRenderer {
 		parser = new MarkdownParser();
 		MutableDataSet settings = parser.getSettings();
 		settings.set(HtmlRenderer.RENDER_HEADER_ID, true);
+		settings.set(HtmlRenderer.GENERATE_HEADER_ID, false);
 		this.htmlRenderer = HtmlRenderer.builder(parser.getSettings()).build();
 	}
 	
