@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.certiv.fluentmark.core.TestFileUtil;
-import net.certiv.fluentmark.core.render.html.MarkdownToHtmlRenderer;
+import net.certiv.fluentmark.core.markdown.renderer.html.MarkdownToHtmlRenderer;
 
 public class MarkdownToHtmlRendererTest {
 	
