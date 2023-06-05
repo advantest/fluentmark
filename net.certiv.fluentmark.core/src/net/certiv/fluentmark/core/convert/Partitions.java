@@ -40,6 +40,10 @@ public class Partitions {
 	public static ITypedRegion[] computePartitions(IDocument document) {
 		int beg = 0;
 		int len = document.getLength();
+		
+		if (len <= 0) {
+			return new ITypedRegion[0];
+		}
 
 		try {
 			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
