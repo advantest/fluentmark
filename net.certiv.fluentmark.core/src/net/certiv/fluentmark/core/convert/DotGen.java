@@ -45,7 +45,7 @@ public class DotGen {
 		CmdResult result = Cmd.process(args, null, data);
 		
 		if (result.hasErrors()) {
-			throw new IllegalStateException("Problems occured while translating DOT code:\n\n" + result.errOutput);
+			return createHtmlErrorMessage("Problems occured while translating DOT code:\n\n" + result.errOutput);
 		}
 		
 		String output = result.stdOutput; 
@@ -64,10 +64,19 @@ public class DotGen {
 		if (value != null && !value.trim().isEmpty()) {
 			dotCache.put(key, value);
 		} else {
-			throw new IllegalStateException("Dot created no output for" + Strings.EOL + data);
+			return createHtmlErrorMessage("Dot created no output for" + Strings.EOL + data);
 		}
 
 		return value;
+	}
+	
+	String createHtmlErrorMessage(String message) {
+		StringBuilder strBuilder = new StringBuilder();
+		strBuilder.append("<pre>");
+		strBuilder.append(Symbol.encode(message));
+		strBuilder.append("</pre>");
+		strBuilder.append(Strings.EOL);
+		return strBuilder.toString();
 	}
 	
 }
