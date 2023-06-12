@@ -39,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.renderer.html.MarkdownToHtmlRenderer;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -53,6 +54,7 @@ public class Converter {
 	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
 	private final PumlIncludeStatementConverter pumlInclusionConverter;
+	private final MarkdownToHtmlRenderer flexmarkHtmlRenderer = new MarkdownToHtmlRenderer();
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
@@ -63,10 +65,17 @@ public class Converter {
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
+		if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
+			String markdownSourceCode = document.get();
+			return flexmarkHtmlRenderer.renderHtml(markdownSourceCode);
+		}
+		
 		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {
+			case FLEXMARK:
+				return ""; // case is already handled above
 			case PANDOC:
 				text = getText(filePath, document, typedRegions, true);
 				return usePandoc(basepath, text, kind);

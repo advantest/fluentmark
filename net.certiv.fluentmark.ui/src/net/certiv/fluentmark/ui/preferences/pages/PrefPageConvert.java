@@ -7,12 +7,13 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.preferences.pages;
 
+import org.eclipse.ui.IWorkbench;
+
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IWorkbench;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.BaseFieldEditorPreferencePage;
@@ -25,6 +26,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 	private static final String[][] converters = new String[][] { //
 			{ "BlackFriday", KEY_BLACKFRIDAY }, //
 			{ "Commonmark", KEY_COMMONMARK }, //
+			{ "Flexmark", KEY_FLEXMARK }, //
 			{ "MarkdownJ", KEY_MARDOWNJ }, //
 			{ "Pandoc", KEY_PANDOC }, //
 			{ "PegDown", KEY_PEGDOWN }, //

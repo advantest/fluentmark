@@ -25,6 +25,8 @@ public class ConfigurationProvider implements IConfigurationProvider {
 	public ConverterType getConverterType() {
 		String converterKey = store.getString(Prefs.EDITOR_MD_CONVERTER);
 		switch (converterKey) {
+			case Prefs.KEY_FLEXMARK:
+				return ConverterType.FLEXMARK;
 			case Prefs.KEY_PANDOC:
 				return ConverterType.PANDOC;
 			case Prefs.KEY_BLACKFRIDAY:
