@@ -1,3 +1,4 @@
 **/target
 **/bin
 net.certiv.fluentmark.core/lib
+com.advantest.markdown.core/lib

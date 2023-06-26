@@ -18,6 +18,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.markdownj.MarkdownProcessor;
 import org.pegdown.PegDownProcessor;
 
+import com.advantest.markdown.renderer.html.MarkdownToHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
@@ -39,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.markdown.renderer.html.MarkdownToHtmlRenderer;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
