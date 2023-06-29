@@ -39,7 +39,7 @@ public class ConverterIT {
 	@Test
 	public void test() throws IOException {
 		// given
-		Path path = Paths.get("resources/parsing/feature-overview.md");
+		Path path = Paths.get("resources/md/test-headers.md");
 		String documentContent = Files.readString(path);
 		IDocument document = new Document(documentContent);
 		File tmpFile = new File(tempDir, "feature-overview.md");
