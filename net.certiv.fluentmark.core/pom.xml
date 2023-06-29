@@ -18,8 +18,9 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<flexmark-version>0.64.6</flexmark-version>
-		<plantuml-lib-version>1.2023.5</plantuml-lib-version>
+		<flexmark-version>0.64.8</flexmark-version>
+		<plantuml-lib-version>1.2023.9</plantuml-lib-version>
+		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
 	</properties>
 
 	<dependencies>
@@ -82,6 +83,12 @@
 			<artifactId>txtmark</artifactId>
 			<version>0.13</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.advantest.markdown</groupId>
+			<artifactId>markdown-core</artifactId>
+			<version>${markdown-core-version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
@@ -89,9 +96,45 @@
 			<version>${plantuml-lib-version}</version>
 		</dependency>
 		
-		<dependency>
+		<!--<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-all</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>-->
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-util</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-util-ast</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-plantuml</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-attributes</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-tables</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
 
@@ -227,13 +270,13 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 
-								<artifactItem>
+								<!--<artifactItem>
 									<groupId>net.sourceforge.plantuml</groupId>
 									<artifactId>plantuml</artifactId>
 									<version>${plantuml-lib-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-								</artifactItem>
+								</artifactItem>-->
 
 							</artifactItems>
 
@@ -244,7 +287,7 @@
 						</configuration>
 					</execution>
 					
-					<execution>
+					<!--<execution>
 						<id>copy-flexmark</id>
 						<phase>process-resources</phase>
 						<goals>
@@ -258,6 +301,33 @@
 									<groupId>com.vladsch.flexmark</groupId>
     								<artifactId>flexmark-all</artifactId>
     								<version>${flexmark-version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
+							</artifactItems>
+
+							<outputDirectory>lib</outputDirectory>
+							<stripVersion>false</stripVersion>
+							<overWriteRelease>true</overWriteRelease>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>-->
+					
+					<execution>
+						<id>copy-markdown-core</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+
+								<artifactItem>
+									<groupId>com.advantest.markdown</groupId>
+									<artifactId>markdown-core</artifactId>
+									<version>${markdown-core-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
