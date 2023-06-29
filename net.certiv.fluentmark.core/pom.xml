@@ -90,55 +90,6 @@
 			<version>${markdown-core-version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
-			<version>${plantuml-lib-version}</version>
-		</dependency>
-		
-		<!--<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-all</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>-->
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-util</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-util-ast</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-plantuml</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-attributes</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-tables</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-
-
 	</dependencies>
 
 	<build>
@@ -270,14 +221,6 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 
-								<!--<artifactItem>
-									<groupId>net.sourceforge.plantuml</groupId>
-									<artifactId>plantuml</artifactId>
-									<version>${plantuml-lib-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>-->
-
 							</artifactItems>
 
 							<outputDirectory>lib</outputDirectory>
@@ -286,33 +229,6 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
-					
-					<!--<execution>
-						<id>copy-flexmark</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<artifactItem>
-									<groupId>com.vladsch.flexmark</groupId>
-    								<artifactId>flexmark-all</artifactId>
-    								<version>${flexmark-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-							</artifactItems>
-
-							<outputDirectory>lib</outputDirectory>
-							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>-->
 					
 					<execution>
 						<id>copy-markdown-core</id>
@@ -340,6 +256,7 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
+					
 				</executions>
 			</plugin>
 			
