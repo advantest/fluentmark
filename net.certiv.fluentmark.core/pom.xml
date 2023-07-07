@@ -22,6 +22,13 @@
 		<plantuml-lib-version>1.2023.9</plantuml-lib-version>
 		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
 	</properties>
+	
+	<repositories>
+		<repository>
+			<id>advantest-artifactory-repo</id>
+			<url>https://REMOVED.advantest.com/${ARTIFACTORY_REPO}</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 
