@@ -24,6 +24,8 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 
+import net.certiv.fluentmark.ui.editor.FluentEditor;
+
 public class ValidationDocumentSetupParticipant implements IDocumentSetupParticipant {
 	
 	@Override
@@ -40,7 +42,7 @@ public class ValidationDocumentSetupParticipant implements IDocumentSetupPartici
 				// if there is no active editor open, we cannot access the resource
 				// and, thus, cannot create markers (or I don't know how, yet)
 				
-                if (activeEditor != null) {
+                if (activeEditor != null && activeEditor instanceof FluentEditor) {
                     IEditorInput editorInput = activeEditor.getEditorInput();
                     IFile file = editorInput.getAdapter(IFile.class);
                     
