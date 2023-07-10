@@ -548,13 +548,11 @@ code, tt {
     margin-left: 50px;
     margin-right: 50px;
     margin-top: 30px;
-    margin-bottom: 25px;
-    max-width: 800px; } }
+    margin-bottom: 25px; } }
 @media (min-width: 1801px) {
   body {
     font-size: 16px;
     margin-left: 20%;
     margin-right: 20%;
     margin-top: 30px;
-    margin-bottom: 25px;
-    max-width: 1000px; } }
+    margin-bottom: 25px; } }
