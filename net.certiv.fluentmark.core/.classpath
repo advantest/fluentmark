@@ -18,6 +18,6 @@
 	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime-4.7.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2023.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2023.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
