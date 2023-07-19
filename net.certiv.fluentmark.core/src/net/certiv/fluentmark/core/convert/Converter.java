@@ -340,6 +340,15 @@ public class Converter {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
         	svgDiagram = umlGen.uml2svg(plantUmlCode);
+        	
+        	// remove meta-infos since we're only interested in the SVG tag contents
+        	// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
+        	if (svgDiagram.startsWith("<?xml ")) {
+        		int indexOfEndTag = svgDiagram.indexOf("?>");
+        		if (indexOfEndTag >= 0) {
+        			svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
+        		}
+        	}
         }
         return svgDiagram;
 	}
