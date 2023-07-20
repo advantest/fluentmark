@@ -49,6 +49,8 @@ public class Converter {
 	private static final Pattern DOTBEG = Pattern.compile("(~~~+|```+)\\s*dot\\s*", Pattern.DOTALL);
 	private static final Pattern DOTEND = Pattern.compile("(~~~+|```+)\\s*", Pattern.DOTALL);
 	
+	private static final String PANDOC_EXTENSIONS_FOR_MARKDOWN = "+raw_html+header_attributes+auto_identifiers+implicit_figures+implicit_header_references+strikeout+footnotes+backtick_code_blocks+fenced_code_blocks+fenced_code_attributes+startnum+simple_tables+multiline_tables+grid_tables+pipe_tables+table_captions+task_lists+subscript+superscript+tex_math_dollars";
+	
 	private final IConfigurationProvider configurationProvider;
 	private final DotGen dotGen;
 	private final UmlGen umlGen;
@@ -150,9 +152,11 @@ public class Converter {
 		if (configurationProvider.useMathJax()) args.add("--mathjax");
 		if (configurationProvider.isSmartMode()) {
 			args.add("-f");
-			args.add("markdown-smart");
+			args.add("markdown-smart" + PANDOC_EXTENSIONS_FOR_MARKDOWN);
 		} else {
 			args.add("--ascii");
+			args.add("-f");
+			args.add("markdown_strict" + PANDOC_EXTENSIONS_FOR_MARKDOWN);
 		}
 		
 		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
@@ -345,6 +349,15 @@ public class Converter {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
         	svgDiagram = umlGen.uml2svg(plantUmlCode);
+        	
+        	// remove meta-infos since we're only interested in the SVG tag contents
+        	// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
+        	if (svgDiagram.startsWith("<?xml ")) {
+        		int indexOfEndTag = svgDiagram.indexOf("?>");
+        		if (indexOfEndTag >= 0) {
+        			svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
+        		}
+        	}
         }
         return svgDiagram;
 	}
