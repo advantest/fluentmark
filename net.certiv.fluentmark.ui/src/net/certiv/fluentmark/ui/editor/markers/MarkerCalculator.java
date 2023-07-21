@@ -43,6 +43,8 @@ public class MarkerCalculator {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
+	private static final String JOB_NAME = "Re-calculating problem markers";
+	
 	private static final MarkerCalculator INSTANCE = new MarkerCalculator();
 	
 	private List<ITypedRegionValidator> validators;
@@ -114,10 +116,12 @@ public class MarkerCalculator {
 	
 	private void scheduleMarkerCalculation() {
 		if (markerCalculatingJob == null) {
-			markerCalculatingJob = Job.create("Re-calculating problem markers", new ICoreRunnable() {
+			markerCalculatingJob = Job.create(JOB_NAME, new ICoreRunnable() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws CoreException {
+					monitor.beginTask(JOB_NAME, filesQueue.size());
+					
 					while (!monitor.isCanceled()
 							&& !filesQueue.isEmpty()) {
 						
@@ -125,6 +129,7 @@ public class MarkerCalculator {
 						synchronized (filesQueue) {
 							file = filesQueue.pollFirst();
 						}
+						monitor.subTask(file.getLocation().toString());
 						
 						IDocument document;
 						synchronized (filesDocumentsMap) {
@@ -142,6 +147,7 @@ public class MarkerCalculator {
 						}
 						
 						calculateMarkers(monitor, document, file);
+						monitor.worked(1);
 					}
 				}
 				
