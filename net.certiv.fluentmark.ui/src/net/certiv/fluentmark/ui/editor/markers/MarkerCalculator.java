@@ -98,7 +98,9 @@ public class MarkerCalculator {
 		}
 		
 		synchronized(filesQueue) {
-			filesQueue.addLast(markdownFile);
+			if (!filesQueue.contains(markdownFile)) {
+				filesQueue.addLast(markdownFile);
+			}
 		}
 		
 		synchronized(filesDocumentsMap) {
