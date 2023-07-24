@@ -48,7 +48,6 @@ import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.editor.strategies.DoubleClickStrategy;
-import net.certiv.fluentmark.ui.editor.strategies.LineWrapEditStrategy;
 import net.certiv.fluentmark.ui.editor.strategies.PairEditStrategy;
 import net.certiv.fluentmark.ui.editor.strategies.SmartAutoEditStrategy;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
@@ -204,8 +203,10 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 				// new LineWrapEditStrategy(editor), new PairEditStrategy() };
 
 			default:
-				return new IAutoEditStrategy[] { new SmartAutoEditStrategy(partitioning),
-						new LineWrapEditStrategy(editor), new PairEditStrategy() };
+				return new IAutoEditStrategy[] {
+						new SmartAutoEditStrategy(partitioning),
+						//new LineWrapEditStrategy(editor),
+						new PairEditStrategy() };
 		}
 	}
 
