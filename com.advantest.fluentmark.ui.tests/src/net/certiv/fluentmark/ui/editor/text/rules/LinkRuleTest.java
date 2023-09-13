@@ -18,6 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 
 public class LinkRuleTest {
@@ -112,6 +114,22 @@ public class LinkRuleTest {
 	@Test
 	public void shortcutReferenceLinkMatches() {
 		scanner = new CharacterScannerMock("[Link label]");
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+	}
+	
+	// for link reference definitions see https://spec.commonmark.org/0.30/#link-reference-definition
+	
+	@ParameterizedTest(name = "[{index}] Input: \"{0}\" is successfully parsed")
+	@ValueSource(strings = { "[adv]: https://www.advantest.com \"Advantest Europe\"",
+		        "[adv]: https://www.advantest.com",
+		        "[adv]:https://www.advantest.com",
+		        "   [adv]: https://www.advantest.com",
+		        "[adv]:\nhttps://www.advantest.com"})
+	public void linkReferenceDefinitionsMatch(String input) {
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
