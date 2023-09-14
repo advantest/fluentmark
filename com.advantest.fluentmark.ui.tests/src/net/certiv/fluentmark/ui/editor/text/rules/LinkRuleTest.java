@@ -16,7 +16,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -77,16 +76,6 @@ public class LinkRuleTest {
 		
 		// we read '[Text]' which could be a link, but ignore the rest of the text
 		assertEquals(successToken, resultToken);
-	}
-	
-	@Disabled
-	@Test
-	public void wrongCharCombinationDoesntMatch_HMR_102() {
-		scanner = new CharacterScannerMock("[Text (more)]");
-		
-		IToken resultToken = rule.evaluate(scanner);
-		
-		assertEquals(Token.UNDEFINED, resultToken);
 	}
 	
 	
