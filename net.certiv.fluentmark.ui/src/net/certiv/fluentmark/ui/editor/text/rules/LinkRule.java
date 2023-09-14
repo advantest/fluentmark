@@ -90,13 +90,6 @@ public class LinkRule implements IRule {
 		// https://spec.commonmark.org/0.30/#reference-link,
 		// and https://spec.commonmark.org/0.30/#link-reference-definition
 		
-		
-		boolean firstClosingSquareBracketFound = false;  // did we read ']'?
-		boolean openingRoundBracketFound = false;        // did we read '('?
-		boolean secondOpeningSquareBracketFound = false; // did we read a second '['?
-		boolean closingRoundBracketFound = false;        // did we read ')'?
-		boolean secondClosingSquareBracketFound = false; // did we read a second ']'?
-		
 		// find next non-escaped ']' or end of String
 		int readCount = 1;
 		int lastChar;
@@ -177,52 +170,56 @@ public class LinkRule implements IRule {
 			} else {
 				return fToken;
 			}
-		} else {
-			// TODO finish reading link reference definition
+		} else { // case: c == ':'
+			// try reading until we find the first non-whitespace char
+			int lineBreaks = 0;
+			do {
+				lastChar = c;
+				c = scanner.read();
+				readCount++;
+				
+				// check if we have found a line break and count it
+				for (int i = 0; i < fDelimiters.length; i++) {
+					if ( c == fDelimiters[i][0]) {
+						if (fDelimiters[i].length == 1) {
+							lineBreaks++;
+						} else { // we have a two-char line break, i.e. \r\n
+							// look ahead
+							int next = scanner.read();
+							scanner.unread();
+							
+							if (next == fDelimiters[i][1] && fDelimiters.length == 2) {
+								lineBreaks++;
+							}
+						}
+					}
+				}
+			} while (c != ICharacterScanner.EOF && Character.isWhitespace(c) && lineBreaks < 2);
+			
+			// do we have a non-whitespace char now?
+			if (lineBreaks > 1 || c == ICharacterScanner.EOF || Character.isWhitespace(c)) {
+				// un-read read chars
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
+				
+				return Token.UNDEFINED;
+			}
+			
+			// now, let's read the link reference definition's URI or path
+			do {
+				lastChar = c;
+				c = scanner.read();
+				readCount++;
+			} while (c != ICharacterScanner.EOF && !Character.isWhitespace(c));
+			
+			if (Character.isWhitespace(c)) {
+				scanner.unread();
+			}
+			
 			return fToken;
 		}
-//		else if (c == ':') {
-//			// this seems to be a link reference definition, let's try reading the rest
-//			do {
-//				lastChar = c;
-//				c = scanner.read();
-//				readCount++;
-//			} while (c != ICharacterScanner.EOF && Character.isWhitespace(c));
-//			
-//			if (c != ICharacterScanner.EOF)
-//		}
-		
-		//----------------------------------
-		
-//		boolean sequenceFound = false;
-//		int delimiterFound = 0;
-//		while ((c = scanner.read()) != ICharacterScanner.EOF && delimiterFound < 2) {
-//			readCount++;
-//			if (!sequenceFound && c == ']') {
-//				c = scanner.read();
-//				if (c == '(') {
-//					readCount++;
-//					sequenceFound = true;
-//				} else {
-//					scanner.unread();
-//				}
-//			} else if (c == ')') { // '](' is already found
-//				return fToken;
-//			}
-//
-//			int i;
-//			for (i = 0; i < fDelimiters.length; i++) {
-//				if (c == fDelimiters[i][0] && sequenceDetected(scanner, fDelimiters[i], true)) {
-//					delimiterFound++;
-//					break;
-//				}
-//			}
-//			if (i == fDelimiters.length) delimiterFound = 0;
-//		}
-//
-//		for (; readCount > 0; readCount--) {
-//			scanner.unread();
-//		}
-//		return Token.UNDEFINED;
 	}
+	
 }

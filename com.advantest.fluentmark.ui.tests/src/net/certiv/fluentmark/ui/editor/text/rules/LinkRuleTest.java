@@ -125,7 +125,6 @@ public class LinkRuleTest {
 	@ValueSource(strings = { "[adv]: https://www.advantest.com \"Advantest Europe\"",
 		        "[adv]: https://www.advantest.com",
 		        "[adv]:https://www.advantest.com",
-		        //"   [adv]: https://www.advantest.com",
 		        "[adv]:\nhttps://www.advantest.com"})
 	public void linkReferenceDefinitionsMatch(String input) {
 		scanner = new CharacterScannerMock(input);
