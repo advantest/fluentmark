@@ -41,18 +41,11 @@ public class LinkRuleTest {
 		scanner = null;
 	}
 	
-	@Test
-	public void simpleHttpLinkMatches() {
-		scanner = new CharacterScannerMock("[Solunar](https://www.solunar.de)");
-		
-		IToken resultToken = rule.evaluate(scanner);
-		
-		assertEquals(successToken, resultToken);
-	}
-	
-	@Test
-	public void simpleFileLinkMatches() {
-		scanner = new CharacterScannerMock("[Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)");
+	@ParameterizedTest(name = "[{index}] Link {0} is successfully parsed")
+	@ValueSource(strings = { "[Solunar](https://www.solunar.de)",
+			"[Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
+	public void simpleHttpLinkMatches(String input) {
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -110,7 +103,7 @@ public class LinkRuleTest {
 	
 	// for link reference definitions see https://spec.commonmark.org/0.30/#link-reference-definition
 	
-	@ParameterizedTest(name = "[{index}] Input: \"{0}\" is successfully parsed")
+	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
 	@ValueSource(strings = { "[adv]: https://www.advantest.com \"Advantest Europe\"",
 		        "[adv]: https://www.advantest.com",
 		        "[adv]:https://www.advantest.com",
