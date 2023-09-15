@@ -68,7 +68,23 @@ public class LinkRuleTest {
 		IToken resultToken = rule.evaluate(scanner);
 		
 		// we read '[Text]' which could be a link, but ignore the rest of the text
+		// Unfortunately, this test cannot check which parts of the given String is matched
 		assertEquals(successToken, resultToken);
+	}
+	
+	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
+	@ValueSource(strings = { "[Solunar\\](https://www.solunar.de)",
+			"\\[label](some/path/to/a_file.puml)",
+			"[label]:",
+			"[label]: ",
+			"[label]: \n\n some/path/to/a_file.puml",
+			"[label]: \n \t \n https://www.advantest.com"})
+	public void stringsNotMatchedAsLinks(String input) {
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
 	}
 	
 	
