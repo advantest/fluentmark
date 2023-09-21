@@ -26,6 +26,8 @@ import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.dot.GraphvizUtils;
 import net.sourceforge.plantuml.preproc.Defines;
+import net.sourceforge.plantuml.security.SecurityProfile;
+import net.sourceforge.plantuml.security.SecurityUtils;
 
 public class UmlGen {
 
@@ -53,6 +55,12 @@ public class UmlGen {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
 
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		System.setProperty("ALLOW_PLANTUML_INCLUDE", "true");
+		
+		SecurityProfile plantUmlSecurityProfile = SecurityUtils.getSecurityProfile();
+		
+		
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
 			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
@@ -77,6 +85,11 @@ public class UmlGen {
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
+		
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		System.setProperty("ALLOW_PLANTUML_INCLUDE", "true");
+		
+		SecurityProfile plantUmlSecurityProfile = SecurityUtils.getSecurityProfile();
 		
 		File sourceFile = new File(pumlSourceFile.getLocation().toString());
 		File targetDir = sourceFile.getParentFile();
