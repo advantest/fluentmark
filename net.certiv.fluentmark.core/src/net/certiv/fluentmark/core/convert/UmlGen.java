@@ -53,6 +53,8 @@ public class UmlGen {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
 
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
 			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
@@ -77,6 +79,8 @@ public class UmlGen {
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
+		
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 		
 		File sourceFile = new File(pumlSourceFile.getLocation().toString());
 		File targetDir = sourceFile.getParentFile();
