@@ -74,6 +74,23 @@ public class UmlGen {
 	}
 	
 	public IFile uml2svg(IFile pumlSourceFile) {
+		File sourceFile = new File(pumlSourceFile.getLocation().toString());
+		File targetFile = uml2svg(sourceFile);
+		
+		if (targetFile != null) {
+			IFile file = (IFile) pumlSourceFile.getParent().findMember(targetFile.getName());
+			return file;
+		}
+		
+		return null;
+	}
+	
+	public File uml2svg(File pumlSourceFile) {
+		return uml2svg(pumlSourceFile, null);
+	}
+
+
+	public File uml2svg(File pumlSourceFile, File targetDirectory) {
 		
 		String dotexe = configurationProvider.getDotCommand();
 		if (!dotexe.isEmpty()) {
@@ -82,13 +99,12 @@ public class UmlGen {
 		
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 		
-		File sourceFile = new File(pumlSourceFile.getLocation().toString());
-		File targetDir = sourceFile.getParentFile();
+		File targetDir = targetDirectory == null ? pumlSourceFile.getParentFile() : targetDirectory;
 		File targetFile = null;
 		SourceFileReader reader;
 		try {
-			reader = new SourceFileReader(Defines.createWithFileName(sourceFile),
-					sourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
+			reader = new SourceFileReader(Defines.createWithFileName(pumlSourceFile),
+					pumlSourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
 			reader.setCheckMetadata(true);
 			List<GeneratedImage> list = reader.getGeneratedImages();
 			
@@ -97,15 +113,10 @@ public class UmlGen {
 				targetFile = img.getPngFile();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getLocation().toString(), e);
+			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getAbsolutePath(), e);
 		}
 		
-		if (targetFile != null) {
-			IFile file = (IFile) pumlSourceFile.getParent().findMember(targetFile.getName());
-			return file;
-		}
-
-		return null;
+		return targetFile;
 	}
 	
 }
