@@ -10,14 +10,12 @@ import org.eclipse.core.resources.IFile;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -28,8 +26,6 @@ import net.sourceforge.plantuml.dot.GraphvizUtils;
 import net.sourceforge.plantuml.preproc.Defines;
 
 public class UmlGen {
-
-	private static final Map<Integer, String> umlCache = new LRUCache<>(20);
 
 	private IConfigurationProvider configurationProvider;
 
@@ -42,12 +38,6 @@ public class UmlGen {
 	}
 
 	public String uml2svg(String data) {
-
-		// return cached value, if present
-		int key = data.hashCode();
-		String value = umlCache.get(key);
-		if (value != null) return value;
-
 		String dotexe = configurationProvider.getDotCommand();
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
@@ -55,19 +45,13 @@ public class UmlGen {
 
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 		
+		String value;
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
 			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
 			value = new String(os.toByteArray(), Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new RuntimeException("PlantUML exception on" + Strings.EOL + data, e);
-		}
-
-		// update cache if valid value
-		if (value != null && !value.trim().isEmpty()) {
-			umlCache.put(key, value);
-		} else {
-			return "";
 		}
 
 		return value;
