@@ -6,7 +6,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,8 +66,18 @@ public class UmlGen {
 		File targetFile = uml2svg(sourceFile);
 		
 		if (targetFile != null) {
-			IFile file = (IFile) pumlSourceFile.getParent().findMember(targetFile.getName());
-			return file;
+			IContainer parentFolder = pumlSourceFile.getParent();
+			try {
+				parentFolder.refreshLocal(IResource.DEPTH_ONE, null);
+				IFile file = (IFile) parentFolder.findMember(targetFile.getName());
+				return file;
+			} catch (CoreException e) {
+				throw new RuntimeException(
+						String.format(
+								"Could not refresh (read files in) path %s",
+								parentFolder.getLocation().toString()),
+						e);
+			}
 		}
 		
 		return null;
