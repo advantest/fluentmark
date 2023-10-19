@@ -164,10 +164,12 @@ public class TableModel {
 	private void calcColWidths() {
 		colWidths = new int[numCols];
 		for (int col = 0; col < numCols; col++) {
-			colWidths[col] = aligns[col] == SWT.CENTER ? 5 : 4;
+			colWidths[col] = (col < aligns.length && aligns[col] == SWT.CENTER) ? 5 : 4;
 			for (Row row : rows) {
 				if (row.row == formatRow) continue;
-				colWidths[col] = Math.max(colWidths[col], row.data[col].length());
+				if (col < row.data.length) {
+					colWidths[col] = Math.max(colWidths[col], row.data[col].length());
+				}
 			}
 		}
 	}
