@@ -60,8 +60,8 @@ public class TableModel {
 		PageRoot model = part.getPageModel();
 		for (int idx = part.getBeginLine(), row = 0; idx <= part.getEndLine(); idx++) {
 			String text = model.getText(idx);
-			String[] cols = parseRow(text.substring(1));
-			if (text.trim().contains("---")) {
+			String[] cols = parseRow(text);
+			if (text.contains("---")) {
 				formatRow = row;
 				aligns = getAligns(cols);
 				numCols = cols.length;
@@ -229,8 +229,13 @@ public class TableModel {
 	}
 
 	private String[] parseRow(String text) {
-		int end = text.lastIndexOf('|');
-		text = text.substring(0, end);
+		if (text.startsWith("|")) {
+			text = text.substring(1);
+		}
+		if (text.endsWith("|") && !text.endsWith("\\|")) {
+			text = text.substring(0, text.length() - 1);
+		}
+		
 		String[] cols = text.split("(?<!\\\\)\\|", -1);
 		for (int idx = 0; idx < cols.length; idx++) {
 			cols[idx] = cols[idx].trim();
