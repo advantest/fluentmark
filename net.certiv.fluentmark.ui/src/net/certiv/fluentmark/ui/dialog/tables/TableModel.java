@@ -217,14 +217,6 @@ public class TableModel {
 			sb.append("|");
 		}
 		
-		if (row.num != null) {
-			String existing = part.getPageModel().getText(row.num);
-			int mark = existing.lastIndexOf("|");
-			if (mark < existing.length() - 1) {
-				sb.append(existing.substring(mark + 1));
-			}
-		}
-		
 		sb.append(part.getLineDelim());
 	}
 
