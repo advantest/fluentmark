@@ -181,7 +181,9 @@ public class LinkValidator implements ITypedRegionValidator {
 				pos++;
 			}
 			
-			linkTarget = linkTargetWithRest.substring(0, endIndex);
+			if (endIndex >= 0) {
+				linkTarget = linkTargetWithRest.substring(0, endIndex);
+			}
 		}
 		
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, resource, linkStatementStartIndexInRegion);
