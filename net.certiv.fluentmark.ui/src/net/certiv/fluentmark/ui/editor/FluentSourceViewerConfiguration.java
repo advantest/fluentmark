@@ -39,7 +39,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Shell;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
@@ -131,13 +131,13 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		PresentationReconciler reconciler = new FluentPresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
-		buildRepairer(reconciler, frontMatter, Partitions.FRONT_MATTER);
-		buildRepairer(reconciler, commentScanner, Partitions.COMMENT);
-		buildRepairer(reconciler, codeScanner, Partitions.CODEBLOCK);
-		buildRepairer(reconciler, dotScanner, Partitions.DOTBLOCK);
-		buildRepairer(reconciler, umlScanner, Partitions.UMLBLOCK);
-		buildRepairer(reconciler, mathScanner, Partitions.MATHBLOCK);
-		buildRepairer(reconciler, htmlScanner, Partitions.HTMLBLOCK);
+		buildRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
+		buildRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
+		buildRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
+		buildRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
+		buildRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
+		buildRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
+		buildRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
 		buildRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
@@ -198,7 +198,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
 		switch (contentType) {
-			case Partitions.DOTBLOCK:
+			case MarkdownPartitions.DOTBLOCK:
 				// return new IAutoEditStrategy[] { new DotAutoEditStrategy(partitioning),
 				// new LineWrapEditStrategy(editor), new PairEditStrategy() };
 
@@ -254,8 +254,8 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
-		assistant.setContentAssistProcessor(processor, Partitions.DOTBLOCK);
-		assistant.setContentAssistProcessor(processor, Partitions.PLANTUML_INCLUDE);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitions.DOTBLOCK);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitions.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
@@ -378,9 +378,9 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return new String[] { IDocument.DEFAULT_CONTENT_TYPE, Partitions.FRONT_MATTER, Partitions.COMMENT,
-				Partitions.CODEBLOCK, Partitions.HTMLBLOCK, Partitions.DOTBLOCK, Partitions.UMLBLOCK,
-				Partitions.MATHBLOCK };
+		return new String[] { IDocument.DEFAULT_CONTENT_TYPE, MarkdownPartitions.FRONT_MATTER, MarkdownPartitions.COMMENT,
+				MarkdownPartitions.CODEBLOCK, MarkdownPartitions.HTMLBLOCK, MarkdownPartitions.DOTBLOCK, MarkdownPartitions.UMLBLOCK,
+				MarkdownPartitions.MATHBLOCK };
 	}
 
 	@Override

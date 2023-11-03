@@ -21,7 +21,7 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 
@@ -30,10 +30,10 @@ public class FluentTextTools {
 	/** The document partitioning */
 	private String partitioning;
 	private String[] legalContentTypes;
-	private PartitionScanner partitionScanner;
+	private MarkdownPartitionScanner partitionScanner;
 
 	public FluentTextTools(boolean autoDispose) {
-		this(Partitions.PARTITIONING, Partitions.getLegalContentTypes(), autoDispose);
+		this(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, MarkdownPartitions.getLegalContentTypes(), autoDispose);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class FluentTextTools {
 
 	public IPartitionTokenScanner getPartitionScanner() {
 		if (partitionScanner == null) {
-			partitionScanner = new PartitionScanner();
+			partitionScanner = new MarkdownPartitionScanner();
 		}
 		return partitionScanner;
 	}

@@ -49,13 +49,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 
-public class LinkValidator implements ITypedRegionValidator {
+public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
 	private static final String FILE_EXTENSION_MARKDOWN = "md";
 	private static final String FILE_EXTENSION_JAVA = "java";
@@ -86,7 +86,7 @@ public class LinkValidator implements ITypedRegionValidator {
 	private HttpClient httpClient;
 	
 	
-	public LinkValidator() {
+	public MarkdownLinkValidator() {
 		LINK_PATTERN = Pattern.compile(REGEX_LINK);
 		LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
 		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
@@ -99,9 +99,13 @@ public class LinkValidator implements ITypedRegionValidator {
 	
 
 	@Override
-	public boolean isValidatorFor(ITypedRegion region, IDocument document) {
+	public boolean isValidatorFor(ITypedRegion region, IDocument document, String fileExtension) {
+		if (!FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension)) {
+			return false;
+		}
+		
 		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType())
-				|| Partitions.PLANTUML_INCLUDE.equals(region.getType());
+				|| MarkdownPartitions.PLANTUML_INCLUDE.equals(region.getType());
 	}
 
 	@Override

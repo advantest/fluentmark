@@ -15,7 +15,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.PartitionScanner;
+import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
 import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 
 public class HtmlCodeRule implements IPredicateRule {
@@ -116,12 +116,12 @@ public class HtmlCodeRule implements IPredicateRule {
 	}
 
 	private int getOffset(ICharacterScanner scanner) {
-		return ((PartitionScanner) scanner).getOffset();
+		return ((MarkdownPartitionScanner) scanner).getOffset();
 	}
 
 	private char getCharAt(ICharacterScanner scanner, int idx) {
 		try {
-			return ((PartitionScanner) scanner).getDocument().getChar(idx);
+			return ((MarkdownPartitionScanner) scanner).getDocument().getChar(idx);
 		} catch (BadLocationException e) {
 			return 0; // NULL
 		}

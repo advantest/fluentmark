@@ -18,7 +18,7 @@ import org.eclipse.jface.text.ITypedRegion;
 
 public interface ITypedRegionValidator {
 	
-	boolean isValidatorFor(ITypedRegion region, IDocument document);
+	boolean isValidatorFor(ITypedRegion region, IDocument document, String fileExtension);
 	
 	void validateRegion(ITypedRegion region, IDocument document, IResource resource) throws CoreException;
 

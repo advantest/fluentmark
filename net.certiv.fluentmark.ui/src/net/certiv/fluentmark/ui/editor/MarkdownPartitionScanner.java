@@ -18,8 +18,8 @@ import org.eclipse.jface.text.rules.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.editor.text.rules.DotCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;
@@ -28,19 +28,19 @@ import net.certiv.fluentmark.ui.editor.text.rules.IndentedCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.MatchRule;
 import net.certiv.fluentmark.ui.editor.text.rules.PumlFileInclusionRule;
 
-public class PartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
+public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 
-	public PartitionScanner() {
+	public MarkdownPartitionScanner() {
 		super();
 
-		IToken matter = new Token(Partitions.FRONT_MATTER);
-		IToken comment = new Token(Partitions.COMMENT);
-		IToken codeblock = new Token(Partitions.CODEBLOCK);
-		IToken htmlblock = new Token(Partitions.HTMLBLOCK);
-		IToken dotblock = new Token(Partitions.DOTBLOCK);
-		IToken umlblock = new Token(Partitions.UMLBLOCK);
-		IToken mathblock = new Token(Partitions.MATHBLOCK);
-		IToken plantUmlInclude = new Token(Partitions.PLANTUML_INCLUDE);
+		IToken matter = new Token(MarkdownPartitions.FRONT_MATTER);
+		IToken comment = new Token(MarkdownPartitions.COMMENT);
+		IToken codeblock = new Token(MarkdownPartitions.CODEBLOCK);
+		IToken htmlblock = new Token(MarkdownPartitions.HTMLBLOCK);
+		IToken dotblock = new Token(MarkdownPartitions.DOTBLOCK);
+		IToken umlblock = new Token(MarkdownPartitions.UMLBLOCK);
+		IToken mathblock = new Token(MarkdownPartitions.MATHBLOCK);
+		IToken plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 
 		List<IRule> rules = new ArrayList<>();
 

@@ -10,7 +10,7 @@ package net.certiv.fluentmark.ui.spell;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -26,7 +26,7 @@ public class Filter {
 		List<IRegion> results = new ArrayList<>();
 
 		if (doc instanceof IDocumentExtension3) {
-			ITypedRegion[] partitions = ((IDocumentExtension3) doc).computePartitioning(Partitions.PARTITIONING, 0,
+			ITypedRegion[] partitions = ((IDocumentExtension3) doc).computePartitioning(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, 0,
 					doc.getLength(), false);
 
 			List<ITypedRegion> partitionsList = new ArrayList<>();
