@@ -34,12 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse.BodyHandlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +41,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Duration;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -83,7 +76,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
-	private HttpClient httpClient;
+	private DefaultUriValidator defaultUriValidator;
 	
 	
 	public MarkdownLinkValidator() {
@@ -95,6 +88,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		HEADING_WITH_ANCHOR_PATTERN = Pattern.compile(REGEX_HEADING_WITH_ANCHOR);
 		
 		javaMemberResolver = new JavaCodeMemberResolver();
+		defaultUriValidator = DefaultUriValidator.getDefaultUriValidator();
 	}
 	
 
@@ -361,16 +355,6 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		return absolutePath;
 	}
 	
-	private HttpClient getHttpClient() {
-		if (this.httpClient == null) {
-			this.httpClient = HttpClient.newBuilder()
-					  .version(Version.HTTP_2)
-					  .followRedirects(Redirect.NEVER)
-					  .build();
-		}
-		return this.httpClient;
-	}
-	
 	private IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
 		if (uriText == null) {
 			return null;
@@ -397,7 +381,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		            @Override
 		            public void run() throws Exception {
 		            	if (uriValidator.isResponsibleFor(uriText)) {
-		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, getHttpClient()));
+		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient()));
 		            	}
 		            }
 		        };
@@ -412,61 +396,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 			}
 		}
 		
-		
-		if (!uriText.toLowerCase().startsWith("http://")
-			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		}
-		
-		URI uri = null;
-		try {
-			uri = new URI(uriText);
-		} catch (URISyntaxException e) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		}
-		
-		
-		HttpClient client = getHttpClient();
-		
-		// we only need HTTP HEAD, no page content, just reachability
-		HttpRequest headRequest = HttpRequest.newBuilder()
-			      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
-			      .uri(uri)
-			      .timeout(Duration.ofSeconds(2))
-			      .build();
-		
-		int statusCode = -1;
-		String errorMessage = null;
-		try {
-			statusCode = client.send(headRequest, BodyHandlers.discarding()).statusCode(); 
-		} catch (IOException | InterruptedException e) {
-			errorMessage = e.getMessage();
-			statusCode = -404;
-		}
-		
-		if (statusCode >= 400) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		} else if (statusCode == -404) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		}
-		
-		return null;
+		return defaultUriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient());
 	}
 	
 	private String removeQueryParametersFromUrl(String urlText) {
