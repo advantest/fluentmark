@@ -38,9 +38,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.markdown.SourceRange;
 import net.certiv.fluentmark.ui.editor.DocumentCharacterIterator;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -660,7 +660,7 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 	private void computeFoldingStructure(final FoldingStructureComputationContext ctx) {
 		try {
 			IDocument doc = ctx.getDocument();
-			ITypedRegion[] partitions = TextUtilities.computePartitioning(doc, Partitions.PARTITIONING, 0,
+			ITypedRegion[] partitions = TextUtilities.computePartitioning(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, 0,
 					doc.getLength(), false);
 			computeBlockFoldingStructure(partitions, ctx);
 		} catch (BadLocationException e) {}
@@ -721,16 +721,16 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 
 	private boolean isFoldablePartition(String type) {
 		switch (type) {
-			case Partitions.FRONT_MATTER:
+			case MarkdownPartitions.FRONT_MATTER:
 				return frontMatterFoldingEnabled;
-			case Partitions.COMMENT:
+			case MarkdownPartitions.COMMENT:
 				return commentFoldingEnabled;
-			case Partitions.DOTBLOCK:
-			case Partitions.CODEBLOCK:
-			case Partitions.MATHBLOCK:
-			case Partitions.UMLBLOCK:
+			case MarkdownPartitions.DOTBLOCK:
+			case MarkdownPartitions.CODEBLOCK:
+			case MarkdownPartitions.MATHBLOCK:
+			case MarkdownPartitions.UMLBLOCK:
 				return codeBlockFoldingEnabled;
-			case Partitions.HTMLBLOCK:
+			case MarkdownPartitions.HTMLBLOCK:
 				return htmlBlockFoldingEnabled;
 		}
 		return false;

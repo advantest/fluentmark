@@ -104,11 +104,11 @@ import net.certiv.fluentmark.core.convert.Converter;
 import net.certiv.fluentmark.core.convert.HtmlGen;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.core.convert.Kind;
-import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.markdown.PagePart;
 import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.util.LRUCache;
@@ -354,7 +354,7 @@ public class FluentEditor extends TextEditor
 	private void connectPartitioningToElement(IEditorInput input, IDocument document) {
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension = (IDocumentExtension3) document;
-			if (extension.getDocumentPartitioner(Partitions.PARTITIONING) == null) {
+			if (extension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
 				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(tools);
 				participant.setup(document);
 			}

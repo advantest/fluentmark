@@ -5,17 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.core.convert;
+package net.certiv.fluentmark.core.markdown;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
 
-public class Partitions {
+public class MarkdownPartitions {
 
 	// unique partitioning type
-	public final static String PARTITIONING = "__fluent_partitioning";
+	public final static String FLUENT_MARKDOWN_PARTITIONING = "__fluent_partitioning";
 
 	// specialized partition content types
 	public static final String FRONT_MATTER = "__frontmatter";
@@ -31,7 +31,7 @@ public class Partitions {
 	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
 			MATHBLOCK, PLANTUML_INCLUDE, FRONT_MATTER };
 
-	private Partitions() {}
+	private MarkdownPartitions() {}
 
 	public static String[] getLegalContentTypes() {
 		return LEGAL_TYPES;
@@ -46,7 +46,7 @@ public class Partitions {
 		}
 
 		try {
-			return TextUtilities.computePartitioning(document, Partitions.PARTITIONING, beg, len, false);
+			return TextUtilities.computePartitioning(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg, len, false);
 		} catch (BadLocationException e) {
 			return new ITypedRegion[0];
 		}

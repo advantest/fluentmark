@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -67,7 +68,7 @@ public class Converter {
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
+		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {
@@ -245,26 +246,26 @@ public class Converter {
 			regionType = typedRegion.getType();
 			
 			switch (regionType) {
-				case Partitions.FRONT_MATTER:
+				case MarkdownPartitions.FRONT_MATTER:
 					if (!includeFrontMatter) continue;
 					break;
-				case Partitions.DOTBLOCK:
+				case MarkdownPartitions.DOTBLOCK:
 					if (configurationProvider.isDotEnabled()) {
 						text = filter(text, DOTBEG, DOTEND);
 						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.UMLBLOCK:
+				case MarkdownPartitions.UMLBLOCK:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.PLANTUML_INCLUDE:
+				case MarkdownPartitions.PLANTUML_INCLUDE:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
-				case Partitions.COMMENT:
+				case MarkdownPartitions.COMMENT:
 					if (!text.isEmpty()
 							&& text.startsWith("<!---")
 							&& text.endsWith("--->")) {
