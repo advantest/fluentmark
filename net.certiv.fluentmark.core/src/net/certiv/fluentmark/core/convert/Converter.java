@@ -35,10 +35,8 @@ import java.net.URISyntaxException;
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
@@ -310,7 +308,7 @@ public class Converter {
         String svgDiagram = "";
         
         if (svgFile != null && svgFile.exists()) {
-        	String svgFileContent = readTextFromFile(svgFile);
+        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
         	svgDiagram = removeSvgMetaInfos(svgFileContent);
         	
         	boolean fileDeleted = svgFile.delete();
@@ -326,19 +324,6 @@ public class Converter {
         }
         
         return markdownCodeWithPumlIncludeStatement;
-	}
-	
-	private String readTextFromFile(File file) {
-		if (file != null && file.exists() && file.isFile()) {
-			try {
-				return Files.readString(
-						Paths.get(file.getAbsolutePath()),
-						StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				throw new RuntimeException(String.format("Could not read file %s", file.getAbsolutePath()), e);
-			}
-		}
-		return null;
 	}
 	
 	private String convertDot2Svg(String dotCode) {

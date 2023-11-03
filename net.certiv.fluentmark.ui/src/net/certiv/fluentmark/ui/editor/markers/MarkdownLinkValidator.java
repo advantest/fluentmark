@@ -36,13 +36,9 @@ import java.util.List;
 import java.net.URI;
 
 import java.io.File;
-import java.io.IOException;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
@@ -449,19 +445,13 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		return null;
 	}
 	
-	// TODO Avoid code duplication here and in Converter#readTextFromFile(File)
 	private String readTextFromFile(File file) {
-		if (file != null && file.exists() && file.isFile()) {
-			try {
-				return Files.readString(
-						Paths.get(file.getAbsolutePath()),
-						StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				FluentUI.log(IStatus.WARNING, String.format("Could not read Markdown file '%s'", file.getAbsolutePath()), e);
-				return null;
-			}
+		try {
+			return FileUtils.readTextFromFile(file);
+		} catch (Exception e) {
+			FluentUI.log(IStatus.WARNING, String.format("Could not read Markdown file '%s'", file.getAbsolutePath()), e);
+			return null;
 		}
-		return null;
 	}
 	
 	private IMarker checkSectionAnchorExists(String sectionAnchor, String markdownFileContent, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {

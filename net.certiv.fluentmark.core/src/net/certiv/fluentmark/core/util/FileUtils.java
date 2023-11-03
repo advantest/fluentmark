@@ -35,6 +35,10 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public final class FileUtils {
 
 	public FileUtils() {}
@@ -180,6 +184,19 @@ public final class FileUtils {
 
 		throw new RuntimeException(
 				new IOException((new StringBuilder("Could not delete file ")).append(file).toString()));
+	}
+	
+	public static String readTextFromFile(File file) {
+		if (file != null && file.exists() && file.isFile()) {
+			try {
+				return Files.readString(
+						Paths.get(file.getAbsolutePath()),
+						StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				throw new RuntimeException(String.format("Could not read file %s", file.getAbsolutePath()), e);
+			}
+		}
+		return null;
 	}
 
 }
