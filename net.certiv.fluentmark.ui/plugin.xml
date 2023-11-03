@@ -85,7 +85,8 @@
       <type
             markerSeverity="2"
             markerType="net.certiv.fluentmark.problem"
-            name="net.certiv.fluentmark.ui.error">
+            name="net.certiv.fluentmark.ui.error"
+            super="org.eclipse.ui.workbench.texteditor.error">
       </type>
       <type
             markerSeverity="1"
