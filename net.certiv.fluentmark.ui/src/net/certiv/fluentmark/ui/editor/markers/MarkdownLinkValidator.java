@@ -46,9 +46,6 @@ import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
-	private static final String FILE_EXTENSION_MARKDOWN = "md";
-	private static final String FILE_EXTENSION_JAVA = "java";
-	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
@@ -90,7 +87,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IDocument document, String fileExtension) {
-		if (!FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension)) {
+		if (!FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension)) {
 			return false;
 		}
 		
@@ -284,12 +281,12 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 					
 					checkSectionAnchorExists(fragment, document, resource, lineNumber, offset, endOffset);
 					
-				} else if (FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
+				} else if (FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
 					// we're looking for sections in another Markdown file
 					
 					checkSectionAnchorExists(resourceRelativePath, fragment, resource, lineNumber, offset, endOffset);
 					
-				} else if (FILE_EXTENSION_JAVA.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
+				} else if (FileUtils.FILE_EXTENSION_JAVA.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
 					// we're looking for members in a Java file, e.g. a method or a field
 					
 					checkJavaMemberExists(resourceRelativePath, fragment, resource, lineNumber, offset, endOffset);
