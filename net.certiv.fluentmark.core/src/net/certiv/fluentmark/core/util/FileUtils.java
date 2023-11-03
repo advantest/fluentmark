@@ -8,6 +8,7 @@
 package net.certiv.fluentmark.core.util;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -40,8 +41,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public final class FileUtils {
-
-	public FileUtils() {}
+	
+	public static final String FILE_EXTENSION_MARKDOWN = "md";
+	public static final String FILE_EXTENSION_PLANTUML = "puml";
+	public static final String FILE_EXTENSION_SVG = "svg";
+	public static final String FILE_EXTENSION_JAVA = "java";
 
 	/**
 	 * Creates a file resource handle for the file with the given workspace path. This method does not
@@ -197,6 +201,51 @@ public final class FileUtils {
 			}
 		}
 		return null;
+	}
+	
+	public static boolean isInDocFolder(IResource resource) {
+		String[] segments = resource.getFullPath().segments();
+		if (segments != null && segments.length > 0) {
+			for (String segment: segments) {
+				if ("doc".equals(segment)
+						|| segment.startsWith("doc_")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isMarkdownFile(IFile file) {
+		return file != null
+				&& FILE_EXTENSION_MARKDOWN.equals(file.getFileExtension());
+	}
+	
+	public static boolean isPumlFile(IFile file) {
+		return file != null
+				&& FILE_EXTENSION_PLANTUML.equals(file.getFileExtension());
+	}
+	
+	public static boolean isSvgFile(IFile file) {
+		return file != null
+				&& FILE_EXTENSION_SVG.equals(file.getFileExtension());
+	}
+	
+	public static boolean isJavaFile(IFile file) {
+		return file != null
+				&& FILE_EXTENSION_JAVA.equals(file.getFileExtension());
+	}
+	
+	public static boolean isAccessibleMarkdownFile(IFile file) {
+		return isMarkdownFile(file) && file.isAccessible();
+	}
+	
+	public static boolean isAccessiblePumlFile(IFile file) {
+		return isPumlFile(file) && file.isAccessible();
+	}
+	
+	public static boolean isAccessibleSvgFile(IFile file) {
+		return isSvgFile(file) && file.isAccessible();
 	}
 
 }
