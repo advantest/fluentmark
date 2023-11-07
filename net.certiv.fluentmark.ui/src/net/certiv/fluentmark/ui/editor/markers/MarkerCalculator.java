@@ -19,8 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.text.JavaPartitionerManager;
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jdt.ui.text.IJavaPartitionerManager;
 import org.eclipse.jdt.ui.text.IJavaPartitions;
 import org.eclipse.jdt.ui.text.JavaTextTools;
@@ -63,9 +62,12 @@ public class MarkerCalculator {
 	private final LinkedList<IFile> filesQueue = new LinkedList<>();
 	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
+	private JavaTextTools javaTextTools;
+	
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
 		this.validators.add(new MarkdownLinkValidator());
+		this.validators.add(new JavaLinkValidator());
 	}
 	
 	public static MarkerCalculator get() {
@@ -202,6 +204,13 @@ public class MarkerCalculator {
 		return null;
 	}
 	
+	private JavaTextTools getJavaTextTools() {
+		if (this.javaTextTools == null) {
+			this.javaTextTools = new JavaTextTools(PreferenceConstants.getPreferenceStore()); 
+		}
+		return this.javaTextTools;
+	}
+	
 	private void connectPartitioningToElement(IDocument document, String partitioningId) {
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension = (IDocumentExtension3) document;
@@ -210,10 +219,10 @@ public class MarkerCalculator {
 					FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(FluentUI.getDefault().getTextTools());
 					participant.setup(document);
 				} else {
-					JavaTextTools textTools= JavaPlugin.getDefault().getJavaTextTools();
+					JavaTextTools textTools= getJavaTextTools();
 					IJavaPartitionerManager pManager= textTools.getJavaPartitionerManager();
-					if (pManager instanceof JavaPartitionerManager) {
-						JavaPartitionerManager jpManager= (JavaPartitionerManager) pManager;
+					if (pManager instanceof IJavaPartitionerManager) {
+						IJavaPartitionerManager jpManager= (IJavaPartitionerManager) pManager;
 						IDocumentPartitioner javaPartitioner = jpManager.createDocumentPartitioner();
 						
 						if (javaPartitioner != null) {
