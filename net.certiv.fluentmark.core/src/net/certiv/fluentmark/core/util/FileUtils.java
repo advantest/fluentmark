@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
@@ -39,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 
 public final class FileUtils {
 	
@@ -201,6 +203,14 @@ public final class FileUtils {
 			}
 		}
 		return null;
+	}
+	
+	public static String readFileContents(IFile file) {
+		try (InputStream fileInputStream = file.getContents()) {
+			return new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
+		} catch (IOException | CoreException e) {
+			throw new RuntimeException(String.format("Could not read file %s", file.getLocation()), e);
+		}
 	}
 	
 	public static boolean isInDocFolder(IResource resource) {

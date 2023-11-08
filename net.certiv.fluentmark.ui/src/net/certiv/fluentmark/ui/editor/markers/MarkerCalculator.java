@@ -19,17 +19,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.jdt.ui.text.IJavaPartitionerManager;
-import org.eclipse.jdt.ui.text.IJavaPartitions;
-import org.eclipse.jdt.ui.text.JavaTextTools;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
-import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,10 +35,8 @@ import java.io.InputStream;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.FluentDocumentSetupParticipant;
+import net.certiv.fluentmark.ui.extensionpoints.TypedRegionValidatorsManager;
 
 public class MarkerCalculator {
 
@@ -53,7 +44,7 @@ public class MarkerCalculator {
 	
 	private static final String JOB_NAME = "Re-calculating problem markers";
 	
-	private static final MarkerCalculator INSTANCE = new MarkerCalculator();
+	private static MarkerCalculator INSTANCE = null;
 	
 	private List<ITypedRegionValidator> validators;
 	
@@ -62,15 +53,19 @@ public class MarkerCalculator {
 	private final LinkedList<IFile> filesQueue = new LinkedList<>();
 	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
-	private JavaTextTools javaTextTools;
-	
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
-		this.validators.add(new MarkdownLinkValidator());
-		this.validators.add(new JavaLinkValidator());
+		
+		List<ITypedRegionValidator> typedRegionValidators = TypedRegionValidatorsManager.getInstance().getTypedRegionValidators();
+		for (ITypedRegionValidator validator : typedRegionValidators) {
+			this.validators.add(validator);
+		}
 	}
 	
 	public static MarkerCalculator get() {
+		if (INSTANCE == null) {
+			INSTANCE = new MarkerCalculator();
+		}
 		return INSTANCE;
 	}
 	
@@ -103,10 +98,6 @@ public class MarkerCalculator {
 			return;
 		}
 		
-		if (!isMarkdownFile(file) && !isJavaFile(file)) {
-			Log.log(IStatus.WARNING, 0, "Got unexpected file format during marker calculation: " + file.getFileExtension(), null);
-		}
-		
 		synchronized(filesQueue) {
 			if (!filesQueue.contains(file)) {
 				filesQueue.addLast(file);
@@ -120,14 +111,6 @@ public class MarkerCalculator {
 		}
 		
 		scheduleMarkerCalculation();
-	}
-	
-	private boolean isMarkdownFile(IFile file) {
-		return file != null && "md".equalsIgnoreCase(file.getFileExtension());
-	}
-	
-	private boolean isJavaFile(IFile file) {
-		return file != null && "java".equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public void scheduleMarkerCalculation(IFile file) {
@@ -157,18 +140,6 @@ public class MarkerCalculator {
 							
 							if (document != null) {
 								filesDocumentsMap.remove(file);
-							}
-						}
-						
-						if (document == null) {
-							String fileContents = readFileContents(file);
-							document = new Document(fileContents);
-							
-							
-							if (isMarkdownFile(file)) {
-								connectPartitioningToElement(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-							} else if (isJavaFile(file)) {
-								connectPartitioningToElement(document, IJavaPartitions.JAVA_PARTITIONING);
 							}
 						}
 						
@@ -204,42 +175,6 @@ public class MarkerCalculator {
 		return null;
 	}
 	
-	private JavaTextTools getJavaTextTools() {
-		if (this.javaTextTools == null) {
-			this.javaTextTools = new JavaTextTools(PreferenceConstants.getPreferenceStore()); 
-		}
-		return this.javaTextTools;
-	}
-	
-	private void connectPartitioningToElement(IDocument document, String partitioningId) {
-		if (document instanceof IDocumentExtension3) {
-			IDocumentExtension3 extension = (IDocumentExtension3) document;
-			if (extension.getDocumentPartitioner(partitioningId) == null) {
-				if (MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING.equals(partitioningId)) {
-					FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(FluentUI.getDefault().getTextTools());
-					participant.setup(document);
-				} else {
-					JavaTextTools textTools= getJavaTextTools();
-					IJavaPartitionerManager pManager= textTools.getJavaPartitionerManager();
-					if (pManager instanceof IJavaPartitionerManager) {
-						IJavaPartitionerManager jpManager= (IJavaPartitionerManager) pManager;
-						IDocumentPartitioner javaPartitioner = jpManager.createDocumentPartitioner();
-						
-						if (javaPartitioner != null) {
-							javaPartitioner.connect(document);
-							if (document instanceof IDocumentExtension3) {
-								IDocumentExtension3 extension3 = (IDocumentExtension3) document;
-								extension3.setDocumentPartitioner(partitioningId, javaPartitioner);
-							} else {
-								document.setDocumentPartitioner(javaPartitioner);
-							}
-						}
-					}
-				} 
-			}
-		}
-	}
-	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IFile file) throws CoreException {
 		if (monitor.isCanceled()) {
 			return;
@@ -259,38 +194,43 @@ public class MarkerCalculator {
 			return;
 		}
 		
-		monitor.subTask("Calculate document partitions");
-		ITypedRegion[] typedRegions = null;
-		
-		if (isMarkdownFile((IFile) file)) {
-			typedRegions = MarkdownPartitions.computePartitions(document);
-		} else if (isJavaFile((IFile) file)) {
-			try {
-				typedRegions = TextUtilities.computePartitioning(document, IJavaPartitions.JAVA_PARTITIONING, 0, document.getLength(), false);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if (typedRegions == null || typedRegions.length == 0) {
-			FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()));
-			
-			return;
-		}
-		
-		if (monitor.isCanceled()) {
-			return;
-		}
-		
 		monitor.subTask("Calculate new markers");
-		for (ITypedRegion region: typedRegions) {
-			for (ITypedRegionValidator validator: validators) {
-				if (monitor.isCanceled()) {
+		
+		ITypedRegion[] typedRegions = null;
+		for (ITypedRegionValidator validator: validators) {
+			if (monitor.isCanceled()) {
+				return;
+			}
+			
+			if (validator.isValidatorFor(file) ) {
+				if (document == null) {
+					String fileContents = readFileContents(file);
+					document = new Document(fileContents);
+				}
+				
+				validator.setupDocumentPartitioner(document, file);
+				try {
+					typedRegions = validator.computePartitioning(document);
+				} catch (BadLocationException e) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()), e);
+					
 					return;
 				}
 				
-				if (validator.isValidatorFor(region, document, file.getFileExtension()) ) {
-					validator.validateRegion(region, document, file);
+				if (typedRegions == null || typedRegions.length == 0) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()));
+					
+					return;
+				}
+				
+				for (ITypedRegion region: typedRegions) {
+					if (monitor.isCanceled()) {
+						return;
+					}
+					
+					if (validator.isValidatorFor(region, file) ) {
+						validator.validateRegion(region, document, file);
+					}
 				}
 			}
 		}

@@ -9,7 +9,6 @@ package net.certiv.fluentmark.ui.editor;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IPredicateRule;
-import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
@@ -42,7 +41,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken mathblock = new Token(MarkdownPartitions.MATHBLOCK);
 		IToken plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 
-		List<IRule> rules = new ArrayList<>();
+		List<IPredicateRule> rules = new ArrayList<>();
 
 		rules.add(new FrontMatterRule("---", "---", matter, '\\'));
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', false));

@@ -25,7 +25,10 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,11 +43,15 @@ import java.io.File;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.editor.FluentTextTools;
+import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
 import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 
 public class MarkdownLinkValidator implements ITypedRegionValidator {
+	
+	private MarkdownPartitionScanner partitionScanner;
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
@@ -84,19 +91,53 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		defaultUriValidator = DefaultUriValidator.getDefaultUriValidator();
 	}
 	
-
+	private IPartitionTokenScanner getPartitionScanner() {
+		if (partitionScanner == null) {
+			partitionScanner = new MarkdownPartitionScanner();
+		}
+		return partitionScanner;
+	}
+	
+	private IDocumentPartitioner createDocumentPartitioner() {
+		IPartitionTokenScanner scanner = getPartitionScanner();
+		return new FastPartitioner(scanner, MarkdownPartitions.getLegalContentTypes());
+	}
+	
 	@Override
-	public boolean isValidatorFor(ITypedRegion region, IDocument document, String fileExtension) {
-		if (!FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension)) {
-			return false;
+	public void setupDocumentPartitioner(IDocument document, IFile file) {
+		if (document == null || file == null) {
+			throw new IllegalArgumentException();
 		}
 		
+		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+		// TODO What happens if we have the wrong partitioner?
+		if (partitioner == null) {
+			partitioner = createDocumentPartitioner();
+			FluentTextTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		}
+	}
+	
+	@Override
+	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+		return MarkdownPartitions.computePartitions(document);
+	}
+	
+	@Override
+	public boolean isValidatorFor(IFile file) {
+		if (!FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension())) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean isValidatorFor(ITypedRegion region, IFile file) {
 		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType())
 				|| MarkdownPartitions.PLANTUML_INCLUDE.equals(region.getType());
 	}
 
 	@Override
-	public void validateRegion(ITypedRegion region, IDocument document, IResource resource) throws CoreException {
+	public void validateRegion(ITypedRegion region, IDocument document, IFile file) throws CoreException {
 		String regionContent;
 		try {
 			regionContent = document.get(region.getOffset(), region.getLength());
@@ -112,7 +153,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 			String currentLinkMatch = linkMatcher.group();
 			int startIndex = linkMatcher.start();
 			
-			validateLinkStatement(region, document, resource, currentLinkMatch, startIndex, regionContent);
+			validateLinkStatement(region, document, file, currentLinkMatch, startIndex, regionContent);
 			
 			found = linkMatcher.find();
 		}
@@ -124,7 +165,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 			String currentLinkReferenceDefinition = linkRefDefMatcher.group();
 			int startIndex = linkRefDefMatcher.start();
 			
-			validateLinkReferenceDefinitionStatement(region, document, resource, currentLinkReferenceDefinition, startIndex);
+			validateLinkReferenceDefinitionStatement(region, document, file, currentLinkReferenceDefinition, startIndex);
 			
 			found = linkRefDefMatcher.find();
 		}

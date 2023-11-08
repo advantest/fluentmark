@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.core.filebuffers.LocationKind;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -93,10 +94,25 @@ public class FluentTextTools {
 	public void setupDocument(IDocument document, IPath location, LocationKind locationKind) {
 		setupDocumentPartitioner(document, partitioning);
 	}
+	
+	public static void setupDocumentPartitioner(IDocument document, IDocumentPartitioner partitioner, String partitioning) {
+		if (document == null || partitioner == null || partitioning == null || StringUtils.isBlank(partitioning)) {
+			throw new IllegalArgumentException();
+		}
+		
+		partitioner.connect(document);
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 extension3 = (IDocumentExtension3) document;
+			extension3.setDocumentPartitioner(partitioning, partitioner);
+		} else {
+			document.setDocumentPartitioner(partitioner);
+		}
+	}
 
 	/**
 	 * Sets up the document partitioner for the given document for the given partitioning.
 	 */
+	@Deprecated
 	public void setupDocumentPartitioner(IDocument document, String partitioning) {
 		IDocumentPartitioner partitioner = createDocumentPartitioner();
 		if (partitioner != null) {
