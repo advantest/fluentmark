@@ -137,7 +137,6 @@ public class FluentEditor extends TextEditor
 
 	private FluentSourceViewer viewer;
 	private FluentOutlinePage outlinePage;
-	private FluentTextTools tools;
 	private IColorManager colorManager;
 	private Converter converter;
 	private PageRoot pageModel;
@@ -273,9 +272,8 @@ public class FluentEditor extends TextEditor
 		createListeners();
 		initEditorPreferenceStore();
 		colorManager = FluentUI.getDefault().getColorMgr();
-		tools = FluentUI.getDefault().getTextTools();
 		this.configProvider = new ConfigurationProvider();
-		SourceViewerConfiguration config = tools.createSourceViewerConfiguraton(getPreferenceStore(), this);
+		SourceViewerConfiguration config = FluentSourceViewerConfiguration.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
 		int tabWidth = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
@@ -355,7 +353,7 @@ public class FluentEditor extends TextEditor
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension = (IDocumentExtension3) document;
 			if (extension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
-				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(tools);
+				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant();
 				participant.setup(document);
 			}
 		}

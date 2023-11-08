@@ -7,11 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.spell;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
@@ -20,14 +15,29 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+
 public class Filter {
 
 	public IRegion[] exec(IDocument doc, IRegion[] regions) throws BadLocationException, BadPartitioningException {
 		List<IRegion> results = new ArrayList<>();
 
 		if (doc instanceof IDocumentExtension3) {
-			ITypedRegion[] partitions = ((IDocumentExtension3) doc).computePartitioning(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, 0,
-					doc.getLength(), false);
+			IDocumentExtension3 docExtension = (IDocumentExtension3) doc;
+			
+			if (docExtension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
+				FluentPartitioningTools.setupDocumentPartitioner(
+						doc,
+						MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+						MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			}
+			
+			ITypedRegion[] partitions = FluentPartitioningTools.computePartitions(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 
 			List<ITypedRegion> partitionsList = new ArrayList<>();
 			for (ITypedRegion partition : partitions) {

@@ -36,6 +36,7 @@ import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Shell;
 
@@ -388,87 +389,27 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		if (partitioning != null) return partitioning;
 		return super.getConfiguredDocumentPartitioning(sourceViewer);
 	}
+	
+	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor) {
+		return createSourceViewerConfiguraton(store, editor, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+	}
 
-	// /**
-	// * Set the outline on this configuration. Outlines are used for document-internal references
-	// as
-	// * well as for quick outline. Editors that call this method must keep the outline up to date
-	// as
-	// * the source document changes. Editors that do not maintain an outline need not call this
-	// * method, since the outline will be computed as needed for the quick outline.
-	// *
-	// * @param outlineModel
-	// */
-	// public void setOutline(OutlineItem outlineModel) {
-	// this.outline = outlineModel;
-	// if (anchorCompletionProcessor != null) {
-	// anchorCompletionProcessor.setOutline(outline);
-	// }
-	// }
+	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor,
+			String partitioning) {
+		return new FluentSourceViewerConfiguration(getColorMgr(), store, editor, partitioning);
+	}
 
-	// /**
-	// * Provide access to an information presenter that can be used to pop-up a quick outline.
-	// */
-	// public IInformationPresenter getOutlineInformationPresenter(ISourceViewer sourceViewer) {
-	// if (informationPresenter == null) {
-	// IInformationControlCreator controlCreator = getOutlineInformationControlCreator();
-	// informationPresenter = new InformationPresenter(controlCreator);
-	// informationPresenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-	//
-	// // Register information provider
-	// IInformationProvider provider = new InformationProvider(controlCreator);
-	// String[] contentTypes = getConfiguredContentTypes(sourceViewer);
-	// for (String contentType : contentTypes) {
-	// informationPresenter.setInformationProvider(provider, contentType);
-	// }
-	//
-	// informationPresenter.setSizeConstraints(60, 20, true, true);
-	// }
-	// return informationPresenter;
-	// }
+	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store) {
+		return createSimpleSourceViewerConfiguration(store, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+	}
 
-	// private class InformationProvider
-	// implements IInformationProvider, IInformationProviderExtension,
-	// IInformationProviderExtension2 {
-	//
-	// private final IInformationControlCreator controlCreator;
-	//
-	// public InformationProvider(IInformationControlCreator controlCreator) {
-	// this.controlCreator = controlCreator;
-	// }
-	//
-	// @Deprecated
-	// public String getInformation(ITextViewer textViewer, IRegion subject) {
-	// return getInformation2(textViewer, subject).toString();
-	// }
-	//
-	// public Object getInformation2(ITextViewer textViewer, IRegion subject) {
-	// if (outline == null) {
-	// // If the outline was not set then parse it. This can happen in a task editor
-	// if (markupLanguage != null) {
-	// IDocument document = textViewer.getDocument();
-	// if (document != null && document.getLength() > 0) {
-	// MarkupLanguage language = markupLanguage.clone();
-	// OutlineParser outlineParser = new OutlineParser();
-	// outlineParser.setMarkupLanguage(language.clone());
-	// String markup = document.get();
-	// final OutlineItem outline = outlineParser.parse(markup);
-	// if (MarkupSourceViewerConfiguration.this.file != null) {
-	// outline.setResourcePath(MarkupSourceViewerConfiguration.this.file.getFullPath().toString());
-	// }
-	// return outline;
-	// }
-	// }
-	// }
-	// return outline;
-	// }
-	//
-	// public IRegion getSubject(ITextViewer textViewer, int offset) {
-	// return new Region(offset, 0);
-	// }
-	//
-	// public IInformationControlCreator getInformationPresenterControlCreator() {
-	// return controlCreator;
-	// }
-	// }
+	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store,
+			String partitioning) {
+		return new FluentSimpleSourceViewerConfiguration(getColorMgr(), store, null, partitioning, false);
+	}
+	
+	private static IColorManager getColorMgr() {
+		return FluentUI.getDefault().getColorMgr();
+	}
+
 }
