@@ -217,7 +217,7 @@ public class MarkerCalculator {
 					return;
 				}
 				
-				if (typedRegions == null || typedRegions.length == 0) {
+				if (typedRegions == null || (typedRegions.length == 0 && document.getLength() != 0)) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()));
 					
 					return;

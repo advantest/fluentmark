@@ -59,12 +59,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.ui.editor.FluentSourceViewer;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
+import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore.OverlayKey;
@@ -747,7 +749,10 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 		String content = loadPreviewContentFromFile("ColorsPreview.md"); //$NON-NLS-1$
 		IDocument document = new Document(content);
-		FluentUI.getDefault().getTextTools().setupDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		FluentPartitioningTools.setupDocumentPartitioner(
+				document,
+				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		fPreviewViewer.setDocument(document);
 
 		return fPreviewViewer.getControl();

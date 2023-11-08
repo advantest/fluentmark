@@ -7,10 +7,11 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.markdown;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.TextUtilities;
+
+import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+
 
 public class MarkdownPartitions {
 
@@ -38,18 +39,7 @@ public class MarkdownPartitions {
 	}
 	
 	public static ITypedRegion[] computePartitions(IDocument document) {
-		int beg = 0;
-		int len = document.getLength();
-		
-		if (len <= 0) {
-			return new ITypedRegion[0];
-		}
-
-		try {
-			return TextUtilities.computePartitioning(document, FLUENT_MARKDOWN_PARTITIONING, beg, len, false);
-		} catch (BadLocationException e) {
-			return new ITypedRegion[0];
-		}
+		return FluentPartitioningTools.computePartitions(document, FLUENT_MARKDOWN_PARTITIONING);
 	}
 	
 }
