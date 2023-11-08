@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
@@ -85,7 +86,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		}
 		
 		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-		// TODO What happens if we have the wrong partitioner?
+		if (document instanceof IDocumentExtension3) {
+			partitioner = ((IDocumentExtension3) document).getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		}
+		
 		if (partitioner == null) {
 			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
 			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
