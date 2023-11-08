@@ -17,10 +17,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SafeRunner;
 
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
@@ -31,9 +29,6 @@ import org.eclipse.jface.text.ITypedRegion;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.net.URI;
 
 import java.io.File;
@@ -43,11 +38,10 @@ import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
-import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
 
 
-public class MarkdownLinkValidator implements ITypedRegionValidator {
+public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionValidator {
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
@@ -72,9 +66,6 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
-	private DefaultUriValidator defaultUriValidator;
-	
-	
 	public MarkdownLinkValidator() {
 		LINK_PATTERN = Pattern.compile(REGEX_LINK);
 		LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
@@ -84,7 +75,6 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		HEADING_WITH_ANCHOR_PATTERN = Pattern.compile(REGEX_HEADING_WITH_ANCHOR);
 		
 		javaMemberResolver = new JavaCodeMemberResolver();
-		defaultUriValidator = DefaultUriValidator.getDefaultUriValidator();
 	}
 	
 	
@@ -331,14 +321,6 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 		}
 	}
 	
-	private int getLineForOffset(IDocument document, int offset) {
-		try {
-			return document.getLineOfOffset(offset) + 1;
-		} catch (BadLocationException e) {
-			return -1;
-		}
-	}
-	
 	private IMarker checkFileExists(IPath resourceRelativePath, IResource resource, int lineNumber, int offset, int endOffset) throws CoreException {
 		// try resolving the file
 		IPath absolutePath = toAbsolutePath(resourceRelativePath, resource);
@@ -372,50 +354,6 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 			absolutePath = currentResource.getLocation().removeLastSegments(1).append(resourceRelativePath);
 		}
 		return absolutePath;
-	}
-	
-	private IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
-		if (uriText == null) {
-			return null;
-		}
-		
-		// run all the URI validators from extensions, first
-		List<IUriValidator> uriValidators = UriValidatorsManager.getInstance().getUriValidators();
-		for (IUriValidator uriValidator : uriValidators) {
-			if (uriValidator.isResponsibleFor(uriText)) {
-				final List<IMarker> markers = new ArrayList<>(1);
-				
-				ISafeRunnable runnable = new ISafeRunnable() {
-		            @Override
-		            public void handleException(Throwable e) {
-		            	Exception ex;
-		            	if (e instanceof Exception) {
-		            		ex = (Exception) e;
-		            	} else {
-		            		ex = new RuntimeException(e);
-		            	}
-		            	FluentUI.log(IStatus.WARNING, String.format("Could not run URI validator \"%s\".", uriValidator.getClass().getName()), ex);
-		            }
-
-		            @Override
-		            public void run() throws Exception {
-		            	if (uriValidator.isResponsibleFor(uriText)) {
-		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient()));
-		            	}
-		            }
-		        };
-		        SafeRunner.run(runnable);
-		        
-		        if (markers.size() > 0) {
-		        	return markers.get(0);
-		        }
-		        
-		        // do not run other validations if we found a responsible validator from extensions
-		        return null;
-			}
-		}
-		
-		return defaultUriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient());
 	}
 	
 	private String removeQueryParametersFromUrl(String urlText) {
