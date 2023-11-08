@@ -21,22 +21,29 @@ import java.util.Collections;
 import java.util.List;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.markers.IUriValidator;
+import net.certiv.fluentmark.ui.editor.markers.ITypedRegionValidator;
 
-public class UriValidatorsManager {
+public class TypedRegionValidatorsManager {
+
+private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATOR = "net.certiv.fluentmark.ui.validator.typedRegion";
 	
-	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = "net.certiv.fluentmark.ui.validator.uri";
+	private static TypedRegionValidatorsManager INSTANCE = null;
 	
-	private static UriValidatorsManager INSTANCE = null;
+	public static TypedRegionValidatorsManager getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new TypedRegionValidatorsManager();
+		}
+		return INSTANCE;
+	}
 	
-	private final List<IUriValidator> validators = new ArrayList<>();
+	private final List<ITypedRegionValidator> validators = new ArrayList<>();
 	
-	private UriValidatorsManager() {
+	private TypedRegionValidatorsManager() {
 		this.init();
 	}
 	
 	private void init() {
-		IExtensionPoint validatorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_URI_VALIDATOR);
+		IExtensionPoint validatorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_TYPED_REGION_VALIDATOR);
 		IExtension[] validatorExtensions = validatorExtensionPoint.getExtensions();
 		for (IExtension validatorExtension: validatorExtensions) {
 			IConfigurationElement[] configElements = validatorExtension.getConfigurationElements();
@@ -44,25 +51,20 @@ public class UriValidatorsManager {
 			try {
 				for (IConfigurationElement configElement : configElements) {
 					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IUriValidator) {
-						validators.add((IUriValidator) obj);
+					if (obj instanceof ITypedRegionValidator) {
+						validators.add((ITypedRegionValidator) obj);
 					}
 				}
 			} catch (CoreException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load IUriValidator extension", e);
+				FluentUI.log(IStatus.ERROR, "Could not load ITypedRegionValidator extension", e);
 			}
 		}
 	}
 	
-	public static UriValidatorsManager getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new UriValidatorsManager();
-		}
-		return INSTANCE;
-	}
 	
-	public List<IUriValidator> getUriValidators() {
+	
+	public List<ITypedRegionValidator> getTypedRegionValidators() {
 		return Collections.unmodifiableList(validators);
 	}
-
+	
 }

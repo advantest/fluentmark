@@ -46,7 +46,7 @@ public class MarkdownPartitions {
 		}
 
 		try {
-			return TextUtilities.computePartitioning(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg, len, false);
+			return TextUtilities.computePartitioning(document, FLUENT_MARKDOWN_PARTITIONING, beg, len, false);
 		} catch (BadLocationException e) {
 			return new ITypedRegion[0];
 		}
