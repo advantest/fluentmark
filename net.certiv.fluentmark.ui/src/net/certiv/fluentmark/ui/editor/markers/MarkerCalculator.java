@@ -74,7 +74,7 @@ public class MarkerCalculator {
 			throws CoreException {
 		IMarker marker;
 		try {
-			marker  = resource.createMarker(MarkerConstants.MARKER_ID_MARKDOWN_PROBLEM);
+			marker  = resource.createMarker(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
 			marker.setAttribute(IMarker.MESSAGE, markerMessage);
 			marker.setAttribute(IMarker.SEVERITY, markerSeverity);
 			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
@@ -182,7 +182,7 @@ public class MarkerCalculator {
 		
 		// TODO only delete markers that are going to be re-calculated, e.g. Markdown or Java problems
 		monitor.subTask("Delete obsolete markers");
-		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_MARKDOWN_PROBLEM, true, IResource.DEPTH_INFINITE);
+		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, true, IResource.DEPTH_INFINITE);
 		
 		for (IMarker marker: markers) {
 			if (marker.exists()) {

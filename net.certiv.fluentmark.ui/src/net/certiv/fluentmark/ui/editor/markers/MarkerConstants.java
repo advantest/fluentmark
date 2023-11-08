@@ -13,6 +13,6 @@ import net.certiv.fluentmark.ui.FluentUI;
 
 public interface MarkerConstants {
 	
-	static final String MARKER_ID_MARKDOWN_PROBLEM = FluentUI.PLUGIN_ID + ".markers.markdown";
+	static final String MARKER_ID_DOCUMENTATION_PROBLEM = FluentUI.PLUGIN_ID + ".markers.documentation";
 
 }
