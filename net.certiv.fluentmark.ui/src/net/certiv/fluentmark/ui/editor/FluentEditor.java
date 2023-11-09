@@ -18,15 +18,11 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.ui.ide.ResourceUtil;
 
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartService;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.IShowInSource;
@@ -124,6 +120,7 @@ import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
+import net.certiv.fluentmark.ui.util.EditorsUtils;
 
 /**
  * Text editor with markdown support.
@@ -168,60 +165,7 @@ public class FluentEditor extends TextEditor
 	}
 	
 	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
-		if (markdownFile == null) {
-			return null;
-		}
-		
-		List<FluentEditor> dirtyFluentEditors = getDirtyFluentEditors();
-		
-		for (FluentEditor editor: dirtyFluentEditors) {
-			IEditorInput editorInput = editor.getEditorInput();
-			IFile file = editorInput.getAdapter(IFile.class);
-            
-            if (file != null && file.equals(markdownFile)) {
-            	return editor;
-            }
-		}
-		
-		return null;
-	}
-	
-	private static List<FluentEditor> getDirtyFluentEditors() {
-		final List<FluentEditor> dirtyFluentEditors = new ArrayList<>();
-		
-		Display display = Display.getCurrent();
-		if (display == null) {
-			display = Display.getDefault();
-		}
-		
-		if (display == null) {
-			return dirtyFluentEditors;
-		}
-		
-		display.syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench != null && !workbench.isClosing()) {
-					IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-					if (window != null && !window.isClosing()) {
-						IWorkbenchPage page = window.getActivePage();
-						if (page != null) {
-							IEditorPart[] dirtyEditors = page.getDirtyEditors();
-							for (IEditorPart editor : dirtyEditors) {
-								if (editor instanceof FluentEditor) {
-									dirtyFluentEditors.add((FluentEditor) editor);
-								}
-							}
-						}
-					}
-				}
-			}
-			
-		});
-		
-		return dirtyFluentEditors;
+		return EditorsUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
