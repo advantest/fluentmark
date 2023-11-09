@@ -48,6 +48,10 @@ public final class FileUtils {
 	public static final String FILE_EXTENSION_PLANTUML = "puml";
 	public static final String FILE_EXTENSION_SVG = "svg";
 	public static final String FILE_EXTENSION_JAVA = "java";
+	
+	public static final String PROJECT_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
+	public static final String PROJECT_NATURE_C = "org.eclipse.cdt.core.cnature";
+	public static final String PROJECT_NATURE_CPP = "org.eclipse.cdt.core.ccnature";
 
 	/**
 	 * Creates a file resource handle for the file with the given workspace path. This method does not
