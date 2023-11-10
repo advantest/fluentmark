@@ -9,8 +9,8 @@
  */
 package net.certiv.fluentmark.ui.editor.markers;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
 
 import org.eclipse.core.runtime.CoreException;
 
@@ -55,12 +55,12 @@ public class DefaultUriValidator implements IUriValidator {
 	}
 
 	@Override
-	public IMarker checkUri(String uriText, IResource resource, int lineNumber, int offset,
+	public IMarker checkUri(String uriText, IFile file, int lineNumber, int offset,
 			HttpClient defaultHttpClient) throws CoreException {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
 					lineNumber,
 					offset,
@@ -71,7 +71,7 @@ public class DefaultUriValidator implements IUriValidator {
 		try {
 			uri = new URI(uriText);
 		} catch (URISyntaxException e) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
@@ -95,13 +95,13 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 		
 		if (statusCode >= 400) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		} else if (statusCode == -404) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
 					lineNumber,
 					offset,

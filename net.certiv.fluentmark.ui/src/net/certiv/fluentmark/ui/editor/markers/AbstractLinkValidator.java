@@ -9,8 +9,8 @@
  */
 package net.certiv.fluentmark.ui.editor.markers;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ISafeRunnable;
@@ -34,7 +34,7 @@ public abstract class AbstractLinkValidator {
 		defaultUriValidator = DefaultUriValidator.getDefaultUriValidator();
 	}
 
-	protected IMarker checkHttpUri(String uriText, IResource resource, int lineNumber, int offset) throws CoreException {
+	protected IMarker checkHttpUri(String uriText, IFile file, int lineNumber, int offset) throws CoreException {
 		if (uriText == null) {
 			return null;
 		}
@@ -60,7 +60,7 @@ public abstract class AbstractLinkValidator {
 		            @Override
 		            public void run() throws Exception {
 		            	if (uriValidator.isResponsibleFor(uriText)) {
-		            		markers.add(uriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient()));
+		            		markers.add(uriValidator.checkUri(uriText, file, lineNumber, offset, defaultUriValidator.getHttpClient()));
 		            	}
 		            }
 		        };
@@ -75,7 +75,7 @@ public abstract class AbstractLinkValidator {
 			}
 		}
 		
-		return defaultUriValidator.checkUri(uriText, resource, lineNumber, offset, defaultUriValidator.getHttpClient());
+		return defaultUriValidator.checkUri(uriText, file, lineNumber, offset, defaultUriValidator.getHttpClient());
 	}
 	
 	protected int getLineForOffset(IDocument document, int offset) {
