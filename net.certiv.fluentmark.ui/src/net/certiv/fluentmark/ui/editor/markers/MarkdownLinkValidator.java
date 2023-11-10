@@ -151,7 +151,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	}
 
 
-	private void validateLinkStatement(ITypedRegion region, IDocument document, IResource resource,
+	private void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
 		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
@@ -197,10 +197,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			}
 		}
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, resource, linkStatementStartIndexInRegion);
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
 	}
 	
-	private void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IResource resource,
+	private void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkRefDefStatement, int linkStatementStartIndexInRegion) throws CoreException {
 		Matcher prefixMatcher = LINK_REF_DEF_PATTERN_PREFIX.matcher(linkRefDefStatement);
 		boolean foundPrefix = prefixMatcher.find();
@@ -209,11 +209,11 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		
 		String linkTarget = linkRefDefStatement.substring(linkTargetStartIndex, linkRefDefStatement.length());
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, resource, linkStatementStartIndexInRegion);
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
 	}
 	
 	private void checkLinkTarget(String linkTarget, int linkTargetStartIndex,
-			ITypedRegion region, IDocument document, IResource resource,
+			ITypedRegion region, IDocument document, IFile file,
 			int linkStatementStartIndexInRegion) throws CoreException {
 		
 		String path = null;
@@ -261,7 +261,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				endOffset += 1;
 			}
 			
-			MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
@@ -275,7 +275,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			// in case of fragments we omit the path of the current file in Markdown -> we assume that path now
 			if ((path == null || path.isBlank())
 					&& fragment != null && !fragment.isBlank()) {
-				path = resource.getLocation().toString();
+				path = file.getLocation().toString();
 			}
 			
 			IPath resourceRelativePath = new Path(path);
@@ -284,7 +284,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int lineNumber = getLineForOffset(document, offset);
 			int endOffset = offset + path.length();
 			
-			IMarker problemMarker = checkFileExists(resourceRelativePath, resource, lineNumber, offset, endOffset);
+			IMarker problemMarker = checkFileExists(resourceRelativePath, file, lineNumber, offset, endOffset);
 			
 			// check fragment if file exists
 			if (problemMarker == null && fragment != null) {
@@ -296,20 +296,20 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				lineNumber = getLineForOffset(document, offset);
 				
 				
-				if (resourceRelativePath.equals(resource.getLocation())) {
+				if (resourceRelativePath.equals(file.getLocation())) {
 					// are we looking for sections in current Markdown file
 					
-					checkSectionAnchorExists(fragment, document, resource, lineNumber, offset, endOffset);
+					checkSectionAnchorExists(fragment, document, file, lineNumber, offset, endOffset);
 					
 				} else if (FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
 					// we're looking for sections in another Markdown file
 					
-					checkSectionAnchorExists(resourceRelativePath, fragment, resource, lineNumber, offset, endOffset);
+					checkSectionAnchorExists(resourceRelativePath, fragment, file, lineNumber, offset, endOffset);
 					
 				} else if (FileUtils.FILE_EXTENSION_JAVA.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
 					// we're looking for members in a Java file, e.g. a method or a field
 					
-					checkJavaMemberExists(resourceRelativePath, fragment, resource, lineNumber, offset, endOffset);
+					checkJavaMemberExists(resourceRelativePath, fragment, file, lineNumber, offset, endOffset);
 				}
 			}
 		}
@@ -321,7 +321,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
 			int lineNumber = getLineForOffset(document, offset);
 			
-			checkHttpUri(linkTarget, resource, lineNumber, offset);
+			checkHttpUri(linkTarget, file, lineNumber, offset);
 		}
 	}
 	
