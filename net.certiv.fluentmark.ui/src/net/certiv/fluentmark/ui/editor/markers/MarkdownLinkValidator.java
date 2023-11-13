@@ -321,7 +321,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
 			int lineNumber = getLineForOffset(document, offset);
 			
-			checkHttpUri(linkTarget, file, lineNumber, offset);
+			checkHttpUri(linkTarget, file, null, lineNumber, offset);
 		}
 	}
 	
