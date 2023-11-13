@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IMarker;
 
 import org.eclipse.core.runtime.CoreException;
 
+import java.util.Map;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -55,7 +57,7 @@ public class DefaultUriValidator implements IUriValidator {
 	}
 
 	@Override
-	public IMarker checkUri(String uriText, IFile file, int lineNumber, int offset,
+	public IMarker checkUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset,
 			HttpClient defaultHttpClient) throws CoreException {
 		
 		if (!uriText.toLowerCase().startsWith("http://")

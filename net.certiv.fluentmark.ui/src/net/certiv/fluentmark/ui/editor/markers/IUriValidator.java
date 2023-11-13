@@ -14,11 +14,13 @@ import org.eclipse.core.resources.IMarker;
 
 import org.eclipse.core.runtime.CoreException;
 
+import java.util.Map;
+
 import java.net.http.HttpClient;
 
 public interface IUriValidator {
 	
 	boolean isResponsibleFor(String uriText);
 	
-	IMarker checkUri(String uriText, IFile file, int lineNumber, int offset, HttpClient defaultHttpClient) throws CoreException;
+	IMarker checkUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset, HttpClient defaultHttpClient) throws CoreException;
 }
