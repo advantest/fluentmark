@@ -180,7 +180,6 @@ public class MarkerCalculator {
 			return;
 		}		
 		
-		// TODO only delete markers that are going to be re-calculated, e.g. Markdown or Java problems
 		monitor.subTask("Delete obsolete markers");
 		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, true, IResource.DEPTH_INFINITE);
 		
