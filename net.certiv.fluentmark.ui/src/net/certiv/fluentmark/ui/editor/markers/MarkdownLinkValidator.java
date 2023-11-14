@@ -11,16 +11,10 @@ package net.certiv.fluentmark.ui.editor.markers;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 
-import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -30,16 +24,11 @@ import org.eclipse.jface.text.ITypedRegion;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.net.URI;
-
-import java.io.File;
-
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
-import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
+import net.certiv.fluentmark.ui.validation.FilePathValidator;
 
 
 public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionValidator {
@@ -54,28 +43,20 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	private static final String REGEX_LINK_REF_DEF_PREFIX = "\\[.*?\\]:( |\\t|\\n)+( |\\t)*";
 	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + "\\S+";
 	
-	// pattern for headings with anchors, e.g. #### 1.2 Section {#topic-x}
-	private static final String REGEX_HEADING_ANCHOR_PREFIX = "#{1,6}( |\\t)+.*\\{#";
-	private static final String REGEX_HEADING_WITH_ANCHOR = REGEX_HEADING_ANCHOR_PREFIX + "\\S+\\}";
-	
 	private final Pattern LINK_PATTERN;
 	private final Pattern LINK_PREFIX_PATTERN;
 	private final Pattern LINK_REF_DEF_PATTERN_PREFIX;
 	private final Pattern LINK_REF_DEF_PATTERN;
-	private final Pattern HEADING_WITH_ANCHOR_PREFIX_PATTERN;
-	private final Pattern HEADING_WITH_ANCHOR_PATTERN;
 	
-	private JavaCodeMemberResolver javaMemberResolver;
+	private FilePathValidator filePathValidator;
 	
 	public MarkdownLinkValidator() {
 		LINK_PATTERN = Pattern.compile(REGEX_LINK);
 		LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
 		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
 		LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
-		HEADING_WITH_ANCHOR_PREFIX_PATTERN = Pattern.compile(REGEX_HEADING_ANCHOR_PREFIX);
-		HEADING_WITH_ANCHOR_PATTERN = Pattern.compile(REGEX_HEADING_WITH_ANCHOR);
 		
-		javaMemberResolver = new JavaCodeMemberResolver();
+		filePathValidator = new FilePathValidator();
 	}
 	
 	
@@ -216,36 +197,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			ITypedRegion region, IDocument document, IFile file,
 			int linkStatementStartIndexInRegion) throws CoreException {
 		
-		String path = null;
-		String scheme = null;
-		String fragment = null;
-		
-		URI uri;
-		try {
-			uri = URI.create(linkTarget);
-			
-			scheme = uri.getScheme();
-			fragment = uri.getFragment();
-			path = uri.getPath();
-		} catch (IllegalArgumentException e) {
-			// we seem not to have a standard-compliant URI, try parsing it ourselves
-			int indexOfColon = linkTarget.indexOf(':');
-			int indexOfHashtag = linkTarget.indexOf('#');
-			
-			path = linkTarget;
-			
-			if (indexOfHashtag > -1) {
-				fragment = linkTarget.substring(indexOfHashtag);
-				path = linkTarget.substring(0, indexOfHashtag);
-			}
-			
-			if (indexOfColon > -1) {
-				scheme = linkTarget.substring(0, indexOfColon);
-				if (indexOfColon + 1 < path.length()) {
-					path = path.substring(indexOfColon + 1);
-				}
-			}
-		}
+		UriDto uriDto = parseUri(linkTarget);
 		
 		// no path and no scheme?
 		if (linkTarget == null
@@ -270,94 +222,23 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		}
 		
 		// check file target (without URI scheme)
-		if (scheme == null) {
-			
-			// in case of fragments we omit the path of the current file in Markdown -> we assume that path now
-			if ((path == null || path.isBlank())
-					&& fragment != null && !fragment.isBlank()) {
-				path = file.getLocation().toString();
-			}
-			
-			IPath resourceRelativePath = new Path(path);
-			
+		if (uriDto.scheme == null) {
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
 			int lineNumber = getLineForOffset(document, offset);
-			int endOffset = offset + path.length();
+			int endOffset = offset + uriDto.path.length();
 			
-			IMarker problemMarker = checkFileExists(resourceRelativePath, file, lineNumber, offset, endOffset);
-			
-			// check fragment if file exists
-			if (problemMarker == null && fragment != null) {
-				
-				// adapt positions to the fragment only
-				int indexOfHashTag = linkTarget.indexOf('#');
-				offset += indexOfHashTag;
-				endOffset = offset + fragment.length() + 1;
-				lineNumber = getLineForOffset(document, offset);
-				
-				
-				if (resourceRelativePath.equals(file.getLocation())) {
-					// are we looking for sections in current Markdown file
-					
-					checkSectionAnchorExists(fragment, document, file, lineNumber, offset, endOffset);
-					
-				} else if (FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
-					// we're looking for sections in another Markdown file
-					
-					checkSectionAnchorExists(resourceRelativePath, fragment, file, lineNumber, offset, endOffset);
-					
-				} else if (FileUtils.FILE_EXTENSION_JAVA.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
-					// we're looking for members in a Java file, e.g. a method or a field
-					
-					checkJavaMemberExists(resourceRelativePath, fragment, file, lineNumber, offset, endOffset);
-				}
-			}
+			filePathValidator.checkFilePathAndFragment(linkTarget, uriDto.path, uriDto.fragment, document, file, lineNumber, offset, endOffset);
 		}
 		
 		// check http(s) targets
-		if (scheme != null
-				&& (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"))) {
+		if (uriDto.scheme != null
+				&& (uriDto.scheme.equalsIgnoreCase("http") || uriDto.scheme.equalsIgnoreCase("https"))) {
 			
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
 			int lineNumber = getLineForOffset(document, offset);
 			
 			checkHttpUri(linkTarget, file, null, lineNumber, offset);
 		}
-	}
-	
-	private IMarker checkFileExists(IPath resourceRelativePath, IResource resource, int lineNumber, int offset, int endOffset) throws CoreException {
-		// try resolving the file
-		IPath absolutePath = toAbsolutePath(resourceRelativePath, resource);
-		File targetFile = absolutePath.toFile();
-		
-		if (!targetFile.exists()) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced file '%s' does not exist. Full path: %s", resourceRelativePath.toString(), targetFile.getAbsolutePath()),
-					lineNumber,
-					offset,
-					endOffset);
-		}
-		
-		if (!targetFile.isFile()) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Full path: %s",
-							resourceRelativePath.toString(), targetFile.getAbsolutePath()),
-					lineNumber,
-					offset,
-					endOffset);
-		}
-		
-		return null;
-	}
-	
-	private IPath toAbsolutePath(IPath resourceRelativePath, IResource currentResource) {
-		IPath absolutePath;
-		if (resourceRelativePath.equals(currentResource.getLocation())) {
-			absolutePath = currentResource.getLocation();
-		} else {
-			absolutePath = currentResource.getLocation().removeLastSegments(1).append(resourceRelativePath);
-		}
-		return absolutePath;
 	}
 	
 	private String removeQueryParametersFromUrl(String urlText) {
@@ -392,91 +273,4 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		return urlText;
 	}
 	
-	private IMarker checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		String markdownFileContent = currentDocument.get();
-		
-		return checkSectionAnchorExists(sectionAnchor, markdownFileContent, currentResource, lineNumber, offset, endOffset);
-	}
-	
-	private IMarker checkSectionAnchorExists(IPath targetFileWithAnchor, String sectionAnchor, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		IPath absolutePath = toAbsolutePath(targetFileWithAnchor, currentResource);
-		File file = absolutePath.toFile();
-        String mdFileContent = readTextFromFile(file);
-        
-        if (mdFileContent != null) {
-        	return checkSectionAnchorExists(sectionAnchor, mdFileContent, currentResource, lineNumber, offset, endOffset);
-        }
-		
-		return null;
-	}
-	
-	private String readTextFromFile(File file) {
-		try {
-			return FileUtils.readTextFromFile(file);
-		} catch (Exception e) {
-			FluentUI.log(IStatus.WARNING, String.format("Could not read Markdown file '%s'", file.getAbsolutePath()), e);
-			return null;
-		}
-	}
-	
-	private IMarker checkSectionAnchorExists(String sectionAnchor, String markdownFileContent, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		Matcher headingMatcher = HEADING_WITH_ANCHOR_PATTERN.matcher(markdownFileContent);
-		boolean found = headingMatcher.find();
-		
-		// go through all the headings in the document and check their anchors
-		while (found) {
-			String currentHeadingMatch = headingMatcher.group();
-			
-			Matcher prefixMatcher = HEADING_WITH_ANCHOR_PREFIX_PATTERN.matcher(currentHeadingMatch);
-			boolean foundPrefix = prefixMatcher.find();
-			Assert.isTrue(foundPrefix);
-			int indexBeginAnchor = prefixMatcher.end();
-			
-			// cut off heading and "{#" and "}" parts to extract the anchor in between
-			String currentAnchor = currentHeadingMatch.substring(indexBeginAnchor, currentHeadingMatch.length() - 1);
-			
-			if (sectionAnchor.equals(currentAnchor)) {
-				// we found the target, no need to create markers
-				return null;
-			}
-			
-			found = headingMatcher.find();
-		}
-		
-		// we didn't find any target anchor ==> create a marker
-		return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
-				String.format("There is no section with the given anchor '%s' in this Markdown document '%s'.", sectionAnchor, currentResource.getLocation().toString()),
-				lineNumber,
-				offset,
-				endOffset);
-	}
-	
-	private IMarker checkJavaMemberExists(IPath targetJavaFile, String memberReference, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		
-		IPath absolutePath = toAbsolutePath(targetJavaFile, currentResource);
-		File targetFile = absolutePath.toFile();
-		 
-		if (!targetFile.exists() || !targetFile.isFile()) {
-			return null;
-		}
-		
-		IFile[] filesFound = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(targetFile.toURI());
-		if (filesFound.length != 1) {
-			return null;
-		}
-		
-		IMember member = this.javaMemberResolver.findJavaMember(filesFound[0], memberReference);
-		
-		if (member == null || !member.exists()) {
-			// we didn't find the referenced class member ==> create a problem marker
-			return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
-					String.format("There is no class member (field or method) corresponding to the given anchor '%s' in the Java file '%s'.", memberReference, absolutePath.toString()),
-					lineNumber,
-					offset,
-					endOffset);
-		}
-		
-		return null;
-	}
-
 }
