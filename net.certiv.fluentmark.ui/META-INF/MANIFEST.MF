@@ -29,6 +29,7 @@ Export-Package: net.certiv.fluentmark.ui,
  net.certiv.fluentmark.ui.preferences.pages,
  net.certiv.fluentmark.ui.spell,
  net.certiv.fluentmark.ui.util,
+ net.certiv.fluentmark.ui.validation,
  net.certiv.fluentmark.ui.views,
  net.certiv.fluentmark.ui.wizards
 Bundle-Activator: net.certiv.fluentmark.ui.FluentUI

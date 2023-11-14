@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.net.URI;
+
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.extensionpoints.UriValidatorsManager;
 
@@ -84,6 +86,55 @@ public abstract class AbstractLinkValidator {
 			return document.getLineOfOffset(offset) + 1;
 		} catch (BadLocationException e) {
 			return -1;
+		}
+	}
+	
+	protected UriDto parseUri(String uriText) {
+		String path = null;
+		String scheme = null;
+		String fragment = null;
+		
+		URI uri;
+		try {
+			uri = URI.create(uriText);
+			
+			scheme = uri.getScheme();
+			fragment = uri.getFragment();
+			path = uri.getPath();
+		} catch (IllegalArgumentException e) {
+			// we seem not to have a standard-compliant URI, try parsing it ourselves
+			int indexOfColon = uriText.indexOf(':');
+			int indexOfHashtag = uriText.indexOf('#');
+			
+			path = uriText;
+			
+			if (indexOfHashtag > -1) {
+				fragment = uriText.substring(indexOfHashtag);
+				path = uriText.substring(0, indexOfHashtag);
+			}
+			
+			if (indexOfColon > -1) {
+				scheme = uriText.substring(0, indexOfColon);
+				if (indexOfColon + 1 < path.length()) {
+					path = path.substring(indexOfColon + 1);
+				}
+			}
+		}
+		
+		return new UriDto(uriText, scheme, path, fragment);
+	}
+	
+	protected static class UriDto {
+		public String uri;
+		public String scheme;
+		public String path;
+		public String fragment;
+		
+		public UriDto(String uri, String schema, String path, String fragment) {
+			this.uri = uri;
+			this.scheme = schema;
+			this.path = path;
+			this.fragment = fragment;
 		}
 	}
 	
