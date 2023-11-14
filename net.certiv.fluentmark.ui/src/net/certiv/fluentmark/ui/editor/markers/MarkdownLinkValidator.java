@@ -241,36 +241,4 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		}
 	}
 	
-	private String removeQueryParametersFromUrl(String urlText) {
-		if (urlText.contains("?")) {
-			String[] urlParts = urlText.split("\\?");
-			if (urlParts != null && urlParts.length >= 0) {
-				return urlParts[0];
-			}
-			
-		}
-		return urlText;
-	}
-	
-	private String removeAnchorFromUrl(String urlText) {
-		if (urlText.contains("#")) {
-			String[] urlParts = urlText.split("#");
-			if (urlParts != null && urlParts.length >= 0) {
-				return urlParts[0];
-			}
-			
-		}
-		return urlText;
-	}
-	
-	private String extractLastUrlSegment(String urlText) {
-		if (urlText.contains("/")) {
-			String[] urlParts = urlText.split("/");
-			if (urlParts != null && urlParts.length >= 0) {
-				return urlParts[urlParts.length - 1];
-			}
-		}
-		return urlText;
-	}
-	
 }
