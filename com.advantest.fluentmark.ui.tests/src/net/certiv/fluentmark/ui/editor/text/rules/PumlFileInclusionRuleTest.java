@@ -11,19 +11,20 @@ package net.certiv.fluentmark.ui.editor.text.rules;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
+
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 
 
 public class PumlFileInclusionRuleTest {
 	
-	private ICharacterScanner scanner;
+	private CharacterScannerMock scanner;
 	private PumlFileInclusionRule rule;
 	private IToken successToken;
 	
@@ -42,20 +43,24 @@ public class PumlFileInclusionRuleTest {
 	
 	@Test
 	public void pumlFileInclusionMatches() {
-		scanner = new CharacterScannerMock("![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)");
+		String input = "![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	@Test
 	public void imageFileInclusionDoesNotMatch() {
-		scanner = new CharacterScannerMock("![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)");
+		String input = "![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 }
