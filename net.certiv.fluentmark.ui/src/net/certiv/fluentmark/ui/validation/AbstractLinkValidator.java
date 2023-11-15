@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.markers;
+package net.certiv.fluentmark.ui.validation;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;

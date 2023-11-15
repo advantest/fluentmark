@@ -65,7 +65,7 @@
                   An IUriValidator implementation for a certain type of URI to be used as extension during Markdown link checks.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.editor.markers.IUriValidator"/>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.validation.IUriValidator"/>
                </appinfo>
             </annotation>
          </attribute>

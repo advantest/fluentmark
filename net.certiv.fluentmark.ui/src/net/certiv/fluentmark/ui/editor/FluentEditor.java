@@ -114,13 +114,13 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.editor.folding.FoldingStructureProvider;
 import net.certiv.fluentmark.ui.editor.folding.IFoldingStructureProvider;
-import net.certiv.fluentmark.ui.editor.markers.MarkerCalculator;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager;
 import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 import net.certiv.fluentmark.ui.util.EditorsUtils;
+import net.certiv.fluentmark.ui.validation.MarkerCalculator;
 
 /**
  * Text editor with markdown support.
