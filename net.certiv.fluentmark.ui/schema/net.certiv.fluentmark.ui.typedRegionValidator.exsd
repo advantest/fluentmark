@@ -3,10 +3,10 @@
 <schema targetNamespace="net.certiv.fluentmark.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.certiv.fluentmark.ui" id="validator.uri" name="URI Validator"/>
+         <meta.schema plugin="net.certiv.fluentmark.ui" id="validator.typedRegion" name="Typed Region Validator"/>
       </appinfo>
       <documentation>
-         Extension point for adding additional URI validators for checking Markdown links and creating problem markers.
+         [Enter description of this extension point.]
       </documentation>
    </annotation>
 
@@ -62,10 +62,10 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  An IUriValidator implementation for a certain type of URI to be used as extension during Markdown link checks.
+                  An ITypedRegioniValidator implementation for a certain type of partitioning to be used as extension during file checks.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.editor.markers.IUriValidator"/>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.editor.markers.ITypedRegionValidator"/>
                </appinfo>
             </annotation>
          </attribute>

@@ -58,13 +58,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.ui.editor.FluentSourceViewer;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
+import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore.OverlayKey;
@@ -732,7 +734,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		fPreviewViewer = new FluentSourceViewer(parent, null, null, false, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER,
 				store);
 		FluentSimpleSourceViewerConfiguration configuration = new FluentSimpleSourceViewerConfiguration(fColorManager,
-				store, null, Partitions.PARTITIONING, false);
+				store, null, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, false);
 		fPreviewViewer.configure(configuration);
 		Font font = JFaceResources.getFont(Prefs.EDITOR_TEXT_FONT);
 		fPreviewViewer.getTextWidget().setFont(font);
@@ -747,7 +749,10 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 		String content = loadPreviewContentFromFile("ColorsPreview.md"); //$NON-NLS-1$
 		IDocument document = new Document(content);
-		FluentUI.getDefault().getTextTools().setupDocumentPartitioner(document, Partitions.PARTITIONING);
+		FluentPartitioningTools.setupDocumentPartitioner(
+				document,
+				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		fPreviewViewer.setDocument(document);
 
 		return fPreviewViewer.getControl();

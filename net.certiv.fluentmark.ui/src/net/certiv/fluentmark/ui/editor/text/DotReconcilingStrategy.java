@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotProblemCollector;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.dot.DotSourceParser;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.marker.DotProblem;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -95,7 +95,7 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		collector.beginCollecting();
 		ITypedRegion[] partitions = null;
 		try {
-			partitions = TextUtilities.computePartitioning(doc, Partitions.PARTITIONING, region.getOffset(),
+			partitions = TextUtilities.computePartitioning(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, region.getOffset(),
 					region.getLength(), false);
 		} catch (BadLocationException e) {
 			return;
@@ -104,7 +104,7 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		int tabWidth = editor.getPrefsStore().getDefaultInt(Prefs.EDITOR_TAB_WIDTH);;
 
 		for (ITypedRegion partition : partitions) {
-			if (partition.getType().equals(Partitions.DOTBLOCK)) {
+			if (partition.getType().equals(MarkdownPartitions.DOTBLOCK)) {
 				SafeRunner.run(new ISafeRunnable() {
 
 					@Override
