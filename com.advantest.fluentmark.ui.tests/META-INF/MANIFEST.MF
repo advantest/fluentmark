@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark AE UI Tests
 Bundle-SymbolicName: com.advantest.fluentmark.ui.tests
-Bundle-Version: 1.3.1.qualifier
+Bundle-Version: 1.4.0.qualifier
 Bundle-Vendor: Advantest Europe
 Fragment-Host: net.certiv.fluentmark.ui;bundle-version="1.3.1"
 Require-Bundle: junit-jupiter-api;bundle-version="5.9.0",
