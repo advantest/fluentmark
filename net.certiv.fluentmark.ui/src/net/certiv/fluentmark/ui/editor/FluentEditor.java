@@ -18,15 +18,11 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.ui.ide.ResourceUtil;
 
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartService;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.IShowInSource;
@@ -104,11 +100,11 @@ import net.certiv.fluentmark.core.convert.Converter;
 import net.certiv.fluentmark.core.convert.HtmlGen;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.core.convert.Kind;
-import net.certiv.fluentmark.core.convert.Partitions;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.markdown.PagePart;
 import net.certiv.fluentmark.core.markdown.PageRoot;
 import net.certiv.fluentmark.core.util.LRUCache;
@@ -124,6 +120,7 @@ import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
+import net.certiv.fluentmark.ui.util.EditorsUtils;
 
 /**
  * Text editor with markdown support.
@@ -137,7 +134,6 @@ public class FluentEditor extends TextEditor
 
 	private FluentSourceViewer viewer;
 	private FluentOutlinePage outlinePage;
-	private FluentTextTools tools;
 	private IColorManager colorManager;
 	private Converter converter;
 	private PageRoot pageModel;
@@ -169,60 +165,7 @@ public class FluentEditor extends TextEditor
 	}
 	
 	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
-		if (markdownFile == null) {
-			return null;
-		}
-		
-		List<FluentEditor> dirtyFluentEditors = getDirtyFluentEditors();
-		
-		for (FluentEditor editor: dirtyFluentEditors) {
-			IEditorInput editorInput = editor.getEditorInput();
-			IFile file = editorInput.getAdapter(IFile.class);
-            
-            if (file != null && file.equals(markdownFile)) {
-            	return editor;
-            }
-		}
-		
-		return null;
-	}
-	
-	private static List<FluentEditor> getDirtyFluentEditors() {
-		final List<FluentEditor> dirtyFluentEditors = new ArrayList<>();
-		
-		Display display = Display.getCurrent();
-		if (display == null) {
-			display = Display.getDefault();
-		}
-		
-		if (display == null) {
-			return dirtyFluentEditors;
-		}
-		
-		display.syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench != null && !workbench.isClosing()) {
-					IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-					if (window != null && !window.isClosing()) {
-						IWorkbenchPage page = window.getActivePage();
-						if (page != null) {
-							IEditorPart[] dirtyEditors = page.getDirtyEditors();
-							for (IEditorPart editor : dirtyEditors) {
-								if (editor instanceof FluentEditor) {
-									dirtyFluentEditors.add((FluentEditor) editor);
-								}
-							}
-						}
-					}
-				}
-			}
-			
-		});
-		
-		return dirtyFluentEditors;
+		return EditorsUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
@@ -273,9 +216,8 @@ public class FluentEditor extends TextEditor
 		createListeners();
 		initEditorPreferenceStore();
 		colorManager = FluentUI.getDefault().getColorMgr();
-		tools = FluentUI.getDefault().getTextTools();
 		this.configProvider = new ConfigurationProvider();
-		SourceViewerConfiguration config = tools.createSourceViewerConfiguraton(getPreferenceStore(), this);
+		SourceViewerConfiguration config = FluentSourceViewerConfiguration.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
 		int tabWidth = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
@@ -354,8 +296,8 @@ public class FluentEditor extends TextEditor
 	private void connectPartitioningToElement(IEditorInput input, IDocument document) {
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension = (IDocumentExtension3) document;
-			if (extension.getDocumentPartitioner(Partitions.PARTITIONING) == null) {
-				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant(tools);
+			if (extension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
+				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant();
 				participant.setup(document);
 			}
 		}

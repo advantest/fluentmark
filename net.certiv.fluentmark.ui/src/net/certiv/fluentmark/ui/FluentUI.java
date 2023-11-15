@@ -51,7 +51,6 @@ import java.io.FileOutputStream;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 
-import net.certiv.fluentmark.ui.editor.FluentTextTools;
 import net.certiv.fluentmark.ui.editor.color.ColorManager;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
@@ -71,7 +70,6 @@ public class FluentUI extends AbstractUIPlugin {
 	private FluentImages fluentImages;
 	private FormToolkit dialogsFormToolkit;
 	private ColorManager colorManager;
-	private FluentTextTools fluentTextTools;
 
 	public FluentUI() {
 		super();
@@ -152,13 +150,6 @@ public class FluentUI extends AbstractUIPlugin {
 			dialogsFormToolkit = new FormToolkit(colors);
 		}
 		return dialogsFormToolkit;
-	}
-
-	public FluentTextTools getTextTools() {
-		if (fluentTextTools == null) {
-			fluentTextTools = new FluentTextTools(true);
-		}
-		return fluentTextTools;
 	}
 
 	/** Returns the image provider */

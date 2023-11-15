@@ -18,7 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 
 
 public class PumlFileInclusionRuleTest {
@@ -29,7 +29,7 @@ public class PumlFileInclusionRuleTest {
 	
 	@Before
 	public void setUp() {
-		successToken = new Token(Partitions.PLANTUML_INCLUDE);
+		successToken = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		rule = new PumlFileInclusionRule(successToken);
 	}
 	
