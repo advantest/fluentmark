@@ -13,9 +13,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
 
@@ -28,13 +28,13 @@ public class PumlFileInclusionRuleTest {
 	private PumlFileInclusionRule rule;
 	private IToken successToken;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		successToken = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		rule = new PumlFileInclusionRule(successToken);
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		successToken = null;
 		rule = null;
