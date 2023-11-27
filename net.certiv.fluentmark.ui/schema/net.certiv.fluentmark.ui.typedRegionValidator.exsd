@@ -65,7 +65,7 @@
                   An ITypedRegioniValidator implementation for a certain type of partitioning to be used as extension during file checks.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.editor.markers.ITypedRegionValidator"/>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.validation.ITypedRegionValidator"/>
                </appinfo>
             </annotation>
          </attribute>

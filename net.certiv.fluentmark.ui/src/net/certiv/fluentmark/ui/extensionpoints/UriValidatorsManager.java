@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.markers.IUriValidator;
+import net.certiv.fluentmark.ui.validation.IUriValidator;
 
 public class UriValidatorsManager {
 	
