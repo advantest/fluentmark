@@ -41,6 +41,11 @@ public class PumlFileInclusionRuleTest {
 		scanner = null;
 	}
 	
+//	@Test
+//	public void test() {
+//		fail();
+//	}
+	
 	@Test
 	public void pumlFileInclusionMatches() {
 		String input = "![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)";
