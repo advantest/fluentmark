@@ -130,7 +130,7 @@ public class LinkRuleTest {
 	// for link reference definitions see https://spec.commonmark.org/0.30/#link-reference-definition
 	
 	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
-	@ValueSource(strings = { "[adv]: https://www.advantest.com \"Advantest Europe\"",
+	@ValueSource(strings = {
 		        "[adv]: https://www.advantest.com",
 		        "[adv]:https://www.advantest.com",
 		        "[adv]:\nhttps://www.advantest.com"})
@@ -141,6 +141,18 @@ public class LinkRuleTest {
 		
 		assertEquals(successToken, resultToken);
 		assertEquals(input, scanner.getConsumedText());
+	}
+	
+	@Test
+	public void linkReferenceDefinitionsMatchWithoutLabel() {
+		String match = "[adv]: https://www.advantest.com";
+		String input = match + " \"Advantest Europe\"";
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(match, scanner.getConsumedText());
 	}
 
 }
