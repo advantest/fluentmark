@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Tests Lib
 Bundle-SymbolicName: com.advantest.fluentmark.tests
-Bundle-Version: 1.3.1.qualifier
+Bundle-Version: 1.4.0.qualifier
 Require-Bundle: org.eclipse.jface.text;bundle-version="3.21.0"
 Bundle-Vendor: Advantest Europe GmbH
 Automatic-Module-Name: com.advantest.fluentmark.tests
