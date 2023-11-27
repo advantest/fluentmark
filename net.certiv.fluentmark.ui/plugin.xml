@@ -37,7 +37,7 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="net.certiv.fluentmark.ui.editor.markers.ValidationDocumentSetupParticipant"
+            class="net.certiv.fluentmark.ui.validation.ValidationDocumentSetupParticipant"
             contentTypeId="net.certiv.fluentmark.contentType"
             extensions="md">
       </participant>
