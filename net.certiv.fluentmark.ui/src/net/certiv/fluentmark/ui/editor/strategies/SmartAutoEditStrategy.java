@@ -33,7 +33,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import java.util.Arrays;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -959,9 +959,9 @@ public class SmartAutoEditStrategy implements IAutoEditStrategy {
 	private static int getValidPositionForPartition(IDocument doc, ITypedRegion partition, int maxOffset) {
 		final int INVALID = -1;
 
-		if (Partitions.FRONT_MATTER.equals(partition.getType())) return INVALID;
-		if (Partitions.COMMENT.equals(partition.getType())) return INVALID;
-		if (Partitions.CODEBLOCK.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitions.FRONT_MATTER.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitions.COMMENT.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitions.CODEBLOCK.equals(partition.getType())) return INVALID;
 
 		int endOffset = Math.min(maxOffset, partition.getOffset() + partition.getLength());
 		if (IDocument.DEFAULT_CONTENT_TYPE.equals(partition.getType())) {

@@ -7,12 +7,12 @@
  * 
  * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.markers;
+package net.certiv.fluentmark.ui.validation;
 
 import net.certiv.fluentmark.ui.FluentUI;
 
 public interface MarkerConstants {
 	
-	static final String MARKER_ID_MARKDOWN_PROBLEM = FluentUI.PLUGIN_ID + ".markers.markdown";
+	static final String MARKER_ID_DOCUMENTATION_PROBLEM = FluentUI.PLUGIN_ID + ".markers.documentation";
 
 }

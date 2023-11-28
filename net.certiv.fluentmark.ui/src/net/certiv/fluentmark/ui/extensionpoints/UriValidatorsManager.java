@@ -21,11 +21,11 @@ import java.util.Collections;
 import java.util.List;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.markers.IUriValidator;
+import net.certiv.fluentmark.ui.validation.IUriValidator;
 
 public class UriValidatorsManager {
 	
-	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = "net.certiv.fluentmark.ui.uriValidator";
+	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = "net.certiv.fluentmark.ui.validator.uri";
 	
 	private static UriValidatorsManager INSTANCE = null;
 	

@@ -11,7 +11,6 @@ package net.certiv.fluentmark.ui.editor.text.rules;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.junit.jupiter.api.AfterEach;
@@ -20,10 +19,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
+
 
 public class LinkRuleTest {
 	
-	private ICharacterScanner scanner;
+	private CharacterScannerMock scanner;
 	private LinkRule rule;
 	private IToken successToken;
 	private String linkTokenKey = "Link";
@@ -50,15 +51,18 @@ public class LinkRuleTest {
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	@Test
 	public void emptyLinkMatches() {
-		scanner = new CharacterScannerMock("[Some link title]()");
+		String input = "[Some link title]()";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	@Test
@@ -67,9 +71,8 @@ public class LinkRuleTest {
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
-		// we read '[Text]' which could be a link, but ignore the rest of the text
-		// Unfortunately, this test cannot check which parts of the given String is matched
 		assertEquals(successToken, resultToken);
+		assertEquals("[Text]", scanner.getConsumedText());
 	}
 	
 	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
@@ -85,6 +88,7 @@ public class LinkRuleTest {
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals("", scanner.getConsumedText());
 	}
 	
 	
@@ -92,35 +96,41 @@ public class LinkRuleTest {
 	
 	@Test
 	public void fullRefenceLinkMatches() {
-		scanner = new CharacterScannerMock("[Link title][link path or URL]");
+		String input = "[Link title][link path or URL]";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	@Test
 	public void collapsedRefenceLinkMatches() {
-		scanner = new CharacterScannerMock("[Link label][]");
+		String input = "[Link label][]";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	@Test
 	public void shortcutReferenceLinkMatches() {
-		scanner = new CharacterScannerMock("[Link label]");
+		String input = "[Link label]";
+		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
 	}
 	
 	// for link reference definitions see https://spec.commonmark.org/0.30/#link-reference-definition
 	
 	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
-	@ValueSource(strings = { "[adv]: https://www.advantest.com \"Advantest Europe\"",
+	@ValueSource(strings = {
 		        "[adv]: https://www.advantest.com",
 		        "[adv]:https://www.advantest.com",
 		        "[adv]:\nhttps://www.advantest.com"})
@@ -130,6 +140,19 @@ public class LinkRuleTest {
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
+	}
+	
+	@Test
+	public void linkReferenceDefinitionsMatchWithoutLabel() {
+		String match = "[adv]: https://www.advantest.com";
+		String input = match + " \"Advantest Europe\"";
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(match, scanner.getConsumedText());
 	}
 
 }
