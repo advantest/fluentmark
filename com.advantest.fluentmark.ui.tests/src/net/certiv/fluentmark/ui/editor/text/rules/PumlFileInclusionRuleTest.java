@@ -16,6 +16,8 @@ import org.eclipse.jface.text.rules.Token;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
 
@@ -52,9 +54,13 @@ public class PumlFileInclusionRuleTest {
 		assertEquals(input, scanner.getConsumedText());
 	}
 	
-	@Test
-	public void imageFileInclusionDoesNotMatch() {
-		String input = "![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)";
+	@ParameterizedTest(name = "[{index}] Image inclusion {0} does not match (as expected)")
+	@ValueSource(strings = {
+			"![Some label](../../path/to/some_image.gif)", 
+			"![any text \\[with escaped square brackets\\]](any/PATH/to/some_image.jpg)",
+			"![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)"
+			})
+	public void imageFileInclusionDoesNotMatch(String input) {
 		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
