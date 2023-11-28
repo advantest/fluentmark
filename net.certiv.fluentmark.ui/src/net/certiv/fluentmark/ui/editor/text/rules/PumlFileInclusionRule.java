@@ -42,13 +42,14 @@ public class PumlFileInclusionRule implements IPredicateRule {
 	
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		String prefix = "![";
 		// read "!["
-		if (!tryReadingSequence(scanner, "![")) {
+		if (!tryReadingSequence(scanner, prefix)) {
 			return Token.UNDEFINED;
 		}
 
 		// read any character until "]" or end of file/line reached
-		int charactersRead = 0;
+		int charactersRead = prefix.length();
 		int charAsInt;
 		do {
 			charAsInt = scanner.read();

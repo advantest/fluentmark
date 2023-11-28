@@ -41,11 +41,6 @@ public class PumlFileInclusionRuleTest {
 		scanner = null;
 	}
 	
-//	@Test
-//	public void test() {
-//		fail();
-//	}
-	
 	@Test
 	public void pumlFileInclusionMatches() {
 		String input = "![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)";
@@ -65,7 +60,7 @@ public class PumlFileInclusionRuleTest {
 		IToken resultToken = rule.evaluate(scanner);
 		
 		assertEquals(Token.UNDEFINED, resultToken);
-		assertEquals(input, scanner.getConsumedText());
+		assertEquals("", scanner.getConsumedText());
 	}
 	
 }
