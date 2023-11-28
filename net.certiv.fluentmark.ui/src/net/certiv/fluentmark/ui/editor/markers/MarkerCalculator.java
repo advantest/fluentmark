@@ -148,7 +148,12 @@ public class MarkerCalculator {
 							connectPartitioningToElement(document);
 						}
 						
-						calculateMarkers(monitor, document, file);
+						try {
+							calculateMarkers(monitor, document, file);
+						}
+						catch (Exception e) {
+							FluentUI.log(IStatus.WARNING, "Problem marker calculation failed.", e);
+						}
 						monitor.worked(1);
 					}
 				}

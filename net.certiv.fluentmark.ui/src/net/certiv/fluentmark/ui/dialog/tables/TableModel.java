@@ -60,8 +60,8 @@ public class TableModel {
 		PageRoot model = part.getPageModel();
 		for (int idx = part.getBeginLine(), row = 0; idx <= part.getEndLine(); idx++) {
 			String text = model.getText(idx);
-			String[] cols = parseRow(text.substring(1));
-			if (text.trim().contains("---")) {
+			String[] cols = parseRow(text);
+			if (text.contains("---")) {
 				formatRow = row;
 				aligns = getAligns(cols);
 				numCols = cols.length;
@@ -164,10 +164,12 @@ public class TableModel {
 	private void calcColWidths() {
 		colWidths = new int[numCols];
 		for (int col = 0; col < numCols; col++) {
-			colWidths[col] = aligns[col] == SWT.CENTER ? 5 : 4;
+			colWidths[col] = (col < aligns.length && aligns[col] == SWT.CENTER) ? 5 : 4;
 			for (Row row : rows) {
 				if (row.row == formatRow) continue;
-				colWidths[col] = Math.max(colWidths[col], row.data[col].length());
+				if (col < row.data.length) {
+					colWidths[col] = Math.max(colWidths[col], row.data[col].length());
+				}
 			}
 		}
 	}
@@ -215,20 +217,17 @@ public class TableModel {
 			sb.append("|");
 		}
 		
-		if (row.num != null) {
-			String existing = part.getPageModel().getText(row.num);
-			int mark = existing.lastIndexOf("|");
-			if (mark < existing.length() - 1) {
-				sb.append(existing.substring(mark + 1));
-			}
-		}
-		
 		sb.append(part.getLineDelim());
 	}
 
 	private String[] parseRow(String text) {
-		int end = text.lastIndexOf('|');
-		text = text.substring(0, end);
+		if (text.startsWith("|")) {
+			text = text.substring(1);
+		}
+		if (text.endsWith("|") && !text.endsWith("\\|")) {
+			text = text.substring(0, text.length() - 1);
+		}
+		
 		String[] cols = text.split("(?<!\\\\)\\|", -1);
 		for (int idx = 0; idx < cols.length; idx++) {
 			cols[idx] = cols[idx].trim();
