@@ -79,6 +79,9 @@
       <super
             type="org.eclipse.core.resources.textmarker">
       </super>
+      <persistent
+            value="true">
+      </persistent>
    </extension>
 
    <extension
