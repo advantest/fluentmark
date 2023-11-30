@@ -702,7 +702,7 @@
    <extension
          point="net.certiv.fluentmark.ui.validator.typedRegion">
       <validator
-            class="net.certiv.fluentmark.ui.editor.markers.MarkdownLinkValidator"
+            class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
             id="net.certiv.fluentmark.ui.validator.markdown">
       </validator>
    </extension>
