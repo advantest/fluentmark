@@ -22,6 +22,7 @@
 			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="6.3.0.202209071007-r"/>
 			<unit id="org.eclipse.jgit.feature.group" version="6.3.0.202209071007-r"/>
 			<unit id="org.eclipse.jdt.feature.group" version="3.18.1300.v20220831-1800"/>
+			<unit id="org.eclipse.cdt.sdk.feature.group" version="10.7.1.202208222120"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://hallvard.github.io/plantuml"/>
