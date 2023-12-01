@@ -8,6 +8,10 @@
 			<unit id="org.antlr.runtime" version="3.5.2.v20200724-1452"/>
 			<unit id="org.antlr.runtime" version="4.7.2.v20200218-0804"/>
 			<unit id="com.google.gson" version="2.9.0.v20220704-0629"/>
+			<unit id="org.hamcrest" version="2.2.0.v20210711-0821"/>
+			<unit id="org.hamcrest.source" version="2.2.0.v20210711-0821"/>
+			<unit id="org.mockito" version="2.23.0.v20200310-1642"/>
+			<unit id="org.mockito.source" version="2.23.0.v20200310-1642"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/releases/2022-09"/>
