@@ -41,7 +41,11 @@ public class RuleTools {
 	}
 	
 	public static boolean sequenceFound(ICharacterScanner scanner, String sequence) {
-		boolean success = tryReadingSequence(scanner, sequence);
+		return sequenceFound(scanner, sequence, false);
+	}
+	
+	public static boolean sequenceFound(ICharacterScanner scanner, String sequence, boolean ignoreCase) {
+		boolean success = tryReadingSequence(scanner, sequence, ignoreCase);
 		if (success) {
 			unreadCharacters(scanner, sequence.length());
 		}
@@ -49,13 +53,19 @@ public class RuleTools {
 	}
 	
 	public static boolean tryReadingSequence(ICharacterScanner scanner, String sequence) {
+		return tryReadingSequence(scanner, sequence, false);
+	}
+	
+	public static boolean tryReadingSequence(ICharacterScanner scanner, String sequence, boolean ignoreCase) {
 		int charAsInt;
 		char[] characterSequence = sequence.toCharArray();
 		
 		for (int i = 0; i < characterSequence.length; i++) {
 			charAsInt = scanner.read();
+			char readChar = (char) charAsInt;
 			
-			if (charAsInt != characterSequence[i]) {
+			if (readChar != characterSequence[i]
+					&& (!ignoreCase || Character.toLowerCase(readChar) != Character.toLowerCase(characterSequence[i]))) {
 				unreadCharacters(scanner, i + 1);
 				return false;
 			}
