@@ -43,6 +43,8 @@ public class FilePathValidator {
 	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
+	private String workspacePath = null;
+	
 	public FilePathValidator() {
 		HEADING_WITH_ANCHOR_PREFIX_PATTERN = Pattern.compile(REGEX_HEADING_ANCHOR_PREFIX);
 		HEADING_WITH_ANCHOR_PATTERN = Pattern.compile(REGEX_HEADING_WITH_ANCHOR);
@@ -99,8 +101,14 @@ public class FilePathValidator {
 		File targetFile = absolutePath.toFile();
 		
 		if (!targetFile.exists()) {
+			String workspacePath = getWorkspacePathFromEnvVariable();
+			String adaptedPath = targetFile.getAbsolutePath();
+			if (workspacePath.length() > 0 && adaptedPath.startsWith(workspacePath)) {
+				adaptedPath = adaptedPath.replace(workspacePath, "$WORKSPACE");
+			}
+			
 			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
-					String.format("The referenced file '%s' does not exist. Full path: %s", resourceRelativePath.toString(), targetFile.getAbsolutePath()),
+					String.format("The referenced file '%s' does not exist. Target path: %s", resourceRelativePath.toString(), adaptedPath),
 					lineNumber,
 					offset,
 					endOffset);
@@ -108,7 +116,7 @@ public class FilePathValidator {
 		
 		if (!targetFile.isFile()) {
 			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Full path: %s",
+					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Target path: %s",
 							resourceRelativePath.toString(), targetFile.getAbsolutePath()),
 					lineNumber,
 					offset,
@@ -221,6 +229,23 @@ public class FilePathValidator {
 		}
 		
 		return null;
+	}
+	
+	private String getWorkspacePathFromEnvVariable() {
+		if (this.workspacePath == null) {
+			try {
+				this.workspacePath = System.getenv("WORKSPACE");
+			}
+			catch (SecurityException e) {
+				// do nothing
+			}
+			
+			// avoid reading a missing or not accessible environment variable again and again
+			if (this.workspacePath == null) {
+				this.workspacePath = "";
+			}
+		}
+		return this.workspacePath; 
 	}
 
 }
