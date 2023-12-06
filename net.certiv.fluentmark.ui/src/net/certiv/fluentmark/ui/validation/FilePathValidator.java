@@ -99,7 +99,7 @@ public class FilePathValidator {
 		File targetFile = absolutePath.toFile();
 		
 		if (!targetFile.exists()) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
 					String.format("The referenced file '%s' does not exist. Full path: %s", resourceRelativePath.toString(), targetFile.getAbsolutePath()),
 					lineNumber,
 					offset,
