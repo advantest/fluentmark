@@ -34,7 +34,7 @@
 	</properties>
 
 	<modules>
-	    <module>target-platform/2022-09</module>
+	    <module>target-platform/2023-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
@@ -136,7 +136,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-425</artifactId>
+							<artifactId>eclipse-430</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 					</target>
