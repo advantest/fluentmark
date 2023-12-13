@@ -31,6 +31,8 @@
 			<unit id="org.eclipse.swtbot.forms.feature.group" version="4.1.0.202306071420"/>
 			<unit id="org.eclipse.swtbot.generator.feature.feature.group" version="4.1.0.202306071420"/>
 			<unit id="org.eclipse.swtbot.ide.feature.group" version="4.1.0.202306071420"/>
+			<unit id="org.eclipse.core.runtime.feature.feature.group" version="1.4.200.v20231110-1900"/>
+			<unit id="org.eclipse.platform.feature.group" version="4.30.0.v20231201-0512"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://hallvard.github.io/plantuml"/>
