@@ -9,6 +9,7 @@ package net.certiv.fluentmark.core.convert;
 import org.eclipse.core.runtime.IPath;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -35,11 +36,11 @@ import java.net.URISyntaxException;
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -72,7 +73,7 @@ public class Converter {
 			return flexmarkHtmlRenderer.renderHtml(markdownSourceCode);
 		}
 		
-		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
+		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {
@@ -252,26 +253,26 @@ public class Converter {
 			regionType = typedRegion.getType();
 			
 			switch (regionType) {
-				case Partitions.FRONT_MATTER:
+				case MarkdownPartitions.FRONT_MATTER:
 					if (!includeFrontMatter) continue;
 					break;
-				case Partitions.DOTBLOCK:
+				case MarkdownPartitions.DOTBLOCK:
 					if (configurationProvider.isDotEnabled()) {
 						text = filter(text, DOTBEG, DOTEND);
 						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.UMLBLOCK:
+				case MarkdownPartitions.UMLBLOCK:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.PLANTUML_INCLUDE:
+				case MarkdownPartitions.PLANTUML_INCLUDE:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
-				case Partitions.COMMENT:
+				case MarkdownPartitions.COMMENT:
 					if (!text.isEmpty()
 							&& text.startsWith("<!---")
 							&& text.endsWith("--->")) {
@@ -303,38 +304,35 @@ public class Converter {
 		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
         String remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
         
-        String pumlFileContent = readPumlFile(currentMarkdownFilePath, relativePumlFilePath);
-        String pumlDiagram = convertPlantUml2Svg(pumlFileContent);
+        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
+        File pumlFile = absolutePumlFilePath.toFile();
         
-        String htmlFigure = createHtmlFigure(pumlDiagram, figureCaption);
+        Path tempDirPath;
+		try {
+			tempDirPath = Files.createTempDirectory("puml2svg-");
+		} catch (IOException e) {
+			throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
+		}
+        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
+        String svgDiagram = "";
+        
+        if (svgFile != null && svgFile.exists()) {
+        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
+        	svgDiagram = removeSvgMetaInfos(svgFileContent);
+        	
+        	boolean fileDeleted = svgFile.delete();
+        	if (fileDeleted) {
+        		tempDirPath.toFile().delete();
+        	}
+        }
+        
+        String htmlFigure = createHtmlFigure(svgDiagram, figureCaption);
         
         if (htmlFigure != null) {
         	return htmlFigure + remainingLine;
         }
         
         return markdownCodeWithPumlIncludeStatement;
-	}
-	
-	private String readPumlFile(IPath currentMarkdownFilePath, IPath relativePumlFilePath) {
-        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
-        
-        File file = absolutePumlFilePath.toFile();
-        String pumlFileContent = readTextFromFile(file);
-        
-        return pumlFileContent;
-	}
-	
-	private String readTextFromFile(File file) {
-		if (file != null && file.exists() && file.isFile()) {
-			try {
-				return Files.readString(
-						Paths.get(file.getAbsolutePath()),
-						StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				throw new RuntimeException(String.format("Could not read PlantUML file %s", file.getAbsolutePath()), e);
-			}
-		}
-		return null;
 	}
 	
 	private String convertDot2Svg(String dotCode) {
@@ -349,17 +347,28 @@ public class Converter {
 		String svgDiagram = "";
         if (plantUmlCode != null) {
         	svgDiagram = umlGen.uml2svg(plantUmlCode);
-        	
-        	// remove meta-infos since we're only interested in the SVG tag contents
-        	// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
-        	if (svgDiagram.startsWith("<?xml ")) {
-        		int indexOfEndTag = svgDiagram.indexOf("?>");
-        		if (indexOfEndTag >= 0) {
-        			svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
-        		}
-        	}
+        	svgDiagram = removeSvgMetaInfos(svgDiagram);
         }
         return svgDiagram;
+	}
+	
+	private String removeSvgMetaInfos(String svgSources) {
+		String svgDiagram = svgSources;
+		
+		if (StringUtils.isBlank(svgSources)) {
+			return svgDiagram;
+		}
+		
+		// remove meta-infos since we're only interested in the SVG tag contents
+    	// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
+    	if (svgSources.startsWith("<?xml ")) {
+    		int indexOfEndTag = svgSources.indexOf("?>");
+    		if (indexOfEndTag >= 0) {
+    			svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
+    		}
+    	}
+    	
+    	return svgDiagram;
 	}
 	
 	private String createHtmlFigure(String svgCode, String figureCaption) {

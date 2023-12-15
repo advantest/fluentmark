@@ -36,10 +36,11 @@ import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Shell;
 
-import net.certiv.fluentmark.core.convert.Partitions;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
@@ -48,7 +49,6 @@ import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.editor.strategies.DoubleClickStrategy;
-import net.certiv.fluentmark.ui.editor.strategies.LineWrapEditStrategy;
 import net.certiv.fluentmark.ui.editor.strategies.PairEditStrategy;
 import net.certiv.fluentmark.ui.editor.strategies.SmartAutoEditStrategy;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
@@ -132,13 +132,13 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		PresentationReconciler reconciler = new FluentPresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
-		buildRepairer(reconciler, frontMatter, Partitions.FRONT_MATTER);
-		buildRepairer(reconciler, commentScanner, Partitions.COMMENT);
-		buildRepairer(reconciler, codeScanner, Partitions.CODEBLOCK);
-		buildRepairer(reconciler, dotScanner, Partitions.DOTBLOCK);
-		buildRepairer(reconciler, umlScanner, Partitions.UMLBLOCK);
-		buildRepairer(reconciler, mathScanner, Partitions.MATHBLOCK);
-		buildRepairer(reconciler, htmlScanner, Partitions.HTMLBLOCK);
+		buildRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
+		buildRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
+		buildRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
+		buildRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
+		buildRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
+		buildRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
+		buildRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
 		buildRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
@@ -199,13 +199,15 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
 		switch (contentType) {
-			case Partitions.DOTBLOCK:
+			case MarkdownPartitions.DOTBLOCK:
 				// return new IAutoEditStrategy[] { new DotAutoEditStrategy(partitioning),
 				// new LineWrapEditStrategy(editor), new PairEditStrategy() };
 
 			default:
-				return new IAutoEditStrategy[] { new SmartAutoEditStrategy(partitioning),
-						new LineWrapEditStrategy(editor), new PairEditStrategy() };
+				return new IAutoEditStrategy[] {
+						new SmartAutoEditStrategy(partitioning),
+						//new LineWrapEditStrategy(editor),
+						new PairEditStrategy() };
 		}
 	}
 
@@ -253,8 +255,8 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
-		assistant.setContentAssistProcessor(processor, Partitions.DOTBLOCK);
-		assistant.setContentAssistProcessor(processor, Partitions.PLANTUML_INCLUDE);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitions.DOTBLOCK);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitions.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
@@ -377,9 +379,9 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return new String[] { IDocument.DEFAULT_CONTENT_TYPE, Partitions.FRONT_MATTER, Partitions.COMMENT,
-				Partitions.CODEBLOCK, Partitions.HTMLBLOCK, Partitions.DOTBLOCK, Partitions.UMLBLOCK,
-				Partitions.MATHBLOCK };
+		return new String[] { IDocument.DEFAULT_CONTENT_TYPE, MarkdownPartitions.FRONT_MATTER, MarkdownPartitions.COMMENT,
+				MarkdownPartitions.CODEBLOCK, MarkdownPartitions.HTMLBLOCK, MarkdownPartitions.DOTBLOCK, MarkdownPartitions.UMLBLOCK,
+				MarkdownPartitions.MATHBLOCK };
 	}
 
 	@Override
@@ -387,87 +389,27 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		if (partitioning != null) return partitioning;
 		return super.getConfiguredDocumentPartitioning(sourceViewer);
 	}
+	
+	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor) {
+		return createSourceViewerConfiguraton(store, editor, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+	}
 
-	// /**
-	// * Set the outline on this configuration. Outlines are used for document-internal references
-	// as
-	// * well as for quick outline. Editors that call this method must keep the outline up to date
-	// as
-	// * the source document changes. Editors that do not maintain an outline need not call this
-	// * method, since the outline will be computed as needed for the quick outline.
-	// *
-	// * @param outlineModel
-	// */
-	// public void setOutline(OutlineItem outlineModel) {
-	// this.outline = outlineModel;
-	// if (anchorCompletionProcessor != null) {
-	// anchorCompletionProcessor.setOutline(outline);
-	// }
-	// }
+	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor,
+			String partitioning) {
+		return new FluentSourceViewerConfiguration(getColorMgr(), store, editor, partitioning);
+	}
 
-	// /**
-	// * Provide access to an information presenter that can be used to pop-up a quick outline.
-	// */
-	// public IInformationPresenter getOutlineInformationPresenter(ISourceViewer sourceViewer) {
-	// if (informationPresenter == null) {
-	// IInformationControlCreator controlCreator = getOutlineInformationControlCreator();
-	// informationPresenter = new InformationPresenter(controlCreator);
-	// informationPresenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-	//
-	// // Register information provider
-	// IInformationProvider provider = new InformationProvider(controlCreator);
-	// String[] contentTypes = getConfiguredContentTypes(sourceViewer);
-	// for (String contentType : contentTypes) {
-	// informationPresenter.setInformationProvider(provider, contentType);
-	// }
-	//
-	// informationPresenter.setSizeConstraints(60, 20, true, true);
-	// }
-	// return informationPresenter;
-	// }
+	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store) {
+		return createSimpleSourceViewerConfiguration(store, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+	}
 
-	// private class InformationProvider
-	// implements IInformationProvider, IInformationProviderExtension,
-	// IInformationProviderExtension2 {
-	//
-	// private final IInformationControlCreator controlCreator;
-	//
-	// public InformationProvider(IInformationControlCreator controlCreator) {
-	// this.controlCreator = controlCreator;
-	// }
-	//
-	// @Deprecated
-	// public String getInformation(ITextViewer textViewer, IRegion subject) {
-	// return getInformation2(textViewer, subject).toString();
-	// }
-	//
-	// public Object getInformation2(ITextViewer textViewer, IRegion subject) {
-	// if (outline == null) {
-	// // If the outline was not set then parse it. This can happen in a task editor
-	// if (markupLanguage != null) {
-	// IDocument document = textViewer.getDocument();
-	// if (document != null && document.getLength() > 0) {
-	// MarkupLanguage language = markupLanguage.clone();
-	// OutlineParser outlineParser = new OutlineParser();
-	// outlineParser.setMarkupLanguage(language.clone());
-	// String markup = document.get();
-	// final OutlineItem outline = outlineParser.parse(markup);
-	// if (MarkupSourceViewerConfiguration.this.file != null) {
-	// outline.setResourcePath(MarkupSourceViewerConfiguration.this.file.getFullPath().toString());
-	// }
-	// return outline;
-	// }
-	// }
-	// }
-	// return outline;
-	// }
-	//
-	// public IRegion getSubject(ITextViewer textViewer, int offset) {
-	// return new Region(offset, 0);
-	// }
-	//
-	// public IInformationControlCreator getInformationPresenterControlCreator() {
-	// return controlCreator;
-	// }
-	// }
+	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store,
+			String partitioning) {
+		return new FluentSimpleSourceViewerConfiguration(getColorMgr(), store, null, partitioning, false);
+	}
+	
+	private static IColorManager getColorMgr() {
+		return FluentUI.getDefault().getColorMgr();
+	}
+
 }

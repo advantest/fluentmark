@@ -281,6 +281,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			
 		});
 		
+		int replacementLengthLeftFromCursor = linkTextLeftFromCursor.length() - linkTextLeftFromCursorWithoutLastPartialSegment.length();
+		int newOffset = offset - replacementLengthLeftFromCursor;
+		
 		for (File fileInDir : files) {
 			// skip the file we have already open in editor
 			if (fileInDir.equals(currentEditorsMarkdownFile.getLocation().toFile())) {
@@ -294,8 +297,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			String filePathSegment = fileInDir.getName();
-			if (!linkTextLeftFromCursor.isBlank()
-					&& !linkTextLeftFromCursor.endsWith("/")) {
+			if (!linkTextLeftFromCursorWithoutLastPartialSegment.isBlank()) {
 				filePathSegment = '/' + filePathSegment;
 			}
 			
@@ -307,7 +309,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FILE);
 			}
 			
-			proposals.add(new CompletionProposal(filePathSegment, offset, linkTextRightFromCursor.length(), filePathSegment.length(), img, null, null, null));
+			proposals.add(new CompletionProposal(filePathSegment, newOffset, replacementLengthLeftFromCursor + linkTextRightFromCursor.length(), filePathSegment.length(), img, null, null, null));
 		}
 		
 		String parentDir = currentDir.getParent();

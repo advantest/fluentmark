@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>Fluentmark</artifactId>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.4.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -34,7 +34,7 @@
 	</properties>
 
 	<modules>
-	    <module>target-platform/2022-09</module>
+	    <module>target-platform/2023-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
@@ -43,8 +43,10 @@
 		<module>com.advantest.fluentmark.extensions.validations</module>
 		<module>com.advantest.fluentmark.extensions.feature</module>
 		<module>site</module>
+		<module>tests/com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
+		<module>tests/com.advantest.fluentmark.extensions.validations.tests</module>
 	</modules>
 
 	<repositories>
@@ -91,14 +93,15 @@
 				</configuration>
 			</plugin>
 			
+			<!--
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
-					<!-- <argLine>${tycho.testArgLine} -Xms128m -Xmx4096m -Xss4m</argLine> -->
-					<!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
-					<!-- <failIfNoTests>false</failIfNoTests> -->
+					<argLine>${tycho.testArgLine} -Xms128m -Xmx4096m -Xss4m</argLine>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<failIfNoTests>false</failIfNoTests>
 					<showEclipseLog>true</showEclipseLog>
 					<useUIHarness>true</useUIHarness>
 					<includes>
@@ -106,7 +109,25 @@
 			        </includes>
 				</configuration>
 			</plugin>
-
+			 -->
+			
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<showEclipseLog>true</showEclipseLog>
+					<useUIHarness>false</useUIHarness>
+					<showEclipseLog>true</showEclipseLog>
+					<failIfNoTests>true</failIfNoTests>
+					<includes>
+          				<include>**/*Test.java</include>
+          				<include>**/*IT.java</include>
+			        </includes>
+			        <providerHint>junit57</providerHint>
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
@@ -115,7 +136,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-425</artifactId>
+							<artifactId>eclipse-430</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 					</target>

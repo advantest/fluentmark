@@ -9,6 +9,11 @@
  */
 package net.certiv.fluentmark.ui.editor.text.rules;
 
+import static net.certiv.fluentmark.ui.editor.text.rules.RuleTools.charIsEofOrLineEnding;
+import static net.certiv.fluentmark.ui.editor.text.rules.RuleTools.sequenceFound;
+import static net.certiv.fluentmark.ui.editor.text.rules.RuleTools.tryReadingSequence;
+import static net.certiv.fluentmark.ui.editor.text.rules.RuleTools.unreadCharacters;
+
 import org.eclipse.core.runtime.Assert;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
@@ -37,13 +42,14 @@ public class PumlFileInclusionRule implements IPredicateRule {
 	
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		String prefix = "![";
 		// read "!["
-		if (!tryReadingSequence(scanner, "![")) {
+		if (!tryReadingSequence(scanner, prefix)) {
 			return Token.UNDEFINED;
 		}
 
 		// read any character until "]" or end of file/line reached
-		int charactersRead = 0;
+		int charactersRead = prefix.length();
 		int charAsInt;
 		do {
 			charAsInt = scanner.read();
@@ -90,61 +96,4 @@ public class PumlFileInclusionRule implements IPredicateRule {
 				|| charAsInt == '/');
 	}
 	
-	private boolean charIsEofOrLineEnding(ICharacterScanner scanner, int charAsInt) {
-		if (charAsInt == ICharacterScanner.EOF) {
-			return true;
-		}
-		
-		char[][] legalLineDelimiters = scanner.getLegalLineDelimiters();
-		for (char[] lineDelimiter : legalLineDelimiters) {
-			if (lineDelimiter.length == 1 && charAsInt == lineDelimiter[0]) {
-				return true;
-			}
-			
-			if (lineDelimiter.length == 2) {
-				boolean charsEqual = (charAsInt == lineDelimiter[0]);
-				if (charsEqual) {
-					int nextChar = scanner.read();
-					charsEqual = (nextChar == lineDelimiter[1]);
-					scanner.unread();
-				}
-				
-				if (charsEqual) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	private boolean sequenceFound(ICharacterScanner scanner, String sequence) {
-		boolean success = tryReadingSequence(scanner, sequence);
-		if (success) {
-			unreadCharacters(scanner, sequence.length());
-		}
-		return success;
-	}
-	
-	private boolean tryReadingSequence(ICharacterScanner scanner, String sequence) {
-		int charAsInt;
-		char[] characterSequence = sequence.toCharArray();
-		
-		for (int i = 0; i < characterSequence.length; i++) {
-			charAsInt = scanner.read();
-			
-			if (charAsInt != characterSequence[i]) {
-				unreadCharacters(scanner, i + 1);
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	private void unreadCharacters(ICharacterScanner scanner, int numberOfCharactersToUnread) {
-		for (int i = 1; i <= numberOfCharactersToUnread; i++) {
-			scanner.unread();
-		}
-	}
-
 }

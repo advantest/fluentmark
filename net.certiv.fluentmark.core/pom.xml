@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>Fluentmark</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.4.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,7 +19,7 @@
 	
 	<properties>
 		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
-		<plantuml-lib-version>1.2023.9</plantuml-lib-version>
+		<plantuml-lib-version>1.2023.11</plantuml-lib-version>
 		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
 	</properties>
 	

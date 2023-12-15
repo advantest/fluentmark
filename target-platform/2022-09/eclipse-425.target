@@ -8,6 +8,10 @@
 			<unit id="org.antlr.runtime" version="3.5.2.v20200724-1452"/>
 			<unit id="org.antlr.runtime" version="4.7.2.v20200218-0804"/>
 			<unit id="com.google.gson" version="2.9.0.v20220704-0629"/>
+			<unit id="org.hamcrest" version="2.2.0.v20210711-0821"/>
+			<unit id="org.hamcrest.source" version="2.2.0.v20210711-0821"/>
+			<unit id="org.mockito" version="2.23.0.v20200310-1642"/>
+			<unit id="org.mockito.source" version="2.23.0.v20200310-1642"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/releases/2022-09"/>
@@ -22,13 +26,14 @@
 			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="6.3.0.202209071007-r"/>
 			<unit id="org.eclipse.jgit.feature.group" version="6.3.0.202209071007-r"/>
 			<unit id="org.eclipse.jdt.feature.group" version="3.18.1300.v20220831-1800"/>
+			<unit id="org.eclipse.cdt.sdk.feature.group" version="10.7.1.202208222120"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://hallvard.github.io/plantuml"/>
-			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.27.202209082104"/>
-			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.27.202209082104"/>
+			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.30"/>
+			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.30"/>
 			<unit id="net.sourceforge.plantuml.lib.elk.feature.feature.group" version="0.7.1"/>
-			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2022.7"/>
+			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2023.11"/>
 			<unit id="net.sourceforge.plantuml.lib.jlatexmath.feature.feature.group" version="1.0.7"/>
 		</location>
 	</locations>

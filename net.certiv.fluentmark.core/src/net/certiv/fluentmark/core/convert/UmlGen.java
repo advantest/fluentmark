@@ -6,18 +6,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.runtime.CoreException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -28,8 +30,6 @@ import net.sourceforge.plantuml.dot.GraphvizUtils;
 import net.sourceforge.plantuml.preproc.Defines;
 
 public class UmlGen {
-
-	private static final Map<Integer, String> umlCache = new LRUCache<>(20);
 
 	private IConfigurationProvider configurationProvider;
 
@@ -42,17 +42,14 @@ public class UmlGen {
 	}
 
 	public String uml2svg(String data) {
-
-		// return cached value, if present
-		int key = data.hashCode();
-		String value = umlCache.get(key);
-		if (value != null) return value;
-
 		String dotexe = configurationProvider.getDotCommand();
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
 
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		
+		String value;
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			SourceStringReader reader = new SourceStringReader(data);
 			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
@@ -61,30 +58,51 @@ public class UmlGen {
 			throw new RuntimeException("PlantUML exception on" + Strings.EOL + data, e);
 		}
 
-		// update cache if valid value
-		if (value != null && !value.trim().isEmpty()) {
-			umlCache.put(key, value);
-		} else {
-			return "";
-		}
-
 		return value;
 	}
 	
 	public IFile uml2svg(IFile pumlSourceFile) {
+		File sourceFile = new File(pumlSourceFile.getLocation().toString());
+		File targetFile = uml2svg(sourceFile);
+		
+		if (targetFile != null) {
+			IContainer parentFolder = pumlSourceFile.getParent();
+			try {
+				parentFolder.refreshLocal(IResource.DEPTH_ONE, null);
+				IFile file = (IFile) parentFolder.findMember(targetFile.getName());
+				return file;
+			} catch (CoreException e) {
+				throw new RuntimeException(
+						String.format(
+								"Could not refresh (read files in) path %s",
+								parentFolder.getLocation().toString()),
+						e);
+			}
+		}
+		
+		return null;
+	}
+	
+	public File uml2svg(File pumlSourceFile) {
+		return uml2svg(pumlSourceFile, null);
+	}
+
+
+	public File uml2svg(File pumlSourceFile, File targetDirectory) {
 		
 		String dotexe = configurationProvider.getDotCommand();
 		if (!dotexe.isEmpty()) {
 			GraphvizUtils.setDotExecutable(dotexe);
 		}
 		
-		File sourceFile = new File(pumlSourceFile.getLocation().toString());
-		File targetDir = sourceFile.getParentFile();
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		
+		File targetDir = targetDirectory == null ? pumlSourceFile.getParentFile() : targetDirectory;
 		File targetFile = null;
 		SourceFileReader reader;
 		try {
-			reader = new SourceFileReader(Defines.createWithFileName(sourceFile),
-					sourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
+			reader = new SourceFileReader(Defines.createWithFileName(pumlSourceFile),
+					pumlSourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
 			reader.setCheckMetadata(true);
 			List<GeneratedImage> list = reader.getGeneratedImages();
 			
@@ -93,15 +111,10 @@ public class UmlGen {
 				targetFile = img.getPngFile();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getLocation().toString(), e);
+			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getAbsolutePath(), e);
 		}
 		
-		if (targetFile != null) {
-			IFile file = (IFile) pumlSourceFile.getParent().findMember(targetFile.getName());
-			return file;
-		}
-
-		return null;
+		return targetFile;
 	}
 	
 }

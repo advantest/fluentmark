@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.markers;
+package net.certiv.fluentmark.ui.validation;
 
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -41,6 +41,9 @@ public class ValidationDocumentSetupParticipant implements IDocumentSetupPartici
 				
 				// if there is no active editor open, we cannot access the resource
 				// and, thus, cannot create markers (or I don't know how, yet)
+				// But in case the FluentMark extension with the builder for validating
+				// Markdown files is installed and active, the resources will be
+				// validated anyway.
 				
                 if (activeEditor != null && activeEditor instanceof FluentEditor) {
                     IEditorInput editorInput = activeEditor.getEditorInput();

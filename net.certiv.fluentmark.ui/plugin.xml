@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
 <plugin>
-   <extension-point id="uriValidator" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
+   <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
+   <extension-point id="validator.typedRegion" name="Typed Region Validator" schema="schema/net.certiv.fluentmark.ui.typedRegionValidator.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
@@ -36,7 +37,7 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="net.certiv.fluentmark.ui.editor.markers.ValidationDocumentSetupParticipant"
+            class="net.certiv.fluentmark.ui.validation.ValidationDocumentSetupParticipant"
             contentTypeId="net.certiv.fluentmark.contentType"
             extensions="md">
       </participant>
@@ -69,8 +70,8 @@
    
    
    <extension
-         id="markers.markdown"
-         name="Markdown Problem"
+         id="markers.documentation"
+         name="Documentation Problem"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
@@ -78,6 +79,9 @@
       <super
             type="org.eclipse.core.resources.textmarker">
       </super>
+      <persistent
+            value="true">
+      </persistent>
    </extension>
 
    <extension
@@ -85,7 +89,8 @@
       <type
             markerSeverity="2"
             markerType="net.certiv.fluentmark.problem"
-            name="net.certiv.fluentmark.ui.error">
+            name="net.certiv.fluentmark.ui.error"
+            super="org.eclipse.ui.workbench.texteditor.error">
       </type>
       <type
             markerSeverity="1"
@@ -696,6 +701,13 @@
             id="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             name="FluentMark file">
       </wizard>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.ui.validator.typedRegion">
+      <validator
+            class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
+            id="net.certiv.fluentmark.ui.validator.markdown">
+      </validator>
    </extension>
    
 </plugin>
