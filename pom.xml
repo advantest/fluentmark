@@ -28,7 +28,7 @@
 		     see: https://github.com/eclipse-tycho/tycho/issues/725
 		     If you do and encounter problem, you could try deleting / moving
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
-		<tycho.version>2.6.0</tycho.version>
+		<tycho.version>2.7.5</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>11</java.version>
 	</properties>

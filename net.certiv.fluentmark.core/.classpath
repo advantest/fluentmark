@@ -3,24 +3,22 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/com.google.guava-30.1.0.v20210127-2300.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-autolink-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-gfm-strikethrough-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-builder-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-collection-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-data-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-dependency-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-format-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-html-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-misc-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-options-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-sequence-0.64.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-visitor-0.64.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-builder-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-collection-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-data-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-dependency-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-format-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-html-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-misc-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-options-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-sequence-0.64.8-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-visitor-0.64.8-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2023.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.0-SNAPSHOT.jar" sourcepath="/markdown-core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
