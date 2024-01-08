@@ -19,10 +19,12 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.markdownj.MarkdownProcessor;
 import org.pegdown.PegDownProcessor;
 
-import com.advantest.markdown.renderer.html.MarkdownToHtmlRenderer;
+import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
+import com.vladsch.flexmark.util.ast.Document;
 import com.github.rjeschke.txtmark.Processor;
 
 import java.util.regex.Matcher;
@@ -57,7 +59,7 @@ public class Converter {
 	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
 	private final PumlIncludeStatementConverter pumlInclusionConverter;
-	private final MarkdownToHtmlRenderer flexmarkHtmlRenderer = new MarkdownToHtmlRenderer();
+	private final MarkdownParserAndHtmlRenderer flexmarkHtmlRenderer = new MarkdownParserAndHtmlRenderer();
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
@@ -70,7 +72,13 @@ public class Converter {
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
 			String markdownSourceCode = document.get();
-			return flexmarkHtmlRenderer.renderHtml(markdownSourceCode);
+			
+			Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+			
+			// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+			parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+			
+			return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
 		}
 		
 		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
