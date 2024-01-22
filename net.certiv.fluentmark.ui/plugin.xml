@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE xml>
 <plugin>
    <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
    <extension-point id="validator.typedRegion" name="Typed Region Validator" schema="schema/net.certiv.fluentmark.ui.typedRegionValidator.exsd"/>
