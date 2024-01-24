@@ -128,7 +128,9 @@ public class LinkRule implements IRule {
 		
 		// return if nothing expected is coming
 		if (c != ':' && c != '(' && c != '[') {
-			scanner.unread();
+			if (c != ICharacterScanner.EOF) {
+				scanner.unread();
+			}
 			return fToken;
 		}
 		

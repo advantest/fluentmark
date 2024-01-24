@@ -7,19 +7,26 @@
  * 
  * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.markers;
+package net.certiv.fluentmark.ui.validation;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 
 import org.eclipse.core.runtime.CoreException;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 public interface ITypedRegionValidator {
 	
-	boolean isValidatorFor(ITypedRegion region, IDocument document);
+	void setupDocumentPartitioner(IDocument document, IFile file);
 	
-	void validateRegion(ITypedRegion region, IDocument document, IResource resource) throws CoreException;
-
+	ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException;
+	
+	boolean isValidatorFor(IFile file);
+	
+	boolean isValidatorFor(ITypedRegion region, IFile file);
+	
+	void validateRegion(ITypedRegion region, IDocument document, IFile resource) throws CoreException;
+	
 }
