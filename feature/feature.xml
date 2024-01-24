@@ -2,7 +2,7 @@
 <feature
       id="net.certiv.fluentmark.feature"
       label="FluentMark Editor"
-      version="1.4.0.qualifier"
+      version="1.4.1.qualifier"
       provider-name="Certiv Analytics">
 
    <description>
@@ -67,14 +67,14 @@ for more information.
          id="net.certiv.fluentmark.core"
          download-size="0"
          install-size="0"
-         version="1.4.0.qualifier"
+         version="1.4.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="net.certiv.fluentmark.ui"
          download-size="0"
          install-size="0"
-         version="1.4.0.qualifier"
+         version="1.4.1.qualifier"
          unpack="false"/>
 
 </feature>

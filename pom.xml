@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>Fluentmark</artifactId>
-	<version>1.4.0-SNAPSHOT</version>
+	<version>1.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -28,13 +28,13 @@
 		     see: https://github.com/eclipse-tycho/tycho/issues/725
 		     If you do and encounter problem, you could try deleting / moving
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
-		<tycho.version>2.6.0</tycho.version>
+		<tycho.version>2.7.5</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<modules>
-	    <module>target-platform/2022-09</module>
+	    <module>target-platform/2023-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
@@ -136,7 +136,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-425</artifactId>
+							<artifactId>eclipse-430</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 					</target>
