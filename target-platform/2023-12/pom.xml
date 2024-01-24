@@ -10,7 +10,7 @@
   
   <!-- See https://wiki.eclipse.org/Tycho/Packaging_Types#eclipse-target-definition -->
   <!-- The artifactId hat to match the name of the target definition file, but without file extension .target -->
-  <artifactId>eclipse-425</artifactId>
+  <artifactId>eclipse-430</artifactId>
   <name>Fluentmark target platform</name>
   <packaging>eclipse-target-definition</packaging>
   
