@@ -45,7 +45,7 @@ import java.io.File;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.util.JavaCodeMemberResolver;
+import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
 
 public class FluentBrowserUrlListener implements LocationListener {
 

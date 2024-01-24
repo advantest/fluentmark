@@ -35,12 +35,11 @@ import java.net.URISyntaxException;
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -67,7 +66,7 @@ public class Converter {
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		ITypedRegion[] typedRegions = Partitions.computePartitions(document);
+		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
 		
 		String text;
 		switch (configurationProvider.getConverterType()) {
@@ -245,26 +244,26 @@ public class Converter {
 			regionType = typedRegion.getType();
 			
 			switch (regionType) {
-				case Partitions.FRONT_MATTER:
+				case MarkdownPartitions.FRONT_MATTER:
 					if (!includeFrontMatter) continue;
 					break;
-				case Partitions.DOTBLOCK:
+				case MarkdownPartitions.DOTBLOCK:
 					if (configurationProvider.isDotEnabled()) {
 						text = filter(text, DOTBEG, DOTEND);
 						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.UMLBLOCK:
+				case MarkdownPartitions.UMLBLOCK:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
-				case Partitions.PLANTUML_INCLUDE:
+				case MarkdownPartitions.PLANTUML_INCLUDE:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
-				case Partitions.COMMENT:
+				case MarkdownPartitions.COMMENT:
 					if (!text.isEmpty()
 							&& text.startsWith("<!---")
 							&& text.endsWith("--->")) {
@@ -309,7 +308,7 @@ public class Converter {
         String svgDiagram = "";
         
         if (svgFile != null && svgFile.exists()) {
-        	String svgFileContent = readTextFromFile(svgFile);
+        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
         	svgDiagram = removeSvgMetaInfos(svgFileContent);
         	
         	boolean fileDeleted = svgFile.delete();
@@ -325,19 +324,6 @@ public class Converter {
         }
         
         return markdownCodeWithPumlIncludeStatement;
-	}
-	
-	private String readTextFromFile(File file) {
-		if (file != null && file.exists() && file.isFile()) {
-			try {
-				return Files.readString(
-						Paths.get(file.getAbsolutePath()),
-						StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				throw new RuntimeException(String.format("Could not read file %s", file.getAbsolutePath()), e);
-			}
-		}
-		return null;
 	}
 	
 	private String convertDot2Svg(String dotCode) {

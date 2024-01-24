@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.text.rules;
+package com.advantest.fluentmark.tests.text.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
@@ -59,7 +59,7 @@ public class CharacterScannerMock implements ICharacterScanner {
 
 	@Override
 	public void unread() {
-		if (currentCharIndex - 1 >= 0) {
+		if (currentCharIndex - 1 >= -1) {
 			currentCharIndex--;
 			currentColumnIndex--;
 			
@@ -68,6 +68,13 @@ public class CharacterScannerMock implements ICharacterScanner {
 				currentColumnIndex = textLines[currentLineIndex].length();
 			}
 		}
+	}
+	
+	public String getConsumedText() {
+		if (this.currentCharIndex < 0) {
+			return "";
+		}
+		return this.text.substring(0, this.currentCharIndex + 1);
 	}
 
 }
