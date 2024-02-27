@@ -31,10 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.net.URISyntaxException;
-
+import java.net.URLEncoder;
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -68,29 +68,35 @@ public class Converter {
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
 		
-		String text;
-		switch (configurationProvider.getConverterType()) {
-			case PANDOC:
-				text = getText(filePath, document, typedRegions, true);
-				return usePandoc(basepath, text, kind);
-			case BLACKFRIDAY:
-				text = getText(filePath, document, typedRegions, false);
-				return useBlackFriday(basepath, text);
-			case MARKDOWNJ:
-				text = getText(filePath, document, typedRegions, false);
-				return useMarkDownJ(basepath, text);
-			case PEGDOWN:
-				text = getText(filePath, document, typedRegions, false);
-				return usePegDown(basepath, text);
-			case COMMONMARK:
-				text = getText(filePath, document, typedRegions, false);
-				return useCommonMark(basepath, text);
-			case TXTMARK:
-				text = getText(filePath, document, typedRegions, false);
-				return useTxtMark(basepath, text);
-			case OTHER:
-				text = getText(filePath, document, typedRegions, false);
-				return useExternal(basepath, text);
+		try {
+			String text;
+			switch (configurationProvider.getConverterType()) {
+				case PANDOC:
+					text = getText(filePath, document, typedRegions, true);
+					return usePandoc(basepath, text, kind);
+				case BLACKFRIDAY:
+					text = getText(filePath, document, typedRegions, false);
+					return useBlackFriday(basepath, text);
+				case MARKDOWNJ:
+					text = getText(filePath, document, typedRegions, false);
+					return useMarkDownJ(basepath, text);
+				case PEGDOWN:
+					text = getText(filePath, document, typedRegions, false);
+					return usePegDown(basepath, text);
+				case COMMONMARK:
+					text = getText(filePath, document, typedRegions, false);
+					return useCommonMark(basepath, text);
+				case TXTMARK:
+					text = getText(filePath, document, typedRegions, false);
+					return useTxtMark(basepath, text);
+				case OTHER:
+					text = getText(filePath, document, typedRegions, false);
+					return useExternal(basepath, text);
+			}
+		} catch (Exception e) {
+			String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
+			message = String.format(message, URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+			return message;
 		}
 		return "";
 	}
