@@ -310,6 +310,7 @@
         <setEntry value="org.eclipse.swtbot.swt.finder@default:default"/>
         <setEntry value="org.eclipse.team.core@default:default"/>
         <setEntry value="org.eclipse.team.ui@default:default"/>
+        <setEntry value="org.eclipse.text.quicksearch@default:default"/>
         <setEntry value="org.eclipse.text@default:default"/>
         <setEntry value="org.eclipse.tools.templates.core@default:default"/>
         <setEntry value="org.eclipse.tools.templates.freemarker@default:default"/>
