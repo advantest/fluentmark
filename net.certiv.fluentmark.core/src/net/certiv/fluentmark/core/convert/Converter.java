@@ -60,6 +60,12 @@ public class Converter {
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
 	}
+	
+	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
+		String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
+		message = String.format(message, HtmlEscapers.htmlEscaper().escape(errorMessage));
+		return message;
+	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
@@ -90,9 +96,7 @@ public class Converter {
 					return useExternal(basepath, text);
 			}
 		} catch (Exception e) {
-			String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
-			message = String.format(message, HtmlEscapers.htmlEscaper().escape(e.getMessage()));
-			return message;
+			return createHtmlMessageCouldNotConvertMarkdown(e.getMessage());
 		}
 		return "";
 	}
@@ -283,42 +287,26 @@ public class Converter {
 	}
 
 	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
-		String dotDiagram = convertDot2Svg(dotSourcCode);
-		return createHtmlFigure(dotDiagram);
+		String svgDiagram = convertDot2Svg(dotSourcCode);
+		return createHtmlFigure(svgDiagram);
 	}
 	
 	private String translatePumlCodeToHtmlFigure(String pumlSourcCode) {
-		String pumlDiagram = convertPlantUml2Svg(pumlSourcCode);
-		return createHtmlFigure(pumlDiagram);
+		String svgDiagram = convertPlantUml2Svg(pumlSourcCode);
+		return createHtmlFigure(svgDiagram);
 	}
 	
 	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
-		String figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
-		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
-        String remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
-        
-        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
-        File pumlFile = absolutePumlFilePath.toFile();
-        
-        Path tempDirPath;
+		String figureCaption = "";
+		String remainingLine = "";
 		try {
-			tempDirPath = Files.createTempDirectory("puml2svg-");
-		} catch (IOException e) {
-			throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
+			figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
+			remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
+		} catch (Exception e) {
+			// TODO log to error log
 		}
-        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
-        String svgDiagram = "";
-        
-        if (svgFile != null && svgFile.exists()) {
-        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
-        	svgDiagram = removeSvgMetaInfos(svgFileContent);
-        	
-        	boolean fileDeleted = svgFile.delete();
-        	if (fileDeleted) {
-        		tempDirPath.toFile().delete();
-        	}
-        }
-        
+		
+        String svgDiagram = convertPlantUml2Svg(markdownCodeWithPumlIncludeStatement, currentMarkdownFilePath);
         String htmlFigure = createHtmlFigure(svgDiagram, figureCaption);
         
         if (htmlFigure != null) {
@@ -344,6 +332,47 @@ public class Converter {
         }
         return svgDiagram;
 	}
+	
+	private String convertPlantUml2Svg(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
+		try {
+			IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
+	        
+	        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
+	        File pumlFile = absolutePumlFilePath.toFile();
+	        
+	        Path tempDirPath;
+			try {
+				tempDirPath = Files.createTempDirectory("puml2svg-");
+			} catch (IOException e) {
+				throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
+			}
+	        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
+	        
+	        String svgDiagram = "";
+	        
+	        if (svgFile != null && svgFile.exists()) {
+	        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
+	        	svgDiagram = removeSvgMetaInfos(svgFileContent);
+	        	
+	        	boolean fileDeleted = svgFile.delete();
+	        	if (fileDeleted) {
+	        		tempDirPath.toFile().delete();
+	        	}
+	        } else {
+	        	tempDirPath.toFile().delete();
+	        	String message = "Could not read SVG file generated from PlantUML code.";
+	        	if (svgFile != null) {
+	        		message += "File: " + svgFile.getAbsolutePath();
+	        	}
+	        	return createHtmlMessageCouldNotConvertMarkdown(message);
+	        }
+	        
+	        return svgDiagram;
+		} catch (Exception e) {
+			return createHtmlMessageCouldNotConvertMarkdown("Could not translate PlantUML diagram from statement \""
+					+ markdownCodeWithPumlIncludeStatement + "\" to SVG. " + e.getMessage());
+		}
+	} 
 	
 	private String removeSvgMetaInfos(String svgSources) {
 		String svgDiagram = svgSources;
@@ -374,8 +403,9 @@ public class Converter {
         
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);
-        	figureText = figureText.replace("%caption%", figureCaption);
         	
+        	String caption = figureCaption != null ? figureCaption : "";
+       		figureText = figureText.replace("%caption%", caption);
         	return figureText;
         }
         
