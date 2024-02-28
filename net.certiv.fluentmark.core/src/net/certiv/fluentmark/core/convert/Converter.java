@@ -6,13 +6,22 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
-import org.eclipse.core.runtime.IPath;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
@@ -23,20 +32,7 @@ import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
 import com.github.rjeschke.txtmark.Processor;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import com.google.common.html.HtmlEscapers;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
@@ -95,7 +91,7 @@ public class Converter {
 			}
 		} catch (Exception e) {
 			String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
-			message = String.format(message, URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+			message = String.format(message, HtmlEscapers.htmlEscaper().escape(e.getMessage()));
 			return message;
 		}
 		return "";
