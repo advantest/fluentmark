@@ -180,6 +180,11 @@ public class MarkerCalculator {
 			return;
 		}		
 		
+		// the file could have been deleted / moved after scheduling the marker calculation
+		if (!file.exists()) {
+			return;
+		}
+		
 		monitor.subTask("Delete obsolete markers");
 		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, true, IResource.DEPTH_INFINITE);
 		
@@ -203,8 +208,28 @@ public class MarkerCalculator {
 			
 			if (validator.isValidatorFor(file) ) {
 				if (document == null) {
-					String fileContents = readFileContents(file);
-					document = new Document(fileContents);
+					// Sometimes file.exists() returns true, although the file does no longer exist => We refresh the file system state to avoid that.
+					if (file != null) {
+						try {
+							file.refreshLocal(IResource.DEPTH_ZERO, monitor);
+						} catch (CoreException e) {
+							FluentUI.log(IStatus.ERROR, "Could not refresh file status for file " + file.getLocation().toString(), e);
+						}
+					}
+					
+					if (file == null || !file.exists()) {
+						return;
+					}
+
+					
+					try {
+						String fileContents = readFileContents(file);
+						document = new Document(fileContents);
+					} catch (Exception e) {
+						FluentUI.log(IStatus.ERROR, "Failed reading / valdating file " + file.getLocation().toString(), e);
+						
+						return;
+					}
 				}
 				
 				validator.setupDocumentPartitioner(document, file);
