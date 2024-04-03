@@ -117,6 +117,11 @@
         <setEntry value="org.eclipse.cdt.core@default:default"/>
         <setEntry value="org.eclipse.cdt.debug.core@default:default"/>
         <setEntry value="org.eclipse.cdt.debug.ui@default:default"/>
+        <setEntry value="org.eclipse.cdt.dsf.gdb.ui@default:default"/>
+        <setEntry value="org.eclipse.cdt.dsf.gdb@default:default"/>
+        <setEntry value="org.eclipse.cdt.dsf.ui@default:default"/>
+        <setEntry value="org.eclipse.cdt.dsf@default:default"/>
+        <setEntry value="org.eclipse.cdt.gdb@default:default"/>
         <setEntry value="org.eclipse.cdt.launch@default:default"/>
         <setEntry value="org.eclipse.cdt.make.core@default:default"/>
         <setEntry value="org.eclipse.cdt.make.ui@default:default"/>
@@ -124,6 +129,7 @@
         <setEntry value="org.eclipse.cdt.managedbuilder.gnu.ui@default:default"/>
         <setEntry value="org.eclipse.cdt.managedbuilder.headlessbuilderapp@default:default"/>
         <setEntry value="org.eclipse.cdt.managedbuilder.ui@default:default"/>
+        <setEntry value="org.eclipse.cdt.native.serial@default:default"/>
         <setEntry value="org.eclipse.cdt.sdk@default:default"/>
         <setEntry value="org.eclipse.cdt.ui@default:default"/>
         <setEntry value="org.eclipse.cdt@default:default"/>
@@ -318,6 +324,7 @@
         <setEntry value="org.eclipse.team.ui@default:default"/>
         <setEntry value="org.eclipse.text.quicksearch@default:default"/>
         <setEntry value="org.eclipse.text@default:default"/>
+        <setEntry value="org.eclipse.tm.terminal.control@default:default"/>
         <setEntry value="org.eclipse.tools.templates.core@default:default"/>
         <setEntry value="org.eclipse.tools.templates.freemarker@default:default"/>
         <setEntry value="org.eclipse.tools.templates.ui@default:default"/>
