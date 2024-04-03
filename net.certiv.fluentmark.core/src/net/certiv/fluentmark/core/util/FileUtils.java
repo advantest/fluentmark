@@ -49,6 +49,9 @@ public final class FileUtils {
 	public static final String FILE_EXTENSION_SVG = "svg";
 	public static final String FILE_EXTENSION_JAVA = "java";
 	
+	public static final String FOLDER_DOC_NAME = "doc";
+	public static final String FOLDER_DOC_PREFIX = FOLDER_DOC_NAME + "_";
+	
 	public static final String PROJECT_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
 	public static final String PROJECT_NATURE_C = "org.eclipse.cdt.core.cnature";
 	public static final String PROJECT_NATURE_CPP = "org.eclipse.cdt.core.ccnature";
@@ -221,8 +224,8 @@ public final class FileUtils {
 		String[] segments = resource.getFullPath().segments();
 		if (segments != null && segments.length > 0) {
 			for (String segment: segments) {
-				if ("doc".equals(segment)
-						|| segment.startsWith("doc_")) {
+				if (FOLDER_DOC_NAME.equals(segment)
+						|| segment.startsWith(FOLDER_DOC_PREFIX)) {
 					return true;
 				}
 			}
