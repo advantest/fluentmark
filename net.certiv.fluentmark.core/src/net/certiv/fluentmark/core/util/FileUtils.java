@@ -8,6 +8,8 @@
 package net.certiv.fluentmark.core.util;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -40,6 +42,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public final class FileUtils {
@@ -231,6 +236,27 @@ public final class FileUtils {
 			}
 		}
 		return false;
+	}
+	
+	public static Set<IFolder> findDocumentationFolders(IProject project) {
+		if (project == null || !project.isAccessible()) {
+			return Collections.emptySet();
+		}
+		
+		try {
+			Set<IFolder> docFolders = new HashSet<>();
+			
+			for (IResource resource : project.members()) {
+				if (resource instanceof IFolder
+						&& isInDocFolder(resource)) {
+					docFolders.add((IFolder) resource);
+				}
+			}
+			
+			return docFolders;
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public static boolean isMarkdownFile(IFile file) {
