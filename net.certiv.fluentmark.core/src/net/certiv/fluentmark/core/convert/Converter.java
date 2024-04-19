@@ -6,13 +6,22 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
-import org.eclipse.core.runtime.IPath;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
@@ -23,23 +32,10 @@ import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Configuration.Builder;
+import com.github.rjeschke.txtmark.Processor;
+import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
-import com.github.rjeschke.txtmark.Processor;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import java.net.URISyntaxException;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
@@ -69,45 +65,55 @@ public class Converter {
 		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
 	}
 
+	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
+		String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
+		message = String.format(message, HtmlEscapers.htmlEscaper().escape(errorMessage));
+		return message;
+	}
+
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
-			String markdownSourceCode = document.get();
-			
-			Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
-			
-			// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
-			parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
-			
-			return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
-		}
-		
-		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
-		
-		String text;
-		switch (configurationProvider.getConverterType()) {
-			case FLEXMARK:
-				return ""; // case is already handled above
-			case PANDOC:
-				text = getText(filePath, document, typedRegions, true);
-				return usePandoc(basepath, text, kind);
-			case BLACKFRIDAY:
-				text = getText(filePath, document, typedRegions, false);
-				return useBlackFriday(basepath, text);
-			case MARKDOWNJ:
-				text = getText(filePath, document, typedRegions, false);
-				return useMarkDownJ(basepath, text);
-			case PEGDOWN:
-				text = getText(filePath, document, typedRegions, false);
-				return usePegDown(basepath, text);
-			case COMMONMARK:
-				text = getText(filePath, document, typedRegions, false);
-				return useCommonMark(basepath, text);
-			case TXTMARK:
-				text = getText(filePath, document, typedRegions, false);
-				return useTxtMark(basepath, text);
-			case OTHER:
-				text = getText(filePath, document, typedRegions, false);
-				return useExternal(basepath, text);
+		try {
+            if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
+                String markdownSourceCode = document.get();
+
+                Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+
+                // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+                parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+
+                return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
+            }
+
+            ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
+
+            String text;
+            switch (configurationProvider.getConverterType()) {
+                case FLEXMARK:
+                    return ""; // case is already handled above
+                case PANDOC:
+                    text = getText(filePath, document, typedRegions, true);
+                    return usePandoc(basepath, text, kind);
+                case BLACKFRIDAY:
+                    text = getText(filePath, document, typedRegions, false);
+                    return useBlackFriday(basepath, text);
+                case MARKDOWNJ:
+                    text = getText(filePath, document, typedRegions, false);
+                    return useMarkDownJ(basepath, text);
+                case PEGDOWN:
+                    text = getText(filePath, document, typedRegions, false);
+                    return usePegDown(basepath, text);
+                case COMMONMARK:
+                    text = getText(filePath, document, typedRegions, false);
+                    return useCommonMark(basepath, text);
+                case TXTMARK:
+                    text = getText(filePath, document, typedRegions, false);
+                    return useTxtMark(basepath, text);
+                case OTHER:
+                    text = getText(filePath, document, typedRegions, false);
+                    return useExternal(basepath, text);
+            }
+		} catch (Exception e) {
+			return createHtmlMessageCouldNotConvertMarkdown(e.getMessage());
 		}
 		return "";
 	}

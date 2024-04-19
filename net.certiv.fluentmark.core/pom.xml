@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>Fluentmark</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.4.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,8 +20,9 @@
 	<properties>
 		<flexmark-version>0.64.8.20240102</flexmark-version>
 		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
+		<plantuml-lib-version>1.2024.4</plantuml-lib-version>
 	</properties>
-	
+
 	<repositories>
 		<repository>
 			<id>advantest-artifactory-repo</id>
@@ -89,18 +90,24 @@
 			<artifactId>txtmark</artifactId>
 			<version>0.13</version>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>com.advantest.markdown</groupId>
-			<artifactId>markdown-core</artifactId>
-			<version>${markdown-core-version}</version>
+			<groupId>net.sourceforge.plantuml</groupId>
+			<artifactId>plantuml</artifactId>
+			<version>${plantuml-lib-version}</version>
 		</dependency>
+
+        <dependency>
+            <groupId>com.advantest.markdown</groupId>
+            <artifactId>markdown-core</artifactId>
+            <version>${markdown-core-version}</version>
+        </dependency>
 
 	</dependencies>
 
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<groupId>com.googlecode.maven-download-plugin</groupId>
 				<artifactId>download-maven-plugin</artifactId>
@@ -128,7 +135,7 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.0.0</version>
 				<executions>
-				
+
 					<execution>
 						<id>copy</id>
 						<phase>process-resources</phase>
@@ -226,6 +233,14 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 
+                                <artifactItem>
+                                    <groupId>net.sourceforge.plantuml</groupId>
+                                    <artifactId>plantuml</artifactId>
+                                    <version>${plantuml-lib-version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+
 							</artifactItems>
 
 							<outputDirectory>lib</outputDirectory>
@@ -234,7 +249,7 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>copy-markdown-core</id>
 						<phase>process-resources</phase>
@@ -261,10 +276,10 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
-					
+
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
