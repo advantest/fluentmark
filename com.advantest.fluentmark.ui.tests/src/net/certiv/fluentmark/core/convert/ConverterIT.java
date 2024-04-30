@@ -16,59 +16,22 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
-
-public class ConverterIT {
-	
-	private IConfigurationProvider configProvider;
-	private Converter converter;
-	
-	@TempDir
-	File tempDir;
-	
-	@BeforeEach
-	public void setUp() {
-		configProvider = new ConfigurationProviderMock();
-		converter = new Converter(configProvider);
-	}
-	
-	private void setupDocumentPartitioner(IDocument document) {
-		FluentPartitioningTools.setupDocumentPartitioner(
-				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-	}
+public class ConverterIT extends AbstractConverterIT {
 	
 	@Test
 	public void test() throws IOException {
 		// given
-		Path path = Paths.get("resources/feature-overview.md");
-		String documentContent = Files.readString(path);
-		IDocument document = new Document(documentContent);
-		File tmpFile = new File(tempDir, "feature-overview.md");
-		Files.copy(path, tmpFile.toPath());
-		setupDocumentPartitioner(document);
+		String srcMarkdownFile = "resources/feature-overview.md";
+		String documentContent = readFileContentFrom(srcMarkdownFile);
+		IDocument document = prepareDocument(documentContent);
+		File testMarkdownFile = copyFileFromResourceToTempFolder(srcMarkdownFile, "feature-overview.md");
 		
 		// when
-		String result = converter.convert(
-				new org.eclipse.core.runtime.Path(tmpFile.getAbsolutePath()),
-				tempDir.getAbsolutePath(),
-				document,
-				Kind.VIEW);
+		String result = convert(testMarkdownFile, document);
 		
 		// then
 		assertNotNull(result);
@@ -80,19 +43,12 @@ public class ConverterIT {
 	@Test
 	public void includeNonExistingPumlFileDoesntThrowException() throws Exception {
 		String markdownFileContent = "# Test\n\n![alt text](../diagrams/none.puml) ";
-		IDocument document = new Document(markdownFileContent);
-		File markdownFile = new File(tempDir, "include_missing_puml_file.md");
-		Path markdownFilePath = Files.createFile(markdownFile.toPath());
-		Files.writeString(markdownFilePath, markdownFileContent, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-		setupDocumentPartitioner(document);
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("include_missing_puml_file.md", markdownFileContent);
 		
 		String result = null;
 		try {
-			result = converter.convert(
-					new org.eclipse.core.runtime.Path(markdownFile.getAbsolutePath()),
-					tempDir.getAbsolutePath(),
-					document,
-					Kind.VIEW);
+			result = convert(markdownFile, document);
 		} catch (Exception e) {
 			fail("Converter is not expected to throw exceptions.", e);
 		}
