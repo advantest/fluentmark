@@ -81,6 +81,20 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 	
 	// TODO check PlantUML code blocks in Markdown, too
 	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void plantUmlCodeBlockRenderedToSvg(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		String markdownFileContent = readFileContentFrom("resources/PlantUML/classes.puml");
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("puml_code_block.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<figure>\\s*<svg(.|\\s)*<\\/svg>(.|\\s)*<\\/figure>\\s*"));
+	}
+	
 	/*
 	 * 
 <figure>
