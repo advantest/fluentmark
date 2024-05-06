@@ -66,7 +66,7 @@ public class Converter {
 	}
 
 	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
-		String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
+		String message =  "<span style=\"color:red\">Could not convert Markdown to HTML. %s</span>";
 		message = String.format(message, HtmlEscapers.htmlEscaper().escape(errorMessage));
 		return message;
 	}
@@ -320,6 +320,12 @@ public class Converter {
         
         IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
         File pumlFile = absolutePumlFilePath.toFile();
+        
+        if (!pumlFile.exists()) {
+        	String message =  "<span style=\"color:red\">PlantUML file \"%s\" does not exist.</span>";
+    		message = String.format(message, HtmlEscapers.htmlEscaper().escape(pumlFile.getAbsolutePath()));
+    		return message;
+        }
         
         Path tempDirPath;
 		try {

@@ -56,7 +56,8 @@ public class ConverterIT extends AbstractConverterIT {
 		
 		assertNotNull(result);
 		assertFalse(result.isBlank());
-		assertTrue(result.contains("Could not convert Markdown to HTML."));
+		assertTrue(result.contains("<span style=\"color:red\">PlantUML file"));
+		assertTrue(result.contains("does not exist.</span>"));
 	}
 
 }
