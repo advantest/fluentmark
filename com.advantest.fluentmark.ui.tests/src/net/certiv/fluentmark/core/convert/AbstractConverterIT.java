@@ -28,8 +28,8 @@ import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 
 public abstract class AbstractConverterIT {
 	
-	private IConfigurationProvider configProvider;
-	private Converter converter;
+	protected ConfigurationProviderMock configProvider;
+	protected Converter converter;
 	
 	@TempDir
 	File tempDir;

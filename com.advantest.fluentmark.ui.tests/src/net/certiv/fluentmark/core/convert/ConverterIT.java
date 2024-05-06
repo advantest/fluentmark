@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import org.eclipse.jface.text.IDocument;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 public class ConverterIT extends AbstractConverterIT {
 	
@@ -40,8 +42,10 @@ public class ConverterIT extends AbstractConverterIT {
 		// TODO check result contents
 	}
 	
-	@Test
-	public void includeNonExistingPumlFileDoesntThrowException() throws Exception {
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void includeNonExistingPumlFileDoesntThrowException(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
 		String markdownFileContent = "# Test\n\n![alt text](../diagrams/none.puml) ";
 		IDocument document = prepareDocument(markdownFileContent);
 		File markdownFile = createFileWithContent("include_missing_puml_file.md", markdownFileContent);
