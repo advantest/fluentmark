@@ -21,12 +21,7 @@ public class MarkdownExtensionsIConverterIT extends AbstractConverterIT {
 		IDocument document = prepareDocument(markdownFileContent);
 		File markdownFile = createFileWithContent("header_without_id.md", markdownFileContent);
 		
-		String result = null;
-		try {
-			result = convert(markdownFile, document);
-		} catch (Exception e) {
-			fail("Converter is not expected to throw exceptions.", e);
-		}
+		String result = convert(markdownFile, document);
         
 		assertNotNull(result);
 		assertEquals("<h1>Heading without ID</h1>\n", result);
@@ -41,12 +36,7 @@ public class MarkdownExtensionsIConverterIT extends AbstractConverterIT {
 		IDocument document = prepareDocument(markdownFileContent);
 		File markdownFile = createFileWithContent("header_with_id.md", markdownFileContent);
 		
-		String result = null;
-		try {
-			result = convert(markdownFile, document);
-		} catch (Exception e) {
-			fail("Converter is not expected to throw exceptions.", e);
-		}
+		String result = convert(markdownFile, document);
         
 		assertNotNull(result);
 		assertEquals("<h1 id=\"heading-id-1\">Heading with ID</h1>\n", result);
