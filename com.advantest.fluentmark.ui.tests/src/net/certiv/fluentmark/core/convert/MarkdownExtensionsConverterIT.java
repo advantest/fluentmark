@@ -11,7 +11,7 @@ import org.eclipse.jface.text.IDocument;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-public class MarkdownExtensionsIConverterIT extends AbstractConverterIT {
+public class MarkdownExtensionsConverterIT extends AbstractConverterIT {
 	
 	@ParameterizedTest
 	@EnumSource(names = { "FLEXMARK" })
