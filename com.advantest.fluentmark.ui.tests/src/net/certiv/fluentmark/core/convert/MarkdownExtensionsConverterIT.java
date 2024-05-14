@@ -223,5 +223,50 @@ but that syntax is a Markdown extension
 				+ "<\\/table>\\s"));
 	}
 	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void tableCaptionsCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+| No. | Markdown dialect         |
+|----:|:-------------------------|
+|  1  | CommonMark               |
+|  2  | GitHub-flavored Markdown |
+|  3  | GitLab-flavored Markdown |
+
+: Markdown dialects (table title)
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("table_with_caption.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<table>\\s*"
+				+ "<caption>Markdown dialects \\(table title\\)<\\/caption>\\s*"
+				+ "<thead>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<th (align=\"right\"|style=\"text-align: right;\")>No.<\\/th>\\s*"
+				+ "<th (align=\"left\"|style=\"text-align: left;\")>Markdown dialect<\\/th>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<\\/thead>\\s*"
+				+ "<tbody>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>1<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>CommonMark<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>2<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitHub-flavored Markdown<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>3<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitLab-flavored Markdown<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<\\/tbody>\\s*"
+				+ "<\\/table>\\s"));
+	}
+	
 
 }
