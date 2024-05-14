@@ -3,7 +3,6 @@ package net.certiv.fluentmark.core.convert;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
@@ -23,7 +22,7 @@ public class MarkdownExtensionsConverterIT extends AbstractConverterIT {
 		File markdownFile = createFileWithContent("header_without_id.md", markdownFileContent);
 		
 		String result = convert(markdownFile, document);
-        
+		
 		assertNotNull(result);
 		assertEquals("<h1>Heading without ID</h1>\n", result);
 	}
@@ -38,9 +37,28 @@ public class MarkdownExtensionsConverterIT extends AbstractConverterIT {
 		File markdownFile = createFileWithContent("header_with_id.md", markdownFileContent);
 		
 		String result = convert(markdownFile, document);
-        
+		
 		assertNotNull(result);
 		assertEquals("<h1 id=\"heading-id-1\">Heading with ID</h1>\n", result);
+	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void imagesAndCaptionsCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+Here comes an image.
+
+![FluentMark logo](Logo.png)
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("markdown_with_image.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<p>Here comes an image.<\\/p>\\s*<figure>\\s*<img(.|\\s)*<figcaption.*>FluentMark logo<\\/figcaption>\\s*<\\/figure>\\s*"));
 	}
 	
 	@ParameterizedTest
