@@ -63,6 +63,61 @@ Here comes an image.
 	
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void commentsCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+Use HTML-style comments.
+
+<!-- Comments are looking exactly the same as in HTML. -->
+
+Leave blank lines before and after comments for better tool compatibility.
+
+<!-- Multi-line comments
+     are looking exactly the same
+     as in HTML. -->
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("comments.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<p>Use HTML-style comments.<\\/p>\\s*"
+				+ "<!-- Comments are looking exactly the same as in HTML. -->\\s*"
+				+ "<p>Leave blank lines before and after comments\\s+for\\s+better\\s+tool\\s+compatibility.<\\/p>\\s*"
+				+ "<!-- Multi-line comments\\n"
+				+ "     are looking exactly the same\\n"
+				+ "     as in HTML. -->\\s*"));
+	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void hiddenCommentsNotRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+Use HTML-style comments.
+
+<!--- Hidden comments have one '-' symbol more than HTML comments, but are not rendered to HTML. --->
+
+Leave blank lines before and after comments for better tool compatibility.
+
+<!--- Multi-line comments
+     are looking the same. --->
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("hidden_comments.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<p>Use HTML-style comments.<\\/p>\\s*"
+				+ "<p>Leave blank lines before and after comments\\s+for\\s+better\\s+tool\\s+compatibility.<\\/p>\\s*"));
+	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void strikeThroughCorrectlyRendered(ConverterType converterType) throws Exception {
 		configProvider.setConverterType(converterType);
 		
