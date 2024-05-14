@@ -18,7 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<flexmark-version>0.64.8.20240102</flexmark-version>
+		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
 		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
 		<plantuml-lib-version>1.2024.4</plantuml-lib-version>
 	</properties>
