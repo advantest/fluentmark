@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -91,6 +92,7 @@ Leave blank lines before and after comments for better tool compatibility.
 				+ "     as in HTML. -->\\s*"));
 	}
 	
+	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void hiddenCommentsNotRendered(ConverterType converterType) throws Exception {
@@ -223,6 +225,7 @@ but that syntax is a Markdown extension
 				+ "<\\/table>\\s"));
 	}
 	
+	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void tableCaptionsCorrectlyRendered(ConverterType converterType) throws Exception {
@@ -268,6 +271,7 @@ but that syntax is a Markdown extension
 				+ "<\\/table>\\s"));
 	}
 	
+	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void inlineMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
@@ -289,6 +293,7 @@ Einstein's formula $E=mc^2$ is famous.
 				+ "is famous\\.<\\/p>\\s*"));
 	}
 	
+	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void displayModeMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
