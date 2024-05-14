@@ -268,5 +268,48 @@ but that syntax is a Markdown extension
 				+ "<\\/table>\\s"));
 	}
 	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void inlineMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+Markdown supports LaTeX syntax for formulas.
+Einstein's formula $E=mc^2$ is famous.
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("in-line_math.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<p>Markdown supports LaTeX syntax for formulas\\.\\s+"
+				+ "Einstein's\\s+formula\\s+"
+				+ "<span(.|\\s)*>\\\\\\(E=mc\\^2\\\\\\)<\\/span>\\s+"
+				+ "is famous\\.<\\/p>\\s*"));
+	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void displayModeMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+Formulas can be placed in display mode with the usual LaTeX syntax:
 
+$$\\sum_{i=1}^{n}=\\frac{n(n+1)}{2}$$
+
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("display_mode_math.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<p>Formulas can be placed in display mode\\s+with\\s+the\\s+usual\\s+LaTeX\\s+syntax:</p>\\s*"
+				+ "<p>\\s*<span(.|\\s)*>\\s*"
+				+ "\\\\\\[\\\\sum_\\{i=1\\}\\^\\{n\\}=\\\\frac\\{n\\(n\\+1\\)\\}\\{2\\}\\\\\\]\\s*"
+				+ "<\\/span>\\s*<\\/p>\\s"));
+	}
+	
 }
