@@ -166,5 +166,62 @@ but that syntax is a Markdown extension
 				+ "<\\/code><\\/pre>\\s"));
 	}
 	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void tablesCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+| No. | Markdown dialect         | Default | Centered column |
+|----:|:-------------------------|---------|:---------------:|
+|  1  | CommonMark               |   x     |   A             |
+|  2  | GitHub-flavored Markdown |   y     |   B             |
+|  3  | GitLab-flavored Markdown |   z     |   C             |
+| ... | ...                      |   ...   |   ...           |
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("simple_table.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<table>\\s*"
+				+ "<thead>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<th (align=\"right\"|style=\"text-align: right;\")>No.<\\/th>\\s*"
+				+ "<th (align=\"left\"|style=\"text-align: left;\")>Markdown dialect<\\/th>\\s*"
+				+ "<th>Default<\\/th>\\s*"
+				+ "<th (align=\"center\"|style=\"text-align: center;\")>Centered column<\\/th>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<\\/thead>\\s*"
+				+ "<tbody>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>1<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>CommonMark<\\/td>\\s*"
+				+ "<td>x<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")>A<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>2<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitHub-flavored Markdown<\\/td>\\s*"
+				+ "<td>y<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")>B<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>3<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitLab-flavored Markdown<\\/td>\\s*"
+				+ "<td>z<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")>C<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<tr.*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")>...<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")>...<\\/td>\\s*"
+				+ "<td>...<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")>...<\\/td>\\s*"
+				+ "<\\/tr>\\s*"
+				+ "<\\/tbody>\\s*"
+				+ "<\\/table>\\s"));
+	}
+	
 
 }
