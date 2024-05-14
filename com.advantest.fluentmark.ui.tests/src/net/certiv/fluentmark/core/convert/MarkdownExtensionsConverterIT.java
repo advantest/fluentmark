@@ -136,5 +136,35 @@ but that syntax is a Markdown extension
 				+ "\\s*but\\sthat\\ssyntax\\sis\\sa\\sMarkdown\\sextension\\s*"
 				+ "\\(i\\.e\\.\\snot\\ssupported\\sby\\sall\\stools\\)\\.\\s*<\\/p>\\s*"));
 	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void codeBlocksCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+```json
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25
+}
+```
+""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("code_block.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<pre( class=\"json\")*><code( class=\"json\")*>\\s*"
+				+ "\\{\\n"
+				+ "  &quot;firstName&quot;: &quot;John&quot;,\\n"
+				+ "  &quot;lastName&quot;: &quot;Smith&quot;,\\n"
+				+ "  &quot;age&quot;: 25\\n"
+				+ "\\}\\s*"
+				+ "<\\/code><\\/pre>\\s"));
+	}
+	
 
 }
