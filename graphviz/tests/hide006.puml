@@ -1,0 +1,14 @@
+@startuml
+    ' nothing hidden
+    participant X
+    boundary A
+    participant B
+    participant C
+    participant D
+
+    activate A
+    A -> B ++
+    B --> A --
+    
+    footer Rendered with PlantUML version %version()
+@enduml

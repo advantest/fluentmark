@@ -1,0 +1,11 @@
+@startuml
+    
+    ' Use a qualifier (key) definition in square brackets on the association end of
+    ' the referencing type.
+    ' Specifiy a multiplicity for each reference belonging to one key, i.e.
+    ' the following qualified association means a shop references multiple customers,
+    ' but only 1 customer per customer ID. That's usual for maps (e.g. java.util.Map).
+    Shop "[customerId: long]" o---> "customers\n1" Customer
+
+footer Rendered with PlantUML version %version()
+@enduml

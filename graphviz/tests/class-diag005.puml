@@ -1,0 +1,21 @@
+@startuml
+
+    ' multiplicity, here: an O object references up to 1 P object
+    O --> "0..1" P
+    
+    /' multiplicity, here: a Q object refernces arbitrary many R objects,
+       but an R object references (belongs to) exactly one Q object,
+       "1" is a short-cut for "1..1" and "*" a short-cut for "0..*",
+       Note: "*" has to be escaped here with "\*" '/ 
+    Q "1" *-- "*" R
+
+    S  "*" -- "*" T
+
+    /' mulitplicity, here: a U object references up to m V objects,
+       a V object references up to n U objects '/
+    U "0..n" -- "0..m" V
+    
+    W "1..1" *--> "1..*" X
+
+footer Rendered with PlantUML version %version()
+@enduml

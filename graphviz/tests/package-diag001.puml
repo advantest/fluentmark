@@ -1,0 +1,8 @@
+@startuml
+    package smartest {
+        SomeClass -> OtherClass : thing
+
+    }
+
+footer Rendered with PlantUML version %version()
+@enduml

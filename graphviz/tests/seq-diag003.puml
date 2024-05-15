@@ -1,0 +1,31 @@
+@startuml
+    ' hide footer
+    hide footbox
+
+    ' colors can be defined in self-explaining variables
+    !define THREADSAFE #orange
+    !define EXTERNAL #lightBlue
+
+    participant ThreadPool THREADSAFE
+    participant "t1: Thread" as t1 THREADSAFE
+    participant "t2: Thread" as t2 THREADSAFE
+    participant Client EXTERNAL
+
+    activate Client
+    activate ThreadPool
+    activate t1
+    activate t2
+
+    ' concurrent executions are grouped in par (parallel) fragments (boxes)
+    par
+		t1 --> Client : result
+		t1 --> ThreadPool -- : finished()
+    else
+        ' repetitions are grouped in loop fragments (boxes)
+        loop
+            ThreadPool <- t2 : reportProgress()
+        end
+    end
+        
+footer Rendered with PlantUML version %version()
+@enduml

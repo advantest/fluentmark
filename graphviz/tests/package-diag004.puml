@@ -1,0 +1,16 @@
+@startuml
+    'set separator none
+    '!pragma useIntermediatePackages false 
+    
+
+    frame ARC42.StexDatalog.Datalog.Encryption.EncryptionEntity {
+	    package xoc.stex.stexdatalog.encryption.impl {
+	        class DatalogEncryption{
+	            encryptIfKeyExists(builder : Datalog.Event.Builder, encryptionKey: Optional<byte>)
+            }
+        }
+    }
+
+    footer Rendered with PlantUML version %version()
+
+@enduml

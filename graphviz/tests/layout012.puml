@@ -1,0 +1,12 @@
+@startuml
+    ' without tailoring layout:
+    class A
+    class D
+    class E
+    class F
+    A --> B
+    A -> C
+    C --> D
+    
+    footer Rendered with PlantUML version %version()
+@enduml

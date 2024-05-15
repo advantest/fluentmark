@@ -1,0 +1,15 @@
+@startuml
+
+    class X
+
+    ' change the arrow length by changing number of "-" or "." symbols
+    X -> A
+    X --> B
+    X ---> C
+    X ----> D
+    X -----> E
+    X ------> F
+    
+    footer Rendered with PlantUML version %version()
+
+@enduml

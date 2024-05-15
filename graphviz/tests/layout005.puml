@@ -1,0 +1,12 @@
+@startuml
+    title Default routing
+    A --> B
+    A --> C
+    A --> D
+    X <|-- A
+    Y <|.. A
+    A --> E
+    E --> Y
+
+    footer Rendered with PlantUML version %version()
+@enduml

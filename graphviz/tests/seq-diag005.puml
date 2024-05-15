@@ -1,0 +1,21 @@
+@startuml
+    ' hide footer
+    hide footbox
+
+    autonumber
+
+    participant Client
+    participant Service
+    box com.advantest.module.other #lightBlue
+        boundary OtherServicesInterface as OtherService
+    end box
+
+    activate Client
+    Client -> Service ++ : request()
+    Service -> Service ++ : calculate()
+    Service -> OtherService ++ : otherRequest()
+    OtherService --> Service -- : response
+    Service --> Client -- : result
+        
+footer Rendered with PlantUML version %version()
+@enduml
