@@ -1,0 +1,42 @@
+@startuml
+'left to right direction
+
+[A]
+component C {
+  portin p1
+  portin p2
+  portin p3
+  portout po1
+  portout po2
+  portout po3
+  component C1 {
+    portin c1p1
+    portin c1p2
+    portout c1po1
+    portout c1po2
+  }
+  component C2 {
+    portin c2p1
+    portout c2po1
+  }
+  component C3 {
+    portin c3p1
+    portout c3po1
+  }
+}
+[B]
+
+A --> p1
+A --> p2
+A --> p3
+p1 --> c1p1
+p2 --> c1p2
+po1 --> B
+po2 --> B
+po3 --> B
+c1po1 --> po1
+c1po2 --> c2p1
+c1po2 --> c3p1
+c2po1 --> po2
+c3po1 --> po3
+@enduml
