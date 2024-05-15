@@ -11,9 +11,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Build Graphviz from source because there are no binary distributions for recent versions
-ARG GRAPHVIZ_VERSION=2.38.0
-#ARG GRAPHVIZ_VERSION=2.44.0
-#ARG GRAPHVIZ_VERSION=8.0.5
+ARG GRAPHVIZ_VERSION=11.0.0
+ARG PLANTUML_VERSION=1.2024.4
 ARG GRAPHVIZ_BUILD_DIR=/tmp/graphiz-build
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -31,13 +30,13 @@ RUN apt-get update && \
         flex
 RUN mkdir -p $GRAPHVIZ_BUILD_DIR && \
     cd $GRAPHVIZ_BUILD_DIR
-    
+
     #GRAPHVIZ_VERSION=${GRAPHVIZ_VERSION:-$(curl -s https://gitlab.com/api/v4/projects/4207231/releases/ | jq -r '.[] | .name' | sort -V -r | head -1)} && \
     #curl -o graphviz.tar.gz https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/${GRAPHVIZ_VERSION}/graphviz-${GRAPHVIZ_VERSION}.tar.gz && \
-RUN curl -o graphviz.tar.gz https://gitlab.com/graphviz/graphviz/-/archive/${GRAPHVIZ_VERSION}/graphviz-${GRAPHVIZ_VERSION}.tar.gz && \
+RUN curl -o graphviz.tar.gz https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/${GRAPHVIZ_VERSION}/graphviz-${GRAPHVIZ_VERSION}.tar.gz && \
     tar -xzf graphviz.tar.gz && \
     cd graphviz-$GRAPHVIZ_VERSION && \
-    ./autogen.sh && \
+    #./autogen.sh && \
     ./configure && \
     make && \
     make install
@@ -60,4 +59,19 @@ RUN apt-get remove -y \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf $GRAPHVIZ_BUILD_DIR
 
-ENTRYPOINT ["/bin/bash"]
+# Add JDK
+RUN apt update && \
+    apt install -y wget apt-transport-https gpg && \
+    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null && \
+    echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+RUN apt update && \
+    apt install -y temurin-21-jdk
+
+# Add PlantUML
+RUN mkdir -p /plantuml && \
+    cd plantuml && \
+    curl -L -o plantuml.jar https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar
+WORKDIR plantuml
+
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["java", "-jar", "plantuml.jar", "/input/*.puml", "-tsvg", "-o", "\"graphviz-11\""]
