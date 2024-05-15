@@ -72,6 +72,7 @@ RUN mkdir -p /plantuml && \
     cd plantuml && \
     curl -L -o plantuml.jar https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar
 WORKDIR plantuml
+ENV PLANTUML_SECURITY_PROFILE=UNSECURE
 
 #ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT ["java", "-jar", "plantuml.jar", "/input/*.puml", "-tsvg", "-o", "\"graphviz-11\""]
