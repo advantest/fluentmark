@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/build-graphviz/build-graphviz.iml" filepath="$PROJECT_DIR$/build-graphviz/build-graphviz.iml" />
-      <module fileurl="file://$PROJECT_DIR$/install-graphviz/install-graphviz.iml" filepath="$PROJECT_DIR$/install-graphviz/install-graphviz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/graphviz.iml" filepath="$PROJECT_DIR$/graphviz.iml" />
     </modules>
   </component>
 </project>
