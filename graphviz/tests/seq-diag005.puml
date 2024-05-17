@@ -6,7 +6,7 @@
 
     participant Client
     participant Service
-    box com.advantest.module.other #lightBlue
+    box org.plantuml.module.other #lightBlue
         boundary OtherServicesInterface as OtherService
     end box
 

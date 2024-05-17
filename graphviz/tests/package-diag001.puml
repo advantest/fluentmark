@@ -1,5 +1,5 @@
 @startuml
-    package smartest {
+    package test {
         SomeClass -> OtherClass : thing
 
     }

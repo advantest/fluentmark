@@ -1,5 +1,5 @@
 @startuml
-    package com.advantest.smartest.x.y.z {
+    package org.test.module.x.y.z {
         SomeClass -> OtherClass : thing
     }
 

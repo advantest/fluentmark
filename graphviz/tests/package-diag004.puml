@@ -3,10 +3,10 @@
     '!pragma useIntermediatePackages false 
     
 
-    frame ARC42.StexDatalog.Datalog.Encryption.EncryptionEntity {
-	    package xoc.stex.stexdatalog.encryption.impl {
-	        class DatalogEncryption{
-	            encryptIfKeyExists(builder : Datalog.Event.Builder, encryptionKey: Optional<byte>)
+    frame XYZ.SystemX.SystemY.SystemZ.SomeEntity {
+	    package org.plantuml.test.system.impl {
+	        class SomeClass {
+	            doSomething(thing : Some.Certain.Type, other: Optional<String>)
             }
         }
     }
