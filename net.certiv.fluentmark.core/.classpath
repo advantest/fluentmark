@@ -26,6 +26,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.8-SNAPSHOT.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.8-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-0.64.8-SNAPSHOT.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-plantuml/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-math-0.64.8-SNAPSHOT.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-math/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.8-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.64.8-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.64.8-SNAPSHOT.jar"/>

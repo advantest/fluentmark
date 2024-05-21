@@ -271,7 +271,6 @@ but that syntax is a Markdown extension
 				+ "<\\/table>\\s"));
 	}
 	
-	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void inlineMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
@@ -293,7 +292,6 @@ Einstein's formula $E=mc^2$ is famous.
 				+ "is famous\\.<\\/p>\\s*"));
 	}
 	
-	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void displayModeMathFormulaCorrectlyRendered(ConverterType converterType) throws Exception {
