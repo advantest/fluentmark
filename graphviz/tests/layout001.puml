@@ -1,0 +1,26 @@
+@startuml
+
+    ' change the arrow position to change direction
+    A --> B
+    C <-- D
+    X *-- Y
+    U --* V
+
+    ' change the usual arrow length from two to one symbol (e.g. "-" instead of "--")
+    ' to replace vertical edges with horizontal edges
+    L *-- M
+    L *- N
+    O <. L
+    L ..> P
+
+    ' add layout hints (left, right, up, down) to let edges go
+    ' up, down, from left to right and vice versa
+    ' you can also choose the short form, i.e. -l->, -r->, -u->, -d->
+    E -left-> F : left
+    E o-right-> G : right
+    E *-down-> H : down
+    E .up.|> I : up
+    
+    footer Rendered with PlantUML version %version()
+
+@enduml

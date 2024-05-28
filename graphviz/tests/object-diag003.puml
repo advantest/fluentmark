@@ -1,0 +1,12 @@
+@startuml
+    class HashMap<K, V>
+    map "<u>map</u>" as m {
+        71034 => "Böblingen"
+        81929 => "München"
+        33334 => "Gütersloh"
+    }
+
+    HashMap <.. m : <<instance of>>\n<<bind>>\n<K -> Integer, V -> String>
+
+footer Rendered with PlantUML version %version()
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+    object "<u>head : Node</u>" as n1 {
+        id: long = 1
+        'next : Node
+        previous : Node = null
+    }
+    object "<u>n1 : Node</u>" as n2 {
+		id: long = 2
+		'next : Node
+        'previous : Node
+    }
+    object "<u>n2 : Node</u>" as n3 {
+        id: long = 3
+        next : Node = null
+        'previous : Node
+    }
+
+    n1::next --> "next" n2
+    n2::next --> "next" n3
+    n2::previous --> "previous" n1
+    n3::previous --> "previous" n2
+
+footer Rendered with PlantUML version %version()
+@enduml

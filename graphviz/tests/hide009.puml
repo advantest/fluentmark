@@ -1,0 +1,17 @@
+@startuml
+    'hide empty attributes and methods
+    hide empty members
+
+    class A {
+        - name: String
+        + id: long
+        # doSomething(): void
+    }
+    class B {
+        ~run(): boolean
+    }
+    class C
+    class D
+    
+    footer Rendered with PlantUML version %version()
+@enduml

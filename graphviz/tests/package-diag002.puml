@@ -1,0 +1,7 @@
+@startuml
+    package org.test.module.x.y.z {
+        SomeClass -> OtherClass : thing
+    }
+
+footer Rendered with PlantUML version %version()
+@enduml
