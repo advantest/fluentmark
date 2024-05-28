@@ -1,3 +1,5 @@
 **/target
 **/bin
 net.certiv.fluentmark.core/lib
+graphviz/tests/graphviz-11
+graphviz/tests/graphviz-2-38
