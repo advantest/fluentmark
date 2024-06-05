@@ -6,23 +6,26 @@
       provider-name="Certiv Analytics">
 
    <description>
-      Full featured Markdown Editor.
+      Full featured Markdown Editor. Originally developed by Gerald Rosenberg (https://github.com/grosenberg/Fluentmark)
+and adapted for Advantest Europe GmbH to satisfy company-specific needs.
    </description>
 
    <copyright>
-      Contains code from Winterwell Associates Ltd, 2008-2012 and ThinkTank Mathematics Ltd, 2007, released under an EPL v1.0 license.
-
+      Contains code from Winterwell Associates Ltd, 2008-2012 and ThinkTank
+Mathematics Ltd, 2007, released under an EPL v1.0 license.
 Contains code from the MarkdownJ project, released under a BSD
 license. See http://sourceforge.net/projects/markdownj/ for more
 information.
-
 The Markdown syntax is copyright (c) 2004, John Gruber. It is
 used under a BSD-style license. See http://daringfireball.net/projects/markdown/license
 for more information.
+Contains code from itemis AG under EPL v1.0 license.
+Contains code from Advantest Europe GmbH under EPL v1.0 license,
+Copyright (c) 2022-2024.
    </copyright>
 
    <license url="http://www.eclipse.org/legal/epl-v10.html">
-      Eclipse Public License
+      Eclipse Public License 1.0
    </license>
 
    <url>
@@ -65,16 +68,10 @@ for more information.
 
    <plugin
          id="net.certiv.fluentmark.core"
-         download-size="0"
-         install-size="0"
-         version="1.4.2.qualifier"
-         unpack="false"/>
+         version="1.4.2.qualifier"/>
 
    <plugin
          id="net.certiv.fluentmark.ui"
-         download-size="0"
-         install-size="0"
-         version="1.4.2.qualifier"
-         unpack="false"/>
+         version="1.4.2.qualifier"/>
 
 </feature>
