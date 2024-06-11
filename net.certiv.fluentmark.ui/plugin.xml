@@ -180,9 +180,13 @@
 
    <extension
          point="org.eclipse.ui.views">
+      <category
+            id="net.certiv.fluentmark.ui.views"
+            name="FluentMark">
+      </category>
       <view
             allowMultiple="false"
-            category="net.certiv.certivtools"
+            category="net.certiv.fluentmark.ui.views"
             class="net.certiv.fluentmark.ui.views.FluentPreview"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.ui.views.FluentPreview"
@@ -194,7 +198,6 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="net.certiv.certivtools.prefs.TopLevelPage"
             class="net.certiv.fluentmark.ui.preferences.pages.PrefPageEditor"
             id="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
             name="FluentMark">
@@ -693,8 +696,12 @@
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
+      <category
+            id="net.certiv.fluentmark.ui.wizards"
+            name="FluentMark">
+      </category>
       <wizard
-            category="net.certiv.certivtools.wizards"
+            category="net.certiv.fluentmark.ui.wizards"
             class="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
