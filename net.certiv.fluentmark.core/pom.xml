@@ -21,13 +21,6 @@
 		<markdown-core-version>1.0.0-20240604-1451</markdown-core-version>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>advantest-artifactory-repo</id>
-			<url>https://REMOVED.advantest.com/${ARTIFACTORY_REPO}</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 
 		<dependency>
