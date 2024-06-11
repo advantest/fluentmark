@@ -200,7 +200,7 @@
 
 							<outputDirectory>lib</outputDirectory>
 							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
+							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
@@ -227,7 +227,7 @@
 
 							<outputDirectory>lib</outputDirectory>
 							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
+							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
