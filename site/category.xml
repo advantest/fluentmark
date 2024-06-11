@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/net.certiv.fluentmark.feature_1.4.2.qualifier.jar" id="net.certiv.fluentmark.feature" version="1.4.2.qualifier">
+   <feature url="features/net.certiv.fluentmark.feature_1.5.0.qualifier.jar" id="net.certiv.fluentmark.feature" version="1.5.0.qualifier">
       <category name="com.advantest.designdocumentation.features"/>
    </feature>
    <category-def name="com.advantest.designdocumentation.features" label="Design Documentation"/>
