@@ -48,8 +48,7 @@
 		<repository>
 			<id>net.certiv.spellchecker</id>
 			<layout>p2</layout>
-			<!-- <url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url> -->
-			<url>file:/Users/travkin/Documents/git-repos/spellchecker/site/target/repository</url>
+			<url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url>
 		</repository>
 	</repositories>
 

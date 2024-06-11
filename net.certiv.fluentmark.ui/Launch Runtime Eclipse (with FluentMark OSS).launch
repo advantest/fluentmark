@@ -49,6 +49,7 @@
         <setEntry value="jakarta.inject.jakarta.inject-api@default:default"/>
         <setEntry value="javax.annotation@default:default"/>
         <setEntry value="javax.inject@default:default"/>
+        <setEntry value="net.certiv.spellchecker@default:default"/>
         <setEntry value="net.sourceforge.plantuml.eclipse.imagecontrol@default:default"/>
         <setEntry value="net.sourceforge.plantuml.eclipse@default:default"/>
         <setEntry value="net.sourceforge.plantuml.ecore@default:default"/>
@@ -190,8 +191,6 @@
     <setAttribute key="selected_workspace_bundles">
         <setEntry value="net.certiv.fluentmark.core@default:default"/>
         <setEntry value="net.certiv.fluentmark.ui@default:default"/>
-        <setEntry value="net.certiv.spellchecker@default:default"/>
-        <setEntry value="net.certiv.tools.plugin@default:default"/>
     </setAttribute>
     <booleanAttribute key="show_selected_only" value="false"/>
     <stringAttribute key="templateConfig" value="${target_home}/configuration/config.ini"/>
