@@ -18,9 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
-		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
-		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
+		<markdown-core-version>1.0.0-20240604-1451</markdown-core-version>
 	</properties>
 
 	<repositories>
@@ -91,12 +89,6 @@
 			<version>0.13</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
-			<version>${plantuml-lib-version}</version>
-		</dependency>
-
         <dependency>
             <groupId>com.advantest.markdown</groupId>
             <artifactId>markdown-core</artifactId>
@@ -107,28 +99,6 @@
 
 	<build>
 		<plugins>
-
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.6.8</version>
-				<executions>
-					<execution>
-						<id>copy-flexmark-sources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>https://github.com/vsch/flexmark-java/archive/refs/tags/${flexmark-version}.zip</url>
-							<outputFileName>flexmark-java-${flexmark-version}.zip</outputFileName>
-							<unpack>false</unpack>
-							<outputDirectory>${project.basedir}/lib</outputDirectory>
-							<overwrite>false</overwrite>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -229,14 +199,6 @@
 									<groupId>com.github.rjeschke</groupId>
 									<artifactId>txtmark</artifactId>
 									<version>0.13</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>net.sourceforge.plantuml</groupId>
-									<artifactId>plantuml</artifactId>
-									<version>${plantuml-lib-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
