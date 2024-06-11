@@ -37,8 +37,8 @@
 	    <module>target-platform/2023-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
-		<module>feature</module>
-		<module>site</module>
+		<module>net.certiv.fluentmark.feature</module>
+		<module>net.certiv.fluentmark.site</module>
 		<module>com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
