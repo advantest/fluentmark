@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.editor;
 
@@ -42,7 +42,7 @@ public class ConfigurationProvider implements IConfigurationProvider {
 			case Prefs.EDITOR_EXTERNAL_COMMAND:
 				return ConverterType.OTHER;
 			default:
-				return null;
+			    return ConverterType.PANDOC;
 		}
 	}
 	

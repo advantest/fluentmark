@@ -15,13 +15,13 @@
 	<classpathentry kind="lib" path="lib/pegdown-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/txtmark-0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2024.5.jar" sourcepath="lib/plantuml-1.2024.5-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-analysis-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-tree-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-util-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/autolink-0.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.0-SNAPSHOT.jar" sourcepath="/markdown-core"/>
-	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2024.4.jar" sourcepath="lib/plantuml-1.2024.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.8-SNAPSHOT.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.8-SNAPSHOT.jar"/>

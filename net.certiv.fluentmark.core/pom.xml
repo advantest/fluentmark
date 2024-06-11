@@ -20,7 +20,7 @@
 	<properties>
 		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
 		<markdown-core-version>1.0.0-SNAPSHOT</markdown-core-version>
-		<plantuml-lib-version>1.2024.4</plantuml-lib-version>
+		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
 	</properties>
 
 	<repositories>
@@ -233,13 +233,13 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 
-                                <artifactItem>
-                                    <groupId>net.sourceforge.plantuml</groupId>
-                                    <artifactId>plantuml</artifactId>
-                                    <version>${plantuml-lib-version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
+								<artifactItem>
+									<groupId>net.sourceforge.plantuml</groupId>
+									<artifactId>plantuml</artifactId>
+									<version>${plantuml-lib-version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
 
 							</artifactItems>
 
