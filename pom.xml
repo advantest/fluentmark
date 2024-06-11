@@ -39,7 +39,7 @@
 		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
 		<module>site</module>
-		<module>tests/com.advantest.fluentmark.tests</module>
+		<module>com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
 	</modules>
