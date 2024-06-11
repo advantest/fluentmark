@@ -1,8 +1,10 @@
-# FluentMark
+# FluentMark Advantest Edition (AE)
 
-A full-featured Markdown editing environment for Eclipse.
+A full-featured Markdown editing environment for Eclipse IDE.
+FluentMark was originally developed by [Certiv Analytics](https://www.certiv.net/index.html) / [Gerald Rosenberg](https://github.com/grosenberg) and
+was modified for [Advantest Europe GmbH](https://www.advantest.com/) to better satisfy company-specific needs.
 
-Survey: [Proposal to remove legacy converters](https://github.com/grosenberg/fluentmark/issues/30).
+This work is forked from [https://github.com/grosenberg/Fluentmark](https://github.com/grosenberg/Fluentmark).
 
 ## Features 
 
@@ -51,12 +53,13 @@ Survey: [Proposal to remove legacy converters](https://github.com/grosenberg/flu
 
 ## Installation & Use
 
-Requires Eclipse Photon & JDK 1.8+.
+Requires Eclipse 2023-12 & JDK 17+.
 
-Install from the Certiv Tools update site: [www.certiv.net/updates](http://www.certiv.net/updates/).
+Build from sources and install from local update site in `net.certiv.fluentmark.site/target/repository`
+or install from Advantest's private update site for R&D department.
 
 Preferences ---
-- `Window`&rarr;`Certiv Tools`&rarr;`FluentMark`
+- `Window`&rarr;`FluentMark`
 
 Pandoc converter ---
 - Install [Pandoc](https://pandoc.org). The `pandoc` executable can then be selected from the local filesystem 
