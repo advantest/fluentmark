@@ -40,6 +40,7 @@ public interface Prefs extends PrefsSpelling {
 
 	String EDITOR_MD_CONVERTER = MD_ID + ".converterSelection";
 
+	String KEY_FLEXMARK = MD_ID + ".flexmark";
 	String KEY_MARDOWNJ = MD_ID + ".markdownJ";
 	String KEY_BLACKFRIDAY = MD_ID + ".blackFriday";
 	String KEY_COMMONMARK = MD_ID + ".commonmark";
