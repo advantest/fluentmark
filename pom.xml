@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>Fluentmark</artifactId>
-	<version>1.4.1-SNAPSHOT</version>
+	<version>1.4.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -38,15 +38,10 @@
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
 		<module>feature</module>
-		<module>com.advantest.fluentmark.extensions.ui</module>
-		<module>com.advantest.fluentmark.extensions.svgbuilder</module>
-		<module>com.advantest.fluentmark.extensions.validations</module>
-		<module>com.advantest.fluentmark.extensions.feature</module>
 		<module>site</module>
 		<module>tests/com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
-		<module>tests/com.advantest.fluentmark.extensions.validations.tests</module>
 	</modules>
 
 	<repositories>

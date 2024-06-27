@@ -40,7 +40,7 @@ public class ConfigurationProvider implements IConfigurationProvider {
 			case Prefs.EDITOR_EXTERNAL_COMMAND:
 				return ConverterType.OTHER;
 			default:
-				return null;
+			    return ConverterType.PANDOC;
 		}
 	}
 	
