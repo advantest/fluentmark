@@ -1,0 +1,16 @@
+@startuml
+
+    /' association name "contains",
+       the optional symbol ">" indicates the reading direction, 
+       i.e. K contains L '/
+    K *-- L : contains >
+
+    ' association role names: "next" is N's role (from M's viewpoint)
+    M "prev" *-- "next" N
+
+    ' optional visibility flags can be added to the role names
+    ' "-": private, "#": protected, "~": package private, "+": public
+    Stack o--> "-collection" Vector : delegatesTo >
+
+footer Rendered with PlantUML version %version()
+@enduml

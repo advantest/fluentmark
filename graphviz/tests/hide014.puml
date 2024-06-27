@@ -1,0 +1,16 @@
+@startuml
+    ' hide footer
+    hide footbox
+    
+    boundary A
+    participant B
+    participant C
+
+    activate A
+    A -> B ++
+    B -> C ++
+    C --> B --
+    B --> A --
+    
+    footer Rendered with PlantUML version %version()
+@enduml

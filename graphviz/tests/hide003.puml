@@ -1,0 +1,14 @@
+@startuml
+    class A 
+    class B <<special>>
+    interface C
+    class D
+
+    D <|-- B
+
+    ' remove A & C
+    remove A
+    remove C
+    
+    footer Rendered with PlantUML version %version()
+@enduml

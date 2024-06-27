@@ -1,0 +1,30 @@
+@startuml
+
+    ' option A: specify types,...
+    interface List
+
+    ' ... then add their attributes and methods
+    List : add(element: Object): boolean
+    List : isEmpty(): boolean
+
+    ' option B: specify types with their attributes and methods
+    ' add optional visibility attributes with the following symbols
+    ' "-": private, "#": protected, "~": package private, "+": public
+    class MyCollection {
+        - entries: Object[]
+        + get(index: int): Object
+        + first(): Object
+        # sort(c: Comparator): void
+        ~ clone(): MyCollection
+    }
+
+    List <|-- MyCollection
+
+	enum TimeUnit {
+	  DAYS
+	  HOURS
+	  MINUTES
+	}
+	
+footer Rendered with PlantUML version %version()
+@enduml

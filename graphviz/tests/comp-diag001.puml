@@ -1,0 +1,11 @@
+@startuml
+    component "Eclipse IDE" {
+        component FluentMark
+    }
+    component pandoc
+
+    [pandoc] - CLI
+    CLI <. [FluentMark] : <<use>>
+
+footer Rendered with PlantUML version %version()
+@enduml
