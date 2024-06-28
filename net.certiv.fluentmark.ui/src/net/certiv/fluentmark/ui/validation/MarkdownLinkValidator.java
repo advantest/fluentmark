@@ -42,10 +42,21 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	private static final String REGEX_LINK_REF_DEF_PREFIX = "\\[.*?\\]:( |\\t|\\n)+( |\\t)*";
 	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + "\\S+";
 	
+	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
+	// * full reference link:      [Markdown specification][CommonMark]
+	// * collapsed reference link: [CommonMark][]
+	// * shortcut reference link:  [CommonMark]
+	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
+	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
+	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\])(\\[[^\\]]*?\\])(?!(\\[|\\())";
+	
 	private final Pattern LINK_PATTERN;
 	private final Pattern LINK_PREFIX_PATTERN;
 	private final Pattern LINK_REF_DEF_PATTERN_PREFIX;
 	private final Pattern LINK_REF_DEF_PATTERN;
+	private final Pattern REF_LINK_PEFIX_PATTERN;
+	private final Pattern REF_LINK_FULL_PATTERN;
+	private final Pattern REF_LINK_SHORT_PATTERN;
 	
 	private FilePathValidator filePathValidator;
 	
@@ -54,6 +65,9 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
 		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
 		LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
+		REF_LINK_PEFIX_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
+		REF_LINK_FULL_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED);
+		REF_LINK_SHORT_PATTERN = Pattern.compile(REGEX_REF_LINK_SHORTCUT);
 		
 		filePathValidator = new FilePathValidator();
 	}
@@ -128,8 +142,45 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			
 			found = linkRefDefMatcher.find();
 		}
+		
+		Matcher refLinkFullCollapsedMatcher = REF_LINK_FULL_PATTERN.matcher(regionContent);
+		found = refLinkFullCollapsedMatcher.find();
+		
+		while (found) {
+			String currentReferenceLink = refLinkFullCollapsedMatcher.group();
+			int startIndex = refLinkFullCollapsedMatcher.start();
+			
+			Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(currentReferenceLink);
+			boolean foundPrefix = prefixMatcher.find();
+			Assert.isTrue(foundPrefix);
+			int secondTextStartIndex = prefixMatcher.end();
+			
+			String linkLabel = currentReferenceLink.substring(secondTextStartIndex, currentReferenceLink.length() - 1);
+			if (linkLabel.length() > 0) {
+				// we have a full reference link like [link text][linkLabel]
+			} else {
+				// we have a collapsed reference link like [linkLabel][]
+				linkLabel = currentReferenceLink.substring(1, secondTextStartIndex - 2);
+			}
+			validateReferenceLinkLabel(region, document, file, currentReferenceLink, linkLabel, startIndex);
+			
+			found = refLinkFullCollapsedMatcher.find();
+		}
+		
+		Matcher refLinkShortcutMatcher = REF_LINK_SHORT_PATTERN.matcher(regionContent);
+		found = refLinkShortcutMatcher.find();
+		
+		while (found) {
+			String currentReferenceLink = refLinkShortcutMatcher.group();
+			int startIndex = refLinkShortcutMatcher.start();
+			
+			String linkLabel = currentReferenceLink.substring(1, currentReferenceLink.length() - 1);
+			
+			validateReferenceLinkLabel(region, document, file, currentReferenceLink, linkLabel, startIndex);
+			
+			found = refLinkShortcutMatcher.find();
+		}
 	}
-
 
 	private void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
@@ -190,6 +241,32 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		String linkTarget = linkRefDefStatement.substring(linkTargetStartIndex, linkRefDefStatement.length());
 		
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
+	}
+	
+	private void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
+			String referenceLinkStatement, String linkLabel, int referenceLinkStatementStartIndexInRegion) throws CoreException {
+		
+		String documentContent = document.get();
+		
+		// see REGEX_LINK_REF_DEFINITION
+		String linkRefDefinitionForLabelRegex = "\\[" + Pattern.quote(linkLabel) + "\\]:( |\\t|\\n)+( |\\t)*\\S+";
+		Pattern linkRefDefinitionForLabelPattern = Pattern.compile(linkRefDefinitionForLabelRegex);
+		Matcher linkReferenceDefinitionForLabelMatcher = linkRefDefinitionForLabelPattern.matcher(documentContent);
+		boolean foundLinkReferenceDefinition = linkReferenceDefinitionForLabelMatcher.find();
+		
+		if (!foundLinkReferenceDefinition) {
+			int startIndexInRefLink = referenceLinkStatement.lastIndexOf(linkLabel);
+			int offset = region.getOffset() + referenceLinkStatementStartIndexInRegion + startIndexInRefLink;
+			int endOffset = offset + linkLabel.length();
+			int lineNumber = getLineForOffset(document, offset);
+			
+			MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
+					"There is no link reference definition (something like \"[PlantUML]: https://plantuml.com\") for the reference link label \"" + linkLabel + "\".",
+					lineNumber,
+					offset,
+					endOffset);
+			return;
+		}
 	}
 	
 	private void checkLinkTarget(String linkTarget, int linkTargetStartIndex,
