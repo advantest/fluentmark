@@ -173,7 +173,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 	}
 	
-	private Stream<Match> findMatches(String textToCheck, Pattern patternToFind) {
+	protected Stream<Match> findMatches(String textToCheck, Pattern patternToFind) {
 		List<Match> matches = new ArrayList<>();
 		
 		Matcher textMatcher = patternToFind.matcher(textToCheck);
@@ -250,7 +250,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
 	}
 	
-	private void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
+	protected void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkRefDefStatement, int linkStatementStartIndexInRegion) throws CoreException {
 		Matcher prefixMatcher = LINK_REF_DEF_PATTERN_PREFIX.matcher(linkRefDefStatement);
 		boolean foundPrefix = prefixMatcher.find();
@@ -262,7 +262,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
 	}
 	
-	private void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
+	protected void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
 			String referenceLinkStatement, String linkLabel, int referenceLinkStatementStartIndexInRegion) throws CoreException {
 		
 		String documentContent = document.get();
