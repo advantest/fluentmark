@@ -51,7 +51,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	// * shortcut reference link:  [CommonMark]
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
-	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\])(\\[[^\\]]*?\\])(?!(\\[|\\())";
+	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\])(\\[[^\\]]*?\\])(?!(\\[|\\(|:))";
 	
 	private final Pattern LINK_PATTERN;
 	private final Pattern LINK_PREFIX_PATTERN;
