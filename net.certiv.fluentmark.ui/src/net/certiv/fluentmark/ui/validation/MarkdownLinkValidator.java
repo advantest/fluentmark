@@ -280,7 +280,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int lineNumber = getLineForOffset(document, offset);
 			
 			MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
-					"There is no link reference definition (something like \"[PlantUML]: https://plantuml.com\") for the reference link label \"" + linkLabel + "\".",
+					"There is no link reference definition (something like \"[ReferenceLinkLabel]: https://plantuml.com\") for the reference link label \"" + linkLabel + "\".",
 					lineNumber,
 					offset,
 					endOffset);
