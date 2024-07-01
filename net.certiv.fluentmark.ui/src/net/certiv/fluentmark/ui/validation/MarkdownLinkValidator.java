@@ -9,24 +9,27 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 
 
@@ -118,67 +121,83 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			return;
 		}
 
-		Matcher linkMatcher = LINK_PATTERN.matcher(regionContent);
-		boolean found = linkMatcher.find();
+		findMatches(regionContent, LINK_PATTERN)
+			.forEach(match -> {
+				try {
+					validateLinkStatement(region, document, file, match.matchedText, match.startIndex, regionContent);
+				} catch (Exception e) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+				}
+		});
 		
-		// go through all the link statements in this region and check each of them
+		
+		findMatches(regionContent, LINK_REF_DEF_PATTERN)
+			.forEach(match -> {
+				try {
+					validateLinkReferenceDefinitionStatement(region, document, file, match.matchedText, match.startIndex);
+				} catch (Exception e) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+				}
+		});
+		
+		findMatches(regionContent, REF_LINK_FULL_PATTERN)
+			.forEach(match -> {
+				try {
+					Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
+					boolean foundPrefix = prefixMatcher.find();
+					Assert.isTrue(foundPrefix);
+					int secondTextStartIndex = prefixMatcher.end();
+					
+					String linkLabel = match.matchedText.substring(secondTextStartIndex, match.matchedText.length() - 1);
+					if (linkLabel.length() > 0) {
+						// we have a full reference link like [link text][linkLabel]
+					} else {
+						// we have a collapsed reference link like [linkLabel][]
+						linkLabel = match.matchedText.substring(1, secondTextStartIndex - 2);
+					}
+					validateReferenceLinkLabel(region, document, file, match.matchedText, linkLabel, match.startIndex);
+				} catch (Exception e) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+				}
+		});
+		
+		findMatches(regionContent, REF_LINK_SHORT_PATTERN)
+			.forEach(match -> {
+				try {
+					String linkLabel = match.matchedText.substring(1, match.matchedText.length() - 1);
+					
+					validateReferenceLinkLabel(region, document, file, match.matchedText, linkLabel, match.startIndex);
+				} catch (Exception e) {
+					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+				}
+		});
+	}
+	
+	private Stream<Match> findMatches(String textToCheck, Pattern patternToFind) {
+		List<Match> matches = new ArrayList<>();
+		
+		Matcher textMatcher = patternToFind.matcher(textToCheck);
+		boolean found = textMatcher.find();
+		
 		while (found) {
-			String currentLinkMatch = linkMatcher.group();
-			int startIndex = linkMatcher.start();
+			String currentTextMatch = textMatcher.group();
+			int startIndex = textMatcher.start();
 			
-			validateLinkStatement(region, document, file, currentLinkMatch, startIndex, regionContent);
+			matches.add(new Match(currentTextMatch, startIndex));
 			
-			found = linkMatcher.find();
+			found = textMatcher.find();
 		}
 		
-		Matcher linkRefDefMatcher = LINK_REF_DEF_PATTERN.matcher(regionContent);
-		found = linkRefDefMatcher.find();
+		return matches.stream();
+	}
+	
+	private class Match {
+		public final String matchedText;
+		public final int startIndex;
 		
-		while (found) {
-			String currentLinkReferenceDefinition = linkRefDefMatcher.group();
-			int startIndex = linkRefDefMatcher.start();
-			
-			validateLinkReferenceDefinitionStatement(region, document, file, currentLinkReferenceDefinition, startIndex);
-			
-			found = linkRefDefMatcher.find();
-		}
-		
-		Matcher refLinkFullCollapsedMatcher = REF_LINK_FULL_PATTERN.matcher(regionContent);
-		found = refLinkFullCollapsedMatcher.find();
-		
-		while (found) {
-			String currentReferenceLink = refLinkFullCollapsedMatcher.group();
-			int startIndex = refLinkFullCollapsedMatcher.start();
-			
-			Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(currentReferenceLink);
-			boolean foundPrefix = prefixMatcher.find();
-			Assert.isTrue(foundPrefix);
-			int secondTextStartIndex = prefixMatcher.end();
-			
-			String linkLabel = currentReferenceLink.substring(secondTextStartIndex, currentReferenceLink.length() - 1);
-			if (linkLabel.length() > 0) {
-				// we have a full reference link like [link text][linkLabel]
-			} else {
-				// we have a collapsed reference link like [linkLabel][]
-				linkLabel = currentReferenceLink.substring(1, secondTextStartIndex - 2);
-			}
-			validateReferenceLinkLabel(region, document, file, currentReferenceLink, linkLabel, startIndex);
-			
-			found = refLinkFullCollapsedMatcher.find();
-		}
-		
-		Matcher refLinkShortcutMatcher = REF_LINK_SHORT_PATTERN.matcher(regionContent);
-		found = refLinkShortcutMatcher.find();
-		
-		while (found) {
-			String currentReferenceLink = refLinkShortcutMatcher.group();
-			int startIndex = refLinkShortcutMatcher.start();
-			
-			String linkLabel = currentReferenceLink.substring(1, currentReferenceLink.length() - 1);
-			
-			validateReferenceLinkLabel(region, document, file, currentReferenceLink, linkLabel, startIndex);
-			
-			found = refLinkShortcutMatcher.find();
+		public Match(String matchedText, int startIndex) {
+			this.matchedText = matchedText;
+			this.startIndex = startIndex;
 		}
 	}
 
