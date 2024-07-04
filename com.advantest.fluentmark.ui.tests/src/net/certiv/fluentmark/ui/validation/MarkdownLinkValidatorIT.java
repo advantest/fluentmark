@@ -224,7 +224,7 @@ public class MarkdownLinkValidatorIT {
 		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[bla blub][ref4]"), eq("ref4"), anyInt());
 	}
 	
-	// This sub-class is needed to spy the calls of validateLink, Mockito cannot spy non-public methods
+	// This sub-class is needed to spy the calls of validate methods, Mockito cannot spy non-public methods
 	public static class MarkdownLinkValidatorFake extends MarkdownLinkValidator {
 		public void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 				String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
