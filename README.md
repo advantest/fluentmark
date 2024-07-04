@@ -113,7 +113,7 @@ text. `Tab` and arrow keys will navigate between cells. `Return` to end cell edi
 
 ## Support
 
-Open an [issue on Github](https://github.com/grosenberg/fluentmark/issues). 
+Open an [issue on Github](https://github.com/advantest/fluentmark/issues). 
 
 Provide as much information as applicable, including the plugin version number, any error message encountered, 
 and a minimal example of the Markdown text at issue.
