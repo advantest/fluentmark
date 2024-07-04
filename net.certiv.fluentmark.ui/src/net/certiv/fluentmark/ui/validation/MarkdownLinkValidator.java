@@ -201,7 +201,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		}
 	}
 
-	private void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
+	protected void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
 		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
