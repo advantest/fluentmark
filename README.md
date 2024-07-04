@@ -46,8 +46,8 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 [![Fluentmark Sequence diagram][2]][2]
 </figure>
 
-[1]: http://www.certiv.net/updates/net.certiv.fluentmark.site/ScreenShot.png "FluentMark Dot graph" 
-[2]: http://www.certiv.net/updates/net.certiv.fluentmark.site/ScreenShot1.png "FluentMark Sequence diagram" 
+[1]: doc/ScreenShot.png "FluentMark Dot graph" 
+[2]: doc/ScreenShot1.png "FluentMark Sequence diagram" 
 
 
 
