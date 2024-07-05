@@ -37,19 +37,14 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 ## Screenshots
 
 <figure>
-<figcaption>1. Dot Graph</figcaption>
-[![Fluentmark Dot graph][1]][1]
+  <img src="./doc/ScreenShot.png" alt="FluentMark Dot graph">
+  <figcaption>1. Dot Graph</figcaption>
 </figure>
 
 <figure>
-<figcaption>2. Sequence Diagram</figcaption>
-[![Fluentmark Sequence diagram][2]][2]
+  <img src="./doc/ScreenShot1.png" alt="FluentMark Sequence diagram">
+  <figcaption>2. Sequence Diagram</figcaption>
 </figure>
-
-[1]: doc/ScreenShot.png "FluentMark Dot graph" 
-[2]: doc/ScreenShot1.png "FluentMark Sequence diagram" 
-
-
 
 ## Installation & Use
 
