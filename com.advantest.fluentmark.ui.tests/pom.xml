@@ -26,10 +26,9 @@
 					<useUIHarness>true</useUIHarness>
 					<showEclipseLog>true</showEclipseLog>
 					<includes>
-          				<include>**/*Test.java</include>
-          				<include>**/*IT.java</include>
-			        </includes>
-			        <providerHint>junit57</providerHint>
+						<include>**/*Test.java</include>
+						<include>**/*IT.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 			
