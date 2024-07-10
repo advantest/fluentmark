@@ -75,6 +75,21 @@ public class LinkRuleTest {
 		assertEquals("[Text]", scanner.getConsumedText());
 	}
 	
+	@ParameterizedTest(name = "[{index}] Image / Link {0} is successfully parsed")
+	@ValueSource(strings = {
+			"![Image](some/path/to/file.png)",
+			"![Diagram X](some/path/to/file.svg)",
+			"![More to see here!](../../relativ/path/diagram.puml)",
+			"![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
+	public void imageLinksDoMatch(String input) {
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
+	}
+	
 	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
 	@ValueSource(strings = { "[Solunar\\](https://www.solunar.de)",
 			"\\[label](some/path/to/a_file.puml)",
