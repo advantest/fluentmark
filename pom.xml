@@ -101,10 +101,10 @@
 					<showEclipseLog>true</showEclipseLog>
 					<failIfNoTests>true</failIfNoTests>
 					<includes>
-          				<include>**/*Test.java</include>
-          				<include>**/*IT.java</include>
-			        </includes>
-			        <providerHint>junit57</providerHint>
+						<include>**/*Test.java</include>
+						<include>**/*IT.java</include>
+					</includes>
+					<providerHint>junit57</providerHint>
 				</configuration>
 			</plugin>
 			
