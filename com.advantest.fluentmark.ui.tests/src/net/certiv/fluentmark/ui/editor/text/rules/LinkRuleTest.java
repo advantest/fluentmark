@@ -94,9 +94,13 @@ public class LinkRuleTest {
 	
 	// for reference links, see HMR-102 and https://spec.commonmark.org/0.30/#reference-link
 	
-	@Test
-	public void fullRefenceLinkMatches() {
-		String input = "[Link title][link path or URL]";
+	@ParameterizedTest(name = "[{index}] Full reference link {0} is successfully parsed")
+	@ValueSource(strings = {
+			"[Link title][link label]",
+			"[Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#'][special]",
+			"[text][key]",
+			"[Some \\] escaped brackets \\[ are ignored here][REF]"})
+	public void fullRefenceLinkMatches(String input) {
 		scanner = new CharacterScannerMock(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
@@ -131,9 +135,9 @@ public class LinkRuleTest {
 	
 	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
 	@ValueSource(strings = {
-		        "[adv]: https://www.advantest.com",
-		        "[adv]:https://www.advantest.com",
-		        "[adv]:\nhttps://www.advantest.com"})
+				"[adv]: https://www.advantest.com",
+				"[adv]:https://www.advantest.com",
+				"[adv]:\nhttps://www.advantest.com"})
 	public void linkReferenceDefinitionsMatch(String input) {
 		scanner = new CharacterScannerMock(input);
 		
@@ -154,5 +158,26 @@ public class LinkRuleTest {
 		assertEquals(successToken, resultToken);
 		assertEquals(match, scanner.getConsumedText());
 	}
-
+	
+	@ParameterizedTest(name = "[{index}] Text with escaped brackets {0} doesn't match as a link")
+	@ValueSource(strings = {
+				"[\\]()",
+				"\\[label](link)",
+				"[label\\](link)",
+				"[\\]",
+				"\\[]",
+				"\\[][key\\]",
+				"\\[Solunar](https://www.solunar.de)",
+				"\\[adv]: https://www.advantest.com",
+				"[adv\\]:https://www.advantest.com",
+				"[adv\\]:\nhttps://www.advantest.com"})
+	public void escapedBracketsDontMatch(String input) {
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals("", scanner.getConsumedText());
+	}
+	
 }
