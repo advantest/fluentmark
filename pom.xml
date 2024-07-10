@@ -44,14 +44,6 @@
 		<module>com.advantest.fluentmark.ui.tests</module>
 	</modules>
 
-	<repositories>
-		<repository>
-			<id>net.certiv.spellchecker</id>
-			<layout>p2</layout>
-			<url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 
