@@ -120,7 +120,6 @@
 						</artifact>
 					</target>
 					<pomDependencies>consider</pomDependencies>
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					<environments>
 						<environment>
 							<os>linux</os>
