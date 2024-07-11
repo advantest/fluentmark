@@ -47,8 +47,6 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 	private ConverterExternalOps external;
 	private ConverterNullOps other;
 
-	private ConverterDotOps dotgen;
-
 	public PrefPageConvert() {
 		super(GRID);
 		setDescription("");
@@ -79,9 +77,6 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		txtmark = new ConverterTxtmarkOps(this, stack, "TxtMark Options");
 		external = new ConverterExternalOps(this, stack, "External Options");
 		other = new ConverterNullOps(this, stack, "Default Options");
-
-		// rest
-		dotgen = new ConverterDotOps(this, parent, "Graphviz Options");
 
 		// init converter option selection
 		updateConverter(stack, getPreferenceStore().getString(EDITOR_MD_CONVERTER));
@@ -114,32 +109,26 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		switch (key) {
 			case KEY_PANDOC:
 				stackSel.topControl = pandoc.getFrame();
-				dotgen.setVisible(true);
 				break;
 			
 			case KEY_FLEXMARK:
 				stackSel.topControl = flexmark.getFrame();
-				dotgen.setVisible(true);
 				break;
 
 			case KEY_BLACKFRIDAY:
 				stackSel.topControl = bfriday.getFrame();
-				dotgen.setVisible(true);
 				break;
 
 			case KEY_TXTMARK:
 				stackSel.topControl = txtmark.getFrame();
-				dotgen.setVisible(true);
 				break;
 
 			case KEY_EXTERNAL:
 				stackSel.topControl = external.getFrame();
-				dotgen.setVisible(false);
 				break;
 
 			default:
 				stackSel.topControl = other.getFrame();
-				dotgen.setVisible(false);
 				break;
 		}
 		stack.layout();
@@ -152,17 +141,14 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		switch (key) {
 			case KEY_PANDOC:
 				pandoc.validateSettings();
-				dotgen.validateSettings();
 				break;
 				
 			case KEY_FLEXMARK:
 				flexmark.validateSettings();
-				dotgen.validateSettings();
 				break;
 
 			case KEY_BLACKFRIDAY:
 				bfriday.validateSettings();
-				dotgen.validateSettings();
 				break;
 
 			case KEY_TXTMARK:
