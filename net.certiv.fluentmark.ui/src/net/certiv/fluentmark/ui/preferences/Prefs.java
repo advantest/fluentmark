@@ -41,20 +41,7 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_MD_CONVERTER = MD_ID + ".converterSelection";
 
 	String KEY_FLEXMARK = MD_ID + ".flexmark";
-	String KEY_MARDOWNJ = MD_ID + ".markdownJ";
-	String KEY_BLACKFRIDAY = MD_ID + ".blackFriday";
-	String KEY_COMMONMARK = MD_ID + ".commonmark";
 	String KEY_PANDOC = MD_ID + ".pandoc";
-	String KEY_PEGDOWN = MD_ID + ".pegDown";
-	String KEY_TXTMARK = MD_ID + ".txtMark";
-	String KEY_EXTERNAL = MD_ID + ".external";
-
-	String EDITOR_BLACKFRIDAY_PROGRAM = MD_ID + ".blackFridayProgram";
-	String EDITOR_BLACKFRIDAY_ADDTOC = MD_ID + ".blackFridayAddToc";
-	String EDITOR_BLACKFRIDAY_SMART = MD_ID + ".blackFridaySmart";
-
-	String EDITOR_TXTMARK_SAFEMODE = MD_ID + ".txtMark_SafeMode";
-	String EDITOR_TXTMARK_EXTENDED = MD_ID + ".txtMark_ExtendedMode";
 
 	String EDITOR_PANDOC_PROGRAM = MD_ID + ".pandocProgram";
 	String EDITOR_PANDOC_TEMPLATES = MD_ID + ".pandocTemplates";
@@ -68,8 +55,6 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_UMLMODE_ENABLED = MD_ID + ".umlMode";
 	String EDITOR_DOTMODE_ENABLED = MD_ID + ".dotMode";
 	String EDITOR_DOT_PROGRAM = MD_ID + ".dotProgram";
-
-	String EDITOR_EXTERNAL_COMMAND = MD_ID + ".externalConverterProgram";
 
 	String EDITOR_DEFAULT_COLOR = MD_ID + ".defaultColor";
 	String EDITOR_FRONTMATTER_COLOR = MD_ID + ".frontMatterColor";

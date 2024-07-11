@@ -11,11 +11,5 @@ package net.certiv.fluentmark.core.convert;
 
 public enum ConverterType {
 	FLEXMARK,
-	PANDOC,
-	BLACKFRIDAY,
-	MARKDOWNJ,
-	PEGDOWN,
-	COMMONMARK,
-	TXTMARK,
-	OTHER;
+	PANDOC
 }

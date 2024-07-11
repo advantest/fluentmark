@@ -27,10 +27,6 @@ public interface IConfigurationProvider {
 	
 	String getDotCommand();
 	
-	String getBlackFridayCommand();
-	
-	String getExternalCommand();
-	
 	boolean useMathJax();
 	
 	boolean addTableOfContents();
@@ -38,10 +34,6 @@ public interface IConfigurationProvider {
 	boolean addTableOfContents(ConverterType converter);
 	
 	boolean isSmartMode();
-	
-	boolean isTxtMarkSafeMode();
-	
-	boolean isTxtMarkExtendedMode();
 	
 	boolean isDotEnabled();
 	
