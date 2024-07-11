@@ -49,14 +49,18 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken mathblock = new Token(MarkdownPartitions.MATHBLOCK);
 		Token plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		
-		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
-		IColorManager colorManager = FluentUI.getDefault().getColorMgr();
-		PreferenceConverter.getColor(store, Prefs.EDITOR_LINK_COLOR);
-		Color color = colorManager.getColor(Prefs.EDITOR_LINK_COLOR);
-		// TODO also use the same style for PlantUML include statements as for links
-		// see net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner#createTextAttribute(...)
-		TextAttribute attribute = new TextAttribute(color, null, SWT.NORMAL);
-		plantUmlInclude.setData(attribute);
+		// TODO Find another way to set token color, maybe in a second parsing step
+		// The following code doesn't work, since FastPartinioner expects String as token data,
+		// but link color and style are set via TextAttribute as token data.
+		
+//		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
+//		IColorManager colorManager = FluentUI.getDefault().getColorMgr();
+//		PreferenceConverter.getColor(store, Prefs.EDITOR_LINK_COLOR);
+//		Color color = colorManager.getColor(Prefs.EDITOR_LINK_COLOR);
+//		// TODO also use the same style for PlantUML include statements as for links
+//		// see net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner#createTextAttribute(...)
+//		TextAttribute attribute = new TextAttribute(color, null, SWT.NORMAL);
+//		plantUmlInclude.setData(attribute);
 
 		List<IPredicateRule> rules = new ArrayList<>();
 
