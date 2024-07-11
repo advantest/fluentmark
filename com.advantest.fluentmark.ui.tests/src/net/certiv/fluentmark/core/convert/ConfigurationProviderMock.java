@@ -39,7 +39,7 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public ConverterType getConverterType() {
-		return this.converterType;				
+		return this.converterType;
 	}
 	
 	public void setConverterType(ConverterType converterType) {
@@ -53,16 +53,6 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public String getDotCommand() {
-		return "";
-	}
-
-	@Override
-	public String getBlackFridayCommand() {
-		return "";
-	}
-
-	@Override
-	public String getExternalCommand() {
 		return "";
 	}
 
@@ -83,16 +73,6 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public boolean isSmartMode() {
-		return false;
-	}
-
-	@Override
-	public boolean isTxtMarkSafeMode() {
-		return false;
-	}
-
-	@Override
-	public boolean isTxtMarkExtendedMode() {
 		return false;
 	}
 

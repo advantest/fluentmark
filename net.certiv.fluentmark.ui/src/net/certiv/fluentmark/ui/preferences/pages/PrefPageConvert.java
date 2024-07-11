@@ -23,15 +23,9 @@ import net.certiv.fluentmark.ui.util.SwtUtil;
 
 public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Prefs {
 
-	private static final String[][] converters = new String[][] { //
-			{ "BlackFriday", KEY_BLACKFRIDAY }, //
-			{ "Commonmark", KEY_COMMONMARK }, //
-			{ "Flexmark", KEY_FLEXMARK }, //
-			{ "MarkdownJ", KEY_MARDOWNJ }, //
-			{ "Pandoc", KEY_PANDOC }, //
-			{ "PegDown", KEY_PEGDOWN }, //
-			{ "TxtMark", KEY_TXTMARK }, //
-			{ "External converter", KEY_EXTERNAL }, //
+	private static final String[][] converters = new String[][] {
+			{ "Flexmark", KEY_FLEXMARK },
+			{ "Pandoc", KEY_PANDOC }
 	};
 
 	private Composite base;
@@ -41,12 +35,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 
 	private ComboSelectFieldEditor combo;
 	private ConverterPandocOps pandoc;
-	private ConverterBlackFridayOps bfriday;
-	private ConverterTxtmarkOps txtmark;
-	private ConverterExternalOps external;
-	private ConverterNullOps other;
-
-	private ConverterDotOps dotgen;
+	private ConverterFlexmarkOps flexmark;
 
 	public PrefPageConvert() {
 		super(GRID);
@@ -73,13 +62,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 
 		// stacked options
 		pandoc = new ConverterPandocOps(this, stack, "Pandoc Options");
-		bfriday = new ConverterBlackFridayOps(this, stack, "BlackFriday Options");
-		txtmark = new ConverterTxtmarkOps(this, stack, "TxtMark Options");
-		external = new ConverterExternalOps(this, stack, "External Options");
-		other = new ConverterNullOps(this, stack, "Default Options");
-
-		// rest
-		dotgen = new ConverterDotOps(this, parent, "Graphviz Options");
+		flexmark = new ConverterFlexmarkOps(this, stack, "Flexmark Options");
 
 		// init converter option selection
 		updateConverter(stack, getPreferenceStore().getString(EDITOR_MD_CONVERTER));
@@ -112,27 +95,14 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		switch (key) {
 			case KEY_PANDOC:
 				stackSel.topControl = pandoc.getFrame();
-				dotgen.setVisible(true);
 				break;
-
-			case KEY_BLACKFRIDAY:
-				stackSel.topControl = bfriday.getFrame();
-				dotgen.setVisible(true);
-				break;
-
-			case KEY_TXTMARK:
-				stackSel.topControl = txtmark.getFrame();
-				dotgen.setVisible(true);
-				break;
-
-			case KEY_EXTERNAL:
-				stackSel.topControl = external.getFrame();
-				dotgen.setVisible(false);
+			
+			case KEY_FLEXMARK:
+				stackSel.topControl = flexmark.getFrame();
 				break;
 
 			default:
-				stackSel.topControl = other.getFrame();
-				dotgen.setVisible(false);
+				stackSel.topControl = pandoc.getFrame();
 				break;
 		}
 		stack.layout();
@@ -145,24 +115,14 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		switch (key) {
 			case KEY_PANDOC:
 				pandoc.validateSettings();
-				dotgen.validateSettings();
 				break;
-
-			case KEY_BLACKFRIDAY:
-				bfriday.validateSettings();
-				dotgen.validateSettings();
-				break;
-
-			case KEY_TXTMARK:
-				txtmark.validateSettings();
-				break;
-
-			case KEY_EXTERNAL:
-				external.validateSettings();
+				
+			case KEY_FLEXMARK:
+				flexmark.validateSettings();
 				break;
 
 			default:
-				other.validateSettings();
+				pandoc.validateSettings();
 				break;
 		}
 	}

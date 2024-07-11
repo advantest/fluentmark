@@ -29,20 +29,8 @@ public class ConfigurationProvider implements IConfigurationProvider {
 				return ConverterType.FLEXMARK;
 			case Prefs.KEY_PANDOC:
 				return ConverterType.PANDOC;
-			case Prefs.KEY_BLACKFRIDAY:
-				return ConverterType.BLACKFRIDAY;
-			case Prefs.KEY_MARDOWNJ:
-				return ConverterType.MARKDOWNJ;
-			case Prefs.KEY_PEGDOWN:
-				return ConverterType.PEGDOWN;
-			case Prefs.KEY_COMMONMARK:
-				return ConverterType.COMMONMARK;
-			case Prefs.KEY_TXTMARK:
-				return ConverterType.TXTMARK;
-			case Prefs.EDITOR_EXTERNAL_COMMAND:
-				return ConverterType.OTHER;
 			default:
-			    return ConverterType.PANDOC;
+				return ConverterType.PANDOC;
 		}
 	}
 	
@@ -61,6 +49,10 @@ public class ConfigurationProvider implements IConfigurationProvider {
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
 				return store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX);
+				
+			case Prefs.KEY_FLEXMARK:
+				return store.getBoolean(Prefs.EDITOR_FLEXMARK_MATHJAX);
+				
 			default:
 				return false;
 		}
@@ -77,16 +69,6 @@ public class ConfigurationProvider implements IConfigurationProvider {
 	}
 	
 	@Override
-	public String getBlackFridayCommand() {
-		return store.getString(Prefs.EDITOR_BLACKFRIDAY_PROGRAM);
-	}
-	
-	@Override
-	public String getExternalCommand() {
-		return store.getString(PrefPageEditor.EDITOR_EXTERNAL_COMMAND);
-	}
-
-	@Override
 	public boolean addTableOfContents() {
 		return addTableOfContents(getConverterType());
 	}
@@ -96,8 +78,6 @@ public class ConfigurationProvider implements IConfigurationProvider {
 		switch (converter) {
 			case PANDOC:
 				return store.getBoolean(Prefs.EDITOR_PANDOC_ADDTOC);
-			case BLACKFRIDAY:
-				return store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_ADDTOC);
 			default:
 				return false;
 		}
@@ -108,21 +88,9 @@ public class ConfigurationProvider implements IConfigurationProvider {
 		switch (getConverterType()) {
 			case PANDOC:
 				return !store.getBoolean(Prefs.EDITOR_PANDOC_SMART);
-			case BLACKFRIDAY:
-				return store.getBoolean(Prefs.EDITOR_BLACKFRIDAY_SMART);
 			default:
 				return false;
 		}
-	}
-
-	@Override
-	public boolean isTxtMarkSafeMode() {
-		return store.getBoolean(Prefs.EDITOR_TXTMARK_SAFEMODE);
-	}
-
-	@Override
-	public boolean isTxtMarkExtendedMode() {
-		return store.getBoolean(Prefs.EDITOR_TXTMARK_EXTENDED);
 	}
 
 	@Override

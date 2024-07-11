@@ -18,21 +18,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
-import org.markdownj.MarkdownProcessor;
-import org.pegdown.PegDownProcessor;
 
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Configuration.Builder;
-import com.github.rjeschke.txtmark.Processor;
 import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
@@ -93,24 +85,6 @@ public class Converter {
                 case PANDOC:
                     text = getText(filePath, document, typedRegions, true);
                     return usePandoc(basepath, text, kind);
-                case BLACKFRIDAY:
-                    text = getText(filePath, document, typedRegions, false);
-                    return useBlackFriday(basepath, text);
-                case MARKDOWNJ:
-                    text = getText(filePath, document, typedRegions, false);
-                    return useMarkDownJ(basepath, text);
-                case PEGDOWN:
-                    text = getText(filePath, document, typedRegions, false);
-                    return usePegDown(basepath, text);
-                case COMMONMARK:
-                    text = getText(filePath, document, typedRegions, false);
-                    return useCommonMark(basepath, text);
-                case TXTMARK:
-                    text = getText(filePath, document, typedRegions, false);
-                    return useTxtMark(basepath, text);
-                case OTHER:
-                    text = getText(filePath, document, typedRegions, false);
-                    return useExternal(basepath, text);
             }
 		} catch (Exception e) {
 			return createHtmlMessageCouldNotConvertMarkdown(e.getMessage());
@@ -178,76 +152,6 @@ public class Converter {
 		return combineOutputsForHtml(result);
 	}
 
-	// Use BlackFriday
-	private String useBlackFriday(String basepath, String text) {
-		String cmd = configurationProvider.getBlackFridayCommand();
-		if (cmd.trim().isEmpty()) {
-			throw new IllegalStateException("No BlackFriday command set in preferences.");
-		}
-
-		List<String> args = new ArrayList<>();
-		args.add(cmd);
-		if (configurationProvider.addTableOfContents()) {
-			args.add("-toc");
-		}
-		if (configurationProvider.isSmartMode()) {
-			args.add("-smartypants");
-			args.add("-fractions");
-		}
-		
-		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
-		return combineOutputsForHtml(result);
-	}
-
-	// Use MarkdownJ
-	private String useMarkDownJ(String basepath, String text) {
-		MarkdownProcessor markdown = new MarkdownProcessor();
-		return markdown.markdown(text);
-	}
-
-	// Use PegDown
-	private String usePegDown(String basepath, String text) {
-		PegDownProcessor pegdown = new PegDownProcessor();
-		return pegdown.markdownToHtml(text);
-	}
-
-	// Use CommonMark
-	private String useCommonMark(String basepath, String text) {
-		Parser parser = Parser.builder().build();
-		Node document = parser.parse(text);
-		HtmlRenderer renderer = HtmlRenderer.builder().build();
-		return renderer.render(document);
-	}
-
-	// Use TxtMark
-	private String useTxtMark(String basepath, String text) {
-		boolean safeMode = configurationProvider.isTxtMarkSafeMode();
-		boolean extended = configurationProvider.isTxtMarkExtendedMode();
-		boolean dotMode = configurationProvider.isDotEnabled();
-
-		Builder builder = Configuration.builder();
-		if (safeMode) builder.enableSafeMode();
-		if (extended || dotMode) builder.forceExtentedProfile();
-		if (dotMode) builder.setCodeBlockEmitter(emitter);
-		Configuration config = builder.build();
-		return Processor.process(text, config);
-	}
-
-	// Use external command
-	private String useExternal(String basepath, String text) {
-		String cmd = configurationProvider.getExternalCommand();
-		if (cmd.trim().isEmpty()) {
-			return "Specify an external markdown converter command in preferences.";
-		}
-
-		String[] args = Cmd.parse(cmd);
-		if (args.length > 0) {
-			CmdResult result = Cmd.process(args, basepath, text);
-			return combineOutputsForHtml(result); 
-		}
-		return "";
-	}
-	
 	private String getText(IPath filePath, IDocument document, ITypedRegion[] typedRegions, boolean includeFrontMatter) {
 		if (typedRegions == null || typedRegions.length == 0) {
 			return document.get();
