@@ -216,6 +216,12 @@
       </page>
       <page
             category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
+            class="net.certiv.fluentmark.ui.preferences.pages.PrefPageGraphviz"
+            id="net.certiv.fluentmark.preferences.PrefPageGraphviz"
+            name="PlantUML and Graphviz / DOT">
+      </page>
+      <page
+            category="net.certiv.fluentmark.preferences.pages.PrefPageEditor"
             class="net.certiv.fluentmark.ui.preferences.pages.PrefPageSpeller"
             id="net.certiv.fluentmark.preferences.PrefPageSpeller"
             name="Spelling">
