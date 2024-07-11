@@ -68,7 +68,9 @@ public class LinkRule implements IRule {
 					&& !sequenceDetected(scanner, "https://".toCharArray(), false)))
 					&& (c != 'f' || !sequenceDetected(scanner, "ftp://".toCharArray(), false))) {
 				// Not even a non-standard link
-				scanner.unread();
+				if (c != ICharacterScanner.EOF) {
+					scanner.unread();
+				}
 				return Token.UNDEFINED;
 			}
 
