@@ -62,6 +62,8 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_PANDOC_ADDTOC = MD_ID + ".pandocAddToc";
 	String EDITOR_PANDOC_SMART = MD_ID + ".pandocSmart";
 	String EDITOR_PANDOC_MATHJAX = MD_ID + ".pandocMathjax";
+	
+	String EDITOR_FLEXMARK_MATHJAX = MD_ID + ".flexmarkMathjax";
 
 	String EDITOR_UMLMODE_ENABLED = MD_ID + ".umlMode";
 	String EDITOR_DOTMODE_ENABLED = MD_ID + ".dotMode";

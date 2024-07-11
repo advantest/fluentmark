@@ -61,6 +61,10 @@ public class ConfigurationProvider implements IConfigurationProvider {
 		switch (store.getString(Prefs.EDITOR_MD_CONVERTER)) {
 			case Prefs.KEY_PANDOC:
 				return store.getBoolean(Prefs.EDITOR_PANDOC_MATHJAX);
+				
+			case Prefs.KEY_FLEXMARK:
+				return store.getBoolean(Prefs.EDITOR_FLEXMARK_MATHJAX);
+				
 			default:
 				return false;
 		}

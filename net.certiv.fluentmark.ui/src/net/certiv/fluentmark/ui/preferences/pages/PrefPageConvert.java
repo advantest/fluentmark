@@ -41,6 +41,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 
 	private ComboSelectFieldEditor combo;
 	private ConverterPandocOps pandoc;
+	private ConverterFlexmarkOps flexmark;
 	private ConverterBlackFridayOps bfriday;
 	private ConverterTxtmarkOps txtmark;
 	private ConverterExternalOps external;
@@ -73,6 +74,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 
 		// stacked options
 		pandoc = new ConverterPandocOps(this, stack, "Pandoc Options");
+		flexmark = new ConverterFlexmarkOps(this, stack, "Flexmark Options");
 		bfriday = new ConverterBlackFridayOps(this, stack, "BlackFriday Options");
 		txtmark = new ConverterTxtmarkOps(this, stack, "TxtMark Options");
 		external = new ConverterExternalOps(this, stack, "External Options");
@@ -114,6 +116,11 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 				stackSel.topControl = pandoc.getFrame();
 				dotgen.setVisible(true);
 				break;
+			
+			case KEY_FLEXMARK:
+				stackSel.topControl = flexmark.getFrame();
+				dotgen.setVisible(true);
+				break;
 
 			case KEY_BLACKFRIDAY:
 				stackSel.topControl = bfriday.getFrame();
@@ -145,6 +152,11 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 		switch (key) {
 			case KEY_PANDOC:
 				pandoc.validateSettings();
+				dotgen.validateSettings();
+				break;
+				
+			case KEY_FLEXMARK:
+				flexmark.validateSettings();
 				dotgen.validateSettings();
 				break;
 
