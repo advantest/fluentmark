@@ -130,11 +130,9 @@ public class LinkRule implements IRule {
 		// we didn't find an unescaped ']'? Then cancel.
 		if (c != ']' || lastChar == '\\') {
 			// un-read read chars
-			if (c != ICharacterScanner.EOF) {
-				while (readCount > 0) {
-					scanner.unread();
-					readCount--;
-				}
+			while (readCount > 0) {
+				scanner.unread();
+				readCount--;
 			}
 			return Token.UNDEFINED;
 		}
