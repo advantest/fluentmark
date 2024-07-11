@@ -82,12 +82,12 @@ public class LinkRule implements IRule {
 			}
 
 			// Non-standard link
-			while ((c = scanner.read()) != ICharacterScanner.EOF && !Character.isWhitespace(c)) {
-				for (char[] fDelimiter : fDelimiters) {
-					if (c == fDelimiter[0] && sequenceDetected(scanner, fDelimiter, true)) {
-						return fToken;
-					}
+			c = scanner.read();
+			while (c != ICharacterScanner.EOF && !Character.isWhitespace(c)) {
+				if (lineDelimiterFound(c, scanner)) {
+					return fToken;
 				}
+				c = scanner.read();
 			}
 			return fToken;
 		}
@@ -130,9 +130,11 @@ public class LinkRule implements IRule {
 		// we didn't find an unescaped ']'? Then cancel.
 		if (c != ']' || lastChar == '\\') {
 			// un-read read chars
-			while (readCount > 0) {
-				scanner.unread();
-				readCount--;
+			if (c != ICharacterScanner.EOF) {
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
 			}
 			return Token.UNDEFINED;
 		}
