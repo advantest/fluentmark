@@ -46,6 +46,15 @@ public class LinkRule implements IRule {
 		}
 		return true;
 	}
+	
+	protected boolean lineDelimiterFound(int currentChar, ICharacterScanner scanner) {
+		for (char[] fDelimiter : fDelimiters) {
+			if (currentChar == fDelimiter[0] && sequenceDetected(scanner, fDelimiter, true)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
@@ -114,7 +123,7 @@ public class LinkRule implements IRule {
 			lastChar = c;
 			c = scanner.read();
 			readCount++;
-		} while (c != ICharacterScanner.EOF && !(c == ']' && lastChar != '\\'));
+		} while (c != ICharacterScanner.EOF && !(c == ']' && lastChar != '\\') && !lineDelimiterFound(c, scanner));
 		
 		// we didn't find an unescaped ']'? Then cancel.
 		if (c != ']' || lastChar == '\\') {
