@@ -86,10 +86,34 @@ public class MarkerCalculator {
 				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 			}
 			
-	        return marker;
-        } catch (CoreException e) {
-        	FluentUI.log(IStatus.WARNING, "Problem marker couldn't be created.", e);
-        }
+			return marker;
+		} catch (CoreException e) {
+			FluentUI.log(IStatus.WARNING, "Problem marker couldn't be created.", e);
+		}
+		return null;
+	}
+	
+	public static IMarker createMarkdownTaskMarker(IResource resource, int markerSeverity, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
+		IMarker marker;
+		try {
+			marker  = resource.createMarker(MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
+			marker.setAttribute(IMarker.MESSAGE, markerMessage);
+			marker.setAttribute(IMarker.SEVERITY, markerSeverity);
+			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
+			if (startOffset != null && endOffset != null) {
+				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
+			    marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
+			}
+			if (lineNumber != null && lineNumber.intValue() > 0) {
+				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+			}
+			
+			return marker;
+		} catch (CoreException e) {
+			FluentUI.log(IStatus.WARNING, "Task marker couldn't be created.", e);
+		}
 		return null;
 	}
 	
