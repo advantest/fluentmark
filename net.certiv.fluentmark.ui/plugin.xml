@@ -82,6 +82,17 @@
             value="true">
       </persistent>
    </extension>
+   <extension
+         id="markers.task"
+         name="Documentation Task"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.taskmarker">
+      </super>
+   </extension>
 
    <extension
          point="org.eclipse.ui.editors.annotationTypes">
@@ -105,6 +116,12 @@
       </type>
       <type
             name="net.certiv.fluentmark.ui.occurrences">
+      </type>
+      <type
+            markerSeverity="0"
+            markerType="net.certiv.fluentmark.task"
+            name="net.certiv.fluentmark.ui.task"
+            super="org.eclipse.ui.workbench.texteditor.task">
       </type>
    </extension>
 
@@ -148,6 +165,12 @@
             textStylePreferenceValue="NONE"
             verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
             verticalRulerPreferenceValue="false">
+      </specification>
+      <specification
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
+            annotationType="net.certiv.fluentmark.ui.task"
+            includeOnPreferencePage="true"
+            label="Tasks">
       </specification>
    </extension>
    
