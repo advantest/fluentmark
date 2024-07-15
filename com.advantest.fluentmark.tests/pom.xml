@@ -9,9 +9,9 @@
 		<relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>com.advantest.fluentmark.core.tests</artifactId>
-  <packaging>eclipse-test-plugin</packaging>
+  <artifactId>com.advantest.fluentmark.tests</artifactId>
+  <packaging>eclipse-plugin</packaging>
   
-  <name>FluentMark Core tests</name>
+  <name>FluentMark test support</name>
   
 </project>

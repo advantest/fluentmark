@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src/"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime-4.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/asm-all-4.0.jar"/>
@@ -18,6 +14,34 @@
 	<classpathentry kind="lib" path="lib/pegdown-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/txtmark-0.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2024.5.jar" sourcepath="lib/plantuml-1.2024.5-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plantuml-1.2024.5.jar" sourcepath="/Users/travkin/Documents/git-repos/plantuml/src"/>
+	<classpathentry exported="false" kind="lib" path="lib/com.google.guava-30.1.0.v20221112-0806.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-analysis-5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-tree-5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-util-5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/autolink-0.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.0-20240604-1451.jar" sourcepath="/Users/travkin/Documents/git-repos/markdown-core/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.9-20240604-1441.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-0.64.9-20240604-1441.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-plantuml/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-math-0.64.9-20240604-1441.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-math/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.9-20240604-1441.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-tables/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-figures-0.64.9-20240604-1441.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-figures/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-builder-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-collection-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-data-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-dependency-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-format-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-html-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-misc-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-options-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-sequence-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-visitor-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-gfm-strikethrough-0.64.9-20240604-1441.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-autolink-0.64.9-20240604-1441.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

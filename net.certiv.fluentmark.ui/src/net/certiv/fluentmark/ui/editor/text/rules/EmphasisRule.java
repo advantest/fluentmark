@@ -48,9 +48,14 @@ public class EmphasisRule implements IRule {
 	}
 
 	public IToken evaluate(ICharacterScanner scanner) {
+		boolean sawSpaceBefore = false;
+		
+		if (scanner.getColumn() > 0) {
+			scanner.unread();
+			sawSpaceBefore = Character.isWhitespace(scanner.read());
+		}
+
 		// Should be connected only on the right side
-		scanner.unread();
-		boolean sawSpaceBefore = Character.isWhitespace(scanner.read());
 		if (!sawSpaceBefore && scanner.getColumn() != 0) {
 			return Token.UNDEFINED;
 		}

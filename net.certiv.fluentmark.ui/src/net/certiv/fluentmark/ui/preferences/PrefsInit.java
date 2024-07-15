@@ -77,21 +77,15 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_DOTMODE_ENABLED, true);
 		store.setDefault(EDITOR_DOT_PROGRAM, "/usr/bin/dot");
 
-		store.setDefault(EDITOR_TXTMARK_SAFEMODE, false);
-		store.setDefault(EDITOR_TXTMARK_EXTENDED, true);
-
-		store.setDefault(EDITOR_BLACKFRIDAY_ADDTOC, false);
-		store.setDefault(EDITOR_BLACKFRIDAY_SMART, true);
-		store.setDefault(EDITOR_BLACKFRIDAY_PROGRAM, "");
-
 		store.setDefault(EDITOR_PANDOC_ADDTOC, false);
 		store.setDefault(EDITOR_PANDOC_MATHJAX, true);
 		store.setDefault(EDITOR_PANDOC_SMART, true);
 		store.setDefault(EDITOR_PANDOC_PROGRAM, "/usr/bin/pandoc");
 		store.setDefault(EDITOR_PANDOC_TEMPLATES, "");
 		store.setDefault(EDITOR_PANDOC_TEMPLATE, "");
+		
+		store.setDefault(EDITOR_FLEXMARK_MATHJAX, true);
 
-		store.setDefault(EDITOR_EXTERNAL_COMMAND, "");
 		store.setDefault(EDITOR_SECTION_NUMBERS, true);
 
 		store.setDefault(IConfigurationProvider.EDITOR_CSS_BUILTIN, cssDefault());

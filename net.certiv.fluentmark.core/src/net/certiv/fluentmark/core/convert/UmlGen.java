@@ -6,59 +6,39 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.convert;
 
+import java.io.File;
+import java.util.List;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-
 import org.eclipse.core.runtime.CoreException;
 
-import java.util.Collections;
-import java.util.List;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-
-import java.nio.charset.Charset;
+import com.advantest.plantuml.PlantUmlToSvgRenderer;
 
 import net.certiv.fluentmark.core.util.Strings;
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.FileFormatOption;
-import net.sourceforge.plantuml.GeneratedImage;
-import net.sourceforge.plantuml.SourceFileReader;
-import net.sourceforge.plantuml.SourceStringReader;
-import net.sourceforge.plantuml.dot.GraphvizUtils;
-import net.sourceforge.plantuml.preproc.Defines;
 
 public class UmlGen {
 
 	private IConfigurationProvider configurationProvider;
+	private PlantUmlToSvgRenderer renderer;
 
 	public UmlGen(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
+		this.renderer = new PlantUmlToSvgRenderer();
 	}
 
 	public String uml2svg(List<String> lines) {
 		return uml2svg(String.join(Strings.EOL, lines));
 	}
 
-	public String uml2svg(String data) {
+	public String uml2svg(String plantUmlCode) {
 		String dotexe = configurationProvider.getDotCommand();
-		if (!dotexe.isEmpty()) {
-			GraphvizUtils.setDotExecutable(dotexe);
-		}
+		renderer.setDotExecutable(dotexe);
 
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 		
-		String value;
-		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			SourceStringReader reader = new SourceStringReader(data);
-			reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
-			value = new String(os.toByteArray(), Charset.forName("UTF-8"));
-		} catch (Exception e) {
-			throw new RuntimeException("PlantUML exception on" + Strings.EOL + data, e);
-		}
-
-		return value;
+		return renderer.plantUmlToSvg(plantUmlCode);
 	}
 	
 	public IFile uml2svg(IFile pumlSourceFile) {
@@ -89,32 +69,12 @@ public class UmlGen {
 
 
 	public File uml2svg(File pumlSourceFile, File targetDirectory) {
-		
 		String dotexe = configurationProvider.getDotCommand();
-		if (!dotexe.isEmpty()) {
-			GraphvizUtils.setDotExecutable(dotexe);
-		}
+		renderer.setDotExecutable(dotexe);
 		
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 		
-		File targetDir = targetDirectory == null ? pumlSourceFile.getParentFile() : targetDirectory;
-		File targetFile = null;
-		SourceFileReader reader;
-		try {
-			reader = new SourceFileReader(Defines.createWithFileName(pumlSourceFile),
-					pumlSourceFile, targetDir, Collections.<String>emptyList(), "UTF-8", new FileFormatOption(FileFormat.SVG));
-			reader.setCheckMetadata(true);
-			List<GeneratedImage> list = reader.getGeneratedImages();
-			
-			if (!list.isEmpty()) {
-				GeneratedImage img = list.get(0);
-				targetFile = img.getPngFile();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("PlantUML exception on file " + pumlSourceFile.getAbsolutePath(), e);
-		}
-		
-		return targetFile;
+		return renderer.plantUmlToSvg(pumlSourceFile, targetDirectory);
 	}
 	
 }

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>Fluentmark</artifactId>
-		<version>1.4.2-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -18,7 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
+		<markdown-core-version>1.0.0-20240604-1451</markdown-core-version>
 	</properties>
 
 	<dependencies>
@@ -82,23 +82,23 @@
 			<version>0.13</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
-			<version>${plantuml-lib-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.advantest.markdown</groupId>
+            <artifactId>markdown-core</artifactId>
+            <version>${markdown-core-version}</version>
+        </dependency>
 
 	</dependencies>
 
 	<build>
 		<plugins>
 
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.0.0</version>
 				<executions>
+
 					<execution>
 						<id>copy</id>
 						<phase>process-resources</phase>
@@ -196,10 +196,29 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 
+							</artifactItems>
+
+							<outputDirectory>lib</outputDirectory>
+							<stripVersion>false</stripVersion>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>copy-markdown-core</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+
 								<artifactItem>
-									<groupId>net.sourceforge.plantuml</groupId>
-									<artifactId>plantuml</artifactId>
-									<version>${plantuml-lib-version}</version>
+									<groupId>com.advantest.markdown</groupId>
+									<artifactId>markdown-core</artifactId>
+									<version>${markdown-core-version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -208,12 +227,14 @@
 
 							<outputDirectory>lib</outputDirectory>
 							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
+							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
+
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 

@@ -1,1 +1,0 @@
-# DOT syntax examples
