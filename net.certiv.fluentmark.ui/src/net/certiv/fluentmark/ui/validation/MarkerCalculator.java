@@ -35,7 +35,6 @@ import java.io.InputStream;
 
 import java.nio.charset.Charset;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.extensionpoints.TypedRegionValidatorsManager;
 
@@ -43,7 +42,7 @@ public class MarkerCalculator {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
-	private static final String JOB_NAME = "Re-calculating problem markers";
+	private static final String JOB_NAME = "Re-calculating markers";
 	
 	private static MarkerCalculator INSTANCE = null;
 	
