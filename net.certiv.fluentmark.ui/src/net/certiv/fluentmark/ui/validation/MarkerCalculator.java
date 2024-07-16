@@ -103,6 +103,7 @@ public class MarkerCalculator {
 			marker.setAttribute(IMarker.MESSAGE, markerMessage);
 			marker.setAttribute(IMarker.SEVERITY, markerSeverity);
 			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
+			marker.setAttribute(IMarker.USER_EDITABLE, false);
 			if (startOffset != null && endOffset != null) {
 				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
 			    marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
