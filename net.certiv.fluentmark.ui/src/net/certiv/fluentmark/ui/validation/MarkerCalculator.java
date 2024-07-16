@@ -277,30 +277,6 @@ public class MarkerCalculator {
 						return;
 					}
 					
-					// FIXME Remove this dummy code
-					if ("md".equals(file.getFileExtension()) && MarkdownPartitions.COMMENT.equals(region.getType())) {
-						String regionContent;
-						try {
-							regionContent = document.get(region.getOffset(), region.getLength());
-						} catch (BadLocationException e) {
-							return;
-						}
-						
-						int index = regionContent.indexOf("TODO");
-						if (index > 0) {
-							try {
-								int lineNumber = document.getLineOfOffset(region.getOffset() + index + 1);
-								MarkerCalculator.createMarkdownTaskMarker(file, IMarker.SEVERITY_ERROR, "Here is something to do.",
-										lineNumber,
-										region.getOffset() + index,
-										region.getOffset() + index + 4);
-							} catch (BadLocationException e) {
-							}
-							
-						}
-					}
-					
-					
 					if (validator.isValidatorFor(region, file) ) {
 						validator.validateRegion(region, document, file);
 					}
