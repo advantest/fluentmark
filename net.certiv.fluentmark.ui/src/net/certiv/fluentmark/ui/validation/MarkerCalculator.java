@@ -94,14 +94,14 @@ public class MarkerCalculator {
 		return null;
 	}
 	
-	public static IMarker createMarkdownTaskMarker(IResource resource, int markerSeverity, String markerMessage,
+	public static IMarker createMarkdownTaskMarker(IResource resource, int markerPriority, String markerMessage,
 			Integer lineNumber, Integer startOffset, Integer endOffset)
 			throws CoreException {
 		IMarker marker;
 		try {
 			marker  = resource.createMarker(MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
 			marker.setAttribute(IMarker.MESSAGE, markerMessage);
-			marker.setAttribute(IMarker.SEVERITY, markerSeverity);
+			marker.setAttribute(IMarker.PRIORITY, markerPriority);
 			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
 			marker.setAttribute(IMarker.USER_EDITABLE, false);
 			if (startOffset != null && endOffset != null) {
