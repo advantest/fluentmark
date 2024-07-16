@@ -200,6 +200,16 @@ public class MarkerCalculator {
 		return null;
 	}
 	
+	private void deleteAllMarkersOfType(IFile file, String markerTypeId) throws CoreException {
+		IMarker[] markers = file.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
+		
+		for (IMarker marker: markers) {
+			if (marker.exists()) {
+				marker.delete();
+			}
+		}
+	} 
+	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IFile file) throws CoreException {
 		if (monitor.isCanceled()) {
 			return;
@@ -211,13 +221,8 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Delete obsolete markers");
-		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, true, IResource.DEPTH_INFINITE);
-		
-		for (IMarker marker: markers) {
-			if (marker.exists()) {
-				marker.delete();
-			}
-		}
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
 		
 		if (monitor.isCanceled()) {
 			return;
