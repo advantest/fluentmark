@@ -3,10 +3,10 @@
 <schema targetNamespace="net.certiv.fluentmark.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.certiv.fluentmark.ui" id="validator.uri" name="URI Validator"/>
+         <meta.schema plugin="net.certiv.fluentmark.ui" id="marker.builders" name="Marker calculation builder"/>
       </appinfo>
       <documentation>
-         Extension point for adding additional URI validators for checking Markdown links and creating problem markers.
+         This extension point allows for contributing incremental builders for calculating markers (e.g. problem markers or task markers). These builders will be activated on projects, for which the Markdown marker calculation is enabled.
       </documentation>
    </annotation>
 
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="validator"/>
+            <element ref="builder"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,36 @@
       </complexType>
    </element>
 
-   <element name="validator">
+   <element name="builder">
+      <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="projectNature" minOccurs="0" maxOccurs="1"/>
+            <element ref="marker" minOccurs="0" maxOccurs="1"/>
+         </sequence>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="visitorClass" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.builders.IMarkerCalculationResourcesVisitor"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="projectNature">
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -59,13 +88,18 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="class" type="string" use="required">
+      </complexType>
+   </element>
+
+   <element name="marker">
+      <complexType>
+         <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  An IUriValidator implementation for a certain type of URI to be used as extension during Markdown link checks.
+                  
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.validation.IUriValidator"/>
+                  <meta.attribute kind="identifier"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -77,7 +111,7 @@
          <meta.section type="since"/>
       </appinfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         1.5
       </documentation>
    </annotation>
 

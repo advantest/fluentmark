@@ -200,8 +200,8 @@ public class MarkerCalculator {
 		return null;
 	}
 	
-	private void deleteAllMarkersOfType(IFile file, String markerTypeId) throws CoreException {
-		IMarker[] markers = file.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
+	public void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
+		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
 		
 		for (IMarker marker: markers) {
 			if (marker.exists()) {

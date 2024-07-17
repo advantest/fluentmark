@@ -108,5 +108,13 @@
       </documentation>
    </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Advantest Europe GmbH
+      </documentation>
+   </annotation>
 
 </schema>
