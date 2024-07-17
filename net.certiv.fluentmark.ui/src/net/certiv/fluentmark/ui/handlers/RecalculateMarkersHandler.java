@@ -43,6 +43,12 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Set<IProject> projectSet = AddMarkerClculationBuilderHandler.getProjects(event);
+		recalculateMarkers(projectSet);
+		
+		return null;
+	}
+	
+	static void recalculateMarkers(Set<IProject> projectSet) {
 		final Map<IProject, Set<String>> projectBuilderIds = new HashMap<>();
 		final Map<String, IMarkerCalculationResourcesVisitor> builderIdsToVisitorMap = MarkerCalculationBuilderManager.getInstance().getAllMarkerCalculationResourceVisitors();
 		
@@ -116,8 +122,6 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 		job.setProperty(IProgressConstants2.SHOW_IN_TASKBAR_ICON_PROPERTY, Boolean.TRUE);
 		job.setUser(true);
 		job.schedule();
-		
-		return null;
 	}
 
 }

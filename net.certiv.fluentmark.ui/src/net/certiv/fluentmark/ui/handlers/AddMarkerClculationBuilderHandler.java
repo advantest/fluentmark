@@ -80,11 +80,13 @@ public class AddMarkerClculationBuilderHandler extends AbstractHandler implement
 				
 				IDecoratorManager decoratorManager = PlatformUI.getWorkbench().getDecoratorManager();
 				decoratorManager.update(MarkdownFileValidationsDecorator.DECORATOR_ID);
-
 			} catch (final CoreException e) {
 				Log.error("Could not add marker calculation builder(s) to project " + project.getName(), e);
 			}
 		}
+		
+		// trigger initial marker calculation
+		RecalculateMarkersHandler.recalculateMarkers(projectSet);
 
 		return null;
 	}
