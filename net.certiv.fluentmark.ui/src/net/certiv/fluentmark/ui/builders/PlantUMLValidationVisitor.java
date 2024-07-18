@@ -16,18 +16,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
-import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 
 public class PlantUMLValidationVisitor extends AbstractMarkerCalculationResourceVisitor {
 
@@ -85,39 +77,6 @@ public class PlantUMLValidationVisitor extends AbstractMarkerCalculationResource
 		return false;
 	}
 	
-	@Override
-	public void checkFile(IDocument document, IFile file) {
-		if (FileUtils.isMarkdownFile(file)) {
-			IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-			
-			if (document instanceof IDocumentExtension3) {
-				partitioner = ((IDocumentExtension3) document).getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-			}
-			
-			if (partitioner == null) {
-				partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
-				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-			}
-			
-			ITypedRegion[] markdownPartitions = MarkdownPartitions.computePartitions(document);
-			for (ITypedRegion region: markdownPartitions) {
-				if (region.getType().equals(MarkdownPartitions.UMLBLOCK)) {
-					String umlBlockContents;
-					try {
-						umlBlockContents = document.get(region.getOffset(), region.getLength());
-						Document umlBlockDocument = new Document(umlBlockContents);
-						
-						// TODO schedule job for calculating PlantUML markers in that region
-					} catch (BadLocationException e) {
-						// ignore
-					} 
-				}
-			}
-		} else {
-			super.checkFile(document, file);
-		}
-	}
-
 	static boolean shouldVisitMembers(IContainer container) {
 		// look into projects
 		if (container instanceof IProject) {

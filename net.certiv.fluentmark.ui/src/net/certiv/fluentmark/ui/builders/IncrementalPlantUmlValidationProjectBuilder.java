@@ -85,7 +85,8 @@ public class IncrementalPlantUmlValidationProjectBuilder extends IncrementalProj
 				if (FileUtils.isPumlFile((IFile) resource)) {
 					numCodeBlocksFound++;
 				} else if (FileUtils.isMarkdownFile((IFile) resource)) {
-					// TODO find PlantUML code blocks and count these
+					// TODO find PlantUML code blocks and count these, too?
+					numCodeBlocksFound++; // just count the files for now
 				}
 			}
 			

@@ -94,7 +94,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	}
 	
 	@Override
-	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
 		return MarkdownPartitions.computePartitions(document);
 	}
 	

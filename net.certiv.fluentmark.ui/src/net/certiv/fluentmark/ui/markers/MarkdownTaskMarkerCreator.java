@@ -54,7 +54,7 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
 	}
 
 	@Override
-	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
 		return MarkdownPartitions.computePartitions(document);
 	}
 

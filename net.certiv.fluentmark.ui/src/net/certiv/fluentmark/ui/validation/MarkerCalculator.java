@@ -277,7 +277,7 @@ public class MarkerCalculator {
 				
 				validator.setupDocumentPartitioner(document, file);
 				try {
-					typedRegions = validator.computePartitioning(document);
+					typedRegions = validator.computePartitioning(document, file);
 				} catch (BadLocationException e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()), e);
 					

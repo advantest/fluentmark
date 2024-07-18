@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
@@ -23,6 +24,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitioningTools;
 import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitions;
 import net.certiv.fluentmark.ui.validation.ITypedRegionValidator;
@@ -49,25 +51,34 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionValidator {
 		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
 		
 		if (partitioner == null) {
-			partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
-			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
+			if (FileUtils.isPumlFile(file)) {
+				partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
+				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);				
+			} else if (FileUtils.isMarkdownFile(file)) {
+				partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
+				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			}
 		}
 	}
 
 	@Override
-	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
-		return PlantUmlPartitions.computePartitions(document);
+	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
+		if (FileUtils.isPumlFile(file)) {
+			return PlantUmlPartitions.computePartitions(document);
+		} else {
+			return MarkdownPartitions.computePartitions(document);
+		}
 	}
 
 	@Override
 	public boolean isValidatorFor(IFile file) {
-		return FileUtils.isPumlFile(file);
+		return FileUtils.isPumlFile(file) || FileUtils.isMarkdownFile(file);
 	}
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
-		return PlantUmlPartitions.COMMENT.equals(region.getType())
-				&& isValidatorFor(file);
+		return (PlantUmlPartitions.COMMENT.equals(region.getType()) && FileUtils.isPumlFile(file))
+				|| (MarkdownPartitions.UMLBLOCK.equals(region.getType()) && FileUtils.isMarkdownFile(file));
 	}
 
 	@Override
@@ -79,6 +90,30 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionValidator {
 			return;
 		}
 		
+		if (FileUtils.isMarkdownFile(resource)
+				&& MarkdownPartitions.UMLBLOCK.equals(region.getType())) {
+			IDocument codeBlockDocument = new Document(regionContent);
+			IDocumentPartitioner partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
+			FluentPartitioningTools.setupDocumentPartitioner(codeBlockDocument, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
+			ITypedRegion[] inCodeBlockRegions = PlantUmlPartitions.computePartitions(codeBlockDocument);
+			
+			for (ITypedRegion inCodeBlockRegion: inCodeBlockRegions) {
+				if (PlantUmlPartitions.COMMENT.equals(inCodeBlockRegion.getType())) {
+					String inCodeBlockRegionContent;
+					try {
+						inCodeBlockRegionContent = codeBlockDocument.get(inCodeBlockRegion.getOffset(), inCodeBlockRegion.getLength());
+					} catch (BadLocationException e) {
+						continue;
+					}
+					doValidateRegion(inCodeBlockRegion, inCodeBlockRegionContent, document, resource, region.getOffset());
+				}
+			}
+		} else {
+			doValidateRegion(region, regionContent, document, resource, 0);
+		}
+	}
+	
+	private void doValidateRegion(ITypedRegion region, String regionContent, IDocument document, IFile resource, int additionalOffset) throws CoreException {
 		Matcher patternMatcher = this.pattern.matcher(regionContent);
 		boolean found = patternMatcher.find();
 		int startIndex = -1;
@@ -90,9 +125,9 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionValidator {
 			String todoOrFixmeText = patternMatcher.group(REGEX_CAPTURING_GROUP_KEYWORD);
 			String message = patternMatcher.group(REGEX_CAPTURING_GROUP_MESSAGE).trim();
 			
-			int offset = region.getOffset() + startIndex;
+			int offset = region.getOffset() + startIndex + additionalOffset;
 			int lineNumber = getLineForOffset(document, offset);
-			int endOffset = region.getOffset() + endIndex;
+			int endOffset = region.getOffset() + endIndex + additionalOffset;
 			int priority = "FIXME".equalsIgnoreCase(todoOrFixmeText) ? IMarker.PRIORITY_HIGH : IMarker.PRIORITY_NORMAL;
 			
 			MarkerCalculator.createPlantUmlTaskMarker(resource, priority, todoOrFixmeText + " " + message, lineNumber, offset, endOffset);

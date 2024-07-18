@@ -21,7 +21,7 @@ public interface ITypedRegionValidator {
 	
 	void setupDocumentPartitioner(IDocument document, IFile file);
 	
-	ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException;
+	ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException;
 	
 	boolean isValidatorFor(IFile file);
 	
