@@ -55,7 +55,7 @@ public class MarkdownLinkValidatorIT {
 		assertNotNull(document);
 		
 		linkValidator.setupDocumentPartitioner(document, file);
-		return linkValidator.computePartitioning(document);
+		return linkValidator.computePartitioning(document, file);
 	}
 	
 	private IDocument createDocument(String content) {

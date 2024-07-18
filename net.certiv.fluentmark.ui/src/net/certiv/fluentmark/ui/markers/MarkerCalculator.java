@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.ui.markers;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -36,17 +36,17 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.extensionpoints.TypedRegionValidatorsManager;
+import net.certiv.fluentmark.ui.extensionpoints.TypedRegionMarkerCalculatorsManager;
 
 public class MarkerCalculator {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
-	private static final String JOB_NAME = "Re-calculating problem markers";
+	private static final String JOB_NAME = "Re-calculating markers";
 	
 	private static MarkerCalculator INSTANCE = null;
 	
-	private List<ITypedRegionValidator> validators;
+	private List<ITypedRegionMarkerCalculator> validators;
 	
 	private Job markerCalculatingJob;
 	
@@ -56,8 +56,8 @@ public class MarkerCalculator {
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
 		
-		List<ITypedRegionValidator> typedRegionValidators = TypedRegionValidatorsManager.getInstance().getTypedRegionValidators();
-		for (ITypedRegionValidator validator : typedRegionValidators) {
+		List<ITypedRegionMarkerCalculator> typedRegionMarkerCalculators = TypedRegionMarkerCalculatorsManager.getInstance().getTypedRegionValidators();
+		for (ITypedRegionMarkerCalculator validator : typedRegionMarkerCalculators) {
 			this.validators.add(validator);
 		}
 	}
@@ -69,7 +69,7 @@ public class MarkerCalculator {
 		return INSTANCE;
 	}
 	
-	public static IMarker createMarkdownMarker(IResource resource, int markerSeverity, String markerMessage,
+	public static IMarker createDocumentationProblemMarker(IResource resource, int markerSeverity, String markerMessage,
 			Integer lineNumber, Integer startOffset, Integer endOffset)
 			throws CoreException {
 		IMarker marker;
@@ -86,10 +86,47 @@ public class MarkerCalculator {
 				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 			}
 			
-	        return marker;
-        } catch (CoreException e) {
-        	FluentUI.log(IStatus.WARNING, "Problem marker couldn't be created.", e);
-        }
+			return marker;
+		} catch (CoreException e) {
+			FluentUI.log(IStatus.WARNING, "Problem marker couldn't be created.", e);
+		}
+		return null;
+	}
+	
+	public static IMarker createMarkdownTaskMarker(IResource resource, int markerPriority, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
+		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_MARKDOWN, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
+	}
+	
+	public static IMarker createPlantUmlTaskMarker(IResource resource, int markerPriority, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
+		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_PLANTUML, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
+	}
+	
+	private static IMarker createTaskMarker(IResource resource, String markerType, int markerPriority, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
+		IMarker marker;
+		try {
+			marker  = resource.createMarker(markerType);
+			marker.setAttribute(IMarker.MESSAGE, markerMessage);
+			marker.setAttribute(IMarker.PRIORITY, markerPriority);
+			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
+			marker.setAttribute(IMarker.USER_EDITABLE, false);
+			if (startOffset != null && endOffset != null) {
+				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
+			    marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
+			}
+			if (lineNumber != null && lineNumber.intValue() > 0) {
+				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+			}
+			
+			return marker;
+		} catch (CoreException e) {
+			FluentUI.log(IStatus.WARNING, "Task marker couldn't be created.", e);
+		}
 		return null;
 	}
 	
@@ -175,6 +212,16 @@ public class MarkerCalculator {
 		return null;
 	}
 	
+	public void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
+		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
+		
+		for (IMarker marker: markers) {
+			if (marker.exists()) {
+				marker.delete();
+			}
+		}
+	} 
+	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IFile file) throws CoreException {
 		if (monitor.isCanceled()) {
 			return;
@@ -186,13 +233,9 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Delete obsolete markers");
-		IMarker[] markers = file.findMarkers(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, true, IResource.DEPTH_INFINITE);
-		
-		for (IMarker marker: markers) {
-			if (marker.exists()) {
-				marker.delete();
-			}
-		}
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_MARKDOWN);
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_PLANTUML);
 		
 		if (monitor.isCanceled()) {
 			return;
@@ -201,7 +244,7 @@ public class MarkerCalculator {
 		monitor.subTask("Calculate new markers");
 		
 		ITypedRegion[] typedRegions = null;
-		for (ITypedRegionValidator validator: validators) {
+		for (ITypedRegionMarkerCalculator validator: validators) {
 			if (monitor.isCanceled()) {
 				return;
 			}
@@ -234,7 +277,7 @@ public class MarkerCalculator {
 				
 				validator.setupDocumentPartitioner(document, file);
 				try {
-					typedRegions = validator.computePartitioning(document);
+					typedRegions = validator.computePartitioning(document, file);
 				} catch (BadLocationException e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not calculate partitions for file %s.", file.getLocation().toString()), e);
 					

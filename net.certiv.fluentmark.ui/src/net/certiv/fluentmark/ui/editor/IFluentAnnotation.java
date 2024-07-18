@@ -9,7 +9,7 @@ package net.certiv.fluentmark.ui.editor;
 
 import java.util.Iterator;
 
-/** Rrepresents markers and problems. */
+/** Represents markers and problems. */
 public interface IFluentAnnotation {
 
 	String PROBLEM = "fluentmark.problem"; //$NON-NLS-1$

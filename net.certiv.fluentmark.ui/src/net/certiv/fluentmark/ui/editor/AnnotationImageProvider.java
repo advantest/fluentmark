@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IAnnotationImageProvider;
 
 import net.certiv.fluentmark.ui.FluentImages;
@@ -129,6 +130,8 @@ public class AnnotationImageProvider implements IAnnotationImageProvider {
 					image = sharedImages.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 				} else if (IFluentAnnotation.INFO.equals(annotationType)) {
 					image = sharedImages.getImage(ISharedImages.IMG_OBJS_INFO_TSK);
+				} else if (IFluentAnnotation.TASK.equals(annotationType)) {
+					image = sharedImages.getImage(IDE.SharedImages.IMG_OBJS_TASK_TSK);
 				}
 				if (image != null) {
 					ImageRegistry registry = getImageRegistry(display);

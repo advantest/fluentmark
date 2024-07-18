@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
    <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
-   <extension-point id="validator.typedRegion" name="Typed Region Validator" schema="schema/net.certiv.fluentmark.ui.typedRegionValidator.exsd"/>
+   <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
+   <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
@@ -36,7 +37,7 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="net.certiv.fluentmark.ui.validation.ValidationDocumentSetupParticipant"
+            class="net.certiv.fluentmark.ui.markers.MarkerCalculationDocumentSetupParticipant"
             contentTypeId="net.certiv.fluentmark.contentType"
             extensions="md">
       </participant>
@@ -69,7 +70,7 @@
    
    
    <extension
-         id="markers.documentation"
+         id="markers.documentation.problem"
          name="Documentation Problem"
          point="org.eclipse.core.resources.markers">
       <super
@@ -81,6 +82,28 @@
       <persistent
             value="true">
       </persistent>
+   </extension>
+   <extension
+         id="markers.task.markdown"
+         name="Markdown Task"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.taskmarker">
+      </super>
+   </extension>
+   <extension
+         id="markers.task.plantuml"
+         name="PlantUML Task"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.taskmarker">
+      </super>
    </extension>
 
    <extension
@@ -105,6 +128,18 @@
       </type>
       <type
             name="net.certiv.fluentmark.ui.occurrences">
+      </type>
+      <type
+            markerSeverity="0"
+            markerType="net.certiv.fluentmark.task"
+            name="net.certiv.fluentmark.ui.task.markdown"
+            super="org.eclipse.ui.workbench.texteditor.task">
+      </type>
+      <type
+            markerSeverity="0"
+            markerType="net.certiv.fluentmark.task"
+            name="net.certiv.fluentmark.ui.task.plantuml"
+            super="org.eclipse.ui.workbench.texteditor.task">
       </type>
    </extension>
 
@@ -148,6 +183,18 @@
             textStylePreferenceValue="NONE"
             verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
             verticalRulerPreferenceValue="false">
+      </specification>
+      <specification
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
+            annotationType="net.certiv.fluentmark.ui.task.markdown"
+            includeOnPreferencePage="true"
+            label="Markdown Tasks">
+      </specification>
+      <specification
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
+            annotationType="net.certiv.fluentmark.ui.task.plantuml"
+            includeOnPreferencePage="true"
+            label="PlantUML Tasks">
       </specification>
    </extension>
    
@@ -386,6 +433,103 @@
                tooltip="Open Firebug console">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+               icon="icons/obj16/fluentmark_doc.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                     </adapt>
+                  </iterate>
+                  <iterate>
+                     <not>
+                        <test
+                              forcePluginActivation="true"
+                              property="net.certiv.fluentmark.ui.isEnabled">
+                        </test>
+                     </not>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isAccessible">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
+               icon="icons/obj16/fluentmark_doc.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                     </adapt>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isEnabled">
+                     </test>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isAccessible">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+               commandId="net.certiv.fluentmark.ui.revalidate"
+               icon="icons/obj16/fluentmark_doc.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                     </adapt>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isEnabled">
+                     </test>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isAccessible">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    
    <extension
@@ -483,6 +627,21 @@
             description="Show the HTML code generated from the given Markdown code"
             id="net.certiv.fluentmark.showHtmlCode"
             name="Show HTML source code">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.AddMarkerClculationBuilderHandler"
+            id="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+            name="Check Markdown code and references">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.RemoveMarkerCalculationBuilderHandler"
+            id="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
+            name="Do not check Markdown code and references">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.RecalculateMarkersHandler"
+            id="net.certiv.fluentmark.ui.revalidate"
+            name="Re-check Markdown code and references">
       </command>
    </extension>
 
@@ -715,11 +874,79 @@
       </wizard>
    </extension>
    <extension
-         point="net.certiv.fluentmark.ui.validator.typedRegion">
-      <validator
+         id="net.certiv.fluentmark.ui.builder.markdown"
+         name="Markdown file validator"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="net.certiv.fluentmark.ui.builder.plantuml"
+         name="PlantUML file and code blocks in Markdown files validator"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester"
+            id="net.certiv.fluentmark.ui.MarkdownBuilderEnabledTester"
+            namespace="net.certiv.fluentmark.ui"
+            properties="isEnabled"
+            type="java.lang.Object">
+      </propertyTester>
+      <propertyTester
+            class="net.certiv.fluentmark.ui.propertytesters.ResourceAccessibleTester"
+            id="net.certiv.fluentmark.ui.ResourceAccessibleTester"
+            namespace="net.certiv.fluentmark.ui"
+            properties="isAccessible"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="true"
+            class="net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator"
+            id="net.certiv.fluentmark.ui.decorator"
+            label="Checking Markdown files enabled"
+            lightweight="true"
+            state="true">
+         <enablement>
+            <and>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
+            </and>
+         </enablement>
+         <description>
+            description body text
+         </description>
+      </decorator>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.ui.marker.calculators">
+      <calculator
             class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
             id="net.certiv.fluentmark.ui.validator.markdown">
-      </validator>
+      </calculator>
+      <calculator
+            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
+            id="net.certiv.fluentmark.ui.markers.tasks.markdown">
+      </calculator>
+      <calculator
+            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
+            id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
+      </calculator>
    </extension>
    
 </plugin>

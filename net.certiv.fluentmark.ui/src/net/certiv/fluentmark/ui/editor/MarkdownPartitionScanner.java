@@ -7,25 +7,18 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.editor.text.rules.DotCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;
@@ -33,7 +26,6 @@ import net.certiv.fluentmark.ui.editor.text.rules.HtmlCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.IndentedCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.MatchRule;
 import net.certiv.fluentmark.ui.editor.text.rules.PumlFileInclusionRule;
-import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 
