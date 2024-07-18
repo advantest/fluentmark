@@ -37,7 +37,7 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
 import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
+import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
 import net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester;
 
 public class AddMarkerClculationBuilderHandler extends AbstractHandler implements IHandler {
@@ -45,7 +45,7 @@ public class AddMarkerClculationBuilderHandler extends AbstractHandler implement
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Set<IProject> projectSet = getProjects(event);
-		MarkerCalculationBuilderManager builderManager = MarkerCalculationBuilderManager.getInstance();
+		MarkerCalculationBuildersManager builderManager = MarkerCalculationBuildersManager.getInstance();
 
 		for (IProject project: projectSet) {
 			try {

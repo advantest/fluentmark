@@ -31,9 +31,11 @@ import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 
-public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionValidator {
+public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionMarkerCalculator {
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example

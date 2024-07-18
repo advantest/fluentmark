@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.ui.markers;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -36,7 +36,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.extensionpoints.TypedRegionValidatorsManager;
+import net.certiv.fluentmark.ui.extensionpoints.TypedRegionMarkerCalculatorsManager;
 
 public class MarkerCalculator {
 
@@ -46,7 +46,7 @@ public class MarkerCalculator {
 	
 	private static MarkerCalculator INSTANCE = null;
 	
-	private List<ITypedRegionValidator> validators;
+	private List<ITypedRegionMarkerCalculator> validators;
 	
 	private Job markerCalculatingJob;
 	
@@ -56,8 +56,8 @@ public class MarkerCalculator {
 	private MarkerCalculator() {
 		this.validators = new ArrayList<>();
 		
-		List<ITypedRegionValidator> typedRegionValidators = TypedRegionValidatorsManager.getInstance().getTypedRegionValidators();
-		for (ITypedRegionValidator validator : typedRegionValidators) {
+		List<ITypedRegionMarkerCalculator> typedRegionMarkerCalculators = TypedRegionMarkerCalculatorsManager.getInstance().getTypedRegionValidators();
+		for (ITypedRegionMarkerCalculator validator : typedRegionMarkerCalculators) {
 			this.validators.add(validator);
 		}
 	}
@@ -244,7 +244,7 @@ public class MarkerCalculator {
 		monitor.subTask("Calculate new markers");
 		
 		ITypedRegion[] typedRegions = null;
-		for (ITypedRegionValidator validator: validators) {
+		for (ITypedRegionMarkerCalculator validator: validators) {
 			if (monitor.isCanceled()) {
 				return;
 			}

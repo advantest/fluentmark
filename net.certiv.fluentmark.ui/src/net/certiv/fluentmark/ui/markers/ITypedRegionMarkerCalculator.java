@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.ui.markers;
 
 import org.eclipse.core.resources.IFile;
 
@@ -17,7 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-public interface ITypedRegionValidator {
+public interface ITypedRegionMarkerCalculator {
 	
 	void setupDocumentPartitioner(IDocument document, IFile file);
 	

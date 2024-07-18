@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IMarker;
 
 import org.eclipse.core.runtime.CoreException;
 
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
+
 import java.util.Map;
 
 import java.net.URI;

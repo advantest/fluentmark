@@ -31,6 +31,7 @@ import java.io.File;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class FilePathValidator {
 	

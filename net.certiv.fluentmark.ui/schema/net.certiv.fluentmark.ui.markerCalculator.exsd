@@ -3,7 +3,7 @@
 <schema targetNamespace="net.certiv.fluentmark.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.certiv.fluentmark.ui" id="validator.typedRegion" name="Typed Region Validator"/>
+         <meta.schema plugin="net.certiv.fluentmark.ui" id="marker.calculators" name="Typed Region Marker Calculator"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="validator"/>
+            <element ref="calculator"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="validator">
+   <element name="calculator">
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -65,7 +65,7 @@
                   An ITypedRegioniValidator implementation for a certain type of partitioning to be used as extension during file checks.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.validation.ITypedRegionValidator"/>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator"/>
                </appinfo>
             </annotation>
          </attribute>

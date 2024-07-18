@@ -24,10 +24,8 @@ import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
-import net.certiv.fluentmark.ui.validation.ITypedRegionValidator;
-import net.certiv.fluentmark.ui.validation.MarkerCalculator;
 
-public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
+public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	
 	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME)[ \\t](?<message>.*?(?=-?-->)|.*(?!-->))";
 	private static final String REGEX_CAPTURING_GROUP_KEYWORD = "keyword";

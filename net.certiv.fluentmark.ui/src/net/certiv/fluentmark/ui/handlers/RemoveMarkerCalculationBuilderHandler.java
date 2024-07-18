@@ -30,9 +30,9 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
 import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
-import net.certiv.fluentmark.ui.validation.MarkerCalculator;
-import net.certiv.fluentmark.ui.validation.MarkerConstants;
+import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
+import net.certiv.fluentmark.ui.markers.MarkerConstants;
 
 public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler implements IHandler {
 
@@ -46,7 +46,7 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 				final List<ICommand> commands = new ArrayList<ICommand>();
 				commands.addAll(Arrays.asList(description.getBuildSpec()));
 				
-				Set<String> builderIds = MarkerCalculationBuilderManager.getInstance().getMarkerCalculationBuilderIdsFromExtensions();
+				Set<String> builderIds = MarkerCalculationBuildersManager.getInstance().getMarkerCalculationBuilderIdsFromExtensions();
 				
 				Set<String> markerIds = new HashSet<>();
 				markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
@@ -66,7 +66,7 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 						if (buildSpec.getBuilderName().equals(builderId)) {
 							commands.remove(buildSpec);
 							
-							for (String additionalMarkerId: MarkerCalculationBuilderManager.getInstance()
+							for (String additionalMarkerId: MarkerCalculationBuildersManager.getInstance()
 									.getMarkersForBuilder(builderId)) {
 								markerIds.add(additionalMarkerId);
 							}

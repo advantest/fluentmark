@@ -36,9 +36,9 @@ import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBui
 import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.builders.MarkdownFileValidationVisitor;
 import net.certiv.fluentmark.ui.builders.PlantUMLValidationVisitor;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
-import net.certiv.fluentmark.ui.validation.MarkerCalculator;
-import net.certiv.fluentmark.ui.validation.MarkerConstants;
+import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
+import net.certiv.fluentmark.ui.markers.MarkerConstants;
 
 public class RecalculateMarkersHandler extends AbstractHandler implements IHandler {
 	
@@ -52,7 +52,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 	
 	static void recalculateMarkers(Set<IProject> projectSet) {
 		final Map<IProject, Set<String>> projectBuilderIds = new HashMap<>();
-		final Map<String, IMarkerCalculationResourcesVisitor> builderIdsToVisitorMap = MarkerCalculationBuilderManager.getInstance().getAllMarkerCalculationResourceVisitors();
+		final Map<String, IMarkerCalculationResourcesVisitor> builderIdsToVisitorMap = MarkerCalculationBuildersManager.getInstance().getAllMarkerCalculationResourceVisitors();
 		
 		for (IProject project: projectSet) {
 			if (project == null || !project.isAccessible()) {
@@ -93,7 +93,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 						markerIds.add(MarkerConstants.MARKER_ID_TASK_MARKDOWN);
 						markerIds.add(MarkerConstants.MARKER_ID_TASK_PLANTUML);
 						for (String builderId: projectBuilderIds.get(project)) {
-							for (String markerId: MarkerCalculationBuilderManager.getInstance().getMarkersForBuilder(builderId)) {
+							for (String markerId: MarkerCalculationBuildersManager.getInstance().getMarkersForBuilder(builderId)) {
 								markerIds.add(markerId);
 							}
 						}

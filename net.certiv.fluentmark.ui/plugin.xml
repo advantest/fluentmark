@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
    <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
-   <extension-point id="validator.typedRegion" name="Typed Region Validator" schema="schema/net.certiv.fluentmark.ui.typedRegionValidator.exsd"/>
+   <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
    <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
@@ -37,7 +37,7 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="net.certiv.fluentmark.ui.validation.ValidationDocumentSetupParticipant"
+            class="net.certiv.fluentmark.ui.markers.MarkerCalculationDocumentSetupParticipant"
             contentTypeId="net.certiv.fluentmark.contentType"
             extensions="md">
       </participant>
@@ -934,19 +934,19 @@
       </decorator>
    </extension>
    <extension
-         point="net.certiv.fluentmark.ui.validator.typedRegion">
-      <validator
+         point="net.certiv.fluentmark.ui.marker.calculators">
+      <calculator
             class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
             id="net.certiv.fluentmark.ui.validator.markdown">
-      </validator>
-      <validator
+      </calculator>
+      <calculator
             class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
             id="net.certiv.fluentmark.ui.markers.tasks.markdown">
-      </validator>
-      <validator
+      </calculator>
+      <calculator
             class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
             id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
-      </validator>
+      </calculator>
    </extension>
    
 </plugin>

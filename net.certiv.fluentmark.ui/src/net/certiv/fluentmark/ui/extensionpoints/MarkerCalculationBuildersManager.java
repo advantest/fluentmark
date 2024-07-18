@@ -28,15 +28,15 @@ import net.certiv.fluentmark.ui.builders.IMarkerCalculationResourcesVisitor;
 /**
  * 
  */
-public class MarkerCalculationBuilderManager {
+public class MarkerCalculationBuildersManager {
 	
 	private static final String EXTENSION_POINT_ID_FLUENT_BUILDER = "net.certiv.fluentmark.ui.marker.builders";
 
-	private static MarkerCalculationBuilderManager INSTANCE = null;
+	private static MarkerCalculationBuildersManager INSTANCE = null;
 	
-	public static MarkerCalculationBuilderManager getInstance() {
+	public static MarkerCalculationBuildersManager getInstance() {
 		if (INSTANCE == null) {
-			INSTANCE = new MarkerCalculationBuilderManager();
+			INSTANCE = new MarkerCalculationBuildersManager();
 		}
 		return INSTANCE;
 	}
@@ -45,7 +45,7 @@ public class MarkerCalculationBuilderManager {
 	private final Map<String,Set<String>> builderIdToMarkerIdsMap = new HashMap<>();
 	private final Map<String,Set<String>> builderIdToNatureIdsMap = new HashMap<>();
 	
-	private MarkerCalculationBuilderManager() {
+	private MarkerCalculationBuildersManager() {
 		this.init();
 	}
 	
@@ -86,7 +86,7 @@ public class MarkerCalculationBuilderManager {
 					}
 				}
 			} catch (CoreException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load ITypedRegionValidator extension", e);
+				FluentUI.log(IStatus.ERROR, "Could not load ITypedRegionMarkerCalculator extension", e);
 			}
 		}
 	}
