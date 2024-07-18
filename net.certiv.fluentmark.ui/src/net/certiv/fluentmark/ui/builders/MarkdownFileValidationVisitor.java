@@ -15,27 +15,15 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
-
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.SubMonitor;
-
 import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.validation.MarkerCalculator;
 
 
-public class MarkdownFileValidationVisitor implements IResourceVisitor, IResourceDeltaVisitor {
+public class MarkdownFileValidationVisitor extends AbstractMarkerCalculationResourceVisitor {
 
-	private final SubMonitor monitor;
-	
-	public MarkdownFileValidationVisitor(SubMonitor monitor) {
-		this.monitor = monitor;
-	}
-	
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
 		/// look into projects
@@ -55,9 +43,9 @@ public class MarkdownFileValidationVisitor implements IResourceVisitor, IResourc
 				FluentEditor openDirtyEditor = FluentEditor.findDirtyEditorFor(markdownFile);
 				if (openDirtyEditor != null) {
 					IDocument document = openDirtyEditor.getDocument();
-					validateMarkdownFile(document, markdownFile);
+					checkFile(document, markdownFile);
 				} else {
-					validateMarkdownFile(markdownFile);
+					checkFile(markdownFile);
 				}
 			}
 			
@@ -99,14 +87,6 @@ public class MarkdownFileValidationVisitor implements IResourceVisitor, IResourc
 		}
 		
 		return false;
-	}
-	
-	private void validateMarkdownFile(IFile markdownFile) {
-		MarkerCalculator.get().scheduleMarkerCalculation(markdownFile);
-	}
-	
-	private void validateMarkdownFile(IDocument document, IFile markdownFile) {
-		MarkerCalculator.get().scheduleMarkerCalculation(document, markdownFile);
 	}
 	
 }

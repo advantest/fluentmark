@@ -23,19 +23,20 @@ import org.eclipse.jface.text.ITypedRegion;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitioningTools;
+import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitions;
 import net.certiv.fluentmark.ui.validation.ITypedRegionValidator;
 import net.certiv.fluentmark.ui.validation.MarkerCalculator;
 
-public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
+public class PlantUmlTaskMarkerCreator implements ITypedRegionValidator {
 	
-	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME)[ \\t](?<message>.*?(?=-?-->)|.*(?!-->))";
+	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME)[ \\t](?<message>.*?(?='\\/)|.*(?!'\\/))";
 	private static final String REGEX_CAPTURING_GROUP_KEYWORD = "keyword";
 	private static final String REGEX_CAPTURING_GROUP_MESSAGE = "message";
 	
 	private Pattern pattern;
 	
-	public MarkdownTaskMarkerCreator() {
+	public PlantUmlTaskMarkerCreator() {
 		pattern = Pattern.compile(TODO_FIXME_REGEX, Pattern.CASE_INSENSITIVE);
 	}
 
@@ -48,24 +49,24 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
 		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
 		
 		if (partitioner == null) {
-			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
-			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
+			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
 		}
 	}
 
 	@Override
 	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
-		return MarkdownPartitions.computePartitions(document);
+		return PlantUmlPartitions.computePartitions(document);
 	}
 
 	@Override
 	public boolean isValidatorFor(IFile file) {
-		return FileUtils.isMarkdownFile(file);
+		return FileUtils.isPumlFile(file);
 	}
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
-		return MarkdownPartitions.COMMENT.equals(region.getType())
+		return PlantUmlPartitions.COMMENT.equals(region.getType())
 				&& isValidatorFor(file);
 	}
 
@@ -94,7 +95,7 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
 			int endOffset = region.getOffset() + endIndex;
 			int priority = "FIXME".equalsIgnoreCase(todoOrFixmeText) ? IMarker.PRIORITY_HIGH : IMarker.PRIORITY_NORMAL;
 			
-			MarkerCalculator.createMarkdownTaskMarker(resource, priority, todoOrFixmeText + " " + message, lineNumber, offset, endOffset);
+			MarkerCalculator.createPlantUmlTaskMarker(resource, priority, todoOrFixmeText + " " + message, lineNumber, offset, endOffset);
 			
 			found = patternMatcher.find();
 		}
@@ -107,6 +108,5 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionValidator {
 			return -1;
 		}
 	}
-	
 
 }

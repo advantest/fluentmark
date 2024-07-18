@@ -9,6 +9,8 @@
  */
 package net.certiv.fluentmark.ui.builders;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -17,30 +19,26 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import java.util.Map;
-
 import net.certiv.fluentmark.core.util.FileUtils;
 
+public class IncrementalPlantUmlValidationProjectBuilder extends IncrementalProjectBuilder {
+	
+	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.plantuml";
+	
+	private PlantUMLValidationVisitor plantUmlResourceVisitor = new PlantUMLValidationVisitor();
 
-public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProjectBuilder {
-	
-	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.markdown";
-	
-	private MarkdownFileValidationVisitor markdownFileVisitor = new MarkdownFileValidationVisitor();
-	
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
 		
-		MarkdownFileCountingVisitor mdFileCounter = new MarkdownFileCountingVisitor(); 
-		project.accept(mdFileCounter);
-		int numMdFiles = mdFileCounter.getNumMdFilesFound();
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", numMdFiles);
+		PlantUMLCodeBlocksCountingVisitor plantUmlCodeBlocksCounter = new PlantUMLCodeBlocksCountingVisitor(); 
+		project.accept(plantUmlCodeBlocksCounter);
+		int numCodeBlocks = plantUmlCodeBlocksCounter.getNumCodeBlocksFound();
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing PlantUML code", numCodeBlocks);
 
 		switch (kind) {
 			case FULL_BUILD:
@@ -64,28 +62,31 @@ public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProj
 	}
 	
 	private void fullBuild(SubMonitor monitor) throws CoreException {
-		markdownFileVisitor.setMonitor(monitor);
-		getProject().accept(markdownFileVisitor);
+		plantUmlResourceVisitor.setMonitor(monitor);
+		getProject().accept(plantUmlResourceVisitor);
 	}
 	
 	private void incrementalBuild(IResourceDelta resourceDelta, SubMonitor monitor) throws CoreException {
-		markdownFileVisitor.setMonitor(monitor);
-		resourceDelta.accept(markdownFileVisitor);
+		plantUmlResourceVisitor.setMonitor(monitor);
+		resourceDelta.accept(plantUmlResourceVisitor);
 	}
 	
-	private static class MarkdownFileCountingVisitor implements IResourceVisitor, IResourceDeltaVisitor {
+	private static class PlantUMLCodeBlocksCountingVisitor implements IResourceVisitor, IResourceDeltaVisitor {
 		
-		private int numMdFilesFound = 0;
+		private int numCodeBlocksFound = 0;
 
 		@Override
 		public boolean visit(IResource resource) throws CoreException {
 			if (resource instanceof IContainer) {
-				return MarkdownFileValidationVisitor.shouldVisitMembers((IContainer) resource);
+				return PlantUMLValidationVisitor.shouldVisitMembers((IContainer) resource);
 			}
 			
-			if (resource instanceof IFile
-					&& FileUtils.isMarkdownFile((IFile) resource)) {
-				numMdFilesFound++;
+			if (resource instanceof IFile) {
+				if (FileUtils.isPumlFile((IFile) resource)) {
+					numCodeBlocksFound++;
+				} else if (FileUtils.isMarkdownFile((IFile) resource)) {
+					// TODO find PlantUML code blocks and count these
+				}
 			}
 			
 			return false;
@@ -97,10 +98,10 @@ public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProj
 			return visit(resource);
 		}
 		
-		public int getNumMdFilesFound() {
-			return this.numMdFilesFound;
+		public int getNumCodeBlocksFound() {
+			return this.numCodeBlocksFound;
 		}
 		
 	}
-
+	
 }

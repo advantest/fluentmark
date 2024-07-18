@@ -33,7 +33,9 @@ import org.eclipse.ui.progress.IProgressConstants2;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.builders.IMarkerCalculationResourcesVisitor;
 import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.builders.MarkdownFileValidationVisitor;
+import net.certiv.fluentmark.ui.builders.PlantUMLValidationVisitor;
 import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
 import net.certiv.fluentmark.ui.validation.MarkerCalculator;
 import net.certiv.fluentmark.ui.validation.MarkerConstants;
@@ -88,7 +90,8 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 						MarkerCalculator markerCalculator = MarkerCalculator.get();
 						Set<String> markerIds = new HashSet<>();
 						markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-						markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
+						markerIds.add(MarkerConstants.MARKER_ID_TASK_MARKDOWN);
+						markerIds.add(MarkerConstants.MARKER_ID_TASK_PLANTUML);
 						for (String builderId: projectBuilderIds.get(project)) {
 							for (String markerId: MarkerCalculationBuilderManager.getInstance().getMarkersForBuilder(builderId)) {
 								markerIds.add(markerId);
@@ -101,7 +104,15 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 						// Then, calculate new markers 
 						for (String builderId: projectBuilderIds.get(project)) {
 							if (IncrementalMarkdownValidationProjectBuilder.BUILDER_ID.equals(builderId)) {
-								project.accept(new MarkdownFileValidationVisitor(progress.split(1)));
+								IMarkerCalculationResourcesVisitor visitor = new MarkdownFileValidationVisitor();
+								visitor.setMonitor(progress.split(1));
+								project.accept(visitor);
+							}
+							
+							if (IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID.equals(builderId)) {
+								IMarkerCalculationResourcesVisitor visitor = new PlantUMLValidationVisitor();
+								visitor.setMonitor(progress.split(1));
+								project.accept(visitor);
 							}
 							
 							for (String additionalBuilderId: builderIdsToVisitorMap.keySet()) {

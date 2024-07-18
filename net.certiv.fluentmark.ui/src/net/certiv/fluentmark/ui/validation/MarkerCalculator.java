@@ -69,7 +69,7 @@ public class MarkerCalculator {
 		return INSTANCE;
 	}
 	
-	public static IMarker createMarkdownMarker(IResource resource, int markerSeverity, String markerMessage,
+	public static IMarker createDocumentationProblemMarker(IResource resource, int markerSeverity, String markerMessage,
 			Integer lineNumber, Integer startOffset, Integer endOffset)
 			throws CoreException {
 		IMarker marker;
@@ -96,9 +96,21 @@ public class MarkerCalculator {
 	public static IMarker createMarkdownTaskMarker(IResource resource, int markerPriority, String markerMessage,
 			Integer lineNumber, Integer startOffset, Integer endOffset)
 			throws CoreException {
+		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_MARKDOWN, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
+	}
+	
+	public static IMarker createPlantUmlTaskMarker(IResource resource, int markerPriority, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
+		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_PLANTUML, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
+	}
+	
+	private static IMarker createTaskMarker(IResource resource, String markerType, int markerPriority, String markerMessage,
+			Integer lineNumber, Integer startOffset, Integer endOffset)
+			throws CoreException {
 		IMarker marker;
 		try {
-			marker  = resource.createMarker(MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
+			marker  = resource.createMarker(markerType);
 			marker.setAttribute(IMarker.MESSAGE, markerMessage);
 			marker.setAttribute(IMarker.PRIORITY, markerPriority);
 			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
@@ -222,7 +234,8 @@ public class MarkerCalculator {
 		
 		monitor.subTask("Delete obsolete markers");
 		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_MARKDOWN);
+		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_PLANTUML);
 		
 		if (monitor.isCanceled()) {
 			return;

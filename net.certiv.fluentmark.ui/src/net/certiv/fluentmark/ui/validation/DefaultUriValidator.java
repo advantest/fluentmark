@@ -62,7 +62,7 @@ public class DefaultUriValidator implements IUriValidator {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
 					lineNumber,
 					offset,
@@ -73,7 +73,7 @@ public class DefaultUriValidator implements IUriValidator {
 		try {
 			uri = new URI(uriText);
 		} catch (URISyntaxException e) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
@@ -97,13 +97,13 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 		
 		if (statusCode >= 400) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		} else if (statusCode == -404) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
 					lineNumber,
 					offset,

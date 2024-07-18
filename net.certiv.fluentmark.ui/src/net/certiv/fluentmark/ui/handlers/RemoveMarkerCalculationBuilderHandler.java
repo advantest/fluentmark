@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
 import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
 import net.certiv.fluentmark.ui.validation.MarkerCalculator;
@@ -49,10 +50,15 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 				
 				Set<String> markerIds = new HashSet<>();
 				markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-				markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_TASK);
+				markerIds.add(MarkerConstants.MARKER_ID_TASK_MARKDOWN);
+				markerIds.add(MarkerConstants.MARKER_ID_TASK_PLANTUML);
 
 				for (final ICommand buildSpec : description.getBuildSpec()) {
 					if (IncrementalMarkdownValidationProjectBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())) {
+						commands.remove(buildSpec);
+					}
+					
+					if (IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())) {
 						commands.remove(buildSpec);
 					}
 					

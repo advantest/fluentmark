@@ -84,8 +84,19 @@
       </persistent>
    </extension>
    <extension
-         id="markers.task"
-         name="Documentation Task"
+         id="markers.task.markdown"
+         name="Markdown Task"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.taskmarker">
+      </super>
+   </extension>
+   <extension
+         id="markers.task.plantuml"
+         name="PlantUML Task"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.textmarker">
@@ -121,7 +132,13 @@
       <type
             markerSeverity="0"
             markerType="net.certiv.fluentmark.task"
-            name="net.certiv.fluentmark.ui.task"
+            name="net.certiv.fluentmark.ui.task.markdown"
+            super="org.eclipse.ui.workbench.texteditor.task">
+      </type>
+      <type
+            markerSeverity="0"
+            markerType="net.certiv.fluentmark.task"
+            name="net.certiv.fluentmark.ui.task.plantuml"
             super="org.eclipse.ui.workbench.texteditor.task">
       </type>
    </extension>
@@ -169,9 +186,15 @@
       </specification>
       <specification
             annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
-            annotationType="net.certiv.fluentmark.ui.task"
+            annotationType="net.certiv.fluentmark.ui.task.markdown"
             includeOnPreferencePage="true"
-            label="Tasks">
+            label="Markdown Tasks">
+      </specification>
+      <specification
+            annotationImageProvider="net.certiv.fluentmark.ui.editor.AnnotationImageProvider"
+            annotationType="net.certiv.fluentmark.ui.task.plantuml"
+            includeOnPreferencePage="true"
+            label="PlantUML Tasks">
       </specification>
    </extension>
    
@@ -862,6 +885,17 @@
       </builder>
    </extension>
    <extension
+         id="net.certiv.fluentmark.ui.builder.plantuml"
+         name="PlantUML file and code blocks in Markdown files validator"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester"
@@ -907,7 +941,11 @@
       </validator>
       <validator
             class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks">
+            id="net.certiv.fluentmark.ui.markers.tasks.markdown">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
+            id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
       </validator>
    </extension>
    

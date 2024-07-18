@@ -35,6 +35,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
 import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuilderManager;
 import net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester;
@@ -61,6 +62,10 @@ public class AddMarkerClculationBuilderHandler extends AbstractHandler implement
 				
 				ICommand builderCommand = description.newCommand();
 				builderCommand.setBuilderName(IncrementalMarkdownValidationProjectBuilder.BUILDER_ID);
+				commands.add(builderCommand);
+				
+				builderCommand = description.newCommand();
+				builderCommand.setBuilderName(IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID);
 				commands.add(builderCommand);
 				
 				// add builders from extensions
