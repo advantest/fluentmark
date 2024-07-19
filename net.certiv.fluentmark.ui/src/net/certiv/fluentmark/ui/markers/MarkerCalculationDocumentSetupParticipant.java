@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.ui.markers;
 
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -26,7 +26,7 @@ import org.eclipse.jface.text.IDocumentListener;
 
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
-public class ValidationDocumentSetupParticipant implements IDocumentSetupParticipant {
+public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetupParticipant {
 	
 	@Override
 	public void setup(IDocument document) {
@@ -45,12 +45,12 @@ public class ValidationDocumentSetupParticipant implements IDocumentSetupPartici
 				// Markdown files is installed and active, the resources will be
 				// validated anyway.
 				
-                if (activeEditor != null && activeEditor instanceof FluentEditor) {
-                    IEditorInput editorInput = activeEditor.getEditorInput();
-                    IFile file = editorInput.getAdapter(IFile.class);
-                    
-                    MarkerCalculator.get().scheduleMarkerCalculation(document, file);
-                }
+				if (activeEditor != null && activeEditor instanceof FluentEditor) {
+					IEditorInput editorInput = activeEditor.getEditorInput();
+					IFile file = editorInput.getAdapter(IFile.class);
+					
+					MarkerCalculator.get().scheduleMarkerCalculation(document, file);
+				}
 			}
 			
 			@Override

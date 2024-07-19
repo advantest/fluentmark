@@ -21,24 +21,24 @@ import java.util.Collections;
 import java.util.List;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.validation.ITypedRegionValidator;
+import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
 
-public class TypedRegionValidatorsManager {
+public class TypedRegionMarkerCalculatorsManager {
 
-private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATOR = "net.certiv.fluentmark.ui.validator.typedRegion";
+private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATOR = "net.certiv.fluentmark.ui.marker.calculators";
 	
-	private static TypedRegionValidatorsManager INSTANCE = null;
+	private static TypedRegionMarkerCalculatorsManager INSTANCE = null;
 	
-	public static TypedRegionValidatorsManager getInstance() {
+	public static TypedRegionMarkerCalculatorsManager getInstance() {
 		if (INSTANCE == null) {
-			INSTANCE = new TypedRegionValidatorsManager();
+			INSTANCE = new TypedRegionMarkerCalculatorsManager();
 		}
 		return INSTANCE;
 	}
 	
-	private final List<ITypedRegionValidator> validators = new ArrayList<>();
+	private final List<ITypedRegionMarkerCalculator> validators = new ArrayList<>();
 	
-	private TypedRegionValidatorsManager() {
+	private TypedRegionMarkerCalculatorsManager() {
 		this.init();
 	}
 	
@@ -51,19 +51,19 @@ private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATOR = "net.cer
 			try {
 				for (IConfigurationElement configElement : configElements) {
 					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof ITypedRegionValidator) {
-						validators.add((ITypedRegionValidator) obj);
+					if (obj instanceof ITypedRegionMarkerCalculator) {
+						validators.add((ITypedRegionMarkerCalculator) obj);
 					}
 				}
 			} catch (CoreException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load ITypedRegionValidator extension", e);
+				FluentUI.log(IStatus.ERROR, "Could not load ITypedRegionMarkerCalculator extension", e);
 			}
 		}
 	}
 	
 	
 	
-	public List<ITypedRegionValidator> getTypedRegionValidators() {
+	public List<ITypedRegionMarkerCalculator> getTypedRegionValidators() {
 		return Collections.unmodifiableList(validators);
 	}
 	

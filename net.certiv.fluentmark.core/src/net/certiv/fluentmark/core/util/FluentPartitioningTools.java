@@ -17,6 +17,20 @@ import org.eclipse.jface.text.TextUtilities;
 
 public class FluentPartitioningTools {
 	
+	public static IDocumentPartitioner getDocumentPartitioner(IDocument document, String partitioning) {
+		if (document == null || partitioning == null || StringUtils.isBlank(partitioning)) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 extension3 = (IDocumentExtension3) document;
+			
+			return extension3.getDocumentPartitioner(partitioning);
+		} else {
+			return document.getDocumentPartitioner();
+		}
+	}
+	
 	public static void setupDocumentPartitioner(IDocument document, IDocumentPartitioner partitioner, String partitioning) {
 		if (document == null || partitioner == null || partitioning == null || StringUtils.isBlank(partitioning)) {
 			throw new IllegalArgumentException();
@@ -25,7 +39,11 @@ public class FluentPartitioningTools {
 		partitioner.connect(document);
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension3 = (IDocumentExtension3) document;
-			extension3.setDocumentPartitioner(partitioning, partitioner);
+			
+			IDocumentPartitioner currentPartitioner = extension3.getDocumentPartitioner(partitioning);
+			if (!partitioner.equals(currentPartitioner)) {
+				extension3.setDocumentPartitioner(partitioning, partitioner);
+			}
 		} else {
 			document.setDocumentPartitioner(partitioner);
 		}

@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
@@ -31,9 +30,11 @@ import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 
-public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionValidator {
+public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionMarkerCalculator {
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
@@ -82,10 +83,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			throw new IllegalArgumentException();
 		}
 		
-		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-		if (document instanceof IDocumentExtension3) {
-			partitioner = ((IDocumentExtension3) document).getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-		}
+		IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		
 		if (partitioner == null) {
 			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
@@ -94,7 +92,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	}
 	
 	@Override
-	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
 		return MarkdownPartitions.computePartitions(document);
 	}
 	
@@ -279,8 +277,8 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int endOffset = offset + linkLabel.length();
 			int lineNumber = getLineForOffset(document, offset);
 			
-			MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
-					"There is no link reference definition (something like \"[ReferenceLinkLabel]: https://plantuml.com\") for the reference link label \"" + linkLabel + "\".",
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+					"There is no link reference definition for the reference link label \"" + linkLabel + "\". Expected a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\")",
 					lineNumber,
 					offset,
 					endOffset);
@@ -308,7 +306,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				endOffset += 1;
 			}
 			
-			MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
