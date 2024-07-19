@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
@@ -84,10 +83,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			throw new IllegalArgumentException();
 		}
 		
-		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-		if (document instanceof IDocumentExtension3) {
-			partitioner = ((IDocumentExtension3) document).getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-		}
+		IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		
 		if (partitioner == null) {
 			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();

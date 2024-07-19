@@ -43,7 +43,7 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 			throw new IllegalArgumentException();
 		}
 		
-		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+		IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		
 		if (partitioner == null) {
 			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();

@@ -46,13 +46,16 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 			throw new IllegalArgumentException();
 		}
 		
-		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-		
-		if (partitioner == null) {
-			if (FileUtils.isPumlFile(file)) {
+		IDocumentPartitioner partitioner;
+		if (FileUtils.isPumlFile(file)) {
+			partitioner = FluentPartitioningTools.getDocumentPartitioner(document, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
+			if (partitioner == null) {
 				partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
 				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-			} else if (FileUtils.isMarkdownFile(file)) {
+			}
+		} else if (FileUtils.isMarkdownFile(file)) {
+			partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			if (partitioner == null) {
 				partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
 				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 			}
