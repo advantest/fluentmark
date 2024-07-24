@@ -38,7 +38,7 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final Set<IProject> projectSet = AddMarkerClculationBuilderHandler.getProjects(event);
+		final Set<IProject> projectSet = AddMarkerCalculationBuilderHandler.getProjects(event);
 
 		for (IProject project: projectSet) {
 			try {

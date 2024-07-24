@@ -44,7 +44,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final Set<IProject> projectSet = AddMarkerClculationBuilderHandler.getProjects(event);
+		final Set<IProject> projectSet = AddMarkerCalculationBuilderHandler.getProjects(event);
 		recalculateMarkers(projectSet);
 		
 		return null;

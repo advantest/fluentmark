@@ -629,7 +629,7 @@
             name="Show HTML source code">
       </command>
       <command
-            defaultHandler="net.certiv.fluentmark.ui.handlers.AddMarkerClculationBuilderHandler"
+            defaultHandler="net.certiv.fluentmark.ui.handlers.AddMarkerCalculationBuilderHandler"
             id="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
             name="Check Markdown code and references">
       </command>
