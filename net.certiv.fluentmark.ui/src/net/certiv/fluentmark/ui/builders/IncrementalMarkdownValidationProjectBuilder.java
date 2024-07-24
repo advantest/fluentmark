@@ -29,7 +29,7 @@ import net.certiv.fluentmark.core.util.FileUtils;
 
 public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProjectBuilder {
 	
-	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.markdown";
+	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builders.markdown";
 	
 	private MarkdownFileValidationVisitor markdownFileVisitor = new MarkdownFileValidationVisitor();
 	

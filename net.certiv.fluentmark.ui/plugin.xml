@@ -874,10 +874,11 @@
       </wizard>
    </extension>
    <extension
-         id="net.certiv.fluentmark.ui.builder.markdown"
+         id="builders.markdown"
          name="Markdown file validator"
          point="org.eclipse.core.resources.builders">
       <builder
+            callOnEmptyDelta="false"
             hasNature="false">
          <run
                class="net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder">
@@ -885,10 +886,11 @@
       </builder>
    </extension>
    <extension
-         id="net.certiv.fluentmark.ui.builder.plantuml"
+         id="builders.plantuml"
          name="PlantUML file and code blocks in Markdown files validator"
          point="org.eclipse.core.resources.builders">
       <builder
+            callOnEmptyDelta="false"
             hasNature="false">
          <run
                class="net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder">

@@ -27,7 +27,7 @@ import net.certiv.fluentmark.core.util.FileUtils;
 
 public class IncrementalPlantUmlValidationProjectBuilder extends IncrementalProjectBuilder {
 	
-	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.plantuml";
+	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builders.plantuml";
 	
 	private PlantUMLValidationVisitor plantUmlResourceVisitor = new PlantUMLValidationVisitor();
 
