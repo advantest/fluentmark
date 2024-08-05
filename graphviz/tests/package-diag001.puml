@@ -1,8 +1,0 @@
-@startuml
-    package test {
-        SomeClass -> OtherClass : thing
-
-    }
-
-footer Rendered with PlantUML version %version()
-@enduml

@@ -1,5 +1,0 @@
-@startuml
-
-  title PlantUML version: %version()
-
-@enduml
