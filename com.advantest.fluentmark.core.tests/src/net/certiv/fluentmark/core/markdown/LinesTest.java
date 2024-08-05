@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.markdown;
 
@@ -15,9 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import net.certiv.fluentmark.core.TestFileUtil;
 
 
 public class LinesTest {
@@ -25,7 +23,7 @@ public class LinesTest {
 	@Test
 	public void testParsing_Comments() throws IOException {
 		// given
-		String text = readTextFromFile("resources/md/comments.md");
+		String text = TestFileUtil.readTextFromFile("resources/md/comments.md");
 		
 		// when
 		Lines linesFromFile = new Lines(text, "\n");
@@ -47,12 +45,6 @@ public class LinesTest {
 	private void assertTextAndKind(Lines lines, int lineIndex, String text, Type kind) {
 		assertEquals(text, lines.getText(lineIndex));
 		assertEquals(kind, lines.identifyKind(lineIndex));
-	}
-	
-	private String readTextFromFile(String filePath) throws IOException {
-		Path path = Paths.get(filePath);
-		byte[] bytes = Files.readAllBytes(path);
-		return new String(bytes);
 	}
 	
 }

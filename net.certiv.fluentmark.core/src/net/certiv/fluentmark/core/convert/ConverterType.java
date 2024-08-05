@@ -5,16 +5,11 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.convert;
 
 public enum ConverterType {
-	PANDOC,
-	BLACKFRIDAY,
-	MARKDOWNJ,
-	PEGDOWN,
-	COMMONMARK,
-	TXTMARK,
-	OTHER;
+	FLEXMARK,
+	PANDOC
 }

@@ -1,8 +1,10 @@
-# FluentMark
+# FluentMark Advantest Edition (AE)
 
-A full-featured Markdown editing environment for Eclipse.
+A full-featured Markdown editing environment for Eclipse IDE.
+FluentMark was originally developed by [Certiv Analytics](https://www.certiv.net/index.html) / [Gerald Rosenberg](https://github.com/grosenberg) and
+was modified for [Advantest Europe GmbH](https://www.advantest.com/) to better satisfy company-specific needs.
 
-Survey: [Proposal to remove legacy converters](https://github.com/grosenberg/fluentmark/issues/30).
+This work is forked from [https://github.com/grosenberg/Fluentmark](https://github.com/grosenberg/Fluentmark).
 
 ## Features 
 
@@ -35,28 +37,24 @@ Survey: [Proposal to remove legacy converters](https://github.com/grosenberg/flu
 ## Screenshots
 
 <figure>
-<figcaption>1. Dot Graph</figcaption>
-[![Fluentmark Dot graph][1]][1]
+  <img src="./doc/ScreenShot.png" alt="FluentMark Dot graph">
+  <figcaption>1. Dot Graph</figcaption>
 </figure>
 
 <figure>
-<figcaption>2. Sequence Diagram</figcaption>
-[![Fluentmark Sequence diagram][2]][2]
+  <img src="./doc/ScreenShot1.png" alt="FluentMark Sequence diagram">
+  <figcaption>2. Sequence Diagram</figcaption>
 </figure>
-
-[1]: http://www.certiv.net/updates/net.certiv.fluentmark.site/ScreenShot.png "FluentMark Dot graph" 
-[2]: http://www.certiv.net/updates/net.certiv.fluentmark.site/ScreenShot1.png "FluentMark Sequence diagram" 
-
-
 
 ## Installation & Use
 
-Requires Eclipse Photon & JDK 1.8+.
+Requires Eclipse 2023-12 & JDK 17+.
 
-Install from the Certiv Tools update site: [www.certiv.net/updates](http://www.certiv.net/updates/).
+Build from sources and install from local update site in `net.certiv.fluentmark.site/target/repository`
+or install from Advantest's private update site for R&D department.
 
 Preferences ---
-- `Window`&rarr;`Certiv Tools`&rarr;`FluentMark`
+- `Window`&rarr;`FluentMark`
 
 Pandoc converter ---
 - Install [Pandoc](https://pandoc.org). The `pandoc` executable can then be selected from the local filesystem 
@@ -110,7 +108,7 @@ text. `Tab` and arrow keys will navigate between cells. `Return` to end cell edi
 
 ## Support
 
-Open an [issue on Github](https://github.com/grosenberg/fluentmark/issues). 
+Open an [issue on Github](https://github.com/advantest/fluentmark/issues). 
 
 Provide as much information as applicable, including the plugin version number, any error message encountered, 
 and a minimal example of the Markdown text at issue.

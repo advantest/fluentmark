@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.validation;
 
@@ -31,6 +31,7 @@ import java.io.File;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class FilePathValidator {
 	
@@ -107,7 +108,7 @@ public class FilePathValidator {
 				adaptedPath = adaptedPath.replace(workspacePath, "$WORKSPACE");
 			}
 			
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(resource, IMarker.SEVERITY_ERROR,
 					String.format("The referenced file '%s' does not exist. Target path: %s", resourceRelativePath.toString(), adaptedPath),
 					lineNumber,
 					offset,
@@ -115,7 +116,7 @@ public class FilePathValidator {
 		}
 		
 		if (!targetFile.isFile()) {
-			return MarkerCalculator.createMarkdownMarker(resource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createDocumentationProblemMarker(resource, IMarker.SEVERITY_WARNING,
 					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Target path: %s",
 							resourceRelativePath.toString(), targetFile.getAbsolutePath()),
 					lineNumber,
@@ -179,7 +180,7 @@ public class FilePathValidator {
 		}
 		
 		// we didn't find any target anchor ==> create a marker
-		return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
+		return MarkerCalculator.createDocumentationProblemMarker(currentResource, IMarker.SEVERITY_WARNING,
 				String.format("There is no section with the given anchor '%s' in this Markdown document '%s'.", sectionAnchor, currentResource.getLocation().toString()),
 				lineNumber,
 				offset,
@@ -221,7 +222,7 @@ public class FilePathValidator {
 		
 		if (member == null || !member.exists()) {
 			// we didn't find the referenced class member ==> create a problem marker
-			return MarkerCalculator.createMarkdownMarker(currentResource, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createDocumentationProblemMarker(currentResource, IMarker.SEVERITY_WARNING,
 					String.format("There is no class member (field or method) corresponding to the given anchor '%s' in the Java file '%s'.", memberReference, absolutePath.toString()),
 					lineNumber,
 					offset,

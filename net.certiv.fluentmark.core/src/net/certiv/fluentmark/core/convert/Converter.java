@@ -18,21 +18,16 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
-import org.markdownj.MarkdownProcessor;
-import org.pegdown.PegDownProcessor;
 
+import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Configuration.Builder;
-import com.github.rjeschke.txtmark.Processor;
 import com.google.common.html.HtmlEscapers;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
+import com.vladsch.flexmark.util.ast.Document;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
@@ -52,6 +47,7 @@ public class Converter {
 	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
 	private final PumlIncludeStatementConverter pumlInclusionConverter;
+	private final MarkdownParserAndHtmlRenderer flexmarkHtmlRenderer = new MarkdownParserAndHtmlRenderer();
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
@@ -60,41 +56,36 @@ public class Converter {
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
 	}
-	
+
 	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
-		String message =  "<span style=\"color:red;\">Could not convert Markdown to HTML. %s</span>";
+		String message =  "<span style=\"color:red\">Could not convert Markdown to HTML. %s</span>";
 		message = String.format(message, HtmlEscapers.htmlEscaper().escape(errorMessage));
 		return message;
 	}
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
-		ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
-		
 		try {
-			String text;
-			switch (configurationProvider.getConverterType()) {
-				case PANDOC:
-					text = getText(filePath, document, typedRegions, true);
-					return usePandoc(basepath, text, kind);
-				case BLACKFRIDAY:
-					text = getText(filePath, document, typedRegions, false);
-					return useBlackFriday(basepath, text);
-				case MARKDOWNJ:
-					text = getText(filePath, document, typedRegions, false);
-					return useMarkDownJ(basepath, text);
-				case PEGDOWN:
-					text = getText(filePath, document, typedRegions, false);
-					return usePegDown(basepath, text);
-				case COMMONMARK:
-					text = getText(filePath, document, typedRegions, false);
-					return useCommonMark(basepath, text);
-				case TXTMARK:
-					text = getText(filePath, document, typedRegions, false);
-					return useTxtMark(basepath, text);
-				case OTHER:
-					text = getText(filePath, document, typedRegions, false);
-					return useExternal(basepath, text);
-			}
+            if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
+                String markdownSourceCode = document.get();
+
+                Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+
+                // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+                parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+
+                return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
+            }
+
+            ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
+
+            String text;
+            switch (configurationProvider.getConverterType()) {
+                case FLEXMARK:
+                    return ""; // case is already handled above
+                case PANDOC:
+                    text = getText(filePath, document, typedRegions, true);
+                    return usePandoc(basepath, text, kind);
+            }
 		} catch (Exception e) {
 			return createHtmlMessageCouldNotConvertMarkdown(e.getMessage());
 		}
@@ -161,76 +152,6 @@ public class Converter {
 		return combineOutputsForHtml(result);
 	}
 
-	// Use BlackFriday
-	private String useBlackFriday(String basepath, String text) {
-		String cmd = configurationProvider.getBlackFridayCommand();
-		if (cmd.trim().isEmpty()) {
-			throw new IllegalStateException("No BlackFriday command set in preferences.");
-		}
-
-		List<String> args = new ArrayList<>();
-		args.add(cmd);
-		if (configurationProvider.addTableOfContents()) {
-			args.add("-toc");
-		}
-		if (configurationProvider.isSmartMode()) {
-			args.add("-smartypants");
-			args.add("-fractions");
-		}
-		
-		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
-		return combineOutputsForHtml(result);
-	}
-
-	// Use MarkdownJ
-	private String useMarkDownJ(String basepath, String text) {
-		MarkdownProcessor markdown = new MarkdownProcessor();
-		return markdown.markdown(text);
-	}
-
-	// Use PegDown
-	private String usePegDown(String basepath, String text) {
-		PegDownProcessor pegdown = new PegDownProcessor();
-		return pegdown.markdownToHtml(text);
-	}
-
-	// Use CommonMark
-	private String useCommonMark(String basepath, String text) {
-		Parser parser = Parser.builder().build();
-		Node document = parser.parse(text);
-		HtmlRenderer renderer = HtmlRenderer.builder().build();
-		return renderer.render(document);
-	}
-
-	// Use TxtMark
-	private String useTxtMark(String basepath, String text) {
-		boolean safeMode = configurationProvider.isTxtMarkSafeMode();
-		boolean extended = configurationProvider.isTxtMarkExtendedMode();
-		boolean dotMode = configurationProvider.isDotEnabled();
-
-		Builder builder = Configuration.builder();
-		if (safeMode) builder.enableSafeMode();
-		if (extended || dotMode) builder.forceExtentedProfile();
-		if (dotMode) builder.setCodeBlockEmitter(emitter);
-		Configuration config = builder.build();
-		return Processor.process(text, config);
-	}
-
-	// Use external command
-	private String useExternal(String basepath, String text) {
-		String cmd = configurationProvider.getExternalCommand();
-		if (cmd.trim().isEmpty()) {
-			return "Specify an external markdown converter command in preferences.";
-		}
-
-		String[] args = Cmd.parse(cmd);
-		if (args.length > 0) {
-			CmdResult result = Cmd.process(args, basepath, text);
-			return combineOutputsForHtml(result); 
-		}
-		return "";
-	}
-	
 	private String getText(IPath filePath, IDocument document, ITypedRegion[] typedRegions, boolean includeFrontMatter) {
 		if (typedRegions == null || typedRegions.length == 0) {
 			return document.get();
@@ -287,26 +208,48 @@ public class Converter {
 	}
 
 	private String translateDotCodeToHtmlFigure(String dotSourcCode) {
-		String svgDiagram = convertDot2Svg(dotSourcCode);
-		return createHtmlFigure(svgDiagram);
+		String dotDiagram = convertDot2Svg(dotSourcCode);
+		return createHtmlFigure(dotDiagram);
 	}
 	
 	private String translatePumlCodeToHtmlFigure(String pumlSourcCode) {
-		String svgDiagram = convertPlantUml2Svg(pumlSourcCode);
-		return createHtmlFigure(svgDiagram);
+		String pumlDiagram = convertPlantUml2Svg(pumlSourcCode);
+		return createHtmlFigure(pumlDiagram);
 	}
 	
 	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
-		String figureCaption = "";
-		String remainingLine = "";
+		String figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
+		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
+        String remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
+        
+        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
+        File pumlFile = absolutePumlFilePath.toFile();
+        
+        if (!pumlFile.exists()) {
+        	String message =  "<span style=\"color:red\">PlantUML file \"%s\" does not exist.</span>";
+    		message = String.format(message, HtmlEscapers.htmlEscaper().escape(pumlFile.getAbsolutePath()));
+    		return message;
+        }
+        
+        Path tempDirPath;
 		try {
-			figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
-			remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
-		} catch (Exception e) {
-			// TODO log to error log
+			tempDirPath = Files.createTempDirectory("puml2svg-");
+		} catch (IOException e) {
+			throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
 		}
-		
-        String svgDiagram = convertPlantUml2Svg(markdownCodeWithPumlIncludeStatement, currentMarkdownFilePath);
+        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
+        String svgDiagram = "";
+        
+        if (svgFile != null && svgFile.exists()) {
+        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
+        	svgDiagram = removeSvgMetaInfos(svgFileContent);
+        	
+        	boolean fileDeleted = svgFile.delete();
+        	if (fileDeleted) {
+        		tempDirPath.toFile().delete();
+        	}
+        }
+        
         String htmlFigure = createHtmlFigure(svgDiagram, figureCaption);
         
         if (htmlFigure != null) {
@@ -332,47 +275,6 @@ public class Converter {
         }
         return svgDiagram;
 	}
-	
-	private String convertPlantUml2Svg(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
-		try {
-			IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
-	        
-	        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
-	        File pumlFile = absolutePumlFilePath.toFile();
-	        
-	        Path tempDirPath;
-			try {
-				tempDirPath = Files.createTempDirectory("puml2svg-");
-			} catch (IOException e) {
-				throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
-			}
-	        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
-	        
-	        String svgDiagram = "";
-	        
-	        if (svgFile != null && svgFile.exists()) {
-	        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
-	        	svgDiagram = removeSvgMetaInfos(svgFileContent);
-	        	
-	        	boolean fileDeleted = svgFile.delete();
-	        	if (fileDeleted) {
-	        		tempDirPath.toFile().delete();
-	        	}
-	        } else {
-	        	tempDirPath.toFile().delete();
-	        	String message = "Could not read SVG file generated from PlantUML code.";
-	        	if (svgFile != null) {
-	        		message += "File: " + svgFile.getAbsolutePath();
-	        	}
-	        	return createHtmlMessageCouldNotConvertMarkdown(message);
-	        }
-	        
-	        return svgDiagram;
-		} catch (Exception e) {
-			return createHtmlMessageCouldNotConvertMarkdown("Could not translate PlantUML diagram from statement \""
-					+ markdownCodeWithPumlIncludeStatement + "\" to SVG. " + e.getMessage());
-		}
-	} 
 	
 	private String removeSvgMetaInfos(String svgSources) {
 		String svgDiagram = svgSources;
@@ -403,9 +305,8 @@ public class Converter {
         
         if (figureText != null) {
         	figureText = figureText.replace("%image%", svgCode);
+        	figureText = figureText.replace("%caption%", figureCaption);
         	
-        	String caption = figureCaption != null ? figureCaption : "";
-       		figureText = figureText.replace("%caption%", caption);
         	return figureText;
         }
         

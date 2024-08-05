@@ -3,9 +3,11 @@ Automatic-Module-Name: net.certiv.fluentmark.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark Editor
 Bundle-SymbolicName: net.certiv.fluentmark.ui;singleton:=true
-Bundle-Version: 1.4.2.qualifier
+Bundle-Version: 1.5.0.qualifier
 Export-Package: net.certiv.fluentmark.ui,
  net.certiv.fluentmark.ui.actions,
+ net.certiv.fluentmark.ui.builders,
+ net.certiv.fluentmark.ui.decorators,
  net.certiv.fluentmark.ui.dialog,
  net.certiv.fluentmark.ui.dialog.graphs,
  net.certiv.fluentmark.ui.dialog.tables,
@@ -20,12 +22,14 @@ Export-Package: net.certiv.fluentmark.ui,
  net.certiv.fluentmark.ui.format,
  net.certiv.fluentmark.ui.handlers,
  net.certiv.fluentmark.ui.handlers.dialog,
+ net.certiv.fluentmark.ui.markers,
  net.certiv.fluentmark.ui.outline,
  net.certiv.fluentmark.ui.outline.dnd,
  net.certiv.fluentmark.ui.outline.operations,
  net.certiv.fluentmark.ui.preferences,
  net.certiv.fluentmark.ui.preferences.editors,
  net.certiv.fluentmark.ui.preferences.pages,
+ net.certiv.fluentmark.ui.propertytesters,
  net.certiv.fluentmark.ui.spell,
  net.certiv.fluentmark.ui.util,
  net.certiv.fluentmark.ui.validation,
@@ -53,9 +57,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.23.0",
  org.eclipse.debug.ui;bundle-version="3.15.100",
  org.eclipse.jdt.ui;bundle-version="3.24.0",
  org.eclipse.jdt.core;bundle-version="3.31.0",
- net.certiv.tools.plugin;bundle-version="1.2.1",
- net.certiv.spellchecker;bundle-version="3.4.1",
- net.certiv.fluentmark.core;bundle-version="1.4.2"
+ net.certiv.spellchecker;bundle-version="4.3.2",
+ net.certiv.fluentmark.core;bundle-version="1.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

@@ -86,7 +86,7 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 
 		WordRule typeRule = new WordRule(new UmlWordDetector(), defaultToken, true);
 		for (String type : types) {
-			wordRule.addWord(type, attribsToken);
+			typeRule.addWord(type, attribsToken);
 		}
 
 		WordRule symbolRule = new WordRule(new UmlSymbolDetector(), defaultToken, true);

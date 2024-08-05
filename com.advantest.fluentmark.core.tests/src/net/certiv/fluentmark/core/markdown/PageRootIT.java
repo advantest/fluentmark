@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2022 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.markdown;
 
@@ -27,11 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import net.certiv.fluentmark.core.TestFileUtil;
 
 
 public class PageRootIT {
@@ -80,7 +76,7 @@ public class PageRootIT {
 	@Test
 	public void testParsing_Bug_HMR_43() throws Exception {
 		// given
-		String text = readTextFromFile("resources/md/bug-hmr-43.md");
+		String text = TestFileUtil.readTextFromFile("resources/md/bug-hmr-43.md");
 		
 		// when
 		pageModel.updateModel(markdownFile, text);
@@ -99,7 +95,7 @@ public class PageRootIT {
 	@Test
 	public void testParsing_Comments() throws Exception {
 		// given
-		String text = readTextFromFile("resources/md/comments.md");
+		String text = TestFileUtil.readTextFromFile("resources/md/comments.md");
 		
 		// when
 		pageModel.updateModel(markdownFile, text);
@@ -179,10 +175,4 @@ public class PageRootIT {
 	// see https://spec.commonmark.org/0.30/#html-blocks
 	// and https://spec.commonmark.org/0.30/#raw-html
 	
-	private String readTextFromFile(String filePath) throws IOException {
-		Path path = Paths.get(filePath);
-		byte[] bytes = Files.readAllBytes(path);
-		return new String(bytes);
-	}
-
 }

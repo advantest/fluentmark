@@ -758,9 +758,10 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		return fPreviewViewer.getControl();
 	}
 
+	// TODO Either re-active or remove this task tags feature
 	private Preferences createTemporaryCorePreferenceStore() {
 		Preferences result = new Preferences();
-		result.setValue(Prefs.EDITOR_TASK_TAGS, "TASK,TODO"); //$NON-NLS-1$
+		result.setValue(Prefs.EDITOR_TASK_TAGS, "TODO,FIXME"); //$NON-NLS-1$
 		return result;
 	}
 

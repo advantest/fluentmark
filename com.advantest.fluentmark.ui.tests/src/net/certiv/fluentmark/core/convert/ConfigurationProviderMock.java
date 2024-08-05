@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.convert;
 
@@ -23,10 +23,27 @@ import java.io.IOException;
 import net.certiv.fluentmark.core.FluentCore;
 
 public class ConfigurationProviderMock implements IConfigurationProvider {
+	
+	private static final ConverterType DEFAULT_CONVERTER_TYPE = ConverterType.PANDOC;
+	
+	private ConverterType converterType;
+	
+	
+	public ConfigurationProviderMock() {
+		this(DEFAULT_CONVERTER_TYPE);
+	}
+	
+	public ConfigurationProviderMock(ConverterType converterType) {
+		this.converterType = converterType;
+	}
 
 	@Override
 	public ConverterType getConverterType() {
-		return ConverterType.PANDOC;
+		return this.converterType;
+	}
+	
+	public void setConverterType(ConverterType converterType) {
+		this.converterType = converterType;
 	}
 
 	@Override
@@ -36,16 +53,6 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public String getDotCommand() {
-		return "";
-	}
-
-	@Override
-	public String getBlackFridayCommand() {
-		return "";
-	}
-
-	@Override
-	public String getExternalCommand() {
 		return "";
 	}
 
@@ -66,16 +73,6 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public boolean isSmartMode() {
-		return false;
-	}
-
-	@Override
-	public boolean isTxtMarkSafeMode() {
-		return false;
-	}
-
-	@Override
-	public boolean isTxtMarkExtendedMode() {
 		return false;
 	}
 

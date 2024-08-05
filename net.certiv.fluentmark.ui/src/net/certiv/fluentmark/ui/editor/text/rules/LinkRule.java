@@ -46,18 +46,31 @@ public class LinkRule implements IRule {
 		}
 		return true;
 	}
+	
+	protected boolean lineDelimiterFound(int currentChar, ICharacterScanner scanner) {
+		for (char[] fDelimiter : fDelimiters) {
+			if (currentChar == fDelimiter[0] && sequenceDetected(scanner, fDelimiter, true)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
-		int c;
+		int c = scanner.read();
+		
+		boolean firstCharIsExclamationMark = (c == '!');
 		
 		// try reading any URI without any brackets
-		if ((c = scanner.read()) != '[') {
+		if (c != '[' && c != '!') {
 			if ((c != 'h' || (!sequenceDetected(scanner, "http://".toCharArray(), false)
 					&& !sequenceDetected(scanner, "https://".toCharArray(), false)))
 					&& (c != 'f' || !sequenceDetected(scanner, "ftp://".toCharArray(), false))) {
 				// Not even a non-standard link
-				scanner.unread();
+				if (c != ICharacterScanner.EOF) {
+					scanner.unread();
+				}
 				return Token.UNDEFINED;
 			}
 
@@ -69,12 +82,12 @@ public class LinkRule implements IRule {
 			}
 
 			// Non-standard link
-			while ((c = scanner.read()) != ICharacterScanner.EOF && !Character.isWhitespace(c)) {
-				for (char[] fDelimiter : fDelimiters) {
-					if (c == fDelimiter[0] && sequenceDetected(scanner, fDelimiter, true)) {
-						return fToken;
-					}
+			c = scanner.read();
+			while (c != ICharacterScanner.EOF && !Character.isWhitespace(c)) {
+				if (lineDelimiterFound(c, scanner)) {
+					return fToken;
 				}
+				c = scanner.read();
 			}
 			return fToken;
 		}
@@ -83,6 +96,22 @@ public class LinkRule implements IRule {
 			fDelimiters = scanner.getLegalLineDelimiters();
 		}
 		
+		int readCount = 1;
+		int lastChar;
+		
+		if (firstCharIsExclamationMark) {
+			// we might have an image link, try to read '[' as next char
+			lastChar = c;
+			c = scanner.read();
+			readCount++;
+			
+			// no, we have no image link; unread both chars and stop
+			if (c != '[') {
+				scanner.unread();
+				scanner.unread();
+				return Token.UNDEFINED;
+			}
+		}
 
 		// We've read a '[' before. Now, we search for '](' and then for ')' or
 		// for '][' and later ']' or for ']' only.
@@ -91,13 +120,12 @@ public class LinkRule implements IRule {
 		// and https://spec.commonmark.org/0.30/#link-reference-definition
 		
 		// find next non-escaped ']' or end of String
-		int readCount = 1;
-		int lastChar;
+		
 		do {
 			lastChar = c;
 			c = scanner.read();
 			readCount++;
-		} while (c != ICharacterScanner.EOF && !(c == ']' && lastChar != '\\'));
+		} while (c != ICharacterScanner.EOF && !(c == ']' && lastChar != '\\') && !lineDelimiterFound(c, scanner));
 		
 		// we didn't find an unescaped ']'? Then cancel.
 		if (c != ']' || lastChar == '\\') {
@@ -109,9 +137,10 @@ public class LinkRule implements IRule {
 			return Token.UNDEFINED;
 		}
 		
-		// We've read something like '[label]'. That's likely a link, thus, we will return fToken because of a successful scan.
+		// We've read something like '[label]' or ![label]. If we didn't read '!', then that's likely a link, thus, we will return fToken because of a successful scan.
 		// '[label]' might be a shortcut reference link,
 		// but there may be some more characters following which belong to the same link, e.g. one of the following:
+		// ![label](path/to/image.svg)
 		// [label](https://www.advantest.com)
 		// [label](https://www.advantest.com "Link title")
 		// [label][key]
@@ -154,6 +183,16 @@ public class LinkRule implements IRule {
 				return fToken;
 			}
 		} else if (c == '[') {
+			if (firstCharIsExclamationMark) {
+				// We read something like "![label][". That can't be an image since we expected a "(" instead of "[".
+				// un-read all chars that we read before and cancel
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
+				return Token.UNDEFINED;
+			}
+			
 			// try finding the closing bracket: ']'
 			do {
 				lastChar = c;
@@ -173,6 +212,16 @@ public class LinkRule implements IRule {
 				return fToken;
 			}
 		} else { // case: c == ':'
+			if (firstCharIsExclamationMark) {
+				// We read something like "![label]:". That can't be an image since we expected a "(" instead of ":".
+				// un-read all chars that we read before and cancel
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
+				return Token.UNDEFINED;
+			}
+			
 			// try reading until we find the first non-whitespace char
 			int lineBreaks = 0;
 			do {

@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.validation;
 
@@ -13,6 +13,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 
 import org.eclipse.core.runtime.CoreException;
+
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 import java.util.Map;
 
@@ -62,7 +64,7 @@ public class DefaultUriValidator implements IUriValidator {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
 					lineNumber,
 					offset,
@@ -73,7 +75,7 @@ public class DefaultUriValidator implements IUriValidator {
 		try {
 			uri = new URI(uriText);
 		} catch (URISyntaxException e) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
@@ -97,13 +99,13 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 		
 		if (statusCode >= 400) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_ERROR,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		} else if (statusCode == -404) {
-			return MarkerCalculator.createMarkdownMarker(file, IMarker.SEVERITY_WARNING,
+			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
 					lineNumber,
 					offset,

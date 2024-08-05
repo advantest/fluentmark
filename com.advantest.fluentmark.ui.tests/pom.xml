@@ -5,7 +5,7 @@
   <parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>Fluentmark</artifactId>
-		<version>1.4.2-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -26,10 +26,9 @@
 					<useUIHarness>true</useUIHarness>
 					<showEclipseLog>true</showEclipseLog>
 					<includes>
-          				<include>**/*Test.java</include>
-          				<include>**/*IT.java</include>
-			        </includes>
-			        <providerHint>junit57</providerHint>
+						<include>**/*Test.java</include>
+						<include>**/*IT.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 			

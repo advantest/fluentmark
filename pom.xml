@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>Fluentmark</artifactId>
-	<version>1.4.2-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -28,7 +28,7 @@
 		     see: https://github.com/eclipse-tycho/tycho/issues/725
 		     If you do and encounter problem, you could try deleting / moving
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
-		<tycho.version>2.7.5</tycho.version>
+		<tycho.version>4.0.8</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>17</java.version>
 	</properties>
@@ -37,27 +37,12 @@
 	    <module>target-platform/2023-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
-		<module>feature</module>
-		<module>site</module>
-		<module>tests/com.advantest.fluentmark.tests</module>
+		<module>net.certiv.fluentmark.feature</module>
+		<module>net.certiv.fluentmark.site</module>
+		<module>com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<id>tools</id>
-			<layout>p2</layout>
-			<!-- <url>https://www.certiv.net/updates/net.certiv.tools.site/</url> -->
-			<url>file:/Users/travkin/Documents/git-repos/CertivTools/net.certiv.tools.site/target/repository</url>
-		</repository>
-		<repository>
-			<id>net.certiv.spellchecker</id>
-			<layout>p2</layout>
-			<!-- <url>https://www.certiv.net/updates/net.certiv.spellchecker.site/</url> -->
-			<url>file:/Users/travkin/Documents/git-repos/spellchecker/site/target/repository</url>
-		</repository>
-	</repositories>
 
 	<build>
 		<plugins>
@@ -83,7 +68,7 @@
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
 					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
-				         for more details see https://www.eclipse.org/tycho/sitedocs/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+				         for more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
 					<useJdk>BREE</useJdk>
 				</configuration>
 			</plugin>
@@ -116,10 +101,9 @@
 					<showEclipseLog>true</showEclipseLog>
 					<failIfNoTests>true</failIfNoTests>
 					<includes>
-          				<include>**/*Test.java</include>
-          				<include>**/*IT.java</include>
-			        </includes>
-			        <providerHint>junit57</providerHint>
+						<include>**/*Test.java</include>
+						<include>**/*IT.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 			
@@ -136,7 +120,6 @@
 						</artifact>
 					</target>
 					<pomDependencies>consider</pomDependencies>
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					<environments>
 						<environment>
 							<os>linux</os>
