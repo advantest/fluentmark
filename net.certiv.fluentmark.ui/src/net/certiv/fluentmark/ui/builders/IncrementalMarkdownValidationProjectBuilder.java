@@ -25,11 +25,12 @@ import org.eclipse.core.runtime.SubMonitor;
 import java.util.Map;
 
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.ui.FluentUI;
 
 
 public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProjectBuilder {
 	
-	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.markdown";
+	public static final String BUILDER_ID = FluentUI.PLUGIN_ID + ".builders.markdown";
 	
 	private MarkdownFileValidationVisitor markdownFileVisitor = new MarkdownFileValidationVisitor();
 	

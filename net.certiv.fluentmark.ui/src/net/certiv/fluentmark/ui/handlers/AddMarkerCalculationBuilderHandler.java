@@ -40,7 +40,7 @@ import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
 import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
 import net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester;
 
-public class AddMarkerClculationBuilderHandler extends AbstractHandler implements IHandler {
+public class AddMarkerCalculationBuilderHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

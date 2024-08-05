@@ -24,10 +24,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.ui.FluentUI;
 
 public class IncrementalPlantUmlValidationProjectBuilder extends IncrementalProjectBuilder {
 	
-	public static final String BUILDER_ID = "net.certiv.fluentmark.ui.builder.plantuml";
+	public static final String BUILDER_ID = FluentUI.PLUGIN_ID + ".builders.plantuml";
 	
 	private PlantUMLValidationVisitor plantUmlResourceVisitor = new PlantUMLValidationVisitor();
 

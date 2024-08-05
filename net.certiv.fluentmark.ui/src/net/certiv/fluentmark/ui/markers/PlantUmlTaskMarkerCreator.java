@@ -30,7 +30,7 @@ import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitions;
 
 public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	
-	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME)[ \\t](?<message>.*?(?='\\/)|.*(?!'\\/))";
+	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME):?[ \\t](?<message>.*?(?='\\/)|.*(?!'\\/))";
 	private static final String REGEX_CAPTURING_GROUP_KEYWORD = "keyword";
 	private static final String REGEX_CAPTURING_GROUP_MESSAGE = "message";
 	

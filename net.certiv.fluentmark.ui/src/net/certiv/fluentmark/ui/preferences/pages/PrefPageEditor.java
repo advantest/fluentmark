@@ -9,7 +9,7 @@ package net.certiv.fluentmark.ui.preferences.pages;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.StringFieldEditor;
+//import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -23,7 +23,7 @@ public class PrefPageEditor extends BaseFieldEditorPreferencePage implements Pre
 
 	private Composite baseComp;
 	private Composite viewComp;
-	private Composite taskComp;
+//	private Composite taskComp;
 
 	public PrefPageEditor() {
 		super(GRID);
@@ -53,11 +53,12 @@ public class PrefPageEditor extends BaseFieldEditorPreferencePage implements Pre
 
 		// ------
 
-		taskComp = SwtUtil.makeGroupComposite(getFieldEditorParent(), 1, 1, "Tasks");
-
+		// TODO Either re-active or remove this task tags feature
 		// Tasks
-		addField(new BooleanFieldEditor(EDITOR_TASK_TAGS, "Use task tags ", taskComp));
-		addField(new StringFieldEditor(EDITOR_TASK_TAGS_DEFINED, "Task tags defined:", taskComp));
+//		taskComp = SwtUtil.makeGroupComposite(getFieldEditorParent(), 1, 1, "Tasks");
+//		addField(new BooleanFieldEditor(EDITOR_TASK_TAGS, "Use task tags ", taskComp));
+//		addField(new StringFieldEditor(EDITOR_TASK_TAGS_DEFINED, "Task tags defined:", taskComp));
+		
 		viewComp = SwtUtil.makeGroupComposite(getFieldEditorParent(), 1, 1, "Preview");
 
 		addField(new IntegerFieldEditor(VIEW_UPDATE_DELAY, "Update rate limiter period (ms): ", viewComp, 6));
@@ -67,7 +68,7 @@ public class PrefPageEditor extends BaseFieldEditorPreferencePage implements Pre
 	@Override
 	protected void adjustSubLayout() {
 		adjust(baseComp, 1);
-		adjust(taskComp, 1);
+//		adjust(taskComp, 1);
 		adjust(viewComp, 1);
 	}
 }

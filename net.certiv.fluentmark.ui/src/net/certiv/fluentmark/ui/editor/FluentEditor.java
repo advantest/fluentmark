@@ -861,28 +861,29 @@ public class FluentEditor extends TextEditor
 		return ResourceUtil.getFile(getEditorInput());
 	}
 
-	void updateTaskTags(IRegion region) {
-		boolean useTags = getPreferenceStore().getBoolean(Prefs.EDITOR_TASK_TAGS);
-		if (!useTags) return;
-
-		String tagString = getPreferenceStore().getString(Prefs.EDITOR_TASK_TAGS_DEFINED);
-		List<String> tags = new ArrayList<>();
-		for (String tag : tagString.split(",")) {
-			tags.add(tag.trim());
-		}
-
-		IFile markFile = getResource();
-		IMarker[] taskMarkers;
-		try {
-			taskMarkers = markFile.findMarkers(IMarker.TASK, true, IResource.DEPTH_INFINITE);
-		} catch (CoreException e) {
-			return;
-		}
-
-		List<IMarker> markers = new ArrayList<>(Arrays.asList(taskMarkers));
-		getPageModel().markTaggedLines(markFile, tags, markers);
-
-	}
+	// TODO either re-activate or remove this task tags feature
+//	void updateTaskTags(IRegion region) {
+//		boolean useTags = getPreferenceStore().getBoolean(Prefs.EDITOR_TASK_TAGS);
+//		if (!useTags) return;
+//
+//		String tagString = getPreferenceStore().getString(Prefs.EDITOR_TASK_TAGS_DEFINED);
+//		List<String> tags = new ArrayList<>();
+//		for (String tag : tagString.split(",")) {
+//			tags.add(tag.trim());
+//		}
+//
+//		IFile markFile = getResource();
+//		IMarker[] taskMarkers;
+//		try {
+//			taskMarkers = markFile.findMarkers(IMarker.TASK, true, IResource.DEPTH_INFINITE);
+//		} catch (CoreException e) {
+//			return;
+//		}
+//
+//		List<IMarker> markers = new ArrayList<>(Arrays.asList(taskMarkers));
+//		getPageModel().markTaggedLines(markFile, tags, markers);
+//
+//	}
 
 	protected void installSemanticHighlighting() {
 		// if (semanticManager == null) {
