@@ -140,7 +140,7 @@ public class HtmlGen {
 			URL url = findStyle(path);
 			return FileUtils.read(url);
 		} catch (Exception e) {
-			throw new RuntimeException(String.format("Failed reading stylesheet from path %s", path), e);
+			throw new RuntimeException(String.format("Failed finding / reading stylesheet for path %s", path), e);
 		}
 	}
 
@@ -169,7 +169,7 @@ public class HtmlGen {
 		String builtinCss = configurationProvider.getBuiltinCssSettingsFile();
 		if (!builtinCss.isEmpty()) {
 			try {
-				URI uri = new URI(builtinCss.replace(".css", ".min.css"));
+				URI uri = new URI(builtinCss.replace(".css", ".min.css").replace(" ", "%20"));
 				URL url = FileLocator.toFileURL(uri.toURL());
 				File file = URIUtil.toFile(URIUtil.toURI(url));
 				if (file.isFile()) return url;
