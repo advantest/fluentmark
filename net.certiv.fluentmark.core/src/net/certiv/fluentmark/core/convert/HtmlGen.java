@@ -140,7 +140,7 @@ public class HtmlGen {
 			URL url = findStyle(path);
 			return FileUtils.read(url);
 		} catch (Exception e) {
-			throw new RuntimeException(String.format("Failed reading stylesheet from path %s", path), e);
+			throw new RuntimeException(String.format("Failed finding / reading stylesheet for path %s", path), e);
 		}
 	}
 
