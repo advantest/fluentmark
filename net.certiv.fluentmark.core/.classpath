@@ -29,6 +29,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-math-0.64.10-20240927-1457.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-math/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.64.10-20240927-1457.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-tables/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-figures-0.64.10-20240927-1457.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-figures/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-footnotes-0.64.10-20240927-1457.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java/flexmark-ext-footnotes/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.64.10-20240927-1457.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.64.10-20240927-1457.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-builder-0.64.10-20240927-1457.jar"/>
