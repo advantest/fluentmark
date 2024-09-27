@@ -30,7 +30,7 @@
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
 		<tycho.version>4.0.8</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 	</properties>
 
 	<modules>
@@ -64,6 +64,7 @@
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<release>${java.version}</release>
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
