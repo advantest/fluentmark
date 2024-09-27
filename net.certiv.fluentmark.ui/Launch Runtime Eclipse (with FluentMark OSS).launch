@@ -15,6 +15,7 @@
     <setAttribute key="deselected_workspace_bundles">
         <setEntry value="com.advantest.fluentmark.core.tests"/>
         <setEntry value="com.advantest.fluentmark.extensions.svgbuilder"/>
+        <setEntry value="com.advantest.fluentmark.extensions.svgbuilder.tests"/>
         <setEntry value="com.advantest.fluentmark.extensions.ui"/>
         <setEntry value="com.advantest.fluentmark.extensions.ui.tests"/>
         <setEntry value="com.advantest.fluentmark.extensions.validations"/>
