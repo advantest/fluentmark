@@ -24,7 +24,7 @@ import net.certiv.fluentmark.core.FluentCore;
 
 public class ConfigurationProviderMock implements IConfigurationProvider {
 	
-	private static final ConverterType DEFAULT_CONVERTER_TYPE = ConverterType.PANDOC;
+	private static final ConverterType DEFAULT_CONVERTER_TYPE = ConverterType.FLEXMARK;
 	
 	private ConverterType converterType;
 	

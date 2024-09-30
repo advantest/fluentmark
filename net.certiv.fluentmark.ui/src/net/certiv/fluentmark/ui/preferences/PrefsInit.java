@@ -71,7 +71,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_TASK_TAGS, true);
 		store.setDefault(EDITOR_TASK_TAGS_DEFINED, "TODO,FIXME,NOTE");
 
-		store.setDefault(EDITOR_MD_CONVERTER, KEY_PANDOC);
+		store.setDefault(EDITOR_MD_CONVERTER, KEY_FLEXMARK);
 
 		store.setDefault(EDITOR_UMLMODE_ENABLED, true);
 		store.setDefault(EDITOR_DOTMODE_ENABLED, true);
