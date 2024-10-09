@@ -158,7 +158,7 @@
 					resetTransform(images[i]);
 					
 					images[i].onwheel=function(e) {
-						if (e.altKey != true) {
+						if (e.ctrlKey != true) {
 							return
 						}
 						e.preventDefault();
