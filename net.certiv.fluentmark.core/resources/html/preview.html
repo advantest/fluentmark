@@ -17,6 +17,16 @@
 				cursor: zoom-in;
 				display: inline-block;
 			}
+			#zoom-hint {
+				opacity: 0;
+				position: fixed;
+				background-color: lightgray;
+				color: black;
+				top: 0;
+				left: 0;
+				padding: 3px;
+				text-wrap: nowrap;
+			}
 			@media print { 
 				figure, :not(figure) > img {
 					max-width : 100%;
@@ -58,6 +68,11 @@
 
 	<body style='overflow:auto'>
 		<span id="app" v-html="contents"></span>
+		<div id="zoom-hint">
+			<div>Use Ctrl + mouse wheel to zoom.</div>
+			<div>Use left mouse button to grab an move.</div>
+			<div>Use right mouse button to reset.</div>
+		</div>
 
 		<script type="text/javascript">
 		
@@ -163,6 +178,8 @@
 						}
 						e.preventDefault();
 						
+						document.getElementById("zoom-hint").style.opacity = 0;
+						
 						updateCurrentImage(images[i]);
 							
 						var rect = images[i].getBoundingClientRect();
@@ -209,18 +226,40 @@
 					images[i].onmousemove=function(e) {
 						e.preventDefault();
 						
-						if (!panning) {
-							return;
+						if (panning) {
+							document.getElementById("zoom-hint").style.opacity = 0;
+							
+							zoomX = e.clientX - start.x;
+							zoomY = e.clientY - start.y;
+							
+							setTransform(images[i], zoomX, zoomY, scale);
+						} else {
+							var tooltip = document.getElementById("zoom-hint");
+							
+							if (tooltip.style.opacity != 1) {
+								return;
+							}
+							
+							var x = e.clientX;
+							var y = e.clientY;
+							
+							tooltip.style.left = x + "px";
+							tooltip.style.top = (y + 20) + "px";
 						}
-						
-						zoomX = e.clientX - start.x;
-						zoomY = e.clientY - start.y;
-						
-						setTransform(images[i], zoomX, zoomY, scale);
 					};
+					
+					images[i].onmouseenter=function(e) {
+						document.getElementById("zoom-hint").style.opacity = 1;
+					}
+					
+					images[i].onmouseleave=function(e) {
+						document.getElementById("zoom-hint").style.opacity = 0;
+					}
 					
 					images[i].addEventListener('contextmenu', function (e) {
 						e.preventDefault();
+						
+						document.getElementById("zoom-hint").style.opacity = 0;
 						
 						resetAllImages();
 						return false;
