@@ -69,6 +69,20 @@ public class MarkdownLinkValidatorIT {
 		return file;
 	}
 	
+	private IDocument validateDocument(String documentContents) throws Exception {
+		document = createDocument(documentContents);
+		
+		ITypedRegion[] regions = findPartitions(document);
+		
+		for (ITypedRegion region: regions) {
+			if (linkValidator.isValidatorFor(region, file)) {
+				linkValidator.validateRegion(region, document, file);
+			}
+		}
+		
+		return document;
+	}
+	
 	@Test
 	public void linksAndImagesAreFoundInMarkdown() throws Exception {
 		// given
@@ -84,16 +98,9 @@ public class MarkdownLinkValidatorIT {
 				
 				More text.
 				""";
-		document = createDocument(fileContents);
-		
-		ITypedRegion[] regions = findPartitions(document);
 		
 		// when
-		for (ITypedRegion region: regions) {
-			if (linkValidator.isValidatorFor(region, file)) {
-				linkValidator.validateRegion(region, document, file);
-			}
-		}
+		document = validateDocument(fileContents);
 		
 		// then
 		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), eq("[PlantUML](https://plantuml.com)"), anyInt(), any());
@@ -125,16 +132,9 @@ public class MarkdownLinkValidatorIT {
 				
 				[UML]: https://www.omg.org/spec/UML/2.5.1/About-UML
 				""";
-		document = createDocument(fileContents);
-		
-		ITypedRegion[] regions = findPartitions(document);
 		
 		// when
-		for (ITypedRegion region: regions) {
-			if (linkValidator.isValidatorFor(region, file)) {
-				linkValidator.validateRegion(region, document, file);
-			}
-		}
+		document = validateDocument(fileContents);
 		
 		// then
 		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[PlantUML]: https://plantuml.com"), anyInt());
@@ -191,16 +191,9 @@ public class MarkdownLinkValidatorIT {
 				   https://www.plantuml.com
 				   "text"
 				""";
-		document = createDocument(fileContents);
-		
-		ITypedRegion[] regions = findPartitions(document);
 		
 		// when
-		for (ITypedRegion region: regions) {
-			if (linkValidator.isValidatorFor(region, file)) {
-				linkValidator.validateRegion(region, document, file);
-			}
-		}
+		document = validateDocument(fileContents);
 		
 		// then
 		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[PlantUML]"), eq("PlantUML"), anyInt());
