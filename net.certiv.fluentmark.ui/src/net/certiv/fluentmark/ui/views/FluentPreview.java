@@ -33,7 +33,7 @@ import net.certiv.fluentmark.ui.util.PartListener;
 public class FluentPreview extends ViewPart implements PartListener, ITextListener, IPropertyChangeListener, Prefs {
 
 	public static final String ID = FluentUI.PLUGIN_ID + ".views.FluentPreview";
-	private static final String NO_CONTENT_TEXT = "No Markdown code to preview";
+	private static final String NO_CONTENT_TEXT = "No Markdown code to preview.\nPlease open a Markdown file in the FluentMark editor.";
 
 	private static FluentPreview viewpart;
 	private Browser browser;
