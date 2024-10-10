@@ -39,7 +39,7 @@ public class MarkdownLinkValidatorIT {
 	
 	@BeforeEach
 	public void setUp() {
-		linkValidator = new MarkdownLinkValidator();
+		linkValidator = new MarkdownLinkValidatorFake();
 		linkValidator = spy(linkValidator);
 		file = prepareFileMock("md", true);
 	}
@@ -84,8 +84,6 @@ public class MarkdownLinkValidatorIT {
 				
 				More text.
 				""";
-		linkValidator = new MarkdownLinkValidatorFake();
-		linkValidator = spy(linkValidator);
 		document = createDocument(fileContents);
 		
 		ITypedRegion[] regions = findPartitions(document);
@@ -127,8 +125,6 @@ public class MarkdownLinkValidatorIT {
 				
 				[UML]: https://www.omg.org/spec/UML/2.5.1/About-UML
 				""";
-		linkValidator = new MarkdownLinkValidatorFake();
-		linkValidator = spy(linkValidator);
 		document = createDocument(fileContents);
 		
 		ITypedRegion[] regions = findPartitions(document);
@@ -195,8 +191,6 @@ public class MarkdownLinkValidatorIT {
 				   https://www.plantuml.com
 				   "text"
 				""";
-		linkValidator = new MarkdownLinkValidatorFake();
-		linkValidator = spy(linkValidator);
 		document = createDocument(fileContents);
 		
 		ITypedRegion[] regions = findPartitions(document);
