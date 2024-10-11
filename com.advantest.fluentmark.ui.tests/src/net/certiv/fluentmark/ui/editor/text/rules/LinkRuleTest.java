@@ -195,4 +195,19 @@ public class LinkRuleTest {
 		assertEquals("", scanner.getConsumedText());
 	}
 	
+	@ParameterizedTest(name = "[{index}] Footnote definition {0} is not parsed to a link reference definition")
+	@ValueSource(strings = {
+				"[^1]: Footnote 1",
+				"[^9731]:Another footnote",
+				"[^footnote]: Some explaining text.",
+				"[^adv]:https://www.advantest.com",
+				"[^key]:\nhttps://www.advantest.com"})
+	public void footnoteDefinitionsNotParsedAslinkReferenceDefinitions(String input) {
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals("", scanner.getConsumedText());
+	}
 }
