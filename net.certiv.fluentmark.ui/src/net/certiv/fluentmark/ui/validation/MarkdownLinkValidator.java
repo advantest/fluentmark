@@ -44,8 +44,11 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
-	private static final String REGEX_LINK_REF_DEF_PREFIX = "\\[[^^\\n]+?\\]:( |\\t|\\n)+( |\\t)*";
-	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + "\\S+";
+	private static final String REGEX_LINK_REF_DEF_OPENING_BRACKET = "\\[";
+	private static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
+	private static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
+	private static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
+	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
 	
 	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
 	// * full reference link:      [Markdown specification][CommonMark]
@@ -266,8 +269,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		
 		String documentContent = document.get();
 		
-		// see REGEX_LINK_REF_DEFINITION
-		String linkRefDefinitionForLabelRegex = "\\[" + Pattern.quote(linkLabel) + "\\]:( |\\t|\\n)+( |\\t)*\\S+";
+		String linkRefDefinitionForLabelRegex = REGEX_LINK_REF_DEF_OPENING_BRACKET + Pattern.quote(linkLabel) + REGEX_LINK_REF_DEF_PART + REGEX_LINK_REF_DEF_SUFFIX;
 		Pattern linkRefDefinitionForLabelPattern = Pattern.compile(linkRefDefinitionForLabelRegex);
 		Matcher linkReferenceDefinitionForLabelMatcher = linkRefDefinitionForLabelPattern.matcher(documentContent);
 		boolean foundLinkReferenceDefinition = linkReferenceDefinitionForLabelMatcher.find();
