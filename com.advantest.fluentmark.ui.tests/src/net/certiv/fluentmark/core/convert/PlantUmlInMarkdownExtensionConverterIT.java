@@ -91,5 +91,24 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		assertNotNull(result);
 		assertTrue(result.matches("<figure>\\s*<svg(.|\\s)*<\\/svg>(.|\\s)*<\\/figure>\\s*"));
 	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void ensureCorrectPlantUmlSettings(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		String markdownFileContent = """
+				@startuml
+					title PlantUML security profile: %getenv("PLANTUML_SECURITY_PROFILE")
+					footer PlantUML version: %version()
+				@enduml
+				""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("read-plantuml-security-profile.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.contains("PlantUML security profile: UNSECURE"));
+	}
 
 }
