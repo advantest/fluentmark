@@ -1,5 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2016 - 2017 Certiv Analytics and others.
+ * Copyright (c) 2022-2024 Advantest Europe GmbH.
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +18,7 @@ import org.eclipse.jface.text.rules.Token;
 
 /**
  * @author Amir Pakdel (initial implementation)
+ * @author Dietrich Travkin (Solunar GmbH) - multiple extensions, e.g. handle link reference definitions, footnotes, etc.
  */
 public class LinkRule implements IRule {
 
@@ -118,13 +121,24 @@ public class LinkRule implements IRule {
 		// See https://spec.commonmark.org/0.30/#links,
 		// https://spec.commonmark.org/0.30/#reference-link,
 		// and https://spec.commonmark.org/0.30/#link-reference-definition
+		// We could also read a footnote link, e.g. [^1] or [^key],
+		// see https://github.com/vsch/flexmark-java/wiki/Footnotes-Extension
 		
 		// find next non-escaped ']' or end of String
+		
+		// For distinguishing link reference definitions from footnote definitions,
+		// we also have to remember if the first char after '[' is a '^' like in a footnote definition,
+		// e.g. [^key]: footnote.
+		int readCountFirstCharAfterFirstSquareBracket = readCount + 1;
+		boolean firstCharAfterFirstBracketIsCaret = false;
 		
 		do {
 			lastChar = c;
 			c = scanner.read();
 			readCount++;
+			if (readCount == readCountFirstCharAfterFirstSquareBracket && c == '^') {
+				firstCharAfterFirstBracketIsCaret = true;
+			} 
 		} while (c != ICharacterScanner.EOF && !(c == ']' && lastChar != '\\') && !lineDelimiterFound(c, scanner));
 		
 		// we didn't find an unescaped ']'? Then cancel.
@@ -147,6 +161,9 @@ public class LinkRule implements IRule {
 		// [key][]
 		// [label]: https://www.advantest.com
 		// [label]: https://www.advantest.com "Link title"
+		// But there are also cases that we do not want to match, esp. footnote definitions like the following:
+		// [^1]: Some text
+		// [^plantuml]: https://www.plantuml.com
 		
 		int readCountFirstClosingSquareBracket = readCount;
 		
@@ -214,6 +231,16 @@ public class LinkRule implements IRule {
 		} else { // case: c == ':'
 			if (firstCharIsExclamationMark) {
 				// We read something like "![label]:". That can't be an image since we expected a "(" instead of ":".
+				// un-read all chars that we read before and cancel
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
+				return Token.UNDEFINED;
+			}
+			
+			if (firstCharAfterFirstBracketIsCaret) {
+				// We read something like "[^label]:". That can't be a link reference definition, since it is a footnote definition.
 				// un-read all chars that we read before and cancel
 				while (readCount > 0) {
 					scanner.unread();
