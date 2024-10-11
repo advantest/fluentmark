@@ -20,12 +20,14 @@ import net.certiv.fluentmark.core.util.Strings;
 
 public class UmlGen {
 
-	private IConfigurationProvider configurationProvider;
 	private PlantUmlToSvgRenderer renderer;
 
 	public UmlGen(IConfigurationProvider configProvider) {
-		this.configurationProvider = configProvider;
 		this.renderer = new PlantUmlToSvgRenderer();
+	}
+	
+	PlantUmlToSvgRenderer getRenderer() {
+		return this.renderer;
 	}
 
 	public String uml2svg(List<String> lines) {
@@ -33,11 +35,6 @@ public class UmlGen {
 	}
 
 	public String uml2svg(String plantUmlCode) {
-		String dotexe = configurationProvider.getDotCommand();
-		renderer.setDotExecutable(dotexe);
-
-		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
-		
 		return renderer.plantUmlToSvg(plantUmlCode);
 	}
 	
@@ -69,11 +66,6 @@ public class UmlGen {
 
 
 	public File uml2svg(File pumlSourceFile, File targetDirectory) {
-		String dotexe = configurationProvider.getDotCommand();
-		renderer.setDotExecutable(dotexe);
-		
-		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
-		
 		return renderer.plantUmlToSvg(pumlSourceFile, targetDirectory);
 	}
 	
