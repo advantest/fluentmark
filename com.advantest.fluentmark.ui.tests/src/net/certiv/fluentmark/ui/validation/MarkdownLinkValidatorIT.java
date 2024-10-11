@@ -248,7 +248,7 @@ public class MarkdownLinkValidatorIT {
 				Thus, a [path without a trailing '/'](tests) produces a warning.
 				
 				[Missing folders][folder-missing], of course. produce warnings as well.
-				
+				Paths to files with trailing '/' also produce errors: [existing file](important.txt/).
 				
 				[folder-missing]: missing/
 				""";
@@ -290,8 +290,17 @@ public class MarkdownLinkValidatorIT {
 		markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
 		assertNotNull(markerMessage);
 		assertTrue(markerMessage.contains("not a file"));
-		assertTrue(markerMessage.contains("append a \"/\""));
+		assertTrue(markerMessage.contains("Please add a trailing '/'"));
 		assertEquals(IMarker.SEVERITY_WARNING, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		
+		marker = findFirstMarkerForLine(11, file);
+		assertTrue(marker.isPresent());
+		assertEquals(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, marker.get().getType());
+		markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
+		assertNotNull(markerMessage);
+		assertTrue(markerMessage.contains("not a file"));
+		assertTrue(markerMessage.contains("remove the trailing '/'"));
+		assertEquals(IMarker.SEVERITY_ERROR, marker.get().getAttribute(IMarker.SEVERITY, -1));
 		
 		marker = findFirstMarkerForLine(13, file);
 		assertTrue(marker.isPresent());
