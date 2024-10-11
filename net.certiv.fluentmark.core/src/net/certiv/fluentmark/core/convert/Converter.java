@@ -55,6 +55,14 @@ public class Converter {
 		this.umlGen = new UmlGen(configProvider);
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
+		initPlantUML();
+	}
+	
+	private void initPlantUML() {
+		String dotexe = configurationProvider.getDotCommand();
+		umlGen.getRenderer().setDotExecutable(dotexe);
+		
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 	}
 
 	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
@@ -65,25 +73,20 @@ public class Converter {
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		try {
-            if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
-                String markdownSourceCode = document.get();
-
-                Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
-
-                // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
-                parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
-
-                return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
-            }
-
-            ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
-
-            String text;
             switch (configurationProvider.getConverterType()) {
                 case FLEXMARK:
-                    return ""; // case is already handled above
+                    String markdownSourceCode = document.get();
+
+                    Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+
+                    // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+                    parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+
+                    return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
                 case PANDOC:
-                    text = getText(filePath, document, typedRegions, true);
+                    ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
+                    
+                    String text = getText(filePath, document, typedRegions, true);
                     return usePandoc(basepath, text, kind);
             }
 		} catch (Exception e) {
