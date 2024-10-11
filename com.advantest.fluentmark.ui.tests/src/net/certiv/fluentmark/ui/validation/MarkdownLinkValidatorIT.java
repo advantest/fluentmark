@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -163,6 +164,42 @@ public class MarkdownLinkValidatorIT {
 		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[PlantUML]: https://plantuml.com"), anyInt());
 		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[Graphviz]:\n   https://graphviz.org/"), anyInt());
 		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"), anyInt());
+	}
+	
+	@Test
+	public void footnoteDefinitionsAreNotParsedAsLinks() throws Exception {
+		// given
+		String fileContents = """
+				[^PlantUML]: https://plantuml.com
+				
+				# Some heading
+				
+				Some text in paragraph
+				followed by a [^PlantUML] link.
+				
+				More text with [^Graphviz] multiple links [^UML] in one line.
+				
+				More text.
+				
+				[^Graphviz]:
+				   https://graphviz.org/
+				   "Graphviz and DOT main web site"
+				
+				[^UML]: https://www.omg.org/spec/UML/2.5.1/About-UML
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		// then
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^PlantUML]: https://plantuml.com"), anyInt());
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^Graphviz]:\n   https://graphviz.org/"), anyInt());
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"), anyInt());
+		
+		// footnote links are handled (checked) as usual reference links
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^PlantUML]"), eq("^PlantUML"), anyInt());
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^Graphviz]"), eq("^Graphviz"), anyInt());
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^UML]"), eq("^UML"), anyInt());
 	}
 	
 	@Test
