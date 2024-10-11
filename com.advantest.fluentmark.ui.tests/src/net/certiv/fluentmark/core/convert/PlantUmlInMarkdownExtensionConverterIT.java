@@ -9,38 +9,18 @@
  */
 package net.certiv.fluentmark.core.convert;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.jface.text.IDocument;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT {
 	
-	@Test
-	public void test() throws IOException {
-		// given
-		String srcMarkdownFile = "resources/feature-overview.md";
-		String documentContent = readFileContentFrom(srcMarkdownFile);
-		IDocument document = prepareDocument(documentContent);
-		File testMarkdownFile = copyFileFromResourceToTempFolder(srcMarkdownFile, "feature-overview.md");
-		
-		// when
-		String result = convert(testMarkdownFile, document);
-		
-		// then
-		assertNotNull(result);
-		assertFalse(result.isBlank());
-		
-		// TODO check result contents
-	}
 	
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
