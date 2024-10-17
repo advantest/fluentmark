@@ -18,7 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.3-20240927-1737</markdown-core-version>
+		<markdown-core-version>1.0.4-20241017-1223</markdown-core-version>
 	</properties>
 
 	<dependencies>

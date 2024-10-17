@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark Core
 Bundle-SymbolicName: net.certiv.fluentmark.core;singleton:=true
 Bundle-Version: 1.5.1.qualifier
-Export-Package: com.advantest.markdown,
+Export-Package: com.advantest,
+ com.advantest.markdown,
  com.advantest.plantuml,
  com.vladsch.flexmark.ast,
  com.vladsch.flexmark.ast.util,
@@ -68,7 +69,7 @@ Bundle-ClassPath: .,
  lib/asm-tree-5.2.jar,
  lib/asm-util-5.2.jar,
  lib/autolink-0.6.0.jar,
- lib/markdown-core-1.0.3-20240927-1737.jar,
+ lib/markdown-core-1.0.4-20241017-1223.jar,
  lib/annotations-24.0.1.jar,
  lib/com.google.guava-30.1.0.v20221112-0806.jar,
  lib/flexmark-0.64.10-20240927-1457.jar,

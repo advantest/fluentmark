@@ -21,7 +21,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/asm-tree-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-util-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/autolink-0.6.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.3-20240927-1737.jar" sourcepath="/Users/travkin/Documents/git-repos/markdown-core/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.4-20241017-1223.jar" sourcepath="/Users/travkin/Documents/git-repos/markdown-core/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.64.10-20240927-1457.jar" sourcepath="/Users/travkin/Documents/git-repos/flexmark-java"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.64.10-20240927-1457.jar"/>
