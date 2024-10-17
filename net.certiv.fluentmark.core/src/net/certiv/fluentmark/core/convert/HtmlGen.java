@@ -52,9 +52,9 @@ public class HtmlGen {
 	private Converter converter;
 	private IConfigurationProvider configurationProvider;
 
-	public HtmlGen(Converter converter, IConfigurationProvider configProvider) {
+	public HtmlGen(Converter converter) {
 		this.converter = converter;
-		this.configurationProvider = configProvider;
+		this.configurationProvider = converter.getConfigurationProvider();
 	}
 	
 	/**

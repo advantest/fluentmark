@@ -64,6 +64,10 @@ public class Converter {
 		
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
 	}
+	
+	public IConfigurationProvider getConfigurationProvider() {
+		return configurationProvider;
+	}
 
 	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
 		String message =  "<span style=\"color:red\">Could not convert Markdown to HTML. %s</span>";

@@ -73,7 +73,7 @@ public class ExportPdfHandler extends AbstractHandler {
 					Document doc = new Document(editor.getDocument().get());
 					PageRoot model = editor.getPageModel(true);
 					
-					IConfigurationProvider configurationProvider = editor.getConfigurationProvider();
+					IConfigurationProvider configurationProvider = FluentUI.getDefault().getConverter().getConfigurationProvider();
 					PdfGen pdfGen = new PdfGen(configurationProvider);
 					
 					Job saveJob = pdfGen.save(basepath, doc, model, template, destination);

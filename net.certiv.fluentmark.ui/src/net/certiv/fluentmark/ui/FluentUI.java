@@ -51,6 +51,8 @@ import java.io.FileOutputStream;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 
+import net.certiv.fluentmark.core.convert.Converter;
+import net.certiv.fluentmark.ui.editor.ConfigurationProvider;
 import net.certiv.fluentmark.ui.editor.color.ColorManager;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
@@ -70,6 +72,7 @@ public class FluentUI extends AbstractUIPlugin {
 	private FluentImages fluentImages;
 	private FormToolkit dialogsFormToolkit;
 	private ColorManager colorManager;
+	private Converter converter;
 
 	public FluentUI() {
 		super();
@@ -80,6 +83,8 @@ public class FluentUI extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		fluentImages = new FluentImages(context.getBundle(), this);
+		
+		converter = new Converter(new ConfigurationProvider());
 
 		// ISaveParticipant saveParticipant = new MyWorkspaceSaveParticipant();
 		// ISavedState lastState = ResourcesPlugin.getWorkspace().addSaveParticipant(PLUGIN_ID,
@@ -106,6 +111,10 @@ public class FluentUI extends AbstractUIPlugin {
 	 */
 	public static FluentUI getDefault() {
 		return plugin;
+	}
+	
+	public Converter getConverter() {
+		return converter;
 	}
 
 	public static void log(String msg) {

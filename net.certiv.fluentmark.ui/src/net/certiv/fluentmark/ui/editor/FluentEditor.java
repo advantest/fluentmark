@@ -6,39 +6,18 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.swt.graphics.Point;
-
-import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
-import org.eclipse.ui.ide.ResourceUtil;
-
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPartService;
-import org.eclipse.ui.IPathEditorInput;
-import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.part.IShowInSource;
-import org.eclipse.ui.part.IShowInTarget;
-import org.eclipse.ui.part.ShowInContext;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import javax.swing.event.EventListenerList;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,7 +27,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -77,28 +55,37 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
-
-import javax.swing.event.EventListenerList;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import java.net.URI;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.ide.ResourceUtil;
+import org.eclipse.ui.part.IShowInSource;
+import org.eclipse.ui.part.IShowInTarget;
+import org.eclipse.ui.part.ShowInContext;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import net.certiv.fluentmark.core.convert.Converter;
 import net.certiv.fluentmark.core.convert.HtmlGen;
-import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.core.convert.Kind;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
@@ -154,14 +141,9 @@ public class FluentEditor extends TextEditor
 	private boolean disableSelResponse;
 	private HtmlGen htmlGen;
 	private ModelUpdater modelUpdater;
-	private IConfigurationProvider configProvider;
 
 	public FluentEditor() {
 		super();
-	}
-	
-	public IConfigurationProvider getConfigurationProvider() {
-		return this.configProvider;
 	}
 	
 	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
@@ -216,14 +198,15 @@ public class FluentEditor extends TextEditor
 		createListeners();
 		initEditorPreferenceStore();
 		colorManager = FluentUI.getDefault().getColorMgr();
-		this.configProvider = new ConfigurationProvider();
+		converter = FluentUI.getDefault().getConverter();
+		htmlGen = new HtmlGen(converter);
+		
 		SourceViewerConfiguration config = FluentSourceViewerConfiguration.createSourceViewerConfiguraton(getPreferenceStore(), this);
 		setSourceViewerConfiguration(config);
 		setDocumentProvider(getDocumentProvider());
+		
 		int tabWidth = FluentUI.getDefault().getPreferenceStore().getInt(Prefs.EDITOR_TAB_WIDTH);
 		pageModel = new PageRoot(this, getLineDelimiter(), tabWidth);
-		converter = new Converter(this.configProvider);
-		htmlGen = new HtmlGen(converter, this.configProvider);
 		
 		pageModelUpdater = new PageModelUpdater();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(pageModelUpdater, POST_CHANGE_EVENT);
@@ -647,7 +630,7 @@ public class FluentEditor extends TextEditor
 	}
 	
 	public boolean useMathJax() {
-		return this.configProvider.useMathJax();
+		return this.converter.getConfigurationProvider().useMathJax();
 	}
 
 	/** Returns the Html content. */
