@@ -8,7 +8,9 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 
 import net.certiv.fluentmark.ui.FluentUI;
@@ -16,6 +18,7 @@ import net.certiv.fluentmark.ui.preferences.BaseFieldEditorPreferencePage;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 import net.certiv.fluentmark.ui.preferences.editors.ProgramFieldEditor;
 import net.certiv.fluentmark.ui.util.SwtUtil;
+import com.advantest.MarkdownCoreInfo;
 
 public class PrefPageGraphviz extends BaseFieldEditorPreferencePage implements Prefs {
 	
@@ -59,6 +62,33 @@ public class PrefPageGraphviz extends BaseFieldEditorPreferencePage implements P
 		
 		addField(plantUmlEnabledEditor);
 		addField(dotEnabledEditor);
+		
+		SwtUtil.addSpacer(parent, 3);
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("PlantUML library version: ");
+		builder.append(MarkdownCoreInfo.getPlantUmlVersion());
+		builder.append('\n');
+		builder.append("PlantUML security profile: ");
+		builder.append(MarkdownCoreInfo.getPlantUmlSecurityProfile());
+		builder.append('\n');
+		builder.append("PlantUML URL white list (for security profile):\n\t");
+		String whiteList = MarkdownCoreInfo.getPlantUmlUrlAllowList();
+		if (whiteList.isBlank()) {
+			whiteList = "-";
+		}
+		builder.append(whiteList.replace(";", "\t\n"));
+		builder.append('\n');
+		builder.append('\n');
+		builder.append("Graphviz version: ");
+		String graphvizVersion = MarkdownCoreInfo.getGraphvizVersion();
+		if (graphvizVersion.isBlank()) {
+			graphvizVersion = "unknown";
+		}
+		builder.append(MarkdownCoreInfo.getGraphvizVersion());
+		
+		Label label = new Label(parent, SWT.WRAP);
+		label.setText(builder.toString());
 		
 		checkValid();
 	}
