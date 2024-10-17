@@ -32,7 +32,9 @@ public class Cmd {
 		final StringBuilder errSb = new StringBuilder();
 		final ProcessBuilder pb = new ProcessBuilder(cmd);
 		try {
-			if (base != null) pb.directory(new File(base));
+			if (base != null) {
+				pb.directory(new File(base));
+			}
 			pb.redirectErrorStream(false);
 			Process process = pb.start();
 
@@ -44,10 +46,12 @@ public class Cmd {
 			BufferedReader errBr = new BufferedReader(errIn);
 
 			// prep and feed input to the processs
-			OutputStreamWriter out = new OutputStreamWriter(process.getOutputStream());
-			BufferedWriter bw = new BufferedWriter(out);
-			bw.write(data);
-			bw.close();
+			if (data != null) {
+				OutputStreamWriter out = new OutputStreamWriter(process.getOutputStream());
+				BufferedWriter bw = new BufferedWriter(out);
+				bw.write(data);
+				bw.close();
+			}
 
 			// read output from the process
 			String line;

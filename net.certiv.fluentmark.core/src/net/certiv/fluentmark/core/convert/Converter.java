@@ -158,7 +158,28 @@ public class Converter {
 		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
 		return combineOutputsForHtml(result);
 	}
-
+	
+	public String getPandocVersion() {
+		String cmd = configurationProvider.getPandocCommand();
+		if (cmd != null && !cmd.isBlank()) {
+			CmdResult result = null;
+			try {
+				result = Cmd.process(new String[] {cmd, "-v"}, null, null);
+			} catch (Exception e) {
+				// ignore exception
+			}
+			if (result != null && !result.hasErrors()) {
+				String output = result.stdOutput;
+				String firstOutputLine = output.lines().findFirst().orElse("");
+				if (!firstOutputLine.isBlank() && firstOutputLine.matches("pandoc \\d+\\.\\d+.*")) {
+					return firstOutputLine.substring("pandoc ".length());
+				}
+			}
+		}
+		
+		return "";
+	}
+	
 	private String getText(IPath filePath, IDocument document, ITypedRegion[] typedRegions, boolean includeFrontMatter) {
 		if (typedRegions == null || typedRegions.length == 0) {
 			return document.get();
