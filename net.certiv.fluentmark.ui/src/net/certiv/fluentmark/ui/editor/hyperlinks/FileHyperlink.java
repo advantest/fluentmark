@@ -14,14 +14,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 
-import net.certiv.fluentmark.ui.Log;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class FileHyperlink implements IHyperlink {
 	
@@ -66,24 +60,10 @@ public class FileHyperlink implements IHyperlink {
 
 	@Override
 	public void open() {
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench != null && !workbench.isClosing()) {
-			IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
-			if (workbenchWindow != null && !workbenchWindow.isClosing()) {
-				IWorkbenchPage activePage = workbenchWindow.getActivePage();
-				
-				if (activePage != null) {
-					try {
-						if (fileInWorkspace != null) {
-							IDE.openEditor(activePage, fileInWorkspace);
-						} else {
-							IDE.openEditorOnFileStore(activePage, fileOutsideWorkspace);
-						}
-					} catch (PartInitException e) {
-						Log.error(String.format("Could not open file (path=%s) in default editor", fileInWorkspace.getLocation()), e);
-					}
-				}
-			}
+		if (fileInWorkspace != null) {
+			EditorUtils.openFileInDefaultEditor(fileInWorkspace);
+		} else {
+			EditorUtils.openFileInDefaultEditor(fileOutsideWorkspace);
 		}
 	}
 

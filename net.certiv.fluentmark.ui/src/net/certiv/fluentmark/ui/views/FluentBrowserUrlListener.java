@@ -9,8 +9,22 @@
  */
 package net.certiv.fluentmark.ui.views;
 
-import org.eclipse.ui.ide.IDE;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
@@ -19,32 +33,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.ide.IDE;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.swt.browser.LocationEvent;
-import org.eclipse.swt.browser.LocationListener;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import java.io.File;
-
-import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
 
 public class FluentBrowserUrlListener implements LocationListener {
@@ -115,7 +108,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 					}
 				}
 				
-				openFileInDefaultEditor(fileInWorkspace);
+				EditorUtils.openFileInDefaultEditor(fileInWorkspace, preview.getActivePage());
 				return;
 			}
 		} else {
@@ -123,7 +116,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 			IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(targetFileUriWithoutAnchor);
 			if (!hasMarkdownFileExtension(fileOutsideWorkspace)) {
 				event.doit = false;
-				openFileInDefaultEditor(fileOutsideWorkspace);
+				EditorUtils.openFileInDefaultEditor(fileOutsideWorkspace, preview.getActivePage());
 				return;
 			}
 		}
@@ -341,43 +334,6 @@ public class FluentBrowserUrlListener implements LocationListener {
 			}
 		}
 			
-		return null;
-	}
-	
-	private IEditorPart openFileInDefaultEditor(IFile file) {
-		if (file == null) {
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return IDE.openEditor(activePage, file);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file (path=%s) in default editor", file.getLocation()), e);
-			}
-		}
-		
-		return null;
-	}
-	
-	private IEditorPart openFileInDefaultEditor(IFileStore fileStore) {
-		if (fileStore == null
-				|| !fileStore.fetchInfo().exists()
-				|| fileStore.fetchInfo().isDirectory()) {
-			FluentUI.log(IStatus.WARNING, String.format("Unable to open workspace-external file %s. File does not exists or is a directory.", fileStore));
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return IDE.openEditorOnFileStore(activePage, fileStore);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file outside Eclipse workspace (path=%s) in default editor", fileStore.getName()), e);
-			}
-		}
-		
 		return null;
 	}
 	
