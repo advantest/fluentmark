@@ -35,10 +35,10 @@ public class EditorsUtils {
 		for (T editor: dirtyEditors) {
 			IEditorInput editorInput = editor.getEditorInput();
 			IFile inputFile = editorInput.getAdapter(IFile.class);
-            
-            if (inputFile != null && inputFile.equals(file)) {
-            	return editor;
-            }
+			
+			if (inputFile != null && inputFile.equals(file)) {
+				return editor;
+			}
 		}
 		
 		return null;
