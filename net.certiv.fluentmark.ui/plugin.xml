@@ -858,6 +858,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+I">
       </key>
+      <key
+            commandId="org.eclipse.ui.edit.text.open.hyperlink"
+            contextId="net.certiv.fluentmark.ui.editorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
