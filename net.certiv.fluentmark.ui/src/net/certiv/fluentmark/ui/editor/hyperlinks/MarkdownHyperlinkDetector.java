@@ -55,7 +55,6 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		}
 		
 		int offset = region.getOffset();
-		int length = region.getLength(); // length might only be interesting if it's > 0
 		
 		IRegion lineRegion;
 		String line;
@@ -89,12 +88,11 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		String linkTarget = linkStatement.substring(linkTargetStartIndex, linkStatement.length() - 1);
 		
-		// TODO create HyperLink to open link target
 		IRegion linkTargetRegion= new Region(lineRegion.getOffset() + linkMatcher.start() + linkTargetStartIndex, linkTarget.length());
 		
 		if (linkTarget.startsWith("https://")) {
-			//return new IHyperlink[] {new URLHyperlink(linkTargetRegion, linkTarget)};
-			return null; //is handled in URLHyperlinkDetector
+			// this case is handled in URLHyperlinkDetector
+			return null;
 		}
 		
 		IFile currentFile = DocumentUtils.findFileFor(document);
@@ -121,7 +119,6 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		IFile targetFile = null;
 		try {
-			// targetFile = ResourcesPlugin.getWorkspace().getRoot().getFile(absolutePath);
 			targetFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
 		} catch (Exception e) {
 			FluentUI.log(IStatus.ERROR, "Could not find file " + absolutePath, e);
