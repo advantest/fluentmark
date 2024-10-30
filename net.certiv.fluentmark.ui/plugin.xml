@@ -950,5 +950,26 @@
             id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
       </calculator>
    </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="net.certiv.fluentmark.ui.editor.hyperlinks.MarkdownHyperlinkDetector"
+            id="net.certiv.fluentmark.ui.markdownHyperlinkDetector"
+            name="Markdown Hyperlink Detector"
+            targetId="net.certiv.fluentmark.ui.markdownCode">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            description="Open Markdown code in FluentMark editor"
+            id="net.certiv.fluentmark.ui.markdownCode"
+            name="FluentMark Editor">
+         <context
+               type="net.certiv.fluentmark.ui.editorScope">
+         </context>
+      </target>
+   </extension>
    
 </plugin>
