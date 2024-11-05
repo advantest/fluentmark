@@ -9,6 +9,8 @@ package net.certiv.fluentmark.ui.editor;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.event.EventListenerList;
 
@@ -997,5 +999,28 @@ public class FluentEditor extends TextEditor
 			disableSelResponse = false;
 		}
 		selectionChanged();
+	}
+	
+	public boolean gotoAnchor(String anchorInOpenFile) {
+		if (anchorInOpenFile == null || anchorInOpenFile.isBlank()) {
+			return false;
+		}
+		
+		IDocument document = this.getDocument();
+		if (document != null) {
+			String documentContent = document.get();
+			
+			String anchorRegex = "^#{1,6}[ \\t].*[ \\t]\\{#" + anchorInOpenFile + "\\}";
+			Pattern anchorPattern = Pattern.compile(anchorRegex, Pattern.MULTILINE);
+			Matcher headerAndAnchorMathcer = anchorPattern.matcher(documentContent);
+			if (headerAndAnchorMathcer.find()) {
+				int startIndex = headerAndAnchorMathcer.start();
+				int endIndex = headerAndAnchorMathcer.end();
+				selectAndReveal(startIndex, endIndex - startIndex);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

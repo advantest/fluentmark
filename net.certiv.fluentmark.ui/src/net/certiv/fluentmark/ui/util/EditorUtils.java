@@ -16,20 +16,35 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
+import net.certiv.fluentmark.ui.editor.FluentEditor;
+import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.swt.widgets.Display;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EditorUtils {
+	
+	private static final String URL_SCHEME_FILE = "file";
+	
+	private static final JavaCodeMemberResolver javaMemberResolver = new JavaCodeMemberResolver();
+	
 	
 	public static <T extends IEditorPart> T findDirtyEditorFor(Class<T> editorType, IFile file) {
 		if (file == null) {
@@ -111,10 +126,11 @@ public class EditorUtils {
 	public static IEditorPart openFileInDefaultEditor(IFile file, IWorkbenchPage activePage) {
 		if (activePage == null) {
 			FluentUI.log(IStatus.ERROR, String.format("Unable to open file since there is no active workbench page."));
+			return null;
 		}
 		
 		if (file == null || !file.exists()) {
-			FluentUI.log(IStatus.WARNING, String.format("Unable to open workspace file %s. File does not exists.", file));
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open workspace file %s. File does not exist.", file));
 			return null;
 		}
 		
@@ -134,12 +150,13 @@ public class EditorUtils {
 	public static IEditorPart openFileInDefaultEditor(IFileStore fileStore, IWorkbenchPage activePage) {
 		if (activePage == null) {
 			FluentUI.log(IStatus.ERROR, String.format("Unable to open file since there is no active workbench page."));
+			return null;
 		}
 		
-		if (fileStore == null || activePage == null
+		if (fileStore == null
 				|| !fileStore.fetchInfo().exists()
 				|| fileStore.fetchInfo().isDirectory()) {
-			FluentUI.log(IStatus.WARNING, String.format("Unable to open workspace-external file %s. File does not exists or is a directory.", fileStore));
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open workspace-external file %s. File does not exist or is a directory.", fileStore));
 			return null;
 		}
 		
@@ -147,6 +164,128 @@ public class EditorUtils {
 			return IDE.openEditorOnFileStore(activePage, fileStore);
 		} catch (PartInitException e) {
 			Log.error(String.format("Could not open file outside Eclipse workspace (path=%s) in default editor", fileStore.getName()), e);
+		}
+		
+		return null;
+	}
+	
+	public static FluentEditor openFileInFluentEditor(IFile file) {
+		return openFileInFluentEditor(file, getActiveWorkbenchPage());
+	}
+	
+	public static FluentEditor openFileInFluentEditor(IFile file, IWorkbenchPage activePage) {
+		if (activePage == null) {
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open file since there is no active workbench page."));
+			return null;
+		}
+		
+		if (file == null || !file.exists()) {
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open workspace file %s. File does not exist.", file));
+			return null;
+		}
+		
+		try {
+			return (FluentEditor) IDE.openEditor(activePage, file, FluentEditor.ID);
+		} catch (PartInitException e) {
+			Log.error(String.format("Could not open file (path=%s) in FluentMark editor", file.getLocation()), e);
+		}
+			
+		return null;
+	}
+	
+	public static FluentEditor openFileInFluentEditor(URI fileUri) {
+		return openFileInFluentEditor(fileUri, getActiveWorkbenchPage());
+	}
+	
+	public static FluentEditor openFileInFluentEditor(URI fileUri, IWorkbenchPage activePage) {
+		if (activePage == null) {
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open file since there is no active workbench page."));
+			return null;
+		}
+		
+		if (fileUri == null || fileUri.getPath() == null || !URL_SCHEME_FILE.equals(fileUri.getScheme())) {
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open workspace file URI %s. URI or path are empty or illegal URI scheme.", fileUri));
+			return null;
+		}
+		
+		try {
+			return (FluentEditor) IDE.openEditor(activePage, fileUri, FluentEditor.ID, true);
+		} catch (PartInitException e) {
+			Log.error(String.format("Could not open file (URI=%s) in FluentMark editor", fileUri.toString()), e);
+		}
+		
+		return null;
+	}
+	
+	public static IEditorPart openFileInJavaEditor(IFile javaFile, String memberReference) {
+		if (memberReference == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (javaFile == null || !javaFile.exists()) {
+			FluentUI.log(IStatus.ERROR, String.format("Unable to open Java file %s. File does not exist.", javaFile));
+			return null;
+		}
+		
+		IMember member = javaMemberResolver.findJavaMember(javaFile, memberReference);
+		
+		if (member == null) {
+			return null;
+		}
+		
+		return openFileInJavaEditor(member);
+	}
+	
+	public static IEditorPart openFileInJavaEditor(IMember javaElement) {
+		if (javaElement == null) {
+			FluentUI.log(IStatus.ERROR, "Unable to open Java member in Java file. No member given.");
+			return null;
+		}
+		
+		try {
+			return JavaUI.openInEditor(javaElement);
+		} catch (PartInitException | JavaModelException e) {
+			Log.error(String.format("Could not open Java file %s with Java member '%s' in Java editor", javaElement.getResource(), javaElement), e );
+		}
+		
+		return null;
+	}
+	
+	public static IWebBrowser openUriInWebBrowser(URI uri) {
+		try {
+			return openUrlInWebBrowser(uri.toURL());
+		} catch (MalformedURLException e) {
+			Log.error(String.format("Could not open URI %s in web browser", uri), e );
+		}
+		
+		return null;
+	}
+	
+	public static IWebBrowser openUrlInWebBrowser(String url) {
+		try {
+			return openUrlInWebBrowser(new URL(url));
+		} catch (MalformedURLException e) {
+			Log.error(String.format("Could not open URL %s in web browser", url), e );
+		}
+		
+		return null;
+	}
+	
+	public static IWebBrowser openUrlInWebBrowser(URL url) {
+		try {
+			// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
+			IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
+					IWorkbenchBrowserSupport.LOCATION_BAR
+					| IWorkbenchBrowserSupport.NAVIGATION_BAR
+					| IWorkbenchBrowserSupport.STATUS
+					| IWorkbenchBrowserSupport.AS_VIEW,
+					"com.advantest.fluentmark.browser.id",
+					"FluentMark browser",
+					"Browser instance used by Fluentmark to open any exernal link");
+			webBrowser.openURL(url);
+			return webBrowser;
+		} catch (PartInitException e) {
+			Log.error(String.format("Could not open URL %s in web browser", url), e );
 		}
 		
 		return null;

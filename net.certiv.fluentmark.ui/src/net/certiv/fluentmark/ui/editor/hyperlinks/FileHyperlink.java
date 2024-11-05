@@ -19,16 +19,16 @@ import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class FileHyperlink implements IHyperlink {
 	
-	private final IFile fileInWorkspace;
-	private final IRegion linkTargetRegion;
-	private final IFileStore fileOutsideWorkspace;
+	protected final IFile fileInWorkspace;
+	protected final IRegion linkTargetRegion;
+	protected final IFileStore fileOutsideWorkspace;
 	
-	public FileHyperlink(IFile markdownTargetFile, IRegion linkTargetRegion) {
+	public FileHyperlink(IFile targetFile, IRegion linkTargetRegion) {
 		Assert.isNotNull(linkTargetRegion);
-		Assert.isNotNull(markdownTargetFile);
-		Assert.isTrue(markdownTargetFile.exists());
+		Assert.isNotNull(targetFile);
+		Assert.isTrue(targetFile.exists());
 		
-		this.fileInWorkspace = markdownTargetFile;
+		this.fileInWorkspace = targetFile;
 		this.linkTargetRegion = linkTargetRegion;
 		this.fileOutsideWorkspace = null;
 	}

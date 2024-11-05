@@ -30,6 +30,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
 
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.DocumentUtils;
 
@@ -91,6 +92,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		IRegion linkTargetRegion= new Region(lineRegion.getOffset() + linkMatcher.start() + linkTargetStartIndex, linkTarget.length());
 		
 		if (linkTarget.startsWith("https://")) {
+			// TODO This seems not to work as expected, create a custom UrlHyperlink class?
 			// this case is handled in URLHyperlinkDetector
 			return null;
 		}
@@ -102,12 +104,19 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		String[] parts = linkTarget.split("#");
 		
-		
-		// TODO also handle fragment, i.e. try navigating to anchors in case of markdown files
 		String targetFilePath = parts[0];
 		String fragment = null;
 		if (parts.length == 2) {
 			fragment = parts[1];
+		}
+		
+		IFile targetFile = null;
+		
+		// do we have an anchor within our opened Markdown file?
+		if (fragment != null && !fragment.isBlank() && (targetFilePath == null || targetFilePath.isBlank())) {
+			targetFile = currentFile;
+			
+			return new IHyperlink[] { new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment) };
 		}
 		
 		if (targetFilePath == null || targetFilePath.isBlank()) {
@@ -117,15 +126,23 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		IPath resourceRelativePath = new Path(targetFilePath);
 		IPath absolutePath = toAbsolutePath(resourceRelativePath, currentFile);
 		
-		IFile targetFile = null;
 		try {
 			targetFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
 		} catch (Exception e) {
-			FluentUI.log(IStatus.ERROR, "Could not find file " + absolutePath, e);
+			FluentUI.log(IStatus.WARNING, "Could not find file " + absolutePath, e);
+			
+			// do not return, try to find IFileStore instead
 		}
 		
 		if (targetFile != null) {
-			return new IHyperlink[] {new FileHyperlink(targetFile, linkTargetRegion)};
+			if (FileUtils.isMarkdownFile(targetFile)) {
+				return new IHyperlink[] { new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment) };
+			}
+			
+			if (fragment != null && FileUtils.isJavaFile(targetFile)) {
+				return new IHyperlink[] { new JavaMemberHyperlink(targetFile, linkTargetRegion, fragment) };
+			}
+			return new IHyperlink[] { new FileHyperlink(targetFile, linkTargetRegion) };
 		}
 		
 		IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(absolutePath);
@@ -135,7 +152,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return null;
 		}
 		
-		return new IHyperlink[] {new FileHyperlink(fileOutsideWorkspace, linkTargetRegion)};
+		return new IHyperlink[] { new FileHyperlink(fileOutsideWorkspace, linkTargetRegion) };
 	}
 	
 	private IPath toAbsolutePath(IPath resourceRelativePath, IResource currentResource) {
