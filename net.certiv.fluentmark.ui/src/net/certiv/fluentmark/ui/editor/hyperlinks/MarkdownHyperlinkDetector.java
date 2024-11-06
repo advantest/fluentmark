@@ -29,6 +29,7 @@ import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
+import org.eclipse.jface.text.hyperlink.URLHyperlink;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -92,9 +93,11 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		IRegion linkTargetRegion= new Region(lineRegion.getOffset() + linkMatcher.start() + linkTargetStartIndex, linkTarget.length());
 		
 		if (linkTarget.startsWith("https://")) {
-			// TODO This seems not to work as expected, create a custom UrlHyperlink class?
-			// this case is handled in URLHyperlinkDetector
-			return null;
+			// Since the default hyper link detector does not correctly detect URLs in Markdown files,
+			// we need to replace it with our own detector and create our custom URLHyperlinks.
+			// See FluentUI.start()
+			return new IHyperlink[] { new FluentUrlHyperlink(linkTargetRegion, linkTarget) };
+			//return null;
 		}
 		
 		IFile currentFile = DocumentUtils.findFileFor(document);

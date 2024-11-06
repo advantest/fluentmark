@@ -965,6 +965,13 @@
             name="Markdown Hyperlink Detector"
             targetId="net.certiv.fluentmark.ui.markdownCode">
       </hyperlinkDetector>
+      <hyperlinkDetector
+            activate="true"
+            class="net.certiv.fluentmark.ui.editor.hyperlinks.UrlHyperlinkDetector"
+            id="net.certiv.fluentmark.ui.UrlHyperlinkDetector"
+            name="URLHyperlinkDetector"
+            targetId="org.eclipse.ui.DefaultTextEditor">
+      </hyperlinkDetector>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
