@@ -9,43 +9,23 @@
  */
 package net.certiv.fluentmark.ui.views;
 
-import org.eclipse.ui.ide.IDE;
-
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IPathEditorInput;
-import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.browser.IWebBrowser;
-import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import java.io.File;
-
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
-import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class FluentBrowserUrlListener implements LocationListener {
 
@@ -58,12 +38,10 @@ public class FluentBrowserUrlListener implements LocationListener {
 	
 	private final FluentPreview preview;
 	private final ViewJob viewJob;
-	private final JavaCodeMemberResolver javaMemberResolver;
 	
 	FluentBrowserUrlListener(FluentPreview preview, ViewJob viewJob) {
 		this.preview = preview;
 		this.viewJob = viewJob;
-		this.javaMemberResolver = new JavaCodeMemberResolver();
 	}
 	
 	@Override
@@ -80,7 +58,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 		if (targetUri == null) {
 			// open URL in a separate browser if it is not  URI
 			event.doit = false;
-			openUrlInSeparateWebBrowser(url);
+			EditorUtils.openUrlInWebBrowser(url);
 			return;
 		}
 		
@@ -93,7 +71,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 		// open links to non-files in a separate web browser
 		if (!hasFileScheme(targetUri)) {
 			event.doit = false;
-			openUriInSeparateWebBrowser(targetUri);
+			EditorUtils.openUriInWebBrowser(targetUri);
 			return;
 		}
 		
@@ -115,7 +93,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 					}
 				}
 				
-				openFileInDefaultEditor(fileInWorkspace);
+				EditorUtils.openFileInDefaultEditor(fileInWorkspace, preview.getActivePage());
 				return;
 			}
 		} else {
@@ -123,7 +101,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 			IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(targetFileUriWithoutAnchor);
 			if (!hasMarkdownFileExtension(fileOutsideWorkspace)) {
 				event.doit = false;
-				openFileInDefaultEditor(fileOutsideWorkspace);
+				EditorUtils.openFileInDefaultEditor(fileOutsideWorkspace, preview.getActivePage());
 				return;
 			}
 		}
@@ -145,10 +123,10 @@ public class FluentBrowserUrlListener implements LocationListener {
 		// open Markdown file in our Fluentmark editor
 		FluentEditor editor = null;
 		if (fileInWorkspace != null) {
-			editor = openFluentEditorWith(fileInWorkspace);
+			editor = EditorUtils.openFileInFluentEditor(fileInWorkspace, preview.getActivePage());
 		} else {
 			// file outside Eclipse workspace
-			editor = openFluentEditorWith(omitAnchor(targetUri));
+			editor = EditorUtils.openFileInFluentEditor(omitAnchor(targetUri), preview.getActivePage());
 		}
 		
 		if (editor != null) {
@@ -231,46 +209,6 @@ public class FluentBrowserUrlListener implements LocationListener {
 		return null;
 	}
 	
-	private IWebBrowser openUriInSeparateWebBrowser(URI uri) {
-		try {
-			return openUrlInSeparateWebBrowser(uri.toURL());
-		} catch (MalformedURLException e) {
-			Log.error(String.format("Could not open URI %s in web browser", uri), e );
-		}
-		
-		return null;
-	}
-	
-	private IWebBrowser openUrlInSeparateWebBrowser(String url) {
-		try {
-			return openUrlInSeparateWebBrowser(new URL(url));
-		} catch (MalformedURLException e) {
-			Log.error(String.format("Could not open URL %s in web browser", url), e );
-		}
-		
-		return null;
-	}
-	
-	private IWebBrowser openUrlInSeparateWebBrowser(URL url) {
-		try {
-			// open a Browser (internal or external browser, depending on the user-specific Eclipse preferences)
-			IWebBrowser webBrowser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
-					IWorkbenchBrowserSupport.LOCATION_BAR
-					| IWorkbenchBrowserSupport.NAVIGATION_BAR
-					| IWorkbenchBrowserSupport.STATUS
-					| IWorkbenchBrowserSupport.AS_VIEW,
-					"com.advantest.fluentmark.browser.id",
-					"FluentMark browser",
-					"Browser instance used by Fluentmark to open any exernal link");
-			webBrowser.openURL(url);
-			return webBrowser;
-		} catch (PartInitException e) {
-			Log.error(String.format("Could not open URL %s in web browser", url), e );
-		}
-		
-		return null;
-	}
-	
 	private URI omitAnchor(URI uri) {
 		if (uri == null || uri.getFragment() == null) {
 			return uri;
@@ -305,77 +243,6 @@ public class FluentBrowserUrlListener implements LocationListener {
 		IFile[] filesFound = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(adaptedUri);
 		if (filesFound.length == 1) {
 			return filesFound[0];
-		}
-		
-		return null;
-	}
-	
-	private FluentEditor openFluentEditorWith(IFile file) {
-		if (file == null) {
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return (FluentEditor) IDE.openEditor(activePage, file, FluentEditor.ID);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file (path=%s) in FluentMark editor", file.getLocation()), e);
-			}
-		}
-			
-		return null;
-	}
-	
-	private FluentEditor openFluentEditorWith(URI fileUri) {
-		if (fileUri == null || fileUri.getPath() == null || !URL_SCHEME_FILE.equals(fileUri.getScheme())) {
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return (FluentEditor) IDE.openEditor(activePage, fileUri, FluentEditor.ID, true);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file outside Eclipse workspace (URI=%s) in FluentMark editor", fileUri.toString()), e);
-			}
-		}
-			
-		return null;
-	}
-	
-	private IEditorPart openFileInDefaultEditor(IFile file) {
-		if (file == null) {
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return IDE.openEditor(activePage, file);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file (path=%s) in default editor", file.getLocation()), e);
-			}
-		}
-		
-		return null;
-	}
-	
-	private IEditorPart openFileInDefaultEditor(IFileStore fileStore) {
-		if (fileStore == null
-				|| !fileStore.fetchInfo().exists()
-				|| fileStore.fetchInfo().isDirectory()) {
-			FluentUI.log(IStatus.WARNING, String.format("Unable to open workspace-external file %s. File does not exists or is a directory.", fileStore));
-			return null;
-		}
-		
-		IWorkbenchPage activePage = preview.getActivePage();
-		if (activePage != null) {
-			try {
-				return IDE.openEditorOnFileStore(activePage, fileStore);
-			} catch (PartInitException e) {
-				Log.error(String.format("Could not open file outside Eclipse workspace (path=%s) in default editor", fileStore.getName()), e);
-			}
 		}
 		
 		return null;
@@ -416,19 +283,7 @@ public class FluentBrowserUrlListener implements LocationListener {
 		// URI part following the '#'
 		String memberReference = fileUriWithMemberReference.getFragment();
 		
-		IMember member = this.javaMemberResolver.findJavaMember(javaFile, memberReference);
-		
-		if (member == null) {
-			return null;
-		}
-		
-		try {
-			return JavaUI.openInEditor(member);
-		} catch (PartInitException | JavaModelException e) {
-			Log.error(String.format("Could not open type and Java member '%s' in web browser", fileUriWithMemberReference), e );
-		}
-		
-		return null;
+		return EditorUtils.openFileInJavaEditor(javaFile, memberReference);
 	}
 	
 }

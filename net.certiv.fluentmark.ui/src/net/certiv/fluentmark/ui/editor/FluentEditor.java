@@ -9,6 +9,8 @@ package net.certiv.fluentmark.ui.editor;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.event.EventListenerList;
 
@@ -107,7 +109,7 @@ import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
-import net.certiv.fluentmark.ui.util.EditorsUtils;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 
 /**
  * Text editor with markdown support.
@@ -147,7 +149,7 @@ public class FluentEditor extends TextEditor
 	}
 	
 	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
-		return EditorsUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
+		return EditorUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
@@ -997,5 +999,28 @@ public class FluentEditor extends TextEditor
 			disableSelResponse = false;
 		}
 		selectionChanged();
+	}
+	
+	public boolean gotoAnchor(String anchorInOpenFile) {
+		if (anchorInOpenFile == null || anchorInOpenFile.isBlank()) {
+			return false;
+		}
+		
+		IDocument document = this.getDocument();
+		if (document != null) {
+			String documentContent = document.get();
+			
+			String anchorRegex = "^#{1,6}[ \\t].*[ \\t]\\{#" + anchorInOpenFile + "\\}";
+			Pattern anchorPattern = Pattern.compile(anchorRegex, Pattern.MULTILINE);
+			Matcher headerAndAnchorMathcer = anchorPattern.matcher(documentContent);
+			if (headerAndAnchorMathcer.find()) {
+				int startIndex = headerAndAnchorMathcer.start();
+				int endIndex = headerAndAnchorMathcer.end();
+				selectAndReveal(startIndex, endIndex - startIndex);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

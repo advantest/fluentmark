@@ -9,16 +9,13 @@
  */
 package net.certiv.fluentmark.ui.markers;
 
-import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+
+import net.certiv.fluentmark.ui.util.DocumentUtils;
 
 /**
  * This class registers an {@link IDocumentListener} that triggers marker calculation each time
@@ -39,7 +36,7 @@ public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetup
 				// because the document is being opened right now.
 				// In that case, the FluentEditor triggers marker calculation anyway
 				// after setting its input.
-				IFile file = findFileFor(document);
+				IFile file = DocumentUtils.findFileFor(document);
 				if (file != null && file.exists()) {
 					MarkerCalculator.get().scheduleMarkerCalculation(document, file);
 				}
@@ -51,22 +48,6 @@ public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetup
 			}
 		});
 
-	}
-	
-	private IFile findFileFor(IDocument document) {
-		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-		if (bufferManager != null) {
-			ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(document);
-			if (textFileBuffer != null) {
-				IPath fileLocation = textFileBuffer.getLocation();
-				if (fileLocation != null) {
-					return fileLocation.segmentCount() == 1 ?
-							ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileLocation)
-							: ResourcesPlugin.getWorkspace().getRoot().getFile(fileLocation);
-				}
-			}
-		}
-		return null;
 	}
 	
 }
