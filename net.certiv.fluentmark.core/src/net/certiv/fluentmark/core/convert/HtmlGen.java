@@ -87,10 +87,10 @@ public class HtmlGen {
 				}
 				
 				sb.append("<html><head>" + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentCore.PLUGIN_ID) + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentCore.PLUGIN_ID) + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
 				if (configurationProvider.useMathJax()) {
-					sb.append(FileUtils.fromBundle("resources/html/mathjax.html", FluentCore.PLUGIN_ID) + Strings.EOL);
+					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
 				sb.append(getStyle(filePath) + Strings.EOL);
@@ -110,7 +110,7 @@ public class HtmlGen {
 				break;
 
 			case VIEW:
-				String preview = FileUtils.fromBundle("resources/html/preview.html", FluentCore.PLUGIN_ID);
+				String preview = FileUtils.fromBundle("resources/html/preview.html");
 				preview = preview.replaceFirst("%path%", filePath.toString());
 				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
 				break;

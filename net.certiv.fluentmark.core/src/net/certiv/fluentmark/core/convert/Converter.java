@@ -29,7 +29,6 @@ import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
 
-import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
@@ -326,7 +325,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode, String figureCaption) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/puml-include.html", FluentCore.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/puml-include.html");
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -344,7 +343,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/figure.html", FluentCore.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/figure.html");
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
