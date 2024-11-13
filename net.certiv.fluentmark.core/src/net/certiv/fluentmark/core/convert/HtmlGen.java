@@ -75,7 +75,13 @@ public class HtmlGen {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
-				String bodyContent = extractBodyContentsFrom(content);
+				String bodyContent = content;
+				if (configurationProvider.getConverterType().equals(ConverterType.PANDOC)) {
+					bodyContent = extractBodyContentsFrom(content);
+					if (bodyContent == null) {
+						return content;
+					}
+				}
 				if (bodyContent == null) {
 					return content;
 				}
