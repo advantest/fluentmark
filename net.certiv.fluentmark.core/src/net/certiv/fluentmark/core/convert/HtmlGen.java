@@ -89,6 +89,7 @@ public class HtmlGen {
 				sb.append("<html><head>" + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
 				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight-export-init.html") + Strings.EOL);
 				if (configurationProvider.useMathJax()) {
 					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
@@ -112,7 +113,10 @@ public class HtmlGen {
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
 				preview = preview.replaceFirst("%path%", filePath.toString());
-				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
+				preview = preview.replaceFirst("%styles%", getStyle(filePath));
+				String highlightScript = FileUtils.fromBundle("resources/html/highlight.html");
+				preview = preview.replaceFirst("%highlight%", highlightScript);
+				sb.append(preview);
 				break;
 
 			case UPDATE:
