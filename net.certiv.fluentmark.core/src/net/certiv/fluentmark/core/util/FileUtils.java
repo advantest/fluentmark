@@ -224,7 +224,7 @@ public final class FileUtils {
 	}
 	
 	public static boolean isInDocFolder(IResource resource) {
-		String[] segments = resource.getFullPath().segments();
+		String[] segments = resource.getLocation().segments();
 		if (segments != null && segments.length > 0) {
 			for (String segment: segments) {
 				if ("doc".equals(segment)
