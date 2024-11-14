@@ -43,24 +43,8 @@
 
 %highlight%
 
-		<script type="x-mathjax-config">
-			MathJax.Hub.Config({
-				messageStyle: "none",
-				positionToHash: true,
-				showMathMenu: true,
-				tex2jax: {
-					inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-					displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
-					processEscapes: true
-				},
-				TeX: {
-					equationNumbers: {autoNumber: "AMS"}
-				},
-			});
-			MathJax.Hub.Register.StartupHook("End", typeset);
-		</script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-		
+%mathjax%
+
 		<script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
 		
@@ -68,6 +52,7 @@
 
 	<body style='overflow:auto'>
 		<span id="app" v-html="contents"></span>
+		
 		<div id="zoom-hint">
 			<div>Use <em>Alt + mouse wheel</em> to zoom.</div>
 			<div>Use <em>left mouse button</em> to grab and move.</div>
@@ -312,7 +297,8 @@
 							for (var idx = 0; idx < blocks.length; idx++) {
 								hljs.highlightElement(blocks[idx]);
 							}
-							MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+							MathJax.typesetClear();
+							MathJax.typeset();
 						});
 					},
 					check: function() {

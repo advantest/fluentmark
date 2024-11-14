@@ -112,10 +112,16 @@ public class HtmlGen {
 
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
-				preview = preview.replaceFirst("%path%", filePath.toString());
-				preview = preview.replaceFirst("%styles%", getStyle(filePath));
+				
+				preview = Strings.replaceFirst(preview, "%path%", filePath.toString());
+				preview = Strings.replaceFirst(preview, "%styles%", getStyle(filePath));
+				
 				String highlightScript = FileUtils.fromBundle("resources/html/highlight.html");
-				preview = preview.replaceFirst("%highlight%", highlightScript);
+				preview = Strings.replaceFirst(preview, "%highlight%", highlightScript);
+				
+				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax.html");
+				preview = Strings.replaceFirst(preview, "%mathjax%", mathJaxScript);
+				
 				sb.append(preview);
 				break;
 
