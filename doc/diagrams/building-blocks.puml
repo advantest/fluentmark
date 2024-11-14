@@ -1,0 +1,31 @@
+@startuml
+   title FluentMark AE main components
+
+   
+   !define EXTERNAL <<external>> #lightblue
+
+    [PlantUML] EXTERNAL
+	[flexmark] EXTERNAL
+	[pandoc] EXTERNAL 
+
+    component "FluentMark AE" #lightgray {
+        component net.certiv.fluentmark.core as core
+        component net.certiv.fluentmark.ui as ui
+        component net.certiv.spellchecker as spellchecker
+        interface "marker calculators" as markerCalc
+        interface "URI validators" as validators
+        interface "marker calculation builders" as builders
+    }
+
+    PlantUML <.. core
+    flexmark <.. core 
+    pandoc <.. core
+ 
+    core <.. ui 
+    spellchecker <.. ui
+    ui -- markerCalc
+    ui -- builders
+    ui -- validators
+    
+    footer FluentMark Advantest Edition ver. 1.5.1
+@enduml
