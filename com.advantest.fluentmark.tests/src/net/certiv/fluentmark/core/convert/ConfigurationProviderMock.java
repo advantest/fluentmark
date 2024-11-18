@@ -24,7 +24,7 @@ import net.certiv.fluentmark.core.FluentCore;
 
 public class ConfigurationProviderMock implements IConfigurationProvider {
 	
-	private static final ConverterType DEFAULT_CONVERTER_TYPE = ConverterType.PANDOC;
+	private static final ConverterType DEFAULT_CONVERTER_TYPE = ConverterType.FLEXMARK;
 	
 	private ConverterType converterType;
 	
@@ -97,6 +97,7 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		try {
 			url = FileLocator.toFileURL(url);
+			url = new URL(url.toString().replace(" ", "%20"));
 			return url.toURI().toString();
 		} catch (IOException | URISyntaxException e) {
 			return null;

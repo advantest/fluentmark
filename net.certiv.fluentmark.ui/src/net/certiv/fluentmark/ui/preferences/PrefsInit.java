@@ -71,7 +71,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		store.setDefault(EDITOR_TASK_TAGS, true);
 		store.setDefault(EDITOR_TASK_TAGS_DEFINED, "TODO,FIXME,NOTE");
 
-		store.setDefault(EDITOR_MD_CONVERTER, KEY_PANDOC);
+		store.setDefault(EDITOR_MD_CONVERTER, KEY_FLEXMARK);
 
 		store.setDefault(EDITOR_UMLMODE_ENABLED, true);
 		store.setDefault(EDITOR_DOTMODE_ENABLED, true);
@@ -230,6 +230,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		URL url = FileLocator.find(bundle, new Path(IConfigurationProvider.CSS_RESOURCE_DIR + IConfigurationProvider.CSS_DEFAULT), null);
 		try {
 			url = FileLocator.toFileURL(url);
+			url = new URL(url.toString().replace(" ", "%20")); // avoid spaces in paths and URISyntaxExceptions
 			return url.toURI().toString();
 		} catch (IOException | URISyntaxException e) {}
 		return IConfigurationProvider.CSS_DEFAULT; // really an error

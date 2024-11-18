@@ -9,25 +9,22 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.io.File;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -102,6 +99,7 @@ public class FilePathValidator {
 		File targetFile = absolutePath.toFile();
 		
 		if (!targetFile.exists()) {
+			// resolve WORKSPACE variable (if used in path) for error message
 			String workspacePath = getWorkspacePathFromEnvVariable();
 			String adaptedPath = targetFile.getAbsolutePath();
 			if (workspacePath.length() > 0 && adaptedPath.startsWith(workspacePath)) {
@@ -115,13 +113,23 @@ public class FilePathValidator {
 					endOffset);
 		}
 		
-		if (!targetFile.isFile()) {
-			return MarkerCalculator.createDocumentationProblemMarker(resource, IMarker.SEVERITY_WARNING,
-					String.format("The referenced file '%s' is actually not a file (it seems to be a directory). Target path: %s",
-							resourceRelativePath.toString(), targetFile.getAbsolutePath()),
-					lineNumber,
-					offset,
-					endOffset);
+		if (targetFile.isFile()) {
+			if (resourceRelativePath.toString().endsWith("/")) {
+				return MarkerCalculator.createDocumentationProblemMarker(resource, IMarker.SEVERITY_ERROR,
+						String.format("The file path '%s' ends with a '/' which usually indicates a directory, not a file. Please remove the trailing '/' if you mean a file.", resourceRelativePath.toString()),
+						lineNumber,
+						offset,
+						endOffset);
+			}
+		} else if (targetFile.isDirectory()) {
+			if (!resourceRelativePath.toString().endsWith("/")) {
+				return MarkerCalculator.createDocumentationProblemMarker(resource, IMarker.SEVERITY_WARNING,
+						String.format("The given path '%s' is a directory, not a file. Please add a trailing '/' if you really mean a directory.",
+								resourceRelativePath.toString()),
+						lineNumber,
+						offset,
+						endOffset);
+			}
 		}
 		
 		return null;

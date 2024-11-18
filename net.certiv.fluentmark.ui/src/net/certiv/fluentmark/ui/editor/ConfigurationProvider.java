@@ -15,7 +15,6 @@ import net.certiv.fluentmark.core.convert.ConverterType;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
-import net.certiv.fluentmark.ui.preferences.pages.PrefPageEditor;
 
 public class ConfigurationProvider implements IConfigurationProvider {
 	
@@ -30,7 +29,7 @@ public class ConfigurationProvider implements IConfigurationProvider {
 			case Prefs.KEY_PANDOC:
 				return ConverterType.PANDOC;
 			default:
-				return ConverterType.PANDOC;
+				return ConverterType.FLEXMARK;
 		}
 	}
 	

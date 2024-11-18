@@ -52,9 +52,9 @@ public class HtmlGen {
 	private Converter converter;
 	private IConfigurationProvider configurationProvider;
 
-	public HtmlGen(Converter converter, IConfigurationProvider configProvider) {
+	public HtmlGen(Converter converter) {
 		this.converter = converter;
-		this.configurationProvider = configProvider;
+		this.configurationProvider = converter.getConfigurationProvider();
 	}
 	
 	/**
@@ -75,16 +75,23 @@ public class HtmlGen {
 		StringBuilder sb = new StringBuilder();
 		switch (kind) {
 			case EXPORT:
-				String bodyContent = extractBodyContentsFrom(content);
+				String bodyContent = content;
+				if (configurationProvider.getConverterType().equals(ConverterType.PANDOC)) {
+					bodyContent = extractBodyContentsFrom(content);
+					if (bodyContent == null) {
+						return content;
+					}
+				}
 				if (bodyContent == null) {
 					return content;
 				}
 				
 				sb.append("<html><head>" + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/meta.html", FluentCore.PLUGIN_ID) + Strings.EOL);
-				sb.append(FileUtils.fromBundle("resources/html/highlight.html", FluentCore.PLUGIN_ID) + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/meta.html") + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight.html") + Strings.EOL);
+				sb.append(FileUtils.fromBundle("resources/html/highlight-export-init.html") + Strings.EOL);
 				if (configurationProvider.useMathJax()) {
-					sb.append(FileUtils.fromBundle("resources/html/mathjax.html", FluentCore.PLUGIN_ID) + Strings.EOL);
+					sb.append(FileUtils.fromBundle("resources/html/mathjax.html") + Strings.EOL);
 				}
 				sb.append("<style media=\"screen\" type=\"text/css\">" + Strings.EOL);
 				sb.append(getStyle(filePath) + Strings.EOL);
@@ -104,9 +111,18 @@ public class HtmlGen {
 				break;
 
 			case VIEW:
-				String preview = FileUtils.fromBundle("resources/html/preview.html", FluentCore.PLUGIN_ID);
-				preview = preview.replaceFirst("%path%", filePath.toString());
-				sb.append(preview.replaceFirst("%styles%", getStyle(filePath)));
+				String preview = FileUtils.fromBundle("resources/html/preview.html");
+				
+				preview = Strings.replaceFirst(preview, "%path%", filePath.toString());
+				preview = Strings.replaceFirst(preview, "%styles%", getStyle(filePath));
+				
+				String highlightScript = FileUtils.fromBundle("resources/html/highlight.html");
+				preview = Strings.replaceFirst(preview, "%highlight%", highlightScript);
+				
+				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax.html");
+				preview = Strings.replaceFirst(preview, "%mathjax%", mathJaxScript);
+				
+				sb.append(preview);
 				break;
 
 			case UPDATE:
@@ -140,7 +156,7 @@ public class HtmlGen {
 			URL url = findStyle(path);
 			return FileUtils.read(url);
 		} catch (Exception e) {
-			throw new RuntimeException(String.format("Failed reading stylesheet from path %s", path), e);
+			throw new RuntimeException(String.format("Failed finding / reading stylesheet for path %s", path), e);
 		}
 	}
 
@@ -169,7 +185,7 @@ public class HtmlGen {
 		String builtinCss = configurationProvider.getBuiltinCssSettingsFile();
 		if (!builtinCss.isEmpty()) {
 			try {
-				URI uri = new URI(builtinCss.replace(".css", ".min.css"));
+				URI uri = new URI(builtinCss.replace(".css", ".min.css").replace(" ", "%20"));
 				URL url = FileLocator.toFileURL(uri.toURL());
 				File file = URIUtil.toFile(URIUtil.toURI(url));
 				if (file.isFile()) return url;

@@ -14,43 +14,40 @@
  */
 package net.certiv.fluentmark.ui;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-
-import org.eclipse.swt.graphics.Image;
-
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.forms.FormColors;
-import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Display;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.forms.FormColors;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.HyperlinkDetectorDescriptor;
+import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 
+import net.certiv.fluentmark.core.convert.Converter;
+import net.certiv.fluentmark.ui.editor.ConfigurationProvider;
 import net.certiv.fluentmark.ui.editor.color.ColorManager;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
@@ -70,6 +67,7 @@ public class FluentUI extends AbstractUIPlugin {
 	private FluentImages fluentImages;
 	private FormToolkit dialogsFormToolkit;
 	private ColorManager colorManager;
+	private Converter converter;
 
 	public FluentUI() {
 		super();
@@ -80,6 +78,19 @@ public class FluentUI extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		fluentImages = new FluentImages(context.getBundle(), this);
+		
+		converter = new Converter(new ConfigurationProvider());
+		
+		// Switch off the default URLHyperlinkDetector that does not correctly detect Hyperlinks in Markdown files,
+		// see javadoc in org.eclipse.ui.texteditor.HyperlinkDetectorRegistry#HyperlinkDetectorRegistry(IPreferenceStore)
+		// We replace this URLHyperlinkDetector with our own that is not applied to Markdown files.
+		HyperlinkDetectorRegistry registry = EditorsUI.getHyperlinkDetectorRegistry();
+		IPreferenceStore editorsUiPrefStore = EditorsUI.getPreferenceStore();
+		for (HyperlinkDetectorDescriptor descriptor : registry.getHyperlinkDetectorDescriptors()) {
+			if ("org.eclipse.ui.internal.editors.text.URLHyperlinkDetector".equals(descriptor.getId())) {
+				editorsUiPrefStore.setValue(descriptor.getId(), true);
+			}
+		}
 
 		// ISaveParticipant saveParticipant = new MyWorkspaceSaveParticipant();
 		// ISavedState lastState = ResourcesPlugin.getWorkspace().addSaveParticipant(PLUGIN_ID,
@@ -106,6 +117,10 @@ public class FluentUI extends AbstractUIPlugin {
 	 */
 	public static FluentUI getDefault() {
 		return plugin;
+	}
+	
+	public Converter getConverter() {
+		return converter;
 	}
 
 	public static void log(String msg) {

@@ -1,0 +1,70 @@
+@startuml
+
+set separator none
+hide empty members
+
+!define EXTERNAL <<external>> #lightblue
+
+interface IResource EXTERNAL
+
+'component net.certiv.fluentmark.core as core #lightgray {
+
+    package net.certiv.fluentmark.core.convert #FFFFFF {
+        class HtmlGen {
+            buildHtml(IPath,... IDocument,...): String
+        }
+        class Converter {
+            convert(IPath,... IDocument,...): String
+            getText(IPath, IDocument, ITypedRegion[],...): String
+        }
+        note right of Converter::convert
+            uses pandoc to translate pre-processed
+            Markdown code to HTML
+        end note
+        note right of Converter::getText
+            does some pre-processing
+        end note
+        class UmlGen {
+            uml2svg(String): String
+        }
+        note right of UmlGen::uml2svg
+            calls PlantUML API
+        end note
+        'class DotGen
+    }
+    package net.certiv.fluentmark.core.markdown #FFFFFF {
+        class PageRoot <<Singleton>> {
+            updateModel(...)
+        }
+        class PagePart
+        class Lines
+        class "Lines.Line" as Line
+        abstract class Parent
+        class UpdateJob {
+            run(...): IStatus
+        }
+        class "UpdateJob.Task" as Task
+        note bottom of Task
+            parses a Markdown file
+            and re-calculates the model
+        end note
+    }
+    
+'}
+
+Converter --> "1" UmlGen
+HtmlGen --> "1" Converter 
+'Converter --> "1" DotGen
+
+PageRoot -u-|> Parent
+PagePart -u-|> Parent
+PageRoot "root" *-d- "*" PagePart : parts
+PageRoot *-d-> "0..1" Lines : lines
+PagePart *--> "n" Line
+Lines [lineNum:int] --> "1" Line
+UpdateJob *--> "m" Task
+Task -> "1" PageRoot
+Parent *--> "children" Parent
+Task -d-> "1" IResource
+
+@enduml

@@ -12,10 +12,21 @@
 		</style>
 		<style>
 			figure, :not(figure) > img {
-			  	transform-origin: 0 0;
-  				transform: scale(1) translate(0px, 0px);
-  				cursor: zoom-in;
-  				display: inline-block;
+				transform-origin: 0 0;
+				transform: scale(1) translate(0px, 0px);
+				cursor: zoom-in;
+				display: inline-block;
+			}
+			#zoom-hint {
+				opacity: 0;
+				position: fixed;
+				background-color: lightgray;
+				color: black;
+				top: 0;
+				left: 0;
+				padding: 3px;
+				text-wrap: nowrap;
+				font-size: x-small;
 			}
 			@media print { 
 				figure, :not(figure) > img {
@@ -30,46 +41,34 @@
 			}
 		</style>
 
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
-		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+%highlight%
 
-		<script type="x-mathjax-config">
-			MathJax.Hub.Config({
-				messageStyle: "none",
-				positionToHash: true,
-				showMathMenu: true,
-    			tex2jax: {
-      				inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      				displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
-      				processEscapes: true
-    			},
-				TeX: {
-					equationNumbers: {autoNumber: "AMS"}
-				},
-			});
-			MathJax.Hub.Register.StartupHook("End", typeset);
-		</script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-		
-		<script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+%mathjax%
+
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
 		
 	</head>
 
 	<body style='overflow:auto'>
 		<span id="app" v-html="contents"></span>
+		
+		<div id="zoom-hint">
+			<div>Use <em>Alt + mouse wheel</em> to zoom.</div>
+			<div>Use <em>left mouse button</em> to grab and move.</div>
+			<div>Use <em>right mouse button</em> to reset.</div>
+		</div>
 
- 		<script type="text/javascript">
- 		
- 			let imageSelector = 'figure, :not(figure) > img';
- 			let factor = 1.01;
+		<script type="text/javascript">
+		
+			let imageSelector = 'figure, :not(figure) > img';
+			let factor = 1.01;
 			var scale = 1;
 			var zoomX = 0;
 			var zoomY = 0;
 			var currentImage = null;
 			var start = null;
 			var panning = false;
- 		
+		
 			function setTransform(image, translateX, translateY, scale) {
 				image.style.transform = "translate(" + translateX + "px, " + translateY + "px) scale(" + scale + ")";
 			}
@@ -163,6 +162,8 @@
 						}
 						e.preventDefault();
 						
+						document.getElementById("zoom-hint").style.opacity = 0;
+						
 						updateCurrentImage(images[i]);
 							
 						var rect = images[i].getBoundingClientRect();
@@ -209,18 +210,40 @@
 					images[i].onmousemove=function(e) {
 						e.preventDefault();
 						
-						if (!panning) {
-							return;
+						if (panning) {
+							document.getElementById("zoom-hint").style.opacity = 0;
+							
+							zoomX = e.clientX - start.x;
+							zoomY = e.clientY - start.y;
+							
+							setTransform(images[i], zoomX, zoomY, scale);
+						} else {
+							var tooltip = document.getElementById("zoom-hint");
+							
+							if (tooltip.style.opacity != 1) {
+								return;
+							}
+							
+							var x = e.clientX;
+							var y = e.clientY;
+							
+							tooltip.style.left = x + "px";
+							tooltip.style.top = (y + 20) + "px";
 						}
-						
-						zoomX = e.clientX - start.x;
-						zoomY = e.clientY - start.y;
-						
-						setTransform(images[i], zoomX, zoomY, scale);
 					};
+					
+					images[i].onmouseenter=function(e) {
+						document.getElementById("zoom-hint").style.opacity = 1;
+					}
+					
+					images[i].onmouseleave=function(e) {
+						document.getElementById("zoom-hint").style.opacity = 0;
+					}
 					
 					images[i].addEventListener('contextmenu', function (e) {
 						e.preventDefault();
+						
+						document.getElementById("zoom-hint").style.opacity = 0;
 						
 						resetAllImages();
 						return false;
@@ -228,7 +251,7 @@
 				}
 				
 				} catch (error) {
-				  alert(error);
+					alert(error);
 				}
 			}
 			
@@ -258,22 +281,23 @@
 			window.Fluent = new Vue({
 				el: '#app',
 				data: { 
-					contents: 'Ready...', 
+					contents: 'Ready...',
 				},
 				mounted: function() {
-					this.refresh(); 
+					this.refresh();
 				},
 				updated: function() {
-					this.refresh(); 
+					this.refresh();
 				},
 				methods: {
 					refresh: function() {
 						this.$nextTick(function() {
 							var blocks = this.$el.querySelectorAll('pre code');
 							for (var idx = 0; idx < blocks.length; idx++) {
-								hljs.highlightBlock(blocks[idx]);
+								hljs.highlightElement(blocks[idx]);
 							}
-							MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+							MathJax.typesetClear();
+							MathJax.typeset();
 						});
 					},
 					check: function() {

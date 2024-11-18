@@ -858,6 +858,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+I">
       </key>
+      <key
+            commandId="org.eclipse.ui.edit.text.open.hyperlink"
+            contextId="net.certiv.fluentmark.ui.editorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -949,6 +955,34 @@
             class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
             id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
       </calculator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="net.certiv.fluentmark.ui.editor.hyperlinks.MarkdownHyperlinkDetector"
+            id="net.certiv.fluentmark.ui.markdownHyperlinkDetector"
+            name="Markdown Hyperlink Detector"
+            targetId="net.certiv.fluentmark.ui.markdownCode">
+      </hyperlinkDetector>
+      <hyperlinkDetector
+            activate="true"
+            class="net.certiv.fluentmark.ui.editor.hyperlinks.UrlHyperlinkDetector"
+            id="net.certiv.fluentmark.ui.UrlHyperlinkDetector"
+            name="URLHyperlinkDetector"
+            targetId="org.eclipse.ui.DefaultTextEditor">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            description="Open Markdown code in FluentMark editor"
+            id="net.certiv.fluentmark.ui.markdownCode"
+            name="FluentMark Editor">
+         <context
+               type="net.certiv.fluentmark.ui.editorScope">
+         </context>
+      </target>
    </extension>
    
 </plugin>

@@ -263,4 +263,21 @@ public final class Strings {
 		}
 		return sb.toString();
 	}
+	
+	public static String replaceFirst(String textToModify, String textToReplace, String replacementText) {
+		if (textToModify == null || textToReplace == null || replacementText == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		int index = textToModify.indexOf(textToReplace);
+		if (index < 0) {
+			return textToModify;
+		}
+		
+		String result = textToModify.substring(0, index);
+		result += replacementText;
+		result += textToModify.substring(index + textToReplace.length(), textToModify.length());
+		
+		return result;
+	}
 }

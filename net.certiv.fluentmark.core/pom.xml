@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>Fluentmark</artifactId>
-		<version>1.5.0-SNAPSHOT</version>
+		<version>1.5.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -18,7 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.0-20240604-1451</markdown-core-version>
+		<markdown-core-version>1.0.4-20241017-1223</markdown-core-version>
 	</properties>
 
 	<dependencies>

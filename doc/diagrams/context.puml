@@ -1,0 +1,34 @@
+@startuml
+  title System Context
+  left to right direction
+  
+  !define EXTERNAL <<external>> #lightblue
+
+  [GraphViz] EXTERNAL  
+  [Eclipse IDE] as Eclipse EXTERNAL    
+  [FluentMark AE] as FluentMark #lightgray
+  component markdown-core EXTERNAL {
+    component flexmark EXTERNAL
+    component PlantUML EXTERNAL
+  }
+  [pandoc] EXTERNAL
+  actor Developer
+  interface "extensions points" as eep
+  interface "extension points" as fep
+  [FluentMark extensions] as extensions EXTERNAL
+  
+  GraphViz <.l. PlantUML
+  PlantUML <.. flexmark  
+  Eclipse -- () eep
+  eep <.. FluentMark 
+  PlantUML <. FluentMark
+  flexmark <. FluentMark
+  pandoc -- () CLI
+  CLI <.. [FluentMark]
+  FluentMark -() fep
+  fep <. extensions
+  
+  FluentMark <.. Developer : uses
+  
+  footer FluentMark Advantest Edition ver. 1.5.1
+@enduml

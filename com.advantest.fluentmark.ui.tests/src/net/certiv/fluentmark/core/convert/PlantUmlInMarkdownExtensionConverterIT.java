@@ -5,42 +5,22 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2023 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.convert;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.jface.text.IDocument;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT {
 	
-	@Test
-	public void test() throws IOException {
-		// given
-		String srcMarkdownFile = "resources/feature-overview.md";
-		String documentContent = readFileContentFrom(srcMarkdownFile);
-		IDocument document = prepareDocument(documentContent);
-		File testMarkdownFile = copyFileFromResourceToTempFolder(srcMarkdownFile, "feature-overview.md");
-		
-		// when
-		String result = convert(testMarkdownFile, document);
-		
-		// then
-		assertNotNull(result);
-		assertFalse(result.isBlank());
-		
-		// TODO check result contents
-	}
 	
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
@@ -90,6 +70,25 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		assertTrue(result.matches("<figure>\\s*<svg(.|\\s)*<\\/svg>(.|\\s)*<\\/figure>\\s*"));
+	}
+	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void ensureCorrectPlantUmlSettings(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		String markdownFileContent = """
+				@startuml
+					title PlantUML security profile: %getenv("PLANTUML_SECURITY_PROFILE")
+					footer PlantUML version: %version()
+				@enduml
+				""";
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("read-plantuml-security-profile.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.contains("PlantUML security profile: UNSECURE"));
 	}
 
 }

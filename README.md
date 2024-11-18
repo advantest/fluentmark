@@ -9,25 +9,22 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 ## Features 
 
 + Choice of Markdown converter
-    - full support for the [Pandoc](https://pandoc.org) converter (preferred)
-    - supports several alternate converters
-        + [BlackFriday](https://github.com/russross/blackfriday), [CommonMark](https://github.com/jgm/CommonMark), 
-          [MarkdownJ](https://github.com/myabc/markdownj), [PegDown](https://github.com/sirthias/pegdown) 
-          & [TxtMark](https://github.com/rjeschke/txtmark)
+    - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred)
+    - support for the [Pandoc](https://pandoc.org) converter
 + Real-time preview
     - smooth, reactively rendered HTML display, using [Vue.js](https://vuejs.org/)
     - stylesheet controlled presentation
         + multiple built-in stylesheets
         + local custom/user defined stylesheets
 + PDF export using Pandoc
-    - custom/user defined latex page template support
+    - custom/user defined LaTeX page template support
 + LaTex/Math presentation using [MathJax](https://www.mathjax.org/)
-+ Code highlighting using [highlightjs](https://highlightjs.org/)
++ Code highlighting using [highlight.js](https://highlightjs.org/)
 + Diagram rendering
+    - UML diagrams using the [PlantUML](https://plantuml.com/) language
     - Graph diagrams using the [Graphviz DOT](http://www.graphviz.org/) language
-    - UML diagrams using the [PlantUml](http://www.graphviz.org/) language
     - all diagram previews are rendered in real-time
-    - exported Web and PDF documents embed the diagrams as scalable images
+    - exported Web and PDF documents embed the diagrams as scalable SVG images
 + Spell check with quick-assist correction processor
 + Smart editing behaviors, including intelligent paragraph, list & blank line handling
 + Table editor
@@ -48,7 +45,7 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 
 ## Installation & Use
 
-Requires Eclipse 2023-12 & JDK 17+.
+Requires Eclipse 2023-12 or newer & JDK 21+.
 
 Build from sources and install from local update site in `net.certiv.fluentmark.site/target/repository`
 or install from Advantest's private update site for R&D department.
@@ -71,11 +68,6 @@ UML diagrams ---
 - The basic PlantUml jar is built-in. Diagrams other than sequence diagrams require DOT graphics. If 
   `Graphviz` is installed in a non-default directory, set the `GRAPHVIZ_DOT` environment variable to 
   the actual installation directory.
-
-BlackFriday converter ---
-- Install the customized [blackfriday-tool](https://github.com/grosenberg/blackfriday-tool) from GitHub. 
-  A Windows 64-bit compiled executable is available for download: [blackfriday-tool.zip](http://www.certiv.net/updates/net.certiv.fluentmark.site/blackfriday-tool.zip). 
-  The `blackfriday-tool` executable can then be selected on the BlackFriday Converter preference page.
 
 ### Keys
 
@@ -120,7 +112,7 @@ and a minimal example of the Markdown text at issue.
     - [GitHub Flavored Markdown](https://github.github.com/gfm/)
     - [Daring Fireball Markdown](https://daringfireball.net/projects/markdown/syntax)
 1. [TEX Commands available in MathJax](http://www.onemathematicalcat.org/MathJaxDocumentation/TeXSyntax.htm)
-1. [PlantUML Language Specification](http://plantuml.com/sitemap-language-specification)
+1. [PlantUML Language Specification](https://plantuml.com/en/guide)
 1. [Dot Language Man Page](http://www.graphviz.org/pdf/dot.1.pdf)
 1. Pandoc Latex Templates (for PDF generation):
     - [Starter Templates](https://github.com/jez/pandoc-starter)
@@ -130,5 +122,5 @@ and a minimal example of the Markdown text at issue.
 
 ## License
 
-EPL v1
+[EPL v1](license.md)
 

@@ -6,12 +6,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.preferences.pages;
 
-import static net.certiv.fluentmark.ui.preferences.Prefs.*;
+import static net.certiv.fluentmark.ui.preferences.Prefs.EDITOR_PANDOC_ADDTOC;
+import static net.certiv.fluentmark.ui.preferences.Prefs.EDITOR_PANDOC_MATHJAX;
+import static net.certiv.fluentmark.ui.preferences.Prefs.EDITOR_PANDOC_PROGRAM;
+import static net.certiv.fluentmark.ui.preferences.Prefs.EDITOR_PANDOC_SMART;
+import static net.certiv.fluentmark.ui.preferences.Prefs.EDITOR_PANDOC_TEMPLATES;
+import static net.certiv.fluentmark.ui.preferences.Prefs.KEY_PANDOC;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.AbstractOptionsBlock;
 import net.certiv.fluentmark.ui.preferences.editors.ProgramFieldEditor;
 import net.certiv.fluentmark.ui.util.SwtUtil;
@@ -31,6 +39,11 @@ public class ConverterPandocOps extends AbstractOptionsBlock {
 
 	@Override
 	protected void createControls(Composite comp) {
+		Label label = new Label(comp, SWT.NONE);
+		label.setText("Version: " + FluentUI.getDefault().getConverter().getPandocVersion());
+		
+		SwtUtil.addSpacer(comp, 3);
+		
 		Composite bools = SwtUtil.makeComposite(comp, 3, 1);
 		addField(new BooleanFieldEditor(EDITOR_PANDOC_SMART, "Use smart typography", bools));
 		addField(new BooleanFieldEditor(EDITOR_PANDOC_ADDTOC, "Add table of contents", bools));

@@ -29,7 +29,6 @@ import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
 
-import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
@@ -55,6 +54,18 @@ public class Converter {
 		this.umlGen = new UmlGen(configProvider);
 		this.emitter = new DotCodeBlockEmitter(dotGen);
 		this.pumlInclusionConverter = new PumlIncludeStatementConverter();
+		initPlantUML();
+	}
+	
+	private void initPlantUML() {
+		String dotexe = configurationProvider.getDotCommand();
+		umlGen.getRenderer().setDotExecutable(dotexe);
+		
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+	}
+	
+	public IConfigurationProvider getConfigurationProvider() {
+		return configurationProvider;
 	}
 
 	private String createHtmlMessageCouldNotConvertMarkdown(String errorMessage) {
@@ -65,25 +76,20 @@ public class Converter {
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		try {
-            if (ConverterType.FLEXMARK.equals(configurationProvider.getConverterType())) {
-                String markdownSourceCode = document.get();
-
-                Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
-
-                // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
-                parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
-
-                return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
-            }
-
-            ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
-
-            String text;
             switch (configurationProvider.getConverterType()) {
                 case FLEXMARK:
-                    return ""; // case is already handled above
+                    String markdownSourceCode = document.get();
+
+                    Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+
+                    // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+                    parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+
+                    return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
                 case PANDOC:
-                    text = getText(filePath, document, typedRegions, true);
+                    ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
+                    
+                    String text = getText(filePath, document, typedRegions, true);
                     return usePandoc(basepath, text, kind);
             }
 		} catch (Exception e) {
@@ -151,7 +157,28 @@ public class Converter {
 		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
 		return combineOutputsForHtml(result);
 	}
-
+	
+	public String getPandocVersion() {
+		String cmd = configurationProvider.getPandocCommand();
+		if (cmd != null && !cmd.isBlank()) {
+			CmdResult result = null;
+			try {
+				result = Cmd.process(new String[] {cmd, "-v"}, null, null);
+			} catch (Exception e) {
+				// ignore exception
+			}
+			if (result != null && !result.hasErrors()) {
+				String output = result.stdOutput;
+				String firstOutputLine = output.lines().findFirst().orElse("");
+				if (!firstOutputLine.isBlank() && firstOutputLine.matches("pandoc \\d+\\.\\d+.*")) {
+					return firstOutputLine.substring("pandoc ".length());
+				}
+			}
+		}
+		
+		return "";
+	}
+	
 	private String getText(IPath filePath, IDocument document, ITypedRegion[] typedRegions, boolean includeFrontMatter) {
 		if (typedRegions == null || typedRegions.length == 0) {
 			return document.get();
@@ -298,7 +325,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode, String figureCaption) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/puml-include.html", FluentCore.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/puml-include.html");
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -316,7 +343,7 @@ public class Converter {
 	private String createHtmlFigure(String svgCode) {
 		String figureText;
 		try {
-			figureText = FileUtils.fromBundle("resources/html/figure.html", FluentCore.PLUGIN_ID);
+			figureText = FileUtils.fromBundle("resources/html/figure.html");
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}

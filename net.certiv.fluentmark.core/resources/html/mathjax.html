@@ -1,20 +1,32 @@
-
-<script type=text/x-mathjax-config>
-			MathJax.Hub.Config({
-				messageStyle: "none",
-				positionToHash: true,
-				showMathMenu: true,
-  				tex2jax: {
-      				inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      				displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
-					processEscapes: true,
-  				},
-				TeX: {
-					equationNumbers: {
-						autoNumber: "AMS"
-					}
+		<script type=text/x-mathjax-config>
+			window.MathJax = {
+				options: {
+					enableMenu: true,
+					ignoreHtmlClass: 'tex2jax_ignore',
+					processHtmlClass: 'tex2jax_process'
 				},
-			});
+				tex: {
+					inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+					displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+					processEscapes: true,
+					tags: "ams",
+					autoload: {
+						color: [],
+						colorv2: ['color']
+					},
+					packages: {'[+]': ['noerrors']}
+				},
+				loader: {
+					load: ['input/asciimath', '[tex]/noerrors']
+				}
+			};
 		</script>
-<script type="text/javascript" async
-	src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+		<script type="text/javascript" id="MathJax-script"
+			async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-svg.min.js">
+		</script>
+		<!-- Preferrably use chtml output, but wait for the following issue to be fixed first:
+			 https://github.com/eclipse-platform/eclipse.platform.ui/issues/2519
+		<script type="text/javascript" id="MathJax-script"
+			async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js">
+		</script>
+		-->

@@ -84,6 +84,7 @@ public class PrefPageStyles extends FieldEditorPreferencePage implements IWorkbe
 		File dir = null;
 		try {
 			url = FileLocator.toFileURL(url); // extracts to bundle cache
+			url = new URL(url.toString().replace(" ", "%20")); // avoid spaces in paths and URISyntaxExceptions
 			dir = new File(url.toURI());
 		} catch (IOException | URISyntaxException e) {
 			FluentUI.log(IStatus.ERROR, "Could not load built-in CSS files from bundle", e);

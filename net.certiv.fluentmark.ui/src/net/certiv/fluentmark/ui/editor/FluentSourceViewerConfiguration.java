@@ -16,6 +16,9 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.texteditor.HippieProposalProcessor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import java.util.Map;
+
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -410,6 +413,16 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	
 	private static IColorManager getColorMgr() {
 		return FluentUI.getDefault().getColorMgr();
+	}
+	
+	@Override
+	protected Map<String, IAdaptable> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+		Map<String, IAdaptable> targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		
+		// add our hyperlink detector target id defined in plugin.xml
+		targets.put("net.certiv.fluentmark.ui.markdownCode", editor); //$NON-NLS-1$
+		
+		return targets;
 	}
 
 }

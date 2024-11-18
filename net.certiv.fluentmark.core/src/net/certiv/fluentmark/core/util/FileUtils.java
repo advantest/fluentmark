@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.URIUtil;
 
 import org.osgi.framework.Bundle;
 
+import net.certiv.fluentmark.core.FluentCore;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -84,19 +86,23 @@ public final class FileUtils {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static String fromBundle(String path) throws IOException, URISyntaxException {
+		return fromBundle(path, FluentCore.PLUGIN_ID);
+	}
 
 	/**
 	 * Loads the content of a file from within a bundle. Returns null if not found.
 	 * 
-	 * @param pathname of the file within the bundle.
+	 * @param path of the file within the bundle.
 	 * @return null if not found.
 	 * @throws IOException 
 	 * @throws URISyntaxException 
 	 * @throws  
 	 */
-	public static String fromBundle(String pathname, String bundleId) throws IOException, URISyntaxException {
+	public static String fromBundle(String path, String bundleId) throws IOException, URISyntaxException {
 		Bundle bundle = Platform.getBundle(bundleId);
-		URL url = bundle.getEntry(pathname);
+		URL url = bundle.getEntry(path);
 		if (url == null) return null;
 		url = FileLocator.toFileURL(url);
 		return read(URIUtil.toFile(URIUtil.toURI(url)));
@@ -218,7 +224,7 @@ public final class FileUtils {
 	}
 	
 	public static boolean isInDocFolder(IResource resource) {
-		String[] segments = resource.getFullPath().segments();
+		String[] segments = resource.getLocation().segments();
 		if (segments != null && segments.length > 0) {
 			for (String segment: segments) {
 				if ("doc".equals(segment)

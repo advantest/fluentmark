@@ -9,23 +9,18 @@
  */
 package net.certiv.fluentmark.ui.markers;
 
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-
-import org.eclipse.core.resources.IFile;
-
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 
-import net.certiv.fluentmark.ui.editor.FluentEditor;
+import net.certiv.fluentmark.ui.util.DocumentUtils;
 
+/**
+ * This class registers an {@link IDocumentListener} that triggers marker calculation each time
+ * a document is modified (e.g. in an open FluentEditor).
+ */
 public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetupParticipant {
 	
 	@Override
@@ -37,18 +32,12 @@ public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetup
 			public void documentChanged(DocumentEvent event) {
 				IDocument document = event.getDocument();
 				
-				IEditorPart activeEditor = getActiveEditor();
-				
-				// if there is no active editor open, we cannot access the resource
-				// and, thus, cannot create markers (or I don't know how, yet)
-				// But in case the FluentMark extension with the builder for validating
-				// Markdown files is installed and active, the resources will be
-				// validated anyway.
-				
-				if (activeEditor != null && activeEditor instanceof FluentEditor) {
-					IEditorInput editorInput = activeEditor.getEditorInput();
-					IFile file = editorInput.getAdapter(IFile.class);
-					
+				// If we don't find a file, the reason might be that we got the event
+				// because the document is being opened right now.
+				// In that case, the FluentEditor triggers marker calculation anyway
+				// after setting its input.
+				IFile file = DocumentUtils.findFileFor(document);
+				if (file != null && file.exists()) {
 					MarkerCalculator.get().scheduleMarkerCalculation(document, file);
 				}
 			}
@@ -59,22 +48,6 @@ public class MarkerCalculationDocumentSetupParticipant implements IDocumentSetup
 			}
 		});
 
-	}
-	
-	private IEditorPart getActiveEditor() {
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench != null && !workbench.isClosing()) {
-			IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-			if (window != null && !window.isClosing()) {
-				IWorkbenchPage page = window.getActivePage();
-
-				if (page != null) {
-					return page.getActiveEditor();
-				}
-			}
-		}
-		
-		return null;
 	}
 	
 }

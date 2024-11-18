@@ -102,7 +102,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 				break;
 
 			default:
-				stackSel.topControl = pandoc.getFrame();
+				stackSel.topControl = flexmark.getFrame();
 				break;
 		}
 		stack.layout();
@@ -122,7 +122,7 @@ public class PrefPageConvert extends BaseFieldEditorPreferencePage implements Pr
 				break;
 
 			default:
-				pandoc.validateSettings();
+				flexmark.validateSettings();
 				break;
 		}
 	}
