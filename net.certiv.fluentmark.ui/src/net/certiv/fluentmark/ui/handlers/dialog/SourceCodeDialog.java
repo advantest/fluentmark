@@ -9,11 +9,11 @@
  */
 package net.certiv.fluentmark.ui.handlers.dialog;
 
-import org.eclipse.swt.graphics.Point;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -40,8 +40,12 @@ public class SourceCodeDialog extends Dialog {
         String text = this.sourceCode;
         
         if (this.contents != null && !this.contents.isBlank()) {
-        	String contentsEscaped = StringEscapeUtils.escapeJava(this.contents);
-        	text = text.replace("contents: 'Ready...',", String.format("contents: '%s',", contentsEscaped));
+        	String replacementContent = this.contents.lines()
+        			.map(line -> "\t\t\t" + line)
+        			.collect(Collectors.joining("\n"));
+        	
+        	replacementContent = "<span id=\"app\" v-html=\"contents\">\n\n" + replacementContent + "\n\n\t\t</span>";
+        	text = text.replace("<span id=\"app\" v-html=\"contents\"></span>", replacementContent);
         }
         
         Text textField = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
