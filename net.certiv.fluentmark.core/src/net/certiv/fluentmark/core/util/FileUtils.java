@@ -42,6 +42,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 
 public final class FileUtils {
@@ -54,6 +55,16 @@ public final class FileUtils {
 	public static final String PROJECT_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
 	public static final String PROJECT_NATURE_C = "org.eclipse.cdt.core.cnature";
 	public static final String PROJECT_NATURE_CPP = "org.eclipse.cdt.core.ccnature";
+	
+	private static final String operatingSystemName = System.getProperty("os.name");
+	private static final OperatingSystem operatingSystem = getOs();
+	
+	private enum OperatingSystem {
+		LinuxOrUnix,
+		MacOs,
+		Windows,
+		Other
+	}
 
 	/**
 	 * Creates a file resource handle for the file with the given workspace path. This method does not
@@ -266,6 +277,32 @@ public final class FileUtils {
 	
 	public static boolean isAccessibleSvgFile(IFile file) {
 		return isSvgFile(file) && file.isAccessible();
+	}
+	
+	private static OperatingSystem getOs() {
+		String operatingSystemNameLowCase = operatingSystemName.toLowerCase(Locale.ENGLISH);
+		
+		if (operatingSystemNameLowCase.contains("mac")) {
+			return OperatingSystem.MacOs;
+		} else if (operatingSystemNameLowCase.contains("win")) {
+			return OperatingSystem.Windows;
+		} else if (operatingSystemNameLowCase.contains("nux")) {
+			return OperatingSystem.LinuxOrUnix;
+		} else {
+			return OperatingSystem.Other;
+		}
+	}
+	
+	public static boolean isOsWindows() {
+		return operatingSystem.equals(OperatingSystem.Windows);
+	}
+	
+	public static boolean isOsLinuxOrUnix() {
+		return operatingSystem.equals(OperatingSystem.LinuxOrUnix);
+	}
+	
+	public static boolean isOsMacOs() {
+		return operatingSystem.equals(OperatingSystem.MacOs);
 	}
 
 }
