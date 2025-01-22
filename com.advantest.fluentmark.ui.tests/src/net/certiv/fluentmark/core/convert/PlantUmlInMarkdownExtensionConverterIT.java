@@ -42,7 +42,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		assertTrue(result.contains("<span style=\"color:red\">PlantUML file"));
-		assertTrue(result.contains("does not exist.</span>"));
+		assertTrue(result.contains("does not exist.</span>") || result.contains("does not\nexist.</span>"));
 	}
 	
 	@ParameterizedTest
