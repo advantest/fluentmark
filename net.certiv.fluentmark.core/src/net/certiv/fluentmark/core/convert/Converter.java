@@ -154,7 +154,7 @@ public class Converter {
 			args.add("markdown_strict" + PANDOC_EXTENSIONS_FOR_MARKDOWN);
 		}
 		
-		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text);
+		CmdResult result = Cmd.process(args.toArray(new String[args.size()]), basepath, text, configurationProvider.getPreferredLineEnding());
 		return combineOutputsForHtml(result);
 	}
 	

@@ -104,4 +104,9 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 		}
 	}
 
+	@Override
+	public String getPreferredLineEnding() {
+		return "\n";
+	}
+
 }
