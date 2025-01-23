@@ -529,6 +529,29 @@
                </and>
             </visibleWhen>
          </command>
+         <command
+               commandId="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
+               icon="icons/obj16/fluentmark_doc.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IResource">
+                     </adapt>
+                  </iterate>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="net.certiv.fluentmark.ui.isAccessible">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    
@@ -642,6 +665,11 @@
             defaultHandler="net.certiv.fluentmark.ui.handlers.RecalculateMarkersHandler"
             id="net.certiv.fluentmark.ui.revalidate"
             name="Re-check Markdown code and references">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ReplaceSvgImagesWithPlantUmlImagesHandler"
+            id="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
+            name="Replace SVG images with PlantUML images (*.puml files)">
       </command>
    </extension>
 
@@ -983,6 +1011,13 @@
                type="net.certiv.fluentmark.ui.editorScope">
          </context>
       </target>
+   </extension>
+   <extension
+         point="org.eclipse.ltk.core.refactoring.refactoringContributions">
+      <contribution
+            class="net.certiv.fluentmark.ui.refactoring.ReplaceSvgWithPlantUmlContribution"
+            id="net.certiv.fluentmark.ui.replaceSvgWithPlantUML">
+      </contribution>
    </extension>
    
 </plugin>
