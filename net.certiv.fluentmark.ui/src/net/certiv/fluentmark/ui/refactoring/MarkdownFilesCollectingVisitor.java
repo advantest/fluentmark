@@ -25,7 +25,7 @@ import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.builders.MarkdownFileValidationVisitor;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
-public class ReplaceSvgWithPlantUmlImagesVisitor implements IResourceVisitor {
+public class MarkdownFilesCollectingVisitor implements IResourceVisitor {
 	
 	protected SubMonitor monitor;
 	

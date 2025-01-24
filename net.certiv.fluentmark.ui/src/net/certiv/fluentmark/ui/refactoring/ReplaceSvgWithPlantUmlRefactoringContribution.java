@@ -14,7 +14,7 @@ import java.util.Map;
 import org.eclipse.ltk.core.refactoring.RefactoringContribution;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 
-public class ReplaceSvgWithPlantUmlContribution extends RefactoringContribution {
+public class ReplaceSvgWithPlantUmlRefactoringContribution extends RefactoringContribution {
 
 	@Override
 	public RefactoringDescriptor createDescriptor(String id, String project, String description, String comment,

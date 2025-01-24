@@ -30,6 +30,8 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.ast.Image;
@@ -54,8 +56,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return "My refactoring";
+		return "Replace *.svg links with *.puml links in selected Markdown files";
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		int numMdFiles = mdFileCounter.getNumMdFilesFound();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", numMdFiles * 10);
 		
-		ReplaceSvgWithPlantUmlImagesVisitor markdownFilesCollector = new ReplaceSvgWithPlantUmlImagesVisitor();
+		MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
 		markdownFilesCollector.setMonitor(subMonitor);
 		rootResource.accept(markdownFilesCollector);
 		collectedMarkdownFiles = markdownFilesCollector.getCollectedMarkdownFiles();
@@ -90,6 +91,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		Set<IFile> markdownFilesToModify = new HashSet<>();
 		ArrayList<Change> fileChanges = new ArrayList<>();
 		
+		// go through all markdown files in the given resource selection
 		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
 			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
 			
@@ -100,9 +102,11 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 				markdownFileContents = markdownDocument.get();
 			}
 			
+			// parse markdown code
 			Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
 			subMonitor.worked(5);
 			
+			// go through all image links
 			ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
 			while (iterator.hasNext()) {
 				Node astNode = iterator.next();
@@ -111,21 +115,28 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 					BasedSequence urlSequence = imageNode.getUrl();
 					String urlOrPath = urlSequence.toString();
 					
+					// check only svg file links
 					if (!urlOrPath.toLowerCase().startsWith("http")
 							&& urlOrPath.toLowerCase().endsWith(".svg")) {
+						
+						// TODO check if there is an equally named puml file
+						
 						
 						markdownFilesToModify.add(markdownFile);
 						
 						System.out.println("Found svg image path: " + urlOrPath);
 						
-						// TODO check if there is an equally named puml file
-						
 						// TODO create the actual changes and maybe change groups
+						int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
+						TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
+						
 						if (markdownDocument != null) {
 							DocumentChange markdownFileDocumentChange = new DocumentChange("change name", markdownDocument);
+							markdownFileDocumentChange.setEdit(editOperation);
 							fileChanges.add(markdownFileDocumentChange);
 						} else {
 							TextFileChange markdownFileChange = new TextFileChange("change name", markdownFile);
+							markdownFileChange.setEdit(editOperation);
 							fileChanges.add(markdownFileChange);
 						}
 						// TODO resolve path, translate it to workspace-relative path
