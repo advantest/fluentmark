@@ -10,17 +10,16 @@
 package net.certiv.fluentmark.ui.refactoring;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -29,7 +28,6 @@ import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
@@ -56,7 +54,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 
 	@Override
 	public String getName() {
-		return "Replace *.svg links with *.puml links in selected Markdown files";
+		return "Replace *.svg links with *.puml links in Markdown files in selected resources";
 	}
 
 	@Override
@@ -88,8 +86,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		rootResource.accept(markdownFilesCollector);
 		collectedMarkdownFiles = markdownFilesCollector.getCollectedMarkdownFiles();
 		
-		Set<IFile> markdownFilesToModify = new HashSet<>();
-		ArrayList<Change> fileChanges = new ArrayList<>();
+		ArrayList<Change> fileModifications = new ArrayList<>();
+		ArrayList<Change> fileDeletions = new ArrayList<>();
 		
 		// go through all markdown files in the given resource selection
 		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
@@ -119,30 +117,47 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 					if (!urlOrPath.toLowerCase().startsWith("http")
 							&& urlOrPath.toLowerCase().endsWith(".svg")) {
 						
-						// TODO check if there is an equally named puml file
+						// check if there is an equally named puml file
+						IPath resolvedSvgTargetPath =FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+						String svgFileName = resolvedSvgTargetPath.lastSegment();
+						int indexOfLastDot = svgFileName.lastIndexOf('.');
+						String pumlFileName = svgFileName.substring(0, indexOfLastDot) + ".puml";
+						IPath resolvedPumlTargetPath = resolvedSvgTargetPath.removeLastSegments(1).append(pumlFileName);
 						
+						List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
+						List<IFile> foundSvgFiles = FileUtils.findFilesForLocation(resolvedSvgTargetPath); 
 						
-						markdownFilesToModify.add(markdownFile);
-						
-						System.out.println("Found svg image path: " + urlOrPath);
-						
-						// TODO create the actual changes and maybe change groups
-						int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
-						TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
-						
-						if (markdownDocument != null) {
-							DocumentChange markdownFileDocumentChange = new DocumentChange("change name", markdownDocument);
-							markdownFileDocumentChange.setEdit(editOperation);
-							fileChanges.add(markdownFileDocumentChange);
-						} else {
-							TextFileChange markdownFileChange = new TextFileChange("change name", markdownFile);
-							markdownFileChange.setEdit(editOperation);
-							fileChanges.add(markdownFileChange);
+						if (!foundPumlFiles.isEmpty() && foundPumlFiles.size() == 1) {
+							IFile pumlFile = foundPumlFiles.getFirst();
+							
+							// Add edit operation: replace .svg with .puml file
+							int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
+							TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
+							
+							String changeName = "Replace .svg with .puml in \"" + urlOrPath + "\"";
+							if (markdownDocument != null) {
+								DocumentChange markdownFileDocumentChange = new DocumentChange(changeName, markdownDocument);
+								markdownFileDocumentChange.setEdit(editOperation);
+								fileModifications.add(markdownFileDocumentChange);
+							} else {
+								TextFileChange markdownFileChange = new TextFileChange(changeName, markdownFile);
+								markdownFileChange.setEdit(editOperation);
+								fileModifications.add(markdownFileChange);
+							}
+							
+							// Add delete operation: delete obsolete .svg file
+							if (!foundSvgFiles.isEmpty() && foundSvgFiles.size() == 1) {
+								IFile svgFile = foundSvgFiles.getFirst();
+								Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
+									.filter(change -> change instanceof DeleteFileChange)
+									.filter(change -> ((DeleteFileChange) change).getResourcePath().equals(svgFile.getFullPath()))
+									.findAny();
+								if (deleteChangeForGivenSvg.isEmpty()) {
+									DeleteFileChange deleteSvgFileChange = new DeleteFileChange(svgFile.getFullPath(), false);
+									fileDeletions.add(deleteSvgFileChange);
+								}
+							}
 						}
-						// TODO resolve path, translate it to workspace-relative path
-						// TODO check if there is already a delete change for that path
-						//DeleteResourceChange deleteSvgFileChange = new DeleteResourceChange(new Path(urlOrPath), false);
-						//fileChanges.add(deleteSvgFileChange);
 					}
 				}
 			}
@@ -150,7 +165,11 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			subMonitor.worked(5);
 		}
 		
-		CompositeChange change = new CompositeChange(getName(), fileChanges.toArray(new Change[fileChanges.size()]) );
+		CompositeChange change = new CompositeChange(getName());
+		CompositeChange modifications = new CompositeChange("Replace *.svg links with *.puml links in Markdown", fileModifications.toArray(new Change[fileModifications.size()]) );
+		CompositeChange deletions = new CompositeChange("Delete obsolete *.svg files", fileDeletions.toArray(new Change[fileDeletions.size()]) );
+		change.add(modifications);
+		change.add(deletions);
 		
 		return change;
 	}
