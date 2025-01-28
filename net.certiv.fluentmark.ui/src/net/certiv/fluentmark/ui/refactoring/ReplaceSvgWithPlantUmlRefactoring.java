@@ -56,7 +56,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 
 	@Override
 	public String getName() {
-		return "Replace *.svg links with *.puml links in Markdown files in selected resources";
+		return "Replace *.svg links with *.puml links in Markdown files and remove obsolete *.svg files";
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			throws CoreException, OperationCanceledException {
 		
 		if (rootResource == null || !rootResource.exists() || !rootResource.isAccessible()) {
-			return RefactoringStatus.createErrorStatus("Not applicable to given resource");
+			return RefactoringStatus.createFatalErrorStatus("Not applicable to the given resource: " + rootResource);
 		}
 		
 		return RefactoringStatus.createInfoStatus("ok");
@@ -145,8 +145,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 						List<IFile> foundSvgFiles = FileUtils.findFilesForLocation(resolvedSvgTargetPath); 
 						
 						if (!foundPumlFiles.isEmpty() && foundPumlFiles.size() == 1) {
-							IFile pumlFile = foundPumlFiles.getFirst();
-							
 							// add our file change, since we now know we have at least one edit in that file
 							if (!fileModifications.contains(fileChange)) {
 								fileModifications.add(fileChange);
@@ -177,12 +175,10 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			subMonitor.worked(4);
 		}
 		
-		CompositeChange change = new CompositeChange(getName());
-		CompositeChange modifications = new CompositeChange("Replace *.svg links with *.puml links in Markdown", fileModifications.toArray(new Change[fileModifications.size()]) );
-		CompositeChange deletions = new CompositeChange("Delete obsolete *.svg files", fileDeletions.toArray(new Change[fileDeletions.size()]) );
-		change.add(modifications);
-		change.add(deletions);
-		
+		ArrayList<Change> allChanges = new ArrayList<>(fileModifications.size() + fileDeletions.size());
+		allChanges.addAll(fileModifications);
+		allChanges.addAll(fileDeletions);
+		CompositeChange change = new CompositeChange(getName(), allChanges.toArray(new Change[allChanges.size()]));
 		return change;
 	}
 
