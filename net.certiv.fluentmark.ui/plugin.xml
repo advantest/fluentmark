@@ -441,7 +441,7 @@
                id="net.certiv.fluentmark.ui.markdown.menu"
                label="Markdown">
             <command
-                  commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+                  commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
                   icon="icons/obj16/fluentmark_doc.png"
                   style="push">
                <visibleWhen
@@ -472,7 +472,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
+                  commandId="net.certiv.fluentmark.ui.removeMarkdownValidationsBuilder"
                   icon="icons/obj16/fluentmark_doc.png"
                   style="push">
                <visibleWhen
@@ -661,12 +661,12 @@
       </command>
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.AddMarkerCalculationBuilderHandler"
-            id="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+            id="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
             name="Check Markdown code and references">
       </command>
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.RemoveMarkerCalculationBuilderHandler"
-            id="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
+            id="net.certiv.fluentmark.ui.removeMarkdownValidationsBuilder"
             name="Do not check Markdown code and references">
       </command>
       <command
