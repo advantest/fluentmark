@@ -27,7 +27,9 @@ import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
@@ -93,18 +95,33 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
 			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
 			
+			// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+			
+			// prepare root change, but only add it to file modification edits if we find at least one text edit
+			TextChange fileChange;
+			String changeName = "Replace .svg with .puml in \"" + markdownFile.getLocation().toString() + "\"";
+			MultiTextEdit rootEditOnFile = new MultiTextEdit();
+			if (markdownDocument != null) {
+				fileChange = new DocumentChange(changeName, markdownDocument);
+			} else {
+				fileChange = new TextFileChange(changeName, markdownFile);
+			}
+			fileChange.setEdit(rootEditOnFile);
+			
+			// read file contents
 			String markdownFileContents;
 			if (markdownDocument == null) {
 				markdownFileContents = FileUtils.readFileContents(markdownFile);
 			} else {
 				markdownFileContents = markdownDocument.get();
 			}
+			subMonitor.worked(1);
 			
 			// parse markdown code
 			Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
 			subMonitor.worked(5);
 			
-			// go through all image links
+			// go through all image links and create text edits
 			ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
 			while (iterator.hasNext()) {
 				Node astNode = iterator.next();
@@ -130,20 +147,15 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 						if (!foundPumlFiles.isEmpty() && foundPumlFiles.size() == 1) {
 							IFile pumlFile = foundPumlFiles.getFirst();
 							
-							// Add edit operation: replace .svg with .puml file
+							// add our file change, since we now know we have at least one edit in that file
+							if (!fileModifications.contains(fileChange)) {
+								fileModifications.add(fileChange);
+							}
+							
+							// Add edit operation: replace .svg with .puml file in given Markdown image
 							int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
 							TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
-							
-							String changeName = "Replace .svg with .puml in \"" + urlOrPath + "\"";
-							if (markdownDocument != null) {
-								DocumentChange markdownFileDocumentChange = new DocumentChange(changeName, markdownDocument);
-								markdownFileDocumentChange.setEdit(editOperation);
-								fileModifications.add(markdownFileDocumentChange);
-							} else {
-								TextFileChange markdownFileChange = new TextFileChange(changeName, markdownFile);
-								markdownFileChange.setEdit(editOperation);
-								fileModifications.add(markdownFileChange);
-							}
+							rootEditOnFile.addChild(editOperation);
 							
 							// Add delete operation: delete obsolete .svg file
 							if (!foundSvgFiles.isEmpty() && foundSvgFiles.size() == 1) {
@@ -162,7 +174,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 				}
 			}
 			
-			subMonitor.worked(5);
+			subMonitor.worked(4);
 		}
 		
 		CompositeChange change = new CompositeChange(getName());
