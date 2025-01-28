@@ -53,6 +53,10 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	public ReplaceSvgWithPlantUmlRefactoring(IResource rootResource) {
 		this.rootResource = rootResource;
 	}
+	
+	public IResource getRootResource() {
+		return this.rootResource;
+	}
 
 	@Override
 	public String getName() {

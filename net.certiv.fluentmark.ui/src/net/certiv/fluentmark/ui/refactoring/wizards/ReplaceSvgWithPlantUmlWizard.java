@@ -15,14 +15,16 @@ import net.certiv.fluentmark.ui.refactoring.ReplaceSvgWithPlantUmlRefactoring;
 
 public class ReplaceSvgWithPlantUmlWizard extends RefactoringWizard {
 
+	private final ReplaceSvgWithPlantUmlRefactoring refactoring;
+	
 	public ReplaceSvgWithPlantUmlWizard(ReplaceSvgWithPlantUmlRefactoring refactoring) {
 		super(refactoring, RefactoringWizard.WIZARD_BASED_USER_INTERFACE);
-		// TODO Auto-generated constructor stub
+		this.refactoring = refactoring;
 	}
 
 	@Override
 	protected void addUserInputPages() {
-		addPage(new ReplaceSvgWithPlantUmlUserInputPage());
+		addPage(new ReplaceSvgWithPlantUmlUserInputPage(refactoring.getRootResource()));
 	}
 
 }
