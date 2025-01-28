@@ -67,13 +67,13 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			return RefactoringStatus.createFatalErrorStatus("Not applicable to the given resource: " + rootResource);
 		}
 		
-		return RefactoringStatus.createInfoStatus("ok");
+		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
 
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
-		return RefactoringStatus.createInfoStatus("finish");
+		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
 
 	@Override
