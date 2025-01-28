@@ -538,6 +538,7 @@
                   label="Refactoring">
                <command
                      commandId="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
+                     icon="icons/obj16/fluentmark_doc.png"
                      style="push">
                   <visibleWhen
                         checkEnabled="false">
