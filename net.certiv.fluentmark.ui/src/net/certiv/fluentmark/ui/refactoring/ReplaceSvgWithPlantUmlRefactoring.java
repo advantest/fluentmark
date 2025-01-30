@@ -174,14 +174,13 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 							&& urlOrPath.toLowerCase().endsWith(".svg")) {
 						
 						// check if there is an equally named puml file
-						IPath resolvedSvgTargetPath =FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+						IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 						String svgFileName = resolvedSvgTargetPath.lastSegment();
 						int indexOfLastDot = svgFileName.lastIndexOf('.');
 						String pumlFileName = svgFileName.substring(0, indexOfLastDot) + ".puml";
 						IPath resolvedPumlTargetPath = resolvedSvgTargetPath.removeLastSegments(1).append(pumlFileName);
 						
 						List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
-						List<IFile> foundSvgFiles = FileUtils.findFilesForLocation(resolvedSvgTargetPath); 
 						
 						if (!foundPumlFiles.isEmpty()) {
 							if (foundPumlFiles.size() > 1) {
@@ -198,21 +197,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 								rootEditOnFile.addChild(editOperation);
 								
 								// Add delete operation: delete obsolete .svg file
-								if (deleteObsoleteSvgFiles && !foundSvgFiles.isEmpty()) {
-									if (foundSvgFiles.size() > 1) {
-										FluentUI.log(IStatus.WARNING, "Found more than one SVG file for the path " + resolvedSvgTargetPath + ". Skipping this case.");
-									} else {
-										IFile svgFile = foundSvgFiles.getFirst();
-										Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
-											.filter(change -> change instanceof DeleteFileChange)
-											.filter(change -> ((DeleteFileChange) change).getResourcePath().equals(svgFile.getFullPath()))
-											.findAny();
-										if (deleteChangeForGivenSvg.isEmpty()) {
-											DeleteFileChange deleteSvgFileChange = new DeleteFileChange(svgFile.getFullPath(), false);
-											fileDeletions.add(deleteSvgFileChange);
-										}
-									}
-								}
+								addDeleteChange(fileDeletions, resolvedSvgTargetPath);
 							}
 						}
 					}
@@ -228,6 +213,35 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		String changeName = MSG_ADAPT_LINKS + (fileDeletions.size() > 0 ? MSG_AND_DELETE_SVGS : "");
 		CompositeChange change = new CompositeChange(changeName, allChanges.toArray(new Change[allChanges.size()]));
 		return change;
+	}
+	
+	private void addDeleteChange(List<Change> fileDeletions, IPath resolvedSvgTargetPath) {
+		if (!deleteObsoleteSvgFiles) {
+			return;
+		}
+		
+		List<IFile> svgFilesToDelete = FileUtils.findFilesForLocation(resolvedSvgTargetPath);
+		
+		if (svgFilesToDelete.isEmpty()) {
+			return;
+		}
+		
+		if (svgFilesToDelete.size() > 1) {
+			FluentUI.log(IStatus.WARNING, "Found more than one SVG file for the path " + resolvedSvgTargetPath + ". Skipping this case.");
+			return;
+		}
+		
+		IFile svgFile = svgFilesToDelete.getFirst();
+		
+		Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
+			.filter(change -> change instanceof DeleteFileChange)
+			.filter(change -> ((DeleteFileChange) change).getResourcePath().equals(svgFile.getFullPath()))
+			.findAny();
+		
+		if (deleteChangeForGivenSvg.isEmpty()) {
+			DeleteFileChange deleteSvgFileChange = new DeleteFileChange(svgFile.getFullPath(), false);
+			fileDeletions.add(deleteSvgFileChange);
+		}
 	}
 	
 	private void addMissingFiles(Map<IFile, IDocument> markdownFilesCollection, Map<IFile, IDocument> markdownFilesToAdd) {
