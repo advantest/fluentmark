@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -230,11 +231,31 @@ public final class FileUtils {
 		String[] segments = resource.getLocation().segments();
 		if (segments != null && segments.length > 0) {
 			for (String segment: segments) {
-				if ("doc".equals(segment)
-						|| segment.startsWith("doc_")) {
+				if (isDocFolder(segment)) {
 					return true;
 				}
 			}
+		}
+		return false;
+	}
+	
+	public static IFolder getParentDocFolder(IResource resource) {
+		IResource currentResource = resource;
+		while (currentResource != null && !isDocFolder(currentResource.getName())) {
+			currentResource = currentResource.getParent();
+		}
+		
+		if (currentResource instanceof IFolder && isDocFolder(currentResource.getName())) {
+			return (IFolder) currentResource;
+		}
+		
+		return null;
+	}
+	
+	private static boolean isDocFolder(String pathSegment) {
+		if (pathSegment != null
+				&& (pathSegment.equals("doc") || pathSegment.startsWith("doc_"))) {
+			return true;
 		}
 		return false;
 	}

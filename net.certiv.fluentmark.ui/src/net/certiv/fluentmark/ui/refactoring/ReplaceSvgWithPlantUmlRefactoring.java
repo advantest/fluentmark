@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -74,7 +76,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			throws CoreException, OperationCanceledException {
 		
 		if (rootResource == null || !rootResource.exists() || !rootResource.isAccessible()) {
-			return RefactoringStatus.createFatalErrorStatus("Not applicable to the given resource: " + rootResource);
+			return RefactoringStatus.createFatalErrorStatus("Refactoring not applicable to the given resource."
+					+ " The following resource is not accessible. Resource: " + rootResource);
 		}
 		
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
@@ -83,6 +86,13 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
+		if (deleteObsoleteSvgFiles && !(rootResource instanceof IProject)) {
+			IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
+			if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
+				return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders of your documentation that point to *.svg files that you are going to delete."
+						+ " Avoid that by selecting a project or your documentation folder " + parentDocFolder.getFullPath().toString());
+			}
+		}
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
 
