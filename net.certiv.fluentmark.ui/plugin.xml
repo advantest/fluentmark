@@ -1021,12 +1021,5 @@
          </context>
       </target>
    </extension>
-   <extension
-         point="org.eclipse.ltk.core.refactoring.refactoringContributions">
-      <contribution
-            class="net.certiv.fluentmark.ui.refactoring.ReplaceSvgWithPlantUmlRefactoringContribution"
-            id="net.certiv.fluentmark.ui.replaceSvgWithPlantUML">
-      </contribution>
-   </extension>
    
 </plugin>
