@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -46,6 +47,7 @@ import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.ui.FluentUI;
 
 
 public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
@@ -181,27 +183,35 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 						List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
 						List<IFile> foundSvgFiles = FileUtils.findFilesForLocation(resolvedSvgTargetPath); 
 						
-						if (!foundPumlFiles.isEmpty() && foundPumlFiles.size() == 1) {
-							// add our file change, since we now know we have at least one edit in that file
-							if (!fileModifications.contains(fileChange)) {
-								fileModifications.add(fileChange);
-							}
-							
-							// Add edit operation: replace .svg with .puml file in given Markdown image
-							int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
-							TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
-							rootEditOnFile.addChild(editOperation);
-							
-							// Add delete operation: delete obsolete .svg file
-							if (deleteObsoleteSvgFiles && !foundSvgFiles.isEmpty() && foundSvgFiles.size() == 1) {
-								IFile svgFile = foundSvgFiles.getFirst();
-								Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
-									.filter(change -> change instanceof DeleteFileChange)
-									.filter(change -> ((DeleteFileChange) change).getResourcePath().equals(svgFile.getFullPath()))
-									.findAny();
-								if (deleteChangeForGivenSvg.isEmpty()) {
-									DeleteFileChange deleteSvgFileChange = new DeleteFileChange(svgFile.getFullPath(), false);
-									fileDeletions.add(deleteSvgFileChange);
+						if (!foundPumlFiles.isEmpty()) {
+							if (foundPumlFiles.size() > 1) {
+								FluentUI.log(IStatus.WARNING, "Found more than one PlantUML file for the path " + resolvedPumlTargetPath + ". Skipping this case.");
+							} else {
+								// add our file change, since we now know we have at least one edit in that file
+								if (!fileModifications.contains(fileChange)) {
+									fileModifications.add(fileChange);
+								}
+								
+								// Add edit operation: replace .svg with .puml file in given Markdown image
+								int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
+								TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
+								rootEditOnFile.addChild(editOperation);
+								
+								// Add delete operation: delete obsolete .svg file
+								if (deleteObsoleteSvgFiles && !foundSvgFiles.isEmpty()) {
+									if (foundSvgFiles.size() > 1) {
+										FluentUI.log(IStatus.WARNING, "Found more than one SVG file for the path " + resolvedSvgTargetPath + ". Skipping this case.");
+									} else {
+										IFile svgFile = foundSvgFiles.getFirst();
+										Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
+											.filter(change -> change instanceof DeleteFileChange)
+											.filter(change -> ((DeleteFileChange) change).getResourcePath().equals(svgFile.getFullPath()))
+											.findAny();
+										if (deleteChangeForGivenSvg.isEmpty()) {
+											DeleteFileChange deleteSvgFileChange = new DeleteFileChange(svgFile.getFullPath(), false);
+											fileDeletions.add(deleteSvgFileChange);
+										}
+									}
 								}
 							}
 						}
