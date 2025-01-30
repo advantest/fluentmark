@@ -50,6 +50,8 @@ import net.certiv.fluentmark.core.util.FileUtils;
 
 public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	
+	private final static String MSG_ADAPT_LINKS = "Replace *.svg links with *.puml links in Markdown files";
+	private final static String MSG_AND_DELETE_SVGS = " and remove obsolete *.svg files";
 	
 	private final Set<IResource> rootResources = new HashSet<>();
 	private Map<IFile, IDocument> collectedMarkdownFiles;
@@ -71,7 +73,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 
 	@Override
 	public String getName() {
-		return "Replace *.svg links with *.puml links in Markdown files and remove obsolete *.svg files";
+		return MSG_ADAPT_LINKS + MSG_AND_DELETE_SVGS;
 	}
 	
 	public void setDeleteSvgFiles(boolean deleteObsoleteSvgFiles) {
@@ -213,7 +215,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		ArrayList<Change> allChanges = new ArrayList<>(fileModifications.size() + fileDeletions.size());
 		allChanges.addAll(fileModifications);
 		allChanges.addAll(fileDeletions);
-		CompositeChange change = new CompositeChange(getName(), allChanges.toArray(new Change[allChanges.size()]));
+		String changeName = MSG_ADAPT_LINKS + (fileDeletions.size() > 0 ? MSG_AND_DELETE_SVGS : "");
+		CompositeChange change = new CompositeChange(changeName, allChanges.toArray(new Change[allChanges.size()]));
 		return change;
 	}
 	
