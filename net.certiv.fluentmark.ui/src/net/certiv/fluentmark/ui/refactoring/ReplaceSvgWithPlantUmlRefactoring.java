@@ -152,7 +152,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			// go through all image links and create text edits
 			createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
 					fileModifications, fileDeletions);
-			
 			subMonitor.worked(4);
 		}
 		
@@ -171,31 +170,35 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
 		while (iterator.hasNext()) {
 			Node astNode = iterator.next();
-			if (astNode instanceof Image) {
-				Image imageNode = (Image) astNode;
-				BasedSequence urlSequence = imageNode.getUrl();
-				String urlOrPath = urlSequence.toString();
+			
+			if (!(astNode instanceof Image)) {
+				continue;
+			}
+			
+			Image imageNode = (Image) astNode;
+			BasedSequence urlSequence = imageNode.getUrl();
+			String urlOrPath = urlSequence.toString();
+			
+			// check only svg file links
+			if (urlOrPath.toLowerCase().startsWith("http")
+					|| !urlOrPath.toLowerCase().endsWith(".svg")) {
+				continue;
+			}
+			
+			// check if there is an equally named puml file
+			IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+			
+			TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
+			if (replacementEdit != null) {
+				rootEditOnMarkdownFile.addChild(replacementEdit);
 				
-				// check only svg file links
-				if (!urlOrPath.toLowerCase().startsWith("http")
-						&& urlOrPath.toLowerCase().endsWith(".svg")) {
-					
-					// check if there is an equally named puml file
-					IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
-					
-					TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
-					if (replacementEdit != null) {
-						rootEditOnMarkdownFile.addChild(replacementEdit);
-						
-						// add our file change, since we now know we have at least one edit in that file
-						if (!fileModifications.contains(markdownFileChange)) {
-							fileModifications.add(markdownFileChange);
-						}
-						
-						// Add delete operation: delete obsolete .svg file
-						addDeleteChange(fileDeletions, resolvedSvgTargetPath);
-					}
+				// add our file change, since we now know we have at least one edit in that file
+				if (!fileModifications.contains(markdownFileChange)) {
+					fileModifications.add(markdownFileChange);
 				}
+				
+				// Add delete operation: delete obsolete .svg file
+				addDeleteChange(fileDeletions, resolvedSvgTargetPath);
 			}
 		}
 	}
