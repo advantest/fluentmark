@@ -137,23 +137,12 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
 			
 			// prepare root change, but only add it to file modification edits if we find at least one text edit
-			TextChange fileChange;
-			String changeName = "Replace .svg with .puml in \"" + markdownFile.getLocation().toString() + "\"";
-			MultiTextEdit rootEditOnFile = new MultiTextEdit();
-			if (markdownDocument != null) {
-				fileChange = new DocumentChange(changeName, markdownDocument);
-			} else {
-				fileChange = new TextFileChange(changeName, markdownFile);
-			}
-			fileChange.setEdit(rootEditOnFile);
+			TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownDocument);
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
 			// read file contents
-			String markdownFileContents;
-			if (markdownDocument == null) {
-				markdownFileContents = FileUtils.readFileContents(markdownFile);
-			} else {
-				markdownFileContents = markdownDocument.get();
-			}
+			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
 			subMonitor.worked(1);
 			
 			// parse markdown code
@@ -161,36 +150,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			subMonitor.worked(5);
 			
 			// go through all image links and create text edits
-			ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
-			while (iterator.hasNext()) {
-				Node astNode = iterator.next();
-				if (astNode instanceof Image) {
-					Image imageNode = (Image) astNode;
-					BasedSequence urlSequence = imageNode.getUrl();
-					String urlOrPath = urlSequence.toString();
-					
-					// check only svg file links
-					if (!urlOrPath.toLowerCase().startsWith("http")
-							&& urlOrPath.toLowerCase().endsWith(".svg")) {
-						
-						// check if there is an equally named puml file
-						IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
-						
-						TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
-						if (replacementEdit != null) {
-							rootEditOnFile.addChild(replacementEdit);
-							
-							// add our file change, since we now know we have at least one edit in that file
-							if (!fileModifications.contains(fileChange)) {
-								fileModifications.add(fileChange);
-							}
-							
-							// Add delete operation: delete obsolete .svg file
-							addDeleteChange(fileDeletions, resolvedSvgTargetPath);
-						}
-					}
-				}
-			}
+			createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
+					fileModifications, fileDeletions);
 			
 			subMonitor.worked(4);
 		}
@@ -201,6 +162,61 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		String changeName = MSG_ADAPT_LINKS + (fileDeletions.size() > 0 ? MSG_AND_DELETE_SVGS : "");
 		CompositeChange change = new CompositeChange(changeName, allChanges.toArray(new Change[allChanges.size()]));
 		return change;
+	}
+
+	private void createAndCollectEditsAndDeletions(IFile markdownFile, TextChange markdownFileChange,
+			MultiTextEdit rootEditOnMarkdownFile, Document markdownAst, ArrayList<Change> fileModifications,
+			ArrayList<Change> fileDeletions) {
+		
+		ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
+		while (iterator.hasNext()) {
+			Node astNode = iterator.next();
+			if (astNode instanceof Image) {
+				Image imageNode = (Image) astNode;
+				BasedSequence urlSequence = imageNode.getUrl();
+				String urlOrPath = urlSequence.toString();
+				
+				// check only svg file links
+				if (!urlOrPath.toLowerCase().startsWith("http")
+						&& urlOrPath.toLowerCase().endsWith(".svg")) {
+					
+					// check if there is an equally named puml file
+					IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+					
+					TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
+					if (replacementEdit != null) {
+						rootEditOnMarkdownFile.addChild(replacementEdit);
+						
+						// add our file change, since we now know we have at least one edit in that file
+						if (!fileModifications.contains(markdownFileChange)) {
+							fileModifications.add(markdownFileChange);
+						}
+						
+						// Add delete operation: delete obsolete .svg file
+						addDeleteChange(fileDeletions, resolvedSvgTargetPath);
+					}
+				}
+			}
+		}
+	}
+	
+	private TextChange createMarkdownFileChange(IFile markdownFile, IDocument markdownDocument) {
+		TextChange fileChange;
+		String changeName = "Replace .svg with .puml in \"" + markdownFile.getLocation().toString() + "\"";
+		if (markdownDocument != null) {
+			fileChange = new DocumentChange(changeName, markdownDocument);
+		} else {
+			fileChange = new TextFileChange(changeName, markdownFile);
+		}
+		return fileChange;
+	}
+	
+	private String getMarkdownFileContents(IFile markdownFile, IDocument markdownDocument) {
+		if (markdownDocument == null) {
+			return FileUtils.readFileContents(markdownFile);
+		} else {
+			return markdownDocument.get();
+		}
 	}
 	
 	private TextEdit createImagePathReplacementEdit(String originalUrlOrPath, IPath resolvedSvgTargetPath, int urlStartOffset) {
