@@ -9,6 +9,7 @@
  */
 package net.certiv.fluentmark.ui.refactoring;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
@@ -25,7 +26,7 @@ public class ReplaceSvgWithPlantUmlRefactoringDescriptor extends RefactoringDesc
 	@Override
 	public Refactoring createRefactoring(RefactoringStatus status) throws CoreException {
 		// TODO Auto-generated method stub
-		return new ReplaceSvgWithPlantUmlRefactoring(null);
+		return new ReplaceSvgWithPlantUmlRefactoring((IResource) null);
 	}
 
 }

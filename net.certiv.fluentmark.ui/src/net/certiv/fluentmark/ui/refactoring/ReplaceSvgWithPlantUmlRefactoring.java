@@ -10,9 +10,12 @@
 package net.certiv.fluentmark.ui.refactoring;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,23 +46,27 @@ import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.util.MarkdownFileCountingVisitor;
 
 
 public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	
-	private final IResource rootResource;
+	
+	private final Set<IResource> rootResources = new HashSet<>();
 	private Map<IFile, IDocument> collectedMarkdownFiles;
 	private final MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 	
 	private boolean deleteObsoleteSvgFiles = true;
 	
 	public ReplaceSvgWithPlantUmlRefactoring(IResource rootResource) {
-		this.rootResource = rootResource;
+		this.rootResources.add(rootResource);
 	}
 	
-	public IResource getRootResource() {
-		return this.rootResource;
+	public ReplaceSvgWithPlantUmlRefactoring(List<IResource> rootResources) {
+		this.rootResources.addAll(rootResources);
+	}
+	
+	public Set<IResource> getRootResources() {
+		return this.rootResources;
 	}
 
 	@Override
@@ -75,9 +82,11 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
 		
-		if (rootResource == null || !rootResource.exists() || !rootResource.isAccessible()) {
-			return RefactoringStatus.createFatalErrorStatus("Refactoring not applicable to the given resource."
-					+ " The following resource is not accessible. Resource: " + rootResource);
+		for (IResource rootResource: rootResources) {
+			if (rootResource == null || !rootResource.exists() || !rootResource.isAccessible()) {
+				return RefactoringStatus.createFatalErrorStatus("Refactoring not applicable to the given resource."
+						+ " The following resource is not accessible. Resource: " + rootResource);
+			}
 		}
 		
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
@@ -86,30 +95,36 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
-		if (deleteObsoleteSvgFiles && !(rootResource instanceof IProject)) {
-			IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
-			if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
-				return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders of your documentation that point to *.svg files that you are going to delete."
-						+ " Avoid that by selecting a project or your documentation folder " + parentDocFolder.getFullPath().toString());
+		
+		for (IResource rootResource: rootResources) {
+			if (deleteObsoleteSvgFiles && !(rootResource instanceof IProject)) {
+				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
+				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
+					return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders"
+							+ " of your documentation that point to *.svg files that you are going to delete."
+							+ " Avoid that by selecting your selected resource's (" + rootResource.getFullPath() + ") parent project or documentation folder "
+							+ parentDocFolder.getFullPath().toString());
+				}
 			}
 		}
+		
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		MarkdownFileCountingVisitor mdFileCounter = new MarkdownFileCountingVisitor();
-		rootResource.accept(mdFileCounter);
-		int numMdFiles = mdFileCounter.getNumMdFilesFound();
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", numMdFiles * 10);
-		
-		MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
-		markdownFilesCollector.setMonitor(subMonitor);
-		rootResource.accept(markdownFilesCollector);
-		collectedMarkdownFiles = markdownFilesCollector.getCollectedMarkdownFiles();
-		
+		collectedMarkdownFiles = new HashMap<IFile, IDocument>();
 		ArrayList<Change> fileModifications = new ArrayList<>();
 		ArrayList<Change> fileDeletions = new ArrayList<>();
+		
+		for (IResource rootResource: rootResources) {
+			MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
+			markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
+			rootResource.accept(markdownFilesCollector);
+			addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
+		}
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
 		
 		// go through all markdown files in the given resource selection
 		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
@@ -200,6 +215,15 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		allChanges.addAll(fileDeletions);
 		CompositeChange change = new CompositeChange(getName(), allChanges.toArray(new Change[allChanges.size()]));
 		return change;
+	}
+	
+	private void addMissingFiles(Map<IFile, IDocument> markdownFilesCollection, Map<IFile, IDocument> markdownFilesToAdd) {
+		// avoid ConcurrentModificationException -> first collect all elements to add, than add them to the map
+		Map<IFile, IDocument> missingFilesSubset = new HashMap<>();
+		markdownFilesToAdd.keySet().stream()
+			.filter(file -> !markdownFilesCollection.containsKey(file))
+			.forEach(file -> missingFilesSubset.put(file, markdownFilesToAdd.get(file)));
+		markdownFilesCollection.putAll(missingFilesSubset);
 	}
 
 }

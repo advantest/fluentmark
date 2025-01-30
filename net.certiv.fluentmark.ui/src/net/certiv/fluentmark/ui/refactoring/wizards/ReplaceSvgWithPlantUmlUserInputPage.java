@@ -9,6 +9,9 @@
  */
 package net.certiv.fluentmark.ui.refactoring.wizards;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -44,9 +47,12 @@ public class ReplaceSvgWithPlantUmlUserInputPage extends UserInputWizardPage {
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composite.setFont(parent.getFont());
 		
+		Set<String> resourceNames = refactoring.getRootResources().stream().map(rootResource -> "'" + rootResource.getFullPath() + "'").collect(Collectors.toSet());
 		Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData());
-		label.setText("Process all Markdown files in '" + refactoring.getRootResource().getFullPath() + "'.");
+		label.setText("Process all Markdown files in "
+				+ (resourceNames.size() > 1 ? "\n" : "")
+				+ String.join("\n", resourceNames) + ".");
 		
 		deleteSvgFilesCheckBox = new Button(composite, SWT.CHECK);
 		deleteSvgFilesCheckBox.setLayoutData(new GridData());

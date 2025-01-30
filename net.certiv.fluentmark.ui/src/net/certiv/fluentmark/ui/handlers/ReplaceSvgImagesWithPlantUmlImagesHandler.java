@@ -9,15 +9,15 @@
  */
 package net.certiv.fluentmark.ui.handlers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -30,27 +30,26 @@ public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler i
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
 		try {
-			IResource rootResource = null;
+			// ISelection selection = HandlerUtil.getCurrentSelection(event);
+			// TODO also handle text selections
 			
-			ISelection selection = HandlerUtil.getCurrentSelection(event);
 			IStructuredSelection structuredSelection = HandlerUtil.getCurrentStructuredSelection(event);
 			
 			if (structuredSelection != null && !structuredSelection.isEmpty()) {
-				// TODO handle all selected elements
-				if (structuredSelection.getFirstElement() instanceof IResource) {
-					rootResource = (IResource) structuredSelection.getFirstElement();
+				List<IResource> rootResources = structuredSelection.stream()
+					.filter(s -> s instanceof IResource)
+					.map(s -> (IResource) s)
+					.collect(Collectors.toList());
+				
+				if (rootResources.isEmpty()) {
+					return null;
 				}
-			}
-			
-			ReplaceSvgWithPlantUmlRefactoring refactoring = new ReplaceSvgWithPlantUmlRefactoring(rootResource);
-			ReplaceSvgWithPlantUmlWizard wizard = new ReplaceSvgWithPlantUmlWizard(refactoring);
-			RefactoringWizardOpenOperation refactoringOperation = new RefactoringWizardOpenOperation(wizard);
-			
-			int result = refactoringOperation.run(HandlerUtil.getActiveShell(event), "Replace SVG images in Markdown with PlantUML images");
-			
-			RefactoringStatus status = refactoringOperation.getInitialConditionCheckingStatus();
-			if (result == IDialogConstants.CANCEL_ID || result == RefactoringWizardOpenOperation.INITIAL_CONDITION_CHECKING_FAILED) {
-				// TODO Do we need to re-cover here and start a re-build?
+				
+				ReplaceSvgWithPlantUmlRefactoring refactoring = new ReplaceSvgWithPlantUmlRefactoring(rootResources);
+				ReplaceSvgWithPlantUmlWizard wizard = new ReplaceSvgWithPlantUmlWizard(refactoring);
+				RefactoringWizardOpenOperation refactoringOperation = new RefactoringWizardOpenOperation(wizard);
+				
+				refactoringOperation.run(HandlerUtil.getActiveShell(event), "Replace SVG images in Markdown with PlantUML images");
 			}
 		} catch (InterruptedException e) {
 			return null; // User action got cancelled
