@@ -50,6 +50,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	private Map<IFile, IDocument> collectedMarkdownFiles;
 	private final MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 	
+	private boolean deleteObsoleteSvgFiles = true;
+	
 	public ReplaceSvgWithPlantUmlRefactoring(IResource rootResource) {
 		this.rootResource = rootResource;
 	}
@@ -61,6 +63,10 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	@Override
 	public String getName() {
 		return "Replace *.svg links with *.puml links in Markdown files and remove obsolete *.svg files";
+	}
+	
+	public void setDeleteSvgFiles(boolean deleteObsoleteSvgFiles) {
+		this.deleteObsoleteSvgFiles = deleteObsoleteSvgFiles;
 	}
 
 	@Override
@@ -160,7 +166,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 							rootEditOnFile.addChild(editOperation);
 							
 							// Add delete operation: delete obsolete .svg file
-							if (!foundSvgFiles.isEmpty() && foundSvgFiles.size() == 1) {
+							if (deleteObsoleteSvgFiles && !foundSvgFiles.isEmpty() && foundSvgFiles.size() == 1) {
 								IFile svgFile = foundSvgFiles.getFirst();
 								Optional<Change> deleteChangeForGivenSvg = fileDeletions.stream()
 									.filter(change -> change instanceof DeleteFileChange)

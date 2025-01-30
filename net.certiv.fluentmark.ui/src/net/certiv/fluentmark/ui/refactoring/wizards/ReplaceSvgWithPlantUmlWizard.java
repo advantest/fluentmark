@@ -24,7 +24,7 @@ public class ReplaceSvgWithPlantUmlWizard extends RefactoringWizard {
 
 	@Override
 	protected void addUserInputPages() {
-		addPage(new ReplaceSvgWithPlantUmlUserInputPage(refactoring.getRootResource()));
+		addPage(new ReplaceSvgWithPlantUmlUserInputPage(refactoring));
 	}
 
 }

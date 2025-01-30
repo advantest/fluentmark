@@ -9,23 +9,26 @@
  */
 package net.certiv.fluentmark.ui.refactoring.wizards;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import net.certiv.fluentmark.ui.refactoring.ReplaceSvgWithPlantUmlRefactoring;
+
 public class ReplaceSvgWithPlantUmlUserInputPage extends UserInputWizardPage {
 	
-	private final IResource rootResource;
+	private final ReplaceSvgWithPlantUmlRefactoring refactoring;
 	private Button deleteSvgFilesCheckBox;
 
-	public ReplaceSvgWithPlantUmlUserInputPage(IResource rootResource) {
+	public ReplaceSvgWithPlantUmlUserInputPage(ReplaceSvgWithPlantUmlRefactoring refactoring) {
 		super("User Input Page");
-		this.rootResource = rootResource;
+		this.refactoring = refactoring;
 		
 		this.setTitle("Replace *.svg with *.puml in selected Markdown files");
 		this.setDescription("Replace all references to *.svg files in selected Markdown files"
@@ -43,21 +46,30 @@ public class ReplaceSvgWithPlantUmlUserInputPage extends UserInputWizardPage {
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData());
-		label.setText("Process all Markdown files in '" + this.rootResource.getFullPath() + "'.");
+		label.setText("Process all Markdown files in '" + refactoring.getRootResource().getFullPath() + "'.");
 		
 		deleteSvgFilesCheckBox = new Button(composite, SWT.CHECK);
 		deleteSvgFilesCheckBox.setLayoutData(new GridData());
 		deleteSvgFilesCheckBox.setText("Delete obsolete *.svg files");
 		deleteSvgFilesCheckBox.setSelection(true);
+		updateRefactoringSettings();
+		
+		deleteSvgFilesCheckBox.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateRefactoringSettings();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		setControl(composite);
 	}
 	
-	public boolean isDeleteObsoleteSvgFilesChecked() {
-		if (deleteSvgFilesCheckBox != null) {
-			return deleteSvgFilesCheckBox.getSelection();
-		}
-		return true;
+	private void updateRefactoringSettings() {
+		refactoring.setDeleteSvgFiles(deleteSvgFilesCheckBox.getSelection());
 	}
-
 }
