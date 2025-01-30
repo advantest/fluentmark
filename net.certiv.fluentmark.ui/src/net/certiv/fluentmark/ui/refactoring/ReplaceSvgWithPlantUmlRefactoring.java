@@ -175,30 +175,18 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 						
 						// check if there is an equally named puml file
 						IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
-						String svgFileName = resolvedSvgTargetPath.lastSegment();
-						int indexOfLastDot = svgFileName.lastIndexOf('.');
-						String pumlFileName = svgFileName.substring(0, indexOfLastDot) + ".puml";
-						IPath resolvedPumlTargetPath = resolvedSvgTargetPath.removeLastSegments(1).append(pumlFileName);
 						
-						List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
-						
-						if (!foundPumlFiles.isEmpty()) {
-							if (foundPumlFiles.size() > 1) {
-								FluentUI.log(IStatus.WARNING, "Found more than one PlantUML file for the path " + resolvedPumlTargetPath + ". Skipping this case.");
-							} else {
-								// add our file change, since we now know we have at least one edit in that file
-								if (!fileModifications.contains(fileChange)) {
-									fileModifications.add(fileChange);
-								}
-								
-								// Add edit operation: replace .svg with .puml file in given Markdown image
-								int startOffset = urlSequence.getStartOffset() + urlOrPath.toLowerCase().indexOf(".svg") + 1;
-								TextEdit editOperation = new ReplaceEdit(startOffset, 3, "puml");
-								rootEditOnFile.addChild(editOperation);
-								
-								// Add delete operation: delete obsolete .svg file
-								addDeleteChange(fileDeletions, resolvedSvgTargetPath);
+						TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
+						if (replacementEdit != null) {
+							rootEditOnFile.addChild(replacementEdit);
+							
+							// add our file change, since we now know we have at least one edit in that file
+							if (!fileModifications.contains(fileChange)) {
+								fileModifications.add(fileChange);
 							}
+							
+							// Add delete operation: delete obsolete .svg file
+							addDeleteChange(fileDeletions, resolvedSvgTargetPath);
 						}
 					}
 				}
@@ -213,6 +201,27 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		String changeName = MSG_ADAPT_LINKS + (fileDeletions.size() > 0 ? MSG_AND_DELETE_SVGS : "");
 		CompositeChange change = new CompositeChange(changeName, allChanges.toArray(new Change[allChanges.size()]));
 		return change;
+	}
+	
+	private TextEdit createImagePathReplacementEdit(String originalUrlOrPath, IPath resolvedSvgTargetPath, int urlStartOffset) {
+		String svgFileName = resolvedSvgTargetPath.lastSegment();
+		String pumlFileName = svgFileName.substring(0, svgFileName.lastIndexOf('.')) + ".puml";
+		IPath resolvedPumlTargetPath = resolvedSvgTargetPath.removeLastSegments(1).append(pumlFileName);
+		
+		List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
+		
+		if (foundPumlFiles.isEmpty()) {
+			return null;
+		}
+		
+		if (foundPumlFiles.size() > 1) {
+			FluentUI.log(IStatus.WARNING, "Found more than one PlantUML file for the path " + resolvedPumlTargetPath + ". Skipping this case.");
+			return null;
+		}
+		
+		// Add edit operation: replace .svg with .puml file in given Markdown image
+		int startOffset = urlStartOffset + originalUrlOrPath.toLowerCase().indexOf(".svg") + 1;
+		return new ReplaceEdit(startOffset, 3, "puml");
 	}
 	
 	private void addDeleteChange(List<Change> fileDeletions, IPath resolvedSvgTargetPath) {
