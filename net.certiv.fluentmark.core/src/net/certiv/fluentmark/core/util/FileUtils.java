@@ -321,5 +321,11 @@ public final class FileUtils {
 		
 		return Arrays.stream(files).collect(Collectors.toList());
 	}
+	
+	public static List<IFile> findExistingFilesForLocation(IPath fileLocation) {
+		return findFilesForLocation(fileLocation).stream()
+				.filter(file -> file.exists())
+				.collect(Collectors.toList());
+	}
 
 }

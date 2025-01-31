@@ -227,7 +227,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		String pumlFileName = svgFileName.substring(0, svgFileName.lastIndexOf('.')) + ".puml";
 		IPath resolvedPumlTargetPath = resolvedSvgTargetPath.removeLastSegments(1).append(pumlFileName);
 		
-		List<IFile> foundPumlFiles = FileUtils.findFilesForLocation(resolvedPumlTargetPath);
+		List<IFile> foundPumlFiles = FileUtils.findExistingFilesForLocation(resolvedPumlTargetPath);
 		
 		if (foundPumlFiles.isEmpty()) {
 			return null;
@@ -248,7 +248,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			return;
 		}
 		
-		List<IFile> svgFilesToDelete = FileUtils.findFilesForLocation(resolvedSvgTargetPath);
+		List<IFile> svgFilesToDelete = FileUtils.findExistingFilesForLocation(resolvedSvgTargetPath);
 		
 		if (svgFilesToDelete.isEmpty()) {
 			return;
