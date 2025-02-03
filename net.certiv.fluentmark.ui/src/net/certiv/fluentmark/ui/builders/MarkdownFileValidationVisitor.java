@@ -26,7 +26,7 @@ public class MarkdownFileValidationVisitor extends AbstractMarkerCalculationReso
 
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
-		/// look into projects
+		// look into projects
 		if (resource instanceof IContainer) {
 			return shouldVisitMembers((IContainer) resource);
 		}
@@ -74,7 +74,7 @@ public class MarkdownFileValidationVisitor extends AbstractMarkerCalculationReso
 		return false;
 	}
 
-	static boolean shouldVisitMembers(IContainer container) {
+	public static boolean shouldVisitMembers(IContainer container) {
 		// look into projects
 		if (container instanceof IProject) {
 			return true;

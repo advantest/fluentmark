@@ -435,100 +435,145 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
-         <command
-               commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
                icon="icons/obj16/fluentmark_doc.png"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <and>
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <adapt
-                           type="org.eclipse.core.resources.IProject">
-                     </adapt>
-                  </iterate>
-                  <iterate>
-                     <not>
+               id="net.certiv.fluentmark.ui.markdown.menu"
+               label="Markdown">
+            <command
+                  commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
+                  icon="icons/obj16/fluentmark_doc.png"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <and>
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.eclipse.core.resources.IProject">
+                        </adapt>
+                     </iterate>
+                     <iterate>
+                        <not>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isEnabled">
+                           </test>
+                        </not>
+                     </iterate>
+                     <iterate>
+                        <test
+                              forcePluginActivation="true"
+                              property="net.certiv.fluentmark.ui.isAccessible">
+                        </test>
+                     </iterate>
+                  </and>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.ui.removeMarkdownValidationsBuilder"
+                  icon="icons/obj16/fluentmark_doc.png"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <and>
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.eclipse.core.resources.IProject">
+                        </adapt>
+                     </iterate>
+                     <iterate>
                         <test
                               forcePluginActivation="true"
                               property="net.certiv.fluentmark.ui.isEnabled">
                         </test>
-                     </not>
-                  </iterate>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="net.certiv.fluentmark.ui.isAccessible">
-                     </test>
-                  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
-               icon="icons/obj16/fluentmark_doc.png"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <and>
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <adapt
-                           type="org.eclipse.core.resources.IProject">
-                     </adapt>
-                  </iterate>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="net.certiv.fluentmark.ui.isEnabled">
-                     </test>
-                  </iterate>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="net.certiv.fluentmark.ui.isAccessible">
-                     </test>
-                  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-         <command
-               commandId="net.certiv.fluentmark.ui.revalidate"
-               icon="icons/obj16/fluentmark_doc.png"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <and>
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <adapt
-                           type="org.eclipse.core.resources.IProject">
-                     </adapt>
-                  </iterate>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="net.certiv.fluentmark.ui.isEnabled">
-                     </test>
-                  </iterate>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="net.certiv.fluentmark.ui.isAccessible">
-                     </test>
-                  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
+                     </iterate>
+                     <iterate>
+                        <test
+                              forcePluginActivation="true"
+                              property="net.certiv.fluentmark.ui.isAccessible">
+                        </test>
+                     </iterate>
+                  </and>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.ui.revalidate"
+                  icon="icons/obj16/fluentmark_doc.png"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <and>
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.eclipse.core.resources.IProject">
+                        </adapt>
+                     </iterate>
+                     <iterate>
+                        <test
+                              forcePluginActivation="true"
+                              property="net.certiv.fluentmark.ui.isEnabled">
+                        </test>
+                     </iterate>
+                     <iterate>
+                        <test
+                              forcePluginActivation="true"
+                              property="net.certiv.fluentmark.ui.isAccessible">
+                        </test>
+                     </iterate>
+                  </and>
+               </visibleWhen>
+            </command>
+            <separator
+                  name="net.certiv.fluentmark.ui.validationGroup"
+                  visible="true">
+            </separator>
+            <menu
+                  id="net.certiv.fluentmark.ui.markdown.refactoring.menu"
+                  label="Refactoring">
+               <command
+                     commandId="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
+                     icon="icons/obj16/fluentmark_doc.png"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <or>
+                        <iterate
+                              ifEmpty="false"
+                              operator="and">
+                           <adapt
+                                 type="org.eclipse.core.resources.IResource">
+                           </adapt>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isAccessible">
+                           </test>
+                        </iterate>
+                        <iterate>
+                           <and>
+                              <instanceof
+                                    value="org.eclipse.jface.text.ITextSelection">
+                              </instanceof>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isActiveFluentEditor">
+                              </test>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isMarkdownSvgImageTextSelection">
+                              </test>
+                           </and>
+                        </iterate>
+                     </or>
+                  </visibleWhen>
+               </command>
+            </menu>
+         </menu>
       </menuContribution>
    </extension>
    
@@ -630,18 +675,23 @@
       </command>
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.AddMarkerCalculationBuilderHandler"
-            id="net.certiv.fluentmark.ui.addMarkdownValidationsBullder"
+            id="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
             name="Check Markdown code and references">
       </command>
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.RemoveMarkerCalculationBuilderHandler"
-            id="net.certiv.fluentmark.ui.removeMarkdownValidationsBullder"
+            id="net.certiv.fluentmark.ui.removeMarkdownValidationsBuilder"
             name="Do not check Markdown code and references">
       </command>
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.RecalculateMarkersHandler"
             id="net.certiv.fluentmark.ui.revalidate"
             name="Re-check Markdown code and references">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ReplaceSvgImagesWithPlantUmlImagesHandler"
+            id="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
+            name="Replace SVG images with PlantUML images (*.puml files)">
       </command>
    </extension>
 
@@ -917,6 +967,13 @@
             id="net.certiv.fluentmark.ui.ResourceAccessibleTester"
             namespace="net.certiv.fluentmark.ui"
             properties="isAccessible"
+            type="java.lang.Object">
+      </propertyTester>
+      <propertyTester
+            class="net.certiv.fluentmark.ui.propertytesters.ActiveEditorPartTester"
+            id="net.certiv.fluentmark.ui.activeEditorPartTester"
+            namespace="net.certiv.fluentmark.ui"
+            properties="activeEditorPart,isActiveFluentEditor,isMarkdownSvgImageTextSelection"
             type="java.lang.Object">
       </propertyTester>
    </extension>

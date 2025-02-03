@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.util;
 
@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 
 import java.net.MalformedURLException;
@@ -288,6 +289,32 @@ public class EditorUtils {
 			Log.error(String.format("Could not open URL %s in web browser", url), e );
 		}
 		
+		return null;
+	}
+	
+	public static IEditorPart getActiveEditorPart() {
+		try {
+			return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		} catch (Exception e) {
+			// ignore any exception in case some UI component is not available or not ready
+		}
+		return null;
+	}
+	
+	public static FluentEditor getActiveFluentEditor() {
+		IEditorPart activeEditorPart = getActiveEditorPart();
+		if (activeEditorPart instanceof FluentEditor) {
+			return (FluentEditor) activeEditorPart;
+		}
+		return null;
+	}
+	
+	public static ISelection getCurrentSelection() {
+		try {
+			return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection();
+		} catch (Exception e) {
+			// ignore any exception in case some UI component is not available or not ready
+		}
 		return null;
 	}
 	

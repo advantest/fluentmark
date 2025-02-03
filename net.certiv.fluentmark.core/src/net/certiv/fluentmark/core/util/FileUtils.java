@@ -7,23 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.util;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.URIUtil;
-
-import org.osgi.framework.Bundle;
-
-import net.certiv.fluentmark.core.FluentCore;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -38,11 +21,32 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.URIUtil;
+import org.osgi.framework.Bundle;
+
+import net.certiv.fluentmark.core.FluentCore;
 
 
 public final class FileUtils {
@@ -238,11 +242,31 @@ public final class FileUtils {
 		String[] segments = resource.getLocation().segments();
 		if (segments != null && segments.length > 0) {
 			for (String segment: segments) {
-				if ("doc".equals(segment)
-						|| segment.startsWith("doc_")) {
+				if (isDocFolder(segment)) {
 					return true;
 				}
 			}
+		}
+		return false;
+	}
+	
+	public static IFolder getParentDocFolder(IResource resource) {
+		IResource currentResource = resource;
+		while (currentResource != null && !isDocFolder(currentResource.getName())) {
+			currentResource = currentResource.getParent();
+		}
+		
+		if (currentResource instanceof IFolder && isDocFolder(currentResource.getName())) {
+			return (IFolder) currentResource;
+		}
+		
+		return null;
+	}
+	
+	private static boolean isDocFolder(String pathSegment) {
+		if (pathSegment != null
+				&& (pathSegment.equals("doc") || pathSegment.startsWith("doc_"))) {
+			return true;
 		}
 		return false;
 	}
@@ -277,6 +301,42 @@ public final class FileUtils {
 	
 	public static boolean isAccessibleSvgFile(IFile file) {
 		return isSvgFile(file) && file.isAccessible();
+	}
+	
+	public static IPath resolveToAbsoluteResourcePath(String targetFilePath, IFile currentMarkdownFile) {
+		IPath resourceRelativePath = new Path(targetFilePath);
+		return toAbsolutePath(resourceRelativePath, currentMarkdownFile);
+	}
+	
+	public static IPath toAbsolutePath(IPath resourceRelativePath, IResource currentResource) {
+		IPath absolutePath;
+		if (resourceRelativePath.equals(currentResource.getLocation())) {
+			absolutePath = currentResource.getLocation();
+		} else {
+			absolutePath = currentResource.getLocation().removeLastSegments(1).append(resourceRelativePath);
+		}
+		return absolutePath;
+	}
+	
+	public static List<IFile> findFilesForLocation(IPath fileLocation) {
+		if (fileLocation == null) {
+			return Collections.emptyList();
+		}
+		
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		
+		File file = new File(fileLocation.makeAbsolute().toString());
+		URI fileUri = file.toURI();
+		
+		IFile[] files = workspaceRoot.findFilesForLocationURI(fileUri);
+		
+		return Arrays.stream(files).collect(Collectors.toList());
+	}
+	
+	public static List<IFile> findExistingFilesForLocation(IPath fileLocation) {
+		return findFilesForLocation(fileLocation).stream()
+				.filter(file -> file.exists())
+				.collect(Collectors.toList());
 	}
 	
 	private static OperatingSystem getOs() {
