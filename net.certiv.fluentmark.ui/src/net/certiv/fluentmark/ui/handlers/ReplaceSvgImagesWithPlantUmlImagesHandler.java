@@ -16,13 +16,18 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.refactoring.ReplaceSvgWithPlantUmlRefactoring;
 import net.certiv.fluentmark.ui.refactoring.wizards.ReplaceSvgWithPlantUmlWizard;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler implements IHandler {
 
@@ -30,26 +35,51 @@ public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler i
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
 		try {
-			// ISelection selection = HandlerUtil.getCurrentSelection(event);
-			// TODO also handle text selections
+			ISelection selection = HandlerUtil.getCurrentSelection(event);
 			
-			IStructuredSelection structuredSelection = HandlerUtil.getCurrentStructuredSelection(event);
+			ReplaceSvgWithPlantUmlRefactoring refactoring = null;
+			String dialogTile = "Refactoring";
 			
-			if (structuredSelection != null && !structuredSelection.isEmpty()) {
-				List<IResource> rootResources = structuredSelection.stream()
-					.filter(s -> s instanceof IResource)
-					.map(s -> (IResource) s)
-					.collect(Collectors.toList());
-				
-				if (rootResources.isEmpty()) {
+			if (selection instanceof ITextSelection) {
+				// work-around, since HandlerUtil.getCurrentSelection(event) sometimes does not return valid offset values
+				ISelection currentSelection = EditorUtils.getCurrentSelection();
+				if (!(currentSelection instanceof ITextSelection)) {
 					return null;
 				}
 				
-				ReplaceSvgWithPlantUmlRefactoring refactoring = new ReplaceSvgWithPlantUmlRefactoring(rootResources);
+				ITextSelection textSelection = (ITextSelection) currentSelection;
+				
+				FluentEditor fluentEditor = EditorUtils.getActiveFluentEditor();
+				if (fluentEditor != null) {
+					IFile markdownFile = fluentEditor.getEditorInputFile();
+					if (markdownFile != null ) {
+						dialogTile = "Replace SVG image with PlantUML image";
+						refactoring = new ReplaceSvgWithPlantUmlRefactoring(markdownFile, fluentEditor.getDocument(), textSelection);
+					}
+				}
+			} else {
+				IStructuredSelection structuredSelection = HandlerUtil.getCurrentStructuredSelection(event);
+				
+				if (structuredSelection != null && !structuredSelection.isEmpty()) {
+					List<IResource> rootResources = structuredSelection.stream()
+						.filter(s -> s instanceof IResource)
+						.map(s -> (IResource) s)
+						.collect(Collectors.toList());
+					
+					if (rootResources.isEmpty()) {
+						return null;
+					}
+					
+					dialogTile = "Replace SVG images in Markdown with PlantUML images";
+					refactoring = new ReplaceSvgWithPlantUmlRefactoring(rootResources);
+				}
+			}
+			
+			if (refactoring != null) {
 				ReplaceSvgWithPlantUmlWizard wizard = new ReplaceSvgWithPlantUmlWizard(refactoring);
 				RefactoringWizardOpenOperation refactoringOperation = new RefactoringWizardOpenOperation(wizard);
 				
-				refactoringOperation.run(HandlerUtil.getActiveShell(event), "Replace SVG images in Markdown with PlantUML images");
+				refactoringOperation.run(HandlerUtil.getActiveShell(event), dialogTile);
 			}
 		} catch (InterruptedException e) {
 			return null; // User action got cancelled

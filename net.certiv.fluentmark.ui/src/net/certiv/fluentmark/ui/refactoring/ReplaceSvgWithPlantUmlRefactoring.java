@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
@@ -48,6 +49,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.util.FlexmarkUtil;
 
 
 public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
@@ -56,17 +58,24 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	private final static String MSG_AND_DELETE_SVGS = " and remove obsolete *.svg files";
 	
 	private final Set<IResource> rootResources = new HashSet<>();
-	private Map<IFile, IDocument> collectedMarkdownFiles;
+	private IDocument markdownFileDocument;
+	private ITextSelection textSelection;
 	private final MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 	
 	private boolean deleteObsoleteSvgFiles = true;
 	
-	public ReplaceSvgWithPlantUmlRefactoring(IResource rootResource) {
-		this.rootResources.add(rootResource);
+	public ReplaceSvgWithPlantUmlRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
+		this.rootResources.add(markdownFile);
+		this.markdownFileDocument = document;
+		this.textSelection = textSelection;
 	}
 	
 	public ReplaceSvgWithPlantUmlRefactoring(List<IResource> rootResources) {
 		this.rootResources.addAll(rootResources);
+	}
+	
+	public boolean hasTextSelection() {
+		return textSelection != null;
 	}
 	
 	public Set<IResource> getRootResources() {
@@ -117,42 +126,57 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		collectedMarkdownFiles = new HashMap<IFile, IDocument>();
 		ArrayList<Change> fileModifications = new ArrayList<>();
 		ArrayList<Change> fileDeletions = new ArrayList<>();
 		
-		for (IResource rootResource: rootResources) {
-			MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
-			markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
-			rootResource.accept(markdownFilesCollector);
-			addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
-		}
-		
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
-		
-		// go through all markdown files in the given resource selection
-		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
-			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+		if (textSelection != null && rootResources.size() == 1 && markdownFileDocument != null) {
+			IFile markdownFile = (IFile) rootResources.iterator().next();
+			Image imageNode = FlexmarkUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 			
-			// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+			if (imageNode != null) {
+				TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownFileDocument);
+				MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+				markdownFileChange.setEdit(rootEditOnMarkdownFile);
+				
+				createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
+						markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
+			}
+		} else {
+			Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
 			
-			// prepare root change, but only add it to file modification edits if we find at least one text edit
-			TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownDocument);
-			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
-			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			for (IResource rootResource: rootResources) {
+				MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
+				markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
+				rootResource.accept(markdownFilesCollector);
+				addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
+			}
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
+			SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
 			
-			// parse markdown code
-			Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
-			
-			// go through all image links and create text edits
-			createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
-					fileModifications, fileDeletions);
-			subMonitor.worked(4);
+			// go through all markdown files in the given resource selection
+			for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
+				IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+				
+				// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+				
+				// prepare root change, but only add it to file modification edits if we find at least one text edit
+				TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownDocument);
+				MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+				markdownFileChange.setEdit(rootEditOnMarkdownFile);
+				
+				// read file contents
+				String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+				subMonitor.worked(1);
+				
+				// parse markdown code
+				Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
+				subMonitor.worked(5);
+				
+				// go through all image links and create text edits
+				createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
+						fileModifications, fileDeletions);
+				subMonitor.worked(4);
+			}
 		}
 		
 		ArrayList<Change> allChanges = new ArrayList<>(fileModifications.size() + fileDeletions.size());
@@ -161,6 +185,35 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 		String changeName = MSG_ADAPT_LINKS + (fileDeletions.size() > 0 ? MSG_AND_DELETE_SVGS : "");
 		CompositeChange change = new CompositeChange(changeName, allChanges.toArray(new Change[allChanges.size()]));
 		return change;
+	}
+	
+	private void createAndCollectEditsAndDeletionsForImage(IFile markdownFile, Image imageNode, TextChange markdownFileChange,
+			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
+		
+		BasedSequence urlSequence = imageNode.getUrl();
+		String urlOrPath = urlSequence.toString();
+		
+		// check only svg file links
+		if (urlOrPath.toLowerCase().startsWith("http")
+				|| !urlOrPath.toLowerCase().endsWith(".svg")) {
+			return;
+		}
+		
+		// check if there is an equally named puml file
+		IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+		
+		TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
+		if (replacementEdit != null) {
+			rootEditOnMarkdownFile.addChild(replacementEdit);
+			
+			// add our file change, since we now know we have at least one edit in that file
+			if (!fileModifications.contains(markdownFileChange)) {
+				fileModifications.add(markdownFileChange);
+			}
+			
+			// Add delete operation: delete obsolete .svg file
+			addDeleteChange(fileDeletions, resolvedSvgTargetPath);
+		}
 	}
 
 	private void createAndCollectEditsAndDeletions(IFile markdownFile, TextChange markdownFileChange,
@@ -176,30 +229,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 			}
 			
 			Image imageNode = (Image) astNode;
-			BasedSequence urlSequence = imageNode.getUrl();
-			String urlOrPath = urlSequence.toString();
-			
-			// check only svg file links
-			if (urlOrPath.toLowerCase().startsWith("http")
-					|| !urlOrPath.toLowerCase().endsWith(".svg")) {
-				continue;
-			}
-			
-			// check if there is an equally named puml file
-			IPath resolvedSvgTargetPath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
-			
-			TextEdit replacementEdit = createImagePathReplacementEdit(urlOrPath, resolvedSvgTargetPath, urlSequence.getStartOffset());
-			if (replacementEdit != null) {
-				rootEditOnMarkdownFile.addChild(replacementEdit);
-				
-				// add our file change, since we now know we have at least one edit in that file
-				if (!fileModifications.contains(markdownFileChange)) {
-					fileModifications.add(markdownFileChange);
-				}
-				
-				// Add delete operation: delete obsolete .svg file
-				addDeleteChange(fileDeletions, resolvedSvgTargetPath);
-			}
+			createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
+					markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
 		}
 	}
 	

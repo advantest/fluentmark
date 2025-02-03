@@ -550,6 +550,11 @@ public class FluentEditor extends TextEditor
 		}
 		return input;
 	}
+	
+	public IFile getEditorInputFile() {
+		IEditorInput input = getEditorInput();
+		return input.getAdapter(IFile.class);
+	}
 
 	public IDocument getDocument() {
 		IEditorInput input = getEditorInput();
