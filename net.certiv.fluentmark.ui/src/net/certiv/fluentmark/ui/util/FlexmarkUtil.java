@@ -30,7 +30,7 @@ public class FlexmarkUtil {
 		MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 		Document markdownAst = markdownParser.parseMarkdown(markdownFileContent);
 		
-		ReversiblePeekingIterator<Node> iter = markdownAst.getChildIterator();
+		ReversiblePeekingIterator<Node> iter = markdownAst.getDescendants().iterator();
 		while (iter.hasNext()) {
 			Node node = iter.next();
 			
