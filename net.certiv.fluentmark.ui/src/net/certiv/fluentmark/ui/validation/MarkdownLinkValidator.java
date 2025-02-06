@@ -324,7 +324,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				endOffset += 1;
 			}
 			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
