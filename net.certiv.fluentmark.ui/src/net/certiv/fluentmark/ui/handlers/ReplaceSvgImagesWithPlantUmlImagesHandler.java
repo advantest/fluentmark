@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.ui.handlers;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -18,6 +19,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
@@ -64,8 +66,8 @@ public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler i
 				
 				if (structuredSelection != null && !structuredSelection.isEmpty()) {
 					List<IResource> rootResources = structuredSelection.stream()
-						.filter(s -> s instanceof IResource)
-						.map(s -> (IResource) s)
+						.map(s -> getResourceForSelectedElement(s))
+						.filter(Objects::nonNull)
 						.collect(Collectors.toList());
 					
 					if (rootResources.isEmpty()) {
@@ -94,5 +96,14 @@ public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler i
 		
 		return null;
 	}
-
+	
+	private IResource getResourceForSelectedElement(Object selectedElement) {
+		if (selectedElement != null) {
+			IAdapterManager adapterManager = Platform.getAdapterManager();
+			if (adapterManager != null) {
+				return adapterManager.getAdapter(selectedElement, IResource.class);
+			}
+		}
+		return null;
+	}
 }
