@@ -18,6 +18,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -67,6 +69,11 @@ public class ReplaceSvgImagesWithPlantUmlImagesHandler extends AbstractHandler i
 						.collect(Collectors.toList());
 					
 					if (rootResources.isEmpty()) {
+						MessageDialog dialog = new MessageDialog(
+								HandlerUtil.getActiveShell(event), "Operation failed", null,
+								"Could not perform refactoring operation. No directory or file found in the tree selection.",
+								MessageDialog.ERROR, 0, "Close");
+						dialog.open();
 						return null;
 					}
 					
