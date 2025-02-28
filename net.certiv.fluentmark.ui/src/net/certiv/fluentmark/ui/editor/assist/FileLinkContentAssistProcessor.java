@@ -45,7 +45,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
-	private ITextEditor editor;
+	private final ITextEditor editor;
 	
 	public FileLinkContentAssistProcessor(ITextEditor editor) {
 		this.editor = editor;
