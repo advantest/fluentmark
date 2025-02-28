@@ -3,6 +3,7 @@
    <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
    <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
    <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
+   <extension-point id="content.assist.processor" name="Addtional content assist processor for Fluent Editor" schema="schema/net.certiv.fluentmark.ui.contentAssistProcessor.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition

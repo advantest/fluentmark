@@ -16,6 +16,7 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.texteditor.HippieProposalProcessor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -64,6 +65,7 @@ import net.certiv.fluentmark.ui.editor.text.ScannerHtml;
 import net.certiv.fluentmark.ui.editor.text.ScannerMarkup;
 import net.certiv.fluentmark.ui.editor.text.ScannerMath;
 import net.certiv.fluentmark.ui.editor.text.ScannerUml;
+import net.certiv.fluentmark.ui.extensionpoints.ContentAssistProcessorsManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class FluentSourceViewerConfiguration extends TextSourceViewerConfiguration {
@@ -246,7 +248,15 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
 		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
 		processor.addDelegate(templatesProcessor);
-		if (enableHippie) processor.addDelegate(hippieProcessor);
+		if (enableHippie) {
+			processor.addDelegate(hippieProcessor);
+		}
+		
+		List<IContentAssistProcessor> additionalContentAssistProcessors =  ContentAssistProcessorsManager.getInstance()
+				.getAdditionalContentAssistProcessors();
+		for (IContentAssistProcessor additionalProcessor: additionalContentAssistProcessors) {
+			processor.addDelegate(additionalProcessor);
+		}
 
 		ContentAssistant assistant = new ContentAssistant();
 		configure(assistant, fPreferenceStore);
