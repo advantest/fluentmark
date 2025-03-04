@@ -137,7 +137,7 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 			
 			currentLine = lineLength > 0 ? document.get(lineOffset, lineLength) : "";
 			
-			if (currentLine.isBlank() && currentLine.length() <= 1) {
+			if (currentLine.equals("\n") || currentLine.equals("\r\n")) {
 				inEmptyLine = true;
 			}
 		} catch (BadLocationException ex) {
