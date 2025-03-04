@@ -53,6 +53,12 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 		IN_LINE_TEMPLATE_NAMES.add("link");
 		IN_LINE_TEMPLATE_NAMES.add("image");
 		IN_LINE_TEMPLATE_NAMES.add("header_id");
+		
+		// work-around: add some template names from another plug-in
+		// (otherwise we would need another TemplateCompletionProcessor)
+		IN_LINE_TEMPLATE_NAMES.add("SWREQ");
+		IN_LINE_TEMPLATE_NAMES.add("ARC42");
+		IN_LINE_TEMPLATE_NAMES.add("RR");
 	}
 
 	private final SourceTemplateContextType contextType;
