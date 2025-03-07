@@ -252,7 +252,6 @@
 							<args>
 								<arg>--style=expanded</arg>
 								<arg>--no-source-map</arg>
-								<arg>--update</arg>
 								<arg>${project.basedir}/resources/css/advantest.scss:${project.basedir}/resources/css/advantest.css</arg>
 							</args>
 						</configuration>
@@ -268,7 +267,6 @@
 							<args>
 								<arg>--style=compressed</arg>
 								<arg>--no-source-map</arg>
-								<arg>--update</arg>
 								<arg>${project.basedir}/resources/css/advantest.scss:${project.basedir}/resources/css/advantest.min.css</arg>
 							</args>
 						</configuration>
