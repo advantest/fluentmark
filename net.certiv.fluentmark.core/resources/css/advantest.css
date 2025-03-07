@@ -629,6 +629,9 @@ code, tt {
 svg a {
   cursor: pointer;
 }
+svg a text:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 400px) {
   body {
