@@ -19,6 +19,7 @@
 	
 	<properties>
 		<markdown-core-version>1.0.4-20241017-1223</markdown-core-version>
+		<sass-version>1.85.1</sass-version>
 	</properties>
 
 	<dependencies>
@@ -232,6 +233,44 @@
 						</configuration>
 					</execution>
 
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>us.hebi.sass</groupId>
+				<artifactId>sass-cli-maven-plugin</artifactId>
+				<version>1.0.3</version>
+				<executions>
+					<execution>
+						<id>sass-exec-expanded</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<sassVersion>${sass-version}</sassVersion>
+							<args>
+								<arg>--style=expanded</arg>
+								<arg>--no-source-map</arg>
+								<arg>${project.basedir}/resources/css/advantest.scss:${project.basedir}/resources/css/advantest.css</arg>
+							</args>
+						</configuration>
+					</execution>
+					<execution>
+						<id>sass-exec-compressed</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<sassVersion>${sass-version}</sassVersion>
+							<args>
+								<arg>--style=compressed</arg>
+								<arg>--no-source-map</arg>
+								<arg>${project.basedir}/resources/css/advantest.scss:${project.basedir}/resources/css/advantest.min.css</arg>
+							</args>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 
