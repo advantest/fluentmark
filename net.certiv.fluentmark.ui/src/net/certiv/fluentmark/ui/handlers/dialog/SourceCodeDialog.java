@@ -22,10 +22,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class SourceCodeDialog extends Dialog {
 	
+	private static final String CONTENTS_SOURCE_CODE = "contents: 'Ready...',";
+	
 	private final String sourceCode;
 	private final String contents;
 	private final String title;
-
+	
 	public SourceCodeDialog(Shell parentShell, String title, String pageSourceCode, String contentsSourceCode) {
 		super(parentShell);
 		this.sourceCode = pageSourceCode;
@@ -44,8 +46,13 @@ public class SourceCodeDialog extends Dialog {
         			.map(line -> "\t\t\t" + line)
         			.collect(Collectors.joining("\n"));
         	
-        	replacementContent = "<span id=\"app\" v-html=\"contents\">\n\n" + replacementContent + "\n\n\t\t</span>";
-        	text = text.replace("<span id=\"app\" v-html=\"contents\"></span>", replacementContent);
+        	replacementContent = CONTENTS_SOURCE_CODE.replace("'Ready...'", "`" + replacementContent + "`");
+        	text = text.replace(CONTENTS_SOURCE_CODE, replacementContent);
+        	
+        	// clean up code if browser engine is edge or IE
+        	if (!text.contains("<span id=\"app\" v-html=\"contents\">")) {
+        		text = text.replace("<span id=\"app\">", "<span id=\"app\" v-html=\"contents\">");
+        	}
         }
         
         Text textField = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
