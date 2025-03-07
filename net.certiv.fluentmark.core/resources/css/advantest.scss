@@ -448,6 +448,10 @@ code, tt {
   border-radius: 3px;
 }
 
+svg a {
+  cursor: pointer;
+}
+
 @media (max-width: 400px) {
   body {
     font-size: 12px;

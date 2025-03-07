@@ -521,6 +521,10 @@ code, tt {
   background-color: #f8f8f8;
   border-radius: 3px; }
 
+svg a {
+  cursor: pointer;
+}
+
 @media (max-width: 400px) {
   body {
     font-size: 12px;
