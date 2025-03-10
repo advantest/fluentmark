@@ -49,7 +49,7 @@ public class SourceCodeDialog extends Dialog {
         	replacementContent = CONTENTS_SOURCE_CODE.replace("'Ready...'", "`" + replacementContent + "`");
         	text = text.replace(CONTENTS_SOURCE_CODE, replacementContent);
         	
-        	// clean up code if browser engine is edge or IE
+        	// clean up code if browser engine is edge
         	if (!text.contains("<span id=\"app\" v-html=\"contents\">")) {
         		text = text.replace("<span id=\"app\">", "<span id=\"app\" v-html=\"contents\">");
         	}
