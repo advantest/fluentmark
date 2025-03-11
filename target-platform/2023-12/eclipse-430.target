@@ -29,11 +29,13 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://hallvard.github.io/plantuml/"/>
-			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.30"/>
-			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.30"/>
+			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.32.202405281552"/>
+			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.32.202405281552"/>
 			<unit id="net.sourceforge.plantuml.lib.elk.feature.feature.group" version="0.7.1"/>
-			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2023.11"/>
+			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2024.5.202405281552"/>
 			<unit id="net.sourceforge.plantuml.lib.jlatexmath.feature.feature.group" version="1.0.7"/>
+			<unit id="net.sourceforge.plantuml.ecore.feature.source.feature.group" version="1.1.32.202405281552"/>
+			<unit id="net.sourceforge.plantuml.feature.source.feature.group" version="1.1.32.202405281552"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://www.certiv.net/updates/net.certiv.spellchecker.site/"/>
