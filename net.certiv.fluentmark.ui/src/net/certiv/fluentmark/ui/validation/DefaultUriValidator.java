@@ -18,16 +18,20 @@ import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-
+import java.io.BufferedReader;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Duration;
 
 public class DefaultUriValidator implements IUriValidator {
@@ -84,15 +88,21 @@ public class DefaultUriValidator implements IUriValidator {
 			
 		// we only need HTTP HEAD, no page content, just reachability
 		HttpRequest headRequest = HttpRequest.newBuilder()
-			      .method("HEAD", HttpRequest.BodyPublishers.noBody())    
-			      .uri(uri)
-			      .timeout(Duration.ofSeconds(2))
-			      .build();
+				.method("HEAD", HttpRequest.BodyPublishers.noBody())
+				.uri(uri)
+				// Some web sites / servers check the user agent header and expect certain common values, otherwise they answer with http status code 403.
+				// Hint: call curl -v https://your-domain.com to check, which user agent header is sent by curl (which is usually successful)
+				// and use the same use agent value here
+				.header("User-Agent", "curl/8.11.0")
+				.header("Accept", "*/*")
+				.timeout(Duration.ofSeconds(2))
+				.build();
 		
 		int statusCode = -1;
 		String errorMessage = null;
 		try {
-			statusCode = defaultHttpClient.send(headRequest, BodyHandlers.discarding()).statusCode(); 
+			HttpResponse <Void> response = defaultHttpClient.send(headRequest, BodyHandlers.discarding());
+			statusCode = response.statusCode(); 
 		} catch (IOException | InterruptedException e) {
 			errorMessage = e.getMessage();
 			statusCode = -404;
