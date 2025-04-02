@@ -9,17 +9,7 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-
-import org.eclipse.core.runtime.CoreException;
-
-import net.certiv.fluentmark.ui.markers.MarkerCalculator;
-
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -28,11 +18,14 @@ import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.Duration;
+import java.util.Map;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
+
+import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class DefaultUriValidator implements IUriValidator {
 	
