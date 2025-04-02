@@ -46,9 +46,9 @@ public class DefaultUriValidator implements IUriValidator {
 	HttpClient getHttpClient() {
 		if (this.httpClient == null) {
 			this.httpClient = HttpClient.newBuilder()
-					  .version(Version.HTTP_2)
-					  .followRedirects(Redirect.NEVER)
-					  .build();
+					.version(Version.HTTP_2)
+					.followRedirects(Redirect.NORMAL)
+					.build();
 		}
 		return this.httpClient;
 	}
