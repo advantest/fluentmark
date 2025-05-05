@@ -13,6 +13,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import net.certiv.fluentmark.core.convert.ConverterType;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -100,6 +101,11 @@ public class ConfigurationProvider implements IConfigurationProvider {
 	@Override
 	public String getBuiltinCssSettingsFile() {
 		return store.getString(IConfigurationProvider.EDITOR_CSS_BUILTIN);
+	}
+
+	@Override
+	public String getPreferredLineEnding() {
+		return Strings.EOL;
 	}
 
 }

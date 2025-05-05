@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 public class Cmd {
-
+	
 	/**
 	 * Execute a command in a subprocess
 	 * 
@@ -28,6 +28,24 @@ public class Cmd {
 	 * @return output data
 	 */
 	public static synchronized CmdResult process(String[] cmd, String base, String data) {
+		return process(cmd, base, data, Strings.EOL);
+	}
+
+	/**
+	 * Execute a command in a subprocess
+	 * 
+	 * @param cmd command line argument array defining the command and options. The command must execute
+	 *            as a standard filter: stdIn to stdOut.
+	 * @param data input data
+	 * @param text
+	 * @param preferredLineEnding the preferred line ending, usually OS-dependant.
+	 * @return output data
+	 */
+	public static synchronized CmdResult process(String[] cmd, String base, String data, String preferredLineEnding) {
+		if (!preferredLineEnding.equals("\n") && !preferredLineEnding.equals("\r\n")) {
+			throw new IllegalStateException("Illegal line ending! Expected \\\\n or \\r\\n.");
+		}
+		
 		final StringBuilder sb = new StringBuilder();
 		final StringBuilder errSb = new StringBuilder();
 		final ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -56,11 +74,11 @@ public class Cmd {
 			// read output from the process
 			String line;
 			while ((line = br.readLine()) != null) {
-				sb.append(line + Strings.EOL);
+				sb.append(line + preferredLineEnding);
 			}
 			
 			while((line = errBr.readLine()) != null) {
-				errSb.append(line + Strings.EOL);
+				errSb.append(line + preferredLineEnding);
 			}
 			
 			return new CmdResult(sb.toString(), errSb.toString());

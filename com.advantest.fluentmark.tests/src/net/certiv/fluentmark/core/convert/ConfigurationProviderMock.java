@@ -21,6 +21,7 @@ import java.net.URL;
 import java.io.IOException;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.util.FileUtils;
 
 public class ConfigurationProviderMock implements IConfigurationProvider {
 	
@@ -48,7 +49,15 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 
 	@Override
 	public String getPandocCommand() {
-		return "/usr/local/bin/pandoc";
+		if (FileUtils.isOsLinuxOrUnix()) {
+			return "/usr/bin/pandoc";
+		} else if (FileUtils.isOsMacOs()) {
+			return "/usr/local/bin/pandoc";
+		} else if (FileUtils.isOsWindows()) {
+			return "C:\\Program Files\\Pandoc\\pandoc.exe";
+		} else {
+			throw new IllegalStateException("Pandoc command not found.");
+		}
 	}
 
 	@Override
@@ -102,6 +111,11 @@ public class ConfigurationProviderMock implements IConfigurationProvider {
 		} catch (IOException | URISyntaxException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public String getPreferredLineEnding() {
+		return "\n";
 	}
 
 }

@@ -42,5 +42,7 @@ public interface IConfigurationProvider {
 	String getCustomCssSettingsFile();
 	
 	String getBuiltinCssSettingsFile();
+	
+	String getPreferredLineEnding();
 
 }

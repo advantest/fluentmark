@@ -70,6 +70,11 @@ public class FluentBrowserUrlListener implements LocationListener {
 		
 		// open links to non-files in a separate web browser
 		if (!hasFileScheme(targetUri)) {
+			// special case when internal browser is used with Edge engine (on MS Windows):
+			// we ignore that special URL and do nothing
+			if (url.startsWith("data:")) {
+				return;
+			}
 			event.doit = false;
 			EditorUtils.openUriInWebBrowser(targetUri);
 			return;

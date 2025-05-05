@@ -448,6 +448,17 @@ code, tt {
   border-radius: 3px;
 }
 
+// imrpove rendering of links in SVGs, esp. on Linux
+svg {
+  a {
+	cursor: pointer;
+	
+	text:hover {
+		text-decoration: underline;
+	}
+  }
+}
+
 @media (max-width: 400px) {
   body {
     font-size: 12px;

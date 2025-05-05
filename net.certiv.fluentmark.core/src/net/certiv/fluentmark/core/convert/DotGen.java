@@ -42,7 +42,7 @@ public class DotGen {
 		String[] args = DOTOPS;
 		args[0] = cmd;
 
-		CmdResult result = Cmd.process(args, null, data);
+		CmdResult result = Cmd.process(args, null, data, configurationProvider.getPreferredLineEnding());
 		
 		if (result.hasErrors()) {
 			return createHtmlErrorMessage("Problems occured while translating DOT code:\n\n" + result.errOutput);

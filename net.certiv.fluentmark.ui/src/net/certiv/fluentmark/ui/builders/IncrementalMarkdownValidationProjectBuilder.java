@@ -9,23 +9,17 @@
  */
 package net.certiv.fluentmark.ui.builders;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
+import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import java.util.Map;
-
-import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.util.MarkdownFileCountingVisitor;
 
 
 public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProjectBuilder {
@@ -73,35 +67,4 @@ public class IncrementalMarkdownValidationProjectBuilder extends IncrementalProj
 		markdownFileVisitor.setMonitor(monitor);
 		resourceDelta.accept(markdownFileVisitor);
 	}
-	
-	private static class MarkdownFileCountingVisitor implements IResourceVisitor, IResourceDeltaVisitor {
-		
-		private int numMdFilesFound = 0;
-
-		@Override
-		public boolean visit(IResource resource) throws CoreException {
-			if (resource instanceof IContainer) {
-				return MarkdownFileValidationVisitor.shouldVisitMembers((IContainer) resource);
-			}
-			
-			if (resource instanceof IFile
-					&& FileUtils.isMarkdownFile((IFile) resource)) {
-				numMdFilesFound++;
-			}
-			
-			return false;
-		}
-
-		@Override
-		public boolean visit(IResourceDelta delta) throws CoreException {
-			IResource resource = delta.getResource();
-			return visit(resource);
-		}
-		
-		public int getNumMdFilesFound() {
-			return this.numMdFilesFound;
-		}
-		
-	}
-
 }

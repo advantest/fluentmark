@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.spell.SpellingEngine;
 import net.certiv.spellchecker.SpellCheckEngine;
@@ -51,6 +52,30 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 	private static final RGB DEF_CODE = new RGB(0, 0, 0);
 	private static final RGB DEF_CODE_BG = new RGB(244, 244, 244);
+	
+	private String getDefaultPandocCommand() {
+		if (FileUtils.isOsLinuxOrUnix()) {
+			return "/usr/bin/pandoc";
+		} else if (FileUtils.isOsMacOs()) {
+			return "/usr/local/bin/pandoc";
+		} else if (FileUtils.isOsWindows()) {
+			return "C:\\Program Files\\Pandoc\\pandoc.exe";
+		} else {
+			return "";
+		}
+	}
+	
+	private String getDefaultDotCommand() {
+		if (FileUtils.isOsLinuxOrUnix()) {
+			return "/usr/bin/dot";
+		} else if (FileUtils.isOsMacOs()) {
+			return "/usr/local/bin/dot";
+		} else if (FileUtils.isOsWindows()) {
+			return "C:\\Program Files\\Graphviz\\bin\\dot.exe";
+		} else {
+			return "";
+		}
+	}
 
 	@Override
 	public void initializeDefaultPreferences() {
@@ -75,12 +100,12 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		store.setDefault(EDITOR_UMLMODE_ENABLED, true);
 		store.setDefault(EDITOR_DOTMODE_ENABLED, true);
-		store.setDefault(EDITOR_DOT_PROGRAM, "/usr/bin/dot");
+		store.setDefault(EDITOR_DOT_PROGRAM, getDefaultDotCommand());
 
 		store.setDefault(EDITOR_PANDOC_ADDTOC, false);
 		store.setDefault(EDITOR_PANDOC_MATHJAX, true);
 		store.setDefault(EDITOR_PANDOC_SMART, true);
-		store.setDefault(EDITOR_PANDOC_PROGRAM, "/usr/bin/pandoc");
+		store.setDefault(EDITOR_PANDOC_PROGRAM, getDefaultPandocCommand());
 		store.setDefault(EDITOR_PANDOC_TEMPLATES, "");
 		store.setDefault(EDITOR_PANDOC_TEMPLATE, "");
 		

@@ -310,42 +310,130 @@ public class MarkdownLinkValidatorIT {
 		Optional<TestMarker> marker = findFirstMarkerForLine(3, file);
 		assertFalse(marker.isPresent());
 		
-		marker = findFirstMarkerForLine(4, file);
-		assertTrue(marker.isPresent());
-		assertEquals(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, marker.get().getType());
-		String markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
-		assertNotNull(markerMessage);
-		assertTrue(markerMessage.contains("does not exist"));
-		assertEquals(IMarker.SEVERITY_ERROR, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		assertMarker(file, 4,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"does not exist");
 		
 		marker = findFirstMarkerForLine(6, file);
 		assertFalse(marker.isPresent());
 		
-		marker = findFirstMarkerForLine(8, file);
-		assertTrue(marker.isPresent());
-		assertEquals(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, marker.get().getType());
-		markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
-		assertNotNull(markerMessage);
-		assertTrue(markerMessage.contains("not a file"));
-		assertTrue(markerMessage.contains("Please add a trailing '/'"));
-		assertEquals(IMarker.SEVERITY_WARNING, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		assertMarker(file, 8,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_WARNING,
+				"not a file",
+				"Please add a trailing '/'");
 		
-		marker = findFirstMarkerForLine(11, file);
-		assertTrue(marker.isPresent());
-		assertEquals(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, marker.get().getType());
-		markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
-		assertNotNull(markerMessage);
-		assertTrue(markerMessage.contains("not a file"));
-		assertTrue(markerMessage.contains("remove the trailing '/'"));
-		assertEquals(IMarker.SEVERITY_ERROR, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		assertMarker(file, 11,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"not a file",
+				"remove the trailing '/'");
 		
-		marker = findFirstMarkerForLine(13, file);
+		assertMarker(file, 13,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"does not exist");
+	}
+	
+	@Test
+	public void testEmptyLinks() throws Exception {
+		// given
+		String fileContents = """
+				# Empty links
+				
+				I started writing a [link](),
+				but forgot to set the target URL or path.
+				And again: []() 
+				
+				Empty link variants to link reference definitions:
+				* [][]
+				* []
+				
+				# Empty images
+				
+				Here come an image without target path: ![my diagram]().
+				
+				![]()
+				
+				# Empty link reference definitions
+				
+				Text with [reference][ref1] to empty link
+				or to a missing [ref2] reference definition.
+				
+				[ref1]: 
+				
+				[ref2]:
+				   
+				""";
+		linkValidator = new MarkdownLinkValidator();
+		File newFile = new File(temporaryFolder, "markdown.md");
+		assertTrue(newFile.createNewFile());
+		
+		IPath path = Path.fromOSString(newFile.getAbsolutePath());
+		when(file.getLocation()).thenReturn(path);
+		when(file.createMarker(anyString())).thenAnswer(invocation -> {
+				String markerType = invocation.getArgument(0);
+				return TestMarker.create(file, markerType);
+			});
+		;
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		// then
+		assertMarker(file, 3,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 5,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 8,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"reference link label is empty");
+		
+		assertMarker(file, 9,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"reference link label is empty");
+		
+		assertMarker(file, 13,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 15,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 19,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"no link reference definition");
+		
+		assertMarker(file, 20,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"no link reference definition");
+	}
+	
+	private void assertMarker(IFile file, int line, String markerType, int severity, String... containedMessageParts) throws Exception {
+		Optional<TestMarker> marker = findFirstMarkerForLine(line, file);
 		assertTrue(marker.isPresent());
-		assertEquals(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM, marker.get().getType());
-		markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
+		assertEquals(markerType, marker.get().getType());
+		assertEquals(severity, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		
+		String markerMessage = (String) marker.get().getAttribute(IMarker.MESSAGE);
 		assertNotNull(markerMessage);
-		assertTrue(markerMessage.contains("does not exist"));
-		assertEquals(IMarker.SEVERITY_ERROR, marker.get().getAttribute(IMarker.SEVERITY, -1));
+		for (String msgPart: containedMessageParts) {
+			assertTrue(markerMessage.contains(msgPart));
+		}
 	}
 	
 	private Optional<TestMarker> findFirstMarkerForLine(int lineNumer, IResource resource) {

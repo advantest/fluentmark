@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,7 +42,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		assertTrue(result.contains("<span style=\"color:red\">PlantUML file"));
-		assertTrue(result.contains("does not exist.</span>"));
+		assertTrue(result.contains("does not exist.</span>") || result.contains("does not\nexist.</span>"));
 	}
 	
 	@ParameterizedTest
@@ -55,7 +57,9 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<figure>\\s*<svg(.|\\s)*<\\/svg>\\s*<figcaption.*>Some diagram<\\/figcaption>\\s*<\\/figure>\\s*"));
+		
+		Matcher regexMatcher = Pattern.compile("<figure>\\s*<svg.*<\\/svg>\\s*<figcaption.*>Some diagram<\\/figcaption>\\s*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
+		assertTrue(regexMatcher.find());
 	}
 	
 	@ParameterizedTest
@@ -69,7 +73,9 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<figure>\\s*<svg(.|\\s)*<\\/svg>(.|\\s)*<\\/figure>\\s*"));
+		
+		Matcher regexMatcher = Pattern.compile("<figure>\\s*<svg.*<\\/svg>.*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
+		assertTrue(regexMatcher.find());
 	}
 	
 	@ParameterizedTest

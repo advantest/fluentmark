@@ -95,7 +95,7 @@ public class FilePathValidator {
 	
 	private IMarker checkFileExists(IPath resourceRelativePath, IResource resource, int lineNumber, int offset, int endOffset) throws CoreException {
 		// try resolving the file
-		IPath absolutePath = toAbsolutePath(resourceRelativePath, resource);
+		IPath absolutePath = FileUtils.toAbsolutePath(resourceRelativePath, resource);
 		File targetFile = absolutePath.toFile();
 		
 		if (!targetFile.exists()) {
@@ -135,16 +135,6 @@ public class FilePathValidator {
 		return null;
 	}
 	
-	private IPath toAbsolutePath(IPath resourceRelativePath, IResource currentResource) {
-		IPath absolutePath;
-		if (resourceRelativePath.equals(currentResource.getLocation())) {
-			absolutePath = currentResource.getLocation();
-		} else {
-			absolutePath = currentResource.getLocation().removeLastSegments(1).append(resourceRelativePath);
-		}
-		return absolutePath;
-	}
-	
 	private IMarker checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
 		String markdownFileContent = currentDocument.get();
 		
@@ -152,7 +142,7 @@ public class FilePathValidator {
 	}
 	
 	private IMarker checkSectionAnchorExists(IPath targetFileWithAnchor, String sectionAnchor, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		IPath absolutePath = toAbsolutePath(targetFileWithAnchor, currentResource);
+		IPath absolutePath = FileUtils.toAbsolutePath(targetFileWithAnchor, currentResource);
 		File file = absolutePath.toFile();
         String mdFileContent = readTextFromFile(file);
         
@@ -214,7 +204,7 @@ public class FilePathValidator {
 	
 	private IMarker checkJavaMemberExists(IPath targetJavaFile, String memberReference, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
 		
-		IPath absolutePath = toAbsolutePath(targetJavaFile, currentResource);
+		IPath absolutePath = FileUtils.toAbsolutePath(targetJavaFile, currentResource);
 		File targetFile = absolutePath.toFile();
 		 
 		if (!targetFile.exists() || !targetFile.isFile()) {

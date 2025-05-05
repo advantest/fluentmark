@@ -9,11 +9,11 @@
  */
 package net.certiv.fluentmark.ui.handlers.dialog;
 
-import org.eclipse.swt.graphics.Point;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -22,10 +22,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class SourceCodeDialog extends Dialog {
 	
+	private static final String CONTENTS_SOURCE_CODE = "contents: 'Ready...',";
+	
 	private final String sourceCode;
 	private final String contents;
 	private final String title;
-
+	
 	public SourceCodeDialog(Shell parentShell, String title, String pageSourceCode, String contentsSourceCode) {
 		super(parentShell);
 		this.sourceCode = pageSourceCode;
@@ -40,8 +42,17 @@ public class SourceCodeDialog extends Dialog {
         String text = this.sourceCode;
         
         if (this.contents != null && !this.contents.isBlank()) {
-        	String contentsEscaped = StringEscapeUtils.escapeJava(this.contents);
-        	text = text.replace("contents: 'Ready...',", String.format("contents: '%s',", contentsEscaped));
+        	String replacementContent = this.contents.lines()
+        			.map(line -> "\t\t\t" + line)
+        			.collect(Collectors.joining("\n"));
+        	
+        	replacementContent = CONTENTS_SOURCE_CODE.replace("'Ready...'", "`" + replacementContent + "`");
+        	text = text.replace(CONTENTS_SOURCE_CODE, replacementContent);
+        	
+        	// clean up code if browser engine is edge
+        	if (!text.contains("<span id=\"app\" v-html=\"contents\">")) {
+        		text = text.replace("<span id=\"app\">", "<span id=\"app\" v-html=\"contents\">");
+        	}
         }
         
         Text textField = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);

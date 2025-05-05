@@ -267,6 +267,21 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	protected void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
 			String referenceLinkStatement, String linkLabel, int referenceLinkStatementStartIndexInRegion) throws CoreException {
 		
+		if (linkLabel.isBlank()) {
+			int startIndexInRefLink = referenceLinkStatement.lastIndexOf(linkLabel);
+			int offset = region.getOffset() + referenceLinkStatementStartIndexInRegion + startIndexInRefLink;
+			int endOffset = offset + linkLabel.length();
+			int lineNumber = getLineForOffset(document, offset);
+			
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+					"The reference link label is empty. Please create a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\""
+					+ " and use that reference link label in your link, e.g. \"[your link text][ReferenceLinkLabel]\" or \"[ReferenceLinkLabel]\".",
+					lineNumber,
+					offset,
+					endOffset);
+			return;
+		}
+		
 		String documentContent = document.get();
 		
 		String linkRefDefinitionForLabelRegex = REGEX_LINK_REF_DEF_OPENING_BRACKET + Pattern.quote(linkLabel) + REGEX_LINK_REF_DEF_PART + REGEX_LINK_REF_DEF_SUFFIX;
@@ -309,7 +324,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				endOffset += 1;
 			}
 			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
