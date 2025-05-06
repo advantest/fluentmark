@@ -324,4 +324,33 @@ $$\\sum_{i=1}^{n}=\\frac{n(n+1)}{2}$$
 				+ "<\\/span>\\s*<\\/p>\\s"));
 	}
 	
+	@ParameterizedTest
+	@EnumSource(names = { "PANDOC", "FLEXMARK" })
+	public void linkstoJavaElementsAreCorrectlyRendered(ConverterType converterType) throws Exception {
+		configProvider.setConverterType(converterType);
+		
+		String markdownFileContent = """
+### Implementation details
+  
+Here is my
+[important method](../../path/to/ImportantClassOrInterface.java#doSomething(int, boolean, Character[], List<Map<K,V>>))
+and here is a
+[field](../../path/to/ImportantClassOrInterface.java#fieldName)
+to be mentioned.
+""";
+		
+		IDocument document = prepareDocument(markdownFileContent);
+		File markdownFile = createFileWithContent("links_to_java_elements.md", markdownFileContent);
+		
+		String result = convert(markdownFile, document);
+		
+		assertNotNull(result);
+		assertTrue(result.matches("<h3.*>Implementation details</h3>\\s*"
+				+ "<p>Here is my\\s+"
+				+ "<a\\s+href=\\\"\\.\\./\\.\\./path/to/ImportantClassOrInterface\\.java#doSomething\\(int,%20boolean,%20Character%5B%5D,%20List%3CMap%3CK,V%3E%3E\\)\\\">important\\s+method</a>\\s+"
+				+ "and here is a\\s+"
+				+ "<a\\s+href=\\\"\\.\\./\\.\\./path/to/ImportantClassOrInterface\\.java#fieldName\\\">field</a>\\s+"
+				+ "to be mentioned\\.</p>\\s*"));
+	}
+	
 }
