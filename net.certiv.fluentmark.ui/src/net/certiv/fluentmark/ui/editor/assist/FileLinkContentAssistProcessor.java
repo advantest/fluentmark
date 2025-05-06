@@ -82,6 +82,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
+			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
+			if (proposals.isEmpty()) {
+				addProposalsForCompleteFileLinksAndImages(proposals, currentEditorsMarkdownFile,
+						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			}
+			
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
 		} catch (BadLocationException e) {
 			FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", e);
@@ -259,7 +265,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		proposals.add(new FilePathCompletionProposalWithDialog(editor,
-				offset - linkTextLeftFromCursor.length(), linkTextLeftFromCursor.length() + linkTextRightFromCursor.length()));
+				offset - linkTextLeftFromCursor.length(),
+				linkTextLeftFromCursor.length() + linkTextRightFromCursor.length(),
+				FilePathCompletionProposalWithDialog.FileLinkCreationType.PATH_ONLY));
 		
 		
 		List<File> files = Arrays.asList(currentDir.listFiles());
@@ -323,6 +331,14 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP); 
 			proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length(), img, null, null, null));
 		}
+	}
+	
+	private void addProposalsForCompleteFileLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
+		proposals.add(new FilePathCompletionProposalWithDialog(editor,
+				offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.FILE_LINK));
+		proposals.add(new FilePathCompletionProposalWithDialog(editor,
+				offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.IMAGE));
 	}
 	
 	private IFile getCurrentEditorsMarkdownFile() {
