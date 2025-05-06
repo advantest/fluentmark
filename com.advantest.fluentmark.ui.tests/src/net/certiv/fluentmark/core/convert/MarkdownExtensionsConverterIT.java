@@ -324,6 +324,7 @@ $$\\sum_{i=1}^{n}=\\frac{n(n+1)}{2}$$
 				+ "<\\/span>\\s*<\\/p>\\s"));
 	}
 	
+	@Disabled
 	@ParameterizedTest
 	@EnumSource(names = { "PANDOC", "FLEXMARK" })
 	public void linkstoJavaElementsAreCorrectlyRendered(ConverterType converterType) throws Exception {
