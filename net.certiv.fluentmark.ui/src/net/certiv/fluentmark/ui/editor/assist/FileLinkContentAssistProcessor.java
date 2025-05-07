@@ -83,9 +83,19 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
 			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
-			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition) {
-				addProposalsForCompleteFileLinksAndImages(proposals, currentEditorsMarkdownFile,
-						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition
+					// we don't propose link/image creation if we're in an anchor definition like "# Heading {#}"
+					&& !lineLeftFromCursor.matches("#+\\s.*\\{#\\S*")) {
+				
+				// propose creating a file link
+				proposals.add(new FilePathCompletionProposalWithDialog(editor,
+						offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.FILE_LINK));
+				
+				// in case, we're not in a header line, we'll also propose creating an image
+				if (!lineLeftFromCursor.matches("#+\\s.*")) {
+					proposals.add(new FilePathCompletionProposalWithDialog(editor,
+							offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.IMAGE));
+				}
 			}
 			
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
@@ -338,14 +348,6 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP); 
 			proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length(), img, null, null, null));
 		}
-	}
-	
-	private void addProposalsForCompleteFileLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
-			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
-		proposals.add(new FilePathCompletionProposalWithDialog(editor,
-				offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.FILE_LINK));
-		proposals.add(new FilePathCompletionProposalWithDialog(editor,
-				offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.IMAGE));
 	}
 	
 	private IFile getCurrentEditorsMarkdownFile() {
