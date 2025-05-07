@@ -76,14 +76,14 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			
 			ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 			
-			addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile,
+			boolean cursorInLinkOrImageStatement = addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
-			addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
+			boolean cursorInLinkRefDefinition = addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
 			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
-			if (proposals.isEmpty()) {
+			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition) {
 				addProposalsForCompleteFileLinksAndImages(proposals, currentEditorsMarkdownFile,
 						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			}
@@ -95,7 +95,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 	}
 	
-	private void addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+	private boolean addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
 		 *  Try to detect if we're in a statement like
@@ -120,7 +120,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		// we're not in a link declaration? ==> we have no proposals
 		if (indexOfClosingRoundBracket < 0 || indexOfOpeningRoundBracket < 0
 				|| indexOfClosingSquareBracket < 0 || indexOfOpeningSquareBracket < 0) {
-			return;
+			// we're not in a link or image statement
+			return false;
 		}
 		
 		// TODO only propose image files in case we're in an image reference?
@@ -140,9 +141,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		// we're in a link or image statement
+		return true;
 	}
 	
-	private void addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
+	private boolean addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
 		 *  Try to detect if we're in a statement like
@@ -169,12 +173,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				previousLine = document.get(prevLineOffset, prevLineLength);
 			} catch (BadLocationException e) {
 				FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", e);
-				return;
+				return false;
 			}
 			
 			// abort if the previous line does not only contain the link label (then it's not a link reference definition)
 			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*\\n")) {
-				return;
+				return false;
 			}
 			
 			indexOfColon = previousLine.lastIndexOf(':');
@@ -187,7 +191,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			// abort if we don't find the mandatory link label (then it's not a link reference definition)
 			String textLeftFromColon = lineLeftFromCursor.substring(0, indexOfColon);
 			if (!textLeftFromColon.matches(" {0,3}\\[.*\\]")) {
-				return;
+				return false;
 			}
 		}
 		
@@ -201,7 +205,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		// abort if the remainder of the line doesn't look like being a link reference definition
 		if (!lineRightFromCursor.matches(".*( \\t)*('\")*\\n*")) {
-			return;
+			return false;
 		}
 		
 		int indexOfTitleBegin = lineRightFromCursor.indexOf('\'');
@@ -215,6 +219,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		// we're in a link reference definition
+		return true;
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
