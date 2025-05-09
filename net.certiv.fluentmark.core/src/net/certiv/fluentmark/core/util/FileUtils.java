@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -301,6 +303,20 @@ public final class FileUtils {
 	
 	public static boolean isAccessibleSvgFile(IFile file) {
 		return isSvgFile(file) && file.isAccessible();
+	}
+	
+	public static IFile resolveToWorkspaceFile(IPath absolutePath) {
+		return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+	}
+	
+	public static IFileStore resolveToNonWorkspaceFile(IPath absolutePath) {
+		return EFS.getLocalFileSystem().getStore(absolutePath);
+	}
+	
+	public static boolean isExistingFile(IFileStore fileOutsideWorkspace) {
+		return fileOutsideWorkspace != null
+				&& fileOutsideWorkspace.fetchInfo().exists()
+				&& !fileOutsideWorkspace.fetchInfo().isDirectory();
 	}
 	
 	public static IPath resolveToAbsoluteResourcePath(String targetFilePath, IFile currentMarkdownFile) {

@@ -12,10 +12,8 @@ package net.certiv.fluentmark.ui.editor.hyperlinks;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
@@ -126,7 +124,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentFile);
 		
 		try {
-			targetFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+			targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
 		} catch (Exception e) {
 			FluentUI.log(IStatus.WARNING, "Could not find file " + absolutePath, e);
 			
@@ -144,10 +142,8 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return new IHyperlink[] { new FileHyperlink(targetFile, linkTargetRegion) };
 		}
 		
-		IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(absolutePath);
-		if (fileOutsideWorkspace == null
-				|| !fileOutsideWorkspace.fetchInfo().exists()
-				|| fileOutsideWorkspace.fetchInfo().isDirectory()) {
+		IFileStore fileOutsideWorkspace = FileUtils.resolveToNonWorkspaceFile(absolutePath); 
+		if (!FileUtils.isExistingFile(fileOutsideWorkspace)) {
 			return null;
 		}
 		
