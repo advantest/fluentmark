@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.io.File;
 
 import net.certiv.fluentmark.ui.FluentImages;
@@ -76,7 +77,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			
 			ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 			
-			boolean cursorInLinkOrImageStatement = addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile,
+			boolean cursorInLinkOrImageStatement = addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
 			boolean cursorInLinkRefDefinition = addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
@@ -105,7 +106,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 	}
 	
-	private boolean addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+	private boolean addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
 		 *  Try to detect if we're in a statement like
@@ -151,6 +152,18 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		if (indexOfExclamationMark < 0) {
+			// are we having an empty target or a section anchor in our link target?
+			if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
+					|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
+				// TODO add proposals for link reference definitions, too
+				addProposalsWithSectionAnchorsFromCurrentMarkdownFile(proposals, currentEditorsMarkdownFile, document,
+						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			}
+			// TODO add section anchor proposals for other Markdown files, too
+		}
+		// TODO add section anchor validation: check for duplicates / uniqueness per file
 		
 		// we're in a link or image statement
 		return true;
@@ -232,6 +245,28 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		// we're in a link reference definition
 		return true;
+	}
+	
+	private void addProposalsWithSectionAnchorsFromCurrentMarkdownFile(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
+			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
+		// find all anchors in current Markdown file
+		String markdownFileContent = document.get();
+		Set<String> anchors = Arrays.stream(markdownFileContent.split("\\r\\n|\\n"))
+			.filter(line -> line.matches("#+\\s.*\\{#\\S+\\}\\s*"))
+			.map(lineWithAnchor -> {
+				int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
+				int endIndex = lineWithAnchor.lastIndexOf("}");
+				return lineWithAnchor.substring(startIndex, endIndex);
+			})
+			.collect(Collectors.toSet());
+		
+		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
+		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+		
+		for (String anchor: anchors) {
+			// TODO add proposal image
+			proposals.add(new CompletionProposal(anchor, lineOffset + indexOfOpeningBracket + 1, anchor.length(), anchor.length(), null, anchor + " (section identifier)", null, null));
+		}
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
