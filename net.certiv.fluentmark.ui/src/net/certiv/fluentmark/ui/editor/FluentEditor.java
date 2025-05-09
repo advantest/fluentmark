@@ -252,6 +252,7 @@ public class FluentEditor extends TextEditor
 		// check and correct line endings
 		String text = doc.get();
 		int hash = text.hashCode();
+		// TODO read Eclipse project's settings for preferred line endings and use that line endings (may be different from OS line endings)
 		text = Strings.normalize(text);
 		if (hash != text.hashCode()) doc.set(text);
 
