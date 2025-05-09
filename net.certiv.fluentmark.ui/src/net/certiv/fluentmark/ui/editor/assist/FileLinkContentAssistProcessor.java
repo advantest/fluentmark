@@ -38,12 +38,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.io.File;
 
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
-	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/' };
+	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/', '#' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
 	private final ITextEditor editor;
@@ -153,13 +154,31 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
 		
+		// if we have a file link, not an image
 		if (indexOfExclamationMark < 0) {
-			// are we having an empty target or a section anchor in our link target?
+			// are we having an empty target or only a section anchor in our link target?
 			if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
 					|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
 				// TODO add proposals for link reference definitions, too
 				addProposalsWithSectionAnchorsFromCurrentMarkdownFile(proposals, currentEditorsMarkdownFile, document,
 						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			// we have a path to a Markdown file in our link target
+			} else if (linkTextLeftFromCursor.matches(".+\\.(md|MD)#?")) {
+				int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
+				String targetFilePath = lineLeftFromCursor;
+				if (indexOfHashtag >= 0) {
+					targetFilePath = lineLeftFromCursor.substring(0, indexOfHashtag);
+				}
+				
+				IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
+				IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
+				if (targetFile != null) {
+					// TODO look up IDocument for the IFile (in case it is opened in a (Fluent)Editor)
+					
+					String fileContents = FileUtils.readFileContents(targetFile);
+					Set<String> anchors = findSectionAnchorsInMarkdownCode(fileContents);
+					// TODO create proposals for target file's anchors
+				}
 			}
 			// TODO add section anchor proposals for other Markdown files, too
 		}
