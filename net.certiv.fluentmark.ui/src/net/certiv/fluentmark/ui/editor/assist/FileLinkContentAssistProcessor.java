@@ -251,14 +251,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		// find all anchors in current Markdown file
 		String markdownFileContent = document.get();
-		Set<String> anchors = Arrays.stream(markdownFileContent.split("\\r\\n|\\n"))
-			.filter(line -> line.matches("#+\\s.*\\{#\\S+\\}\\s*"))
-			.map(lineWithAnchor -> {
-				int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
-				int endIndex = lineWithAnchor.lastIndexOf("}");
-				return lineWithAnchor.substring(startIndex, endIndex);
-			})
-			.collect(Collectors.toSet());
+		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownFileContent); 
 		
 		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
 		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
@@ -267,6 +260,17 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			// TODO add proposal image
 			proposals.add(new CompletionProposal(anchor, lineOffset + indexOfOpeningBracket + 1, anchor.length(), anchor.length(), null, anchor + " (section identifier)", null, null));
 		}
+	}
+	
+	private Set<String> findSectionAnchorsInMarkdownCode(String markdownCode) {
+		return Arrays.stream(markdownCode.split("\\r\\n|\\n"))
+				.filter(line -> line.matches("#+\\s.*\\{#\\S+\\}\\s*"))
+				.map(lineWithAnchor -> {
+					int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
+					int endIndex = lineWithAnchor.lastIndexOf("}");
+					return lineWithAnchor.substring(startIndex, endIndex);
+				})
+				.collect(Collectors.toSet());
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
