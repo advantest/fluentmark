@@ -75,11 +75,28 @@ public class LinkRuleTest {
 		assertEquals("[Text]", scanner.getConsumedText());
 	}
 	
+	@ParameterizedTest(name = "[{index}] File link {0} is successfully parsed")
+	@ValueSource(strings = {
+			"[Image](some/path/to/file.png)",
+			"[File X](some/path/to/file.txt)",
+			"[More to see here!](../../relative/path/SomeClass.java)",
+			"[](../../../Test Markdown and PlantUML/doc/subsection/section.md)",
+			"[Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.cpp)"})
+	public void fileLinksDoMatch(String input) {
+		scanner = new CharacterScannerMock(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(input, scanner.getConsumedText());
+	}
+	
 	@ParameterizedTest(name = "[{index}] Image / Link {0} is successfully parsed")
 	@ValueSource(strings = {
 			"![Image](some/path/to/file.png)",
 			"![Diagram X](some/path/to/file.svg)",
-			"![More to see here!](../../relativ/path/diagram.puml)",
+			"![More to see here!](../../relative/path/diagram.puml)",
+			"![](../../../Test Markdown and PlantUML/doc/subsection/diag.puml)",
 			"![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
 	public void imageLinksDoMatch(String input) {
 		scanner = new CharacterScannerMock(input);
