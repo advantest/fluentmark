@@ -157,41 +157,66 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		// if we have a file link, not an image
 		if (indexOfExclamationMark < 0) {
-			// are we having an empty target or only a section anchor in our link target?
-			if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
-					|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
-				String markdownFileContent = document.get();
-				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent,
-						lineOffset, lineLeftFromCursor, lineRightFromCursor, linkTextLeftFromCursor, linkTextRightFromCursor);
-				
-				// TODO add proposals for link reference definitions, too
-				
-			// we have a path to a Markdown file in our link target
-			} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-				int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
-				String targetFilePath = linkTextLeftFromCursor;
-				if (indexOfHashtag >= 0) {
-					targetFilePath = linkTextLeftFromCursor.substring(0, indexOfHashtag);
+			
+			
+			
+			
+			
+			// let's propose to add or replace an anchor
+			int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
+			int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+			int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
+			int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
+			
+			if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+				int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
+				if (indexOfFileExtension < 0) {
+					indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
 				}
-				
-				IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
-				IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
-				if (targetFile != null) {
-					// look up IDocument for the IFile in case it is opened in a text editor
-					IDocument targetFileDocument = DocumentUtils.findDocumentFor(targetFile);
-					
-					String markdownFileContent = targetFileDocument != null ?
-							targetFileDocument.get() : 
-							FileUtils.readFileContents(targetFile);
-					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent,
-							lineOffset, lineLeftFromCursor, lineRightFromCursor, linkTextLeftFromCursor, linkTextRightFromCursor);
-				}
+				int indexOfAnchorStart = indexOfFileExtension + 3;
+				replacementOffset = lineOffset + indexOfAnchorStart;
+				replacementLength = indexOfClosingBracket - indexOfAnchorStart;
 			}
+			
+			addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+					linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
 		}
 		// TODO add section anchor validation: check for duplicates / uniqueness per file
 		
 		// we're in a link or image statement
 		return true;
+	}
+
+	private void addAnchorProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, String linkTextLeftFromCursor, String linkTextRightFromCursor,
+			int replacmentOffset, int replacementLength) {
+		// are we having an empty target or only a section anchor in our link target?
+		if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
+				|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
+			
+			String markdownFileContent = document.get();
+			addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength);
+			
+		// we have a path to a Markdown file in our link target
+		} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
+			String targetFilePath = linkTextLeftFromCursor;
+			if (indexOfHashtag >= 0) {
+				targetFilePath = linkTextLeftFromCursor.substring(0, indexOfHashtag);
+			}
+			
+			IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
+			IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
+			if (targetFile != null) {
+				// look up IDocument for the IFile in case it is opened in a text editor
+				IDocument targetFileDocument = DocumentUtils.findDocumentFor(targetFile);
+				
+				String markdownFileContent = targetFileDocument != null ?
+						targetFileDocument.get() : 
+						FileUtils.readFileContents(targetFile);
+				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength);
+			}
+		}
 	}
 	
 	private boolean cursorInOptionalAnchorAfterMarkdownFilePath(String linkTextLeftFromCursor, String linkTextRightFromCursor) {
@@ -273,28 +298,36 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
 		
+		
+		
+		
+		
+		
+		// let's now propose to add or replace an anchor
+		
+		int replacementOffset = offset - linkTextLeftFromCursor.length();
+		int replacementLength = linkTextLeftFromCursor.length() + linkTextRightFromCursor.length();
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset += indexOfAnchorStart;
+			replacementLength -= indexOfAnchorStart;
+		}
+		
+		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+		
 		// we're in a link reference definition
 		return true;
 	}
 	
 	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
-			int lineOffset, String lineLeftFromCursor, String lineRightFromCursor,String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+			int replacementOffset, int replacementLength) {
 		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode);
-		
-		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
-		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
-		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
-		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
-		
-		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
-			if (indexOfFileExtension < 0) {
-				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
-			}
-			int indexOfAnchorStart = indexOfFileExtension + 3;
-			replacementOffset = lineOffset + indexOfAnchorStart;
-			replacementLength = indexOfClosingBracket - indexOfAnchorStart;
-		}
 		
 		for (String anchor: anchors) {
 			// TODO add proposal image
