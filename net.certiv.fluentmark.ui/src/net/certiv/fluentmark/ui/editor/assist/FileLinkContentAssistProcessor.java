@@ -159,15 +159,17 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			// are we having an empty target or only a section anchor in our link target?
 			if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
 					|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
+				String markdownFileContent = document.get();
+				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, lineOffset, lineLeftFromCursor, lineRightFromCursor);
+				
 				// TODO add proposals for link reference definitions, too
-				addProposalsWithSectionAnchorsFromCurrentMarkdownFile(proposals, currentEditorsMarkdownFile, document,
-						offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+				
 			// we have a path to a Markdown file in our link target
 			} else if (linkTextLeftFromCursor.matches(".+\\.(md|MD)#?")) {
 				int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
-				String targetFilePath = lineLeftFromCursor;
+				String targetFilePath = linkTextLeftFromCursor;
 				if (indexOfHashtag >= 0) {
-					targetFilePath = lineLeftFromCursor.substring(0, indexOfHashtag);
+					targetFilePath = linkTextLeftFromCursor.substring(0, indexOfHashtag);
 				}
 				
 				IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
@@ -175,12 +177,10 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				if (targetFile != null) {
 					// TODO look up IDocument for the IFile (in case it is opened in a (Fluent)Editor)
 					
-					String fileContents = FileUtils.readFileContents(targetFile);
-					Set<String> anchors = findSectionAnchorsInMarkdownCode(fileContents);
-					// TODO create proposals for target file's anchors
+					String markdownFileContent = FileUtils.readFileContents(targetFile);
+					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, lineOffset, lineLeftFromCursor, lineRightFromCursor);
 				}
 			}
-			// TODO add section anchor proposals for other Markdown files, too
 		}
 		// TODO add section anchor validation: check for duplicates / uniqueness per file
 		
@@ -266,18 +266,27 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		return true;
 	}
 	
-	private void addProposalsWithSectionAnchorsFromCurrentMarkdownFile(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
-			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
-		// find all anchors in current Markdown file
-		String markdownFileContent = document.get();
-		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownFileContent); 
+	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
+			int lineOffset, String lineLeftFromCursor, String lineRightFromCursor) {
+		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode); 
 		
 		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
 		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
+		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
+		if (lineLeftFromCursor.matches(".+\\.(md|MD)#?")) {
+			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset = lineOffset + indexOfAnchorStart;
+			replacementLength = indexOfClosingBracket - indexOfAnchorStart;
+		}
 		
 		for (String anchor: anchors) {
 			// TODO add proposal image
-			proposals.add(new CompletionProposal(anchor, lineOffset + indexOfOpeningBracket + 1, anchor.length(), anchor.length(), null, anchor + " (section identifier)", null, null));
+			proposals.add(new CompletionProposal(anchor, replacementOffset, replacementLength, anchor.length(), null, anchor + " (section identifier)", null, null));
 		}
 	}
 	
