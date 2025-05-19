@@ -157,29 +157,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		// if we have a file link, not an image
 		if (indexOfExclamationMark < 0) {
-			
-			
-			
-			
-			
-			// let's propose to add or replace an anchor
-			int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
-			int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
-			int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
-			int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
-			
-			if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-				int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
-				if (indexOfFileExtension < 0) {
-					indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
-				}
-				int indexOfAnchorStart = indexOfFileExtension + 3;
-				replacementOffset = lineOffset + indexOfAnchorStart;
-				replacementLength = indexOfClosingBracket - indexOfAnchorStart;
-			}
-			
-			addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
-					linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+			addAnchorProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile, document,
+					lineOffset, lineLeftFromCursor, lineRightFromCursor,
+					linkTextLeftFromCursor, linkTextRightFromCursor);
 		}
 		// TODO add section anchor validation: check for duplicates / uniqueness per file
 		
@@ -187,6 +167,49 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		return true;
 	}
 
+	private void addAnchorProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, int lineOffset, String lineLeftFromCursor, String lineRightFromCursor,
+			String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		
+		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
+		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
+		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset = lineOffset + indexOfAnchorStart;
+			replacementLength = indexOfClosingBracket - indexOfAnchorStart;
+		}
+		
+		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+	}
+	
+	private void addAnchorProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, int offset, String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		
+		int replacementOffset = offset - linkTextLeftFromCursor.length();
+		int replacementLength = linkTextLeftFromCursor.length() + linkTextRightFromCursor.length();
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset += indexOfAnchorStart;
+			replacementLength -= indexOfAnchorStart;
+		}
+		
+		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+	}
+	
 	private void addAnchorProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
 			IDocument document, String linkTextLeftFromCursor, String linkTextRightFromCursor,
 			int replacmentOffset, int replacementLength) {
@@ -298,28 +321,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
 		
-		
-		
-		
-		
-		
-		// let's now propose to add or replace an anchor
-		
-		int replacementOffset = offset - linkTextLeftFromCursor.length();
-		int replacementLength = linkTextLeftFromCursor.length() + linkTextRightFromCursor.length();
-		
-		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-			int indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".md");
-			if (indexOfFileExtension < 0) {
-				indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".MD");
-			}
-			int indexOfAnchorStart = indexOfFileExtension + 3;
-			replacementOffset += indexOfAnchorStart;
-			replacementLength -= indexOfAnchorStart;
-		}
-		
-		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
-				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+		addAnchorProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
+				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
 		
 		// we're in a link reference definition
 		return true;
