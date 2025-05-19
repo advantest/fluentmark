@@ -41,6 +41,7 @@ import java.io.File;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.util.DocumentUtils;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
@@ -176,9 +177,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
 				IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
 				if (targetFile != null) {
-					// TODO look up IDocument for the IFile (in case it is opened in a (Fluent)Editor)
+					// look up IDocument for the IFile in case it is opened in a text editor
+					IDocument targetFileDocument = DocumentUtils.findDocumentFor(targetFile);
 					
-					String markdownFileContent = FileUtils.readFileContents(targetFile);
+					String markdownFileContent = targetFileDocument != null ?
+							targetFileDocument.get() : 
+							FileUtils.readFileContents(targetFile);
 					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent,
 							lineOffset, lineLeftFromCursor, lineRightFromCursor, linkTextLeftFromCursor, linkTextRightFromCursor);
 				}
