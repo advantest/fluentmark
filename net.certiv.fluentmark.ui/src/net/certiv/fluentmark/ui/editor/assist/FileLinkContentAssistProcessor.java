@@ -160,12 +160,13 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
 					|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
 				String markdownFileContent = document.get();
-				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, lineOffset, lineLeftFromCursor, lineRightFromCursor);
+				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent,
+						lineOffset, lineLeftFromCursor, lineRightFromCursor, linkTextLeftFromCursor, linkTextRightFromCursor);
 				
 				// TODO add proposals for link reference definitions, too
 				
 			// we have a path to a Markdown file in our link target
-			} else if (linkTextLeftFromCursor.matches(".+\\.(md|MD)#?")) {
+			} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
 				int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
 				String targetFilePath = linkTextLeftFromCursor;
 				if (indexOfHashtag >= 0) {
@@ -178,7 +179,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 					// TODO look up IDocument for the IFile (in case it is opened in a (Fluent)Editor)
 					
 					String markdownFileContent = FileUtils.readFileContents(targetFile);
-					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, lineOffset, lineLeftFromCursor, lineRightFromCursor);
+					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent,
+							lineOffset, lineLeftFromCursor, lineRightFromCursor, linkTextLeftFromCursor, linkTextRightFromCursor);
 				}
 			}
 		}
@@ -186,6 +188,11 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		// we're in a link or image statement
 		return true;
+	}
+	
+	private boolean cursorInOptionalAnchorAfterMarkdownFilePath(String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		String regex = ".+\\.(md|MD)(#\\S*)?";
+		return linkTextLeftFromCursor.matches(regex);
 	}
 	
 	private boolean addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
@@ -267,14 +274,15 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	}
 	
 	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
-			int lineOffset, String lineLeftFromCursor, String lineRightFromCursor) {
-		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode); 
+			int lineOffset, String lineLeftFromCursor, String lineRightFromCursor,String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode);
 		
 		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
 		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
 		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
 		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
-		if (lineLeftFromCursor.matches(".+\\.(md|MD)#?")) {
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
 			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
 			if (indexOfFileExtension < 0) {
 				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
