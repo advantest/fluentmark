@@ -19,8 +19,9 @@ public final class Strings {
 	public static final String ISO_LATIN = "ISO-8859-1";
 	public static final String UTF_8 = "UTF-8";
 	
-	// TODO repalce OS line separator with that from the Eclipse project settings. That can be e.g. Linux line endings in Windows.
-	public static final String EOL = System.getProperty("line.separator");
+	/** Warning! Always prefer the line separator from the Eclipse project or Eclipse preferences over the OS default line separator,
+	 * see {@link FileUtils#getPreferredLineSeparatorFor(org.eclipse.core.resources.IFile)} */
+	public static final String EOL = System.lineSeparator();
 
 	public static final String TTAB_MARK = "\u1E6F"; 		// t underbar ṯ
 	public static final String TAB_MARK = "\u2666";			// diamond ♦
@@ -101,8 +102,12 @@ public final class Strings {
 		return sb.toString();
 	}
 
-	public static String normalize(String content) throws IllegalArgumentException {
+	public static String normalize(String content) {
 		return content.replaceAll("\\r?\\n", EOL);
+	}
+	
+	public static String normalize(String content, String lineSeparator) {
+		return content.replaceAll("\\r?\\n", lineSeparator);
 	}
 
 	public static boolean isBlank(String line) {

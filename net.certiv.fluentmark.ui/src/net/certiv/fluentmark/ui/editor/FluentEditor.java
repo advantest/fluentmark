@@ -26,9 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -96,6 +94,7 @@ import net.certiv.fluentmark.core.markdown.ISourceReference;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.markdown.PagePart;
 import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -249,12 +248,24 @@ public class FluentEditor extends TextEditor
 		super.doSetInput(input);
 		IDocument doc = getDocumentProvider().getDocument(input);
 
+		String lineSeparator = getPreferredLineSeparator();
+
 		// check and correct line endings
 		String text = doc.get();
 		int hash = text.hashCode();
-		// TODO read Eclipse project's settings for preferred line endings and use that line endings (may be different from OS line endings)
-		text = Strings.normalize(text);
-		if (hash != text.hashCode()) doc.set(text);
+		text = Strings.normalize(text, lineSeparator);
+		if (hash != text.hashCode()) {
+			// ask the user if she wants to change the line endings
+			boolean windowsLineEndings = lineSeparator.equals("\r\n");
+			IFile file = getEditorInputFile();
+			String fileName = (file != null ? file.getName() : "the file to be opened");
+			boolean confirmed = MessageDialog.openQuestion(this.getSite().getShell(), "Adapt line endings?",
+					"The line endings in " + fileName + " do not comply with the project / Eclipse settings or with the OS defaults."
+					+ " Would you like the line endings to be adapted to " + (windowsLineEndings ? "Windows (CRLF)" : "Linux (LF)") + " line endings?");
+			if (confirmed) {
+				doc.set(text);
+			}
+		}
 
 		connectPartitioningToElement(input, doc);
 
@@ -554,7 +565,10 @@ public class FluentEditor extends TextEditor
 	
 	public IFile getEditorInputFile() {
 		IEditorInput input = getEditorInput();
-		return input.getAdapter(IFile.class);
+		if (input != null) {
+			return input.getAdapter(IFile.class);
+		}
+		return null;
 	}
 
 	public IDocument getDocument() {
@@ -562,12 +576,19 @@ public class FluentEditor extends TextEditor
 		IDocumentProvider provider = getDocumentProvider();
 		return provider == null ? null : provider.getDocument(input);
 	}
+	
+	public String getPreferredLineSeparator() {
+		// read Eclipse project's settings for preferred line endings and use that line endings (may be different from OS line endings)
+		IFile editorInputFile = getEditorInputFile();
+		return FileUtils.getPreferredLineSeparatorFor(editorInputFile);
+	}
 
 	public FluentEditor ensureLastLineBlank() {
+		String lineSeparator = getPreferredLineSeparator();
 		IDocument doc = getDocument();
 		String text = doc.get();
-		if (!text.endsWith(Strings.EOL)) {
-			doc.set(text + Strings.EOL);
+		if (!text.endsWith(lineSeparator)) {
+			doc.set(text + lineSeparator);
 		}
 		return this;
 	}
@@ -588,16 +609,7 @@ public class FluentEditor extends TextEditor
 			return lineDelimiter;
 		}
 		
-		// workspace preference
-		IScopeContext[] scopeContext = new IScopeContext[] { InstanceScope.INSTANCE };
-		lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR,
-				Strings.EOL, scopeContext);
-		
-		if (lineDelimiter != null) {
-			return lineDelimiter;
-		}
-		
-		return System.lineSeparator();
+		return getPreferredLineSeparator();
 	}
 
 	public PageRoot getPageModel() {

@@ -37,6 +37,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -379,6 +380,21 @@ public final class FileUtils {
 	
 	public static boolean isOsMacOs() {
 		return operatingSystem.equals(OperatingSystem.MacOs);
+	}
+	
+	public static String getPreferredLineSeparatorFor(IFile file) {
+		if (file != null) {
+			IProject project = file.getProject();
+			if (project != null) {
+				try {
+					return project.getDefaultLineSeparator();
+				} catch (CoreException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		return System.lineSeparator();
 	}
 
 }
