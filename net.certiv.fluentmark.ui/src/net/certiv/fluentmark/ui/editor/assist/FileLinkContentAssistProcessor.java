@@ -299,7 +299,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
 			
 			String markdownFileContent = document.get();
-			addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength);
+			addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, currentEditorsMarkdownFile);
 			
 		// we have a path to a Markdown file in our link target
 		} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
@@ -318,7 +318,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				String markdownFileContent = targetFileDocument != null ?
 						targetFileDocument.get() : 
 						FileUtils.readFileContents(targetFile);
-				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength);
+				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, targetFile);
 			}
 		}
 	}
@@ -329,12 +329,14 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	}
 	
 	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
-			int replacementOffset, int replacementLength) {
+			int replacementOffset, int replacementLength, IFile markdownSourceCodeFile) {
 		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode);
 		
 		for (String anchor: anchors) {
-			// TODO add proposal image
-			proposals.add(new CompletionProposal(anchor, replacementOffset, replacementLength, anchor.length(), null, anchor + " (section identifier)", null, null));
+			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_ANCHOR);
+			String fileName = markdownSourceCodeFile != null ? markdownSourceCodeFile.getName() : "";
+			String explanation = " (section identifier" + (fileName.isBlank() ? "" : " in " + fileName) + ")";
+			proposals.add(new CompletionProposal(anchor, replacementOffset, replacementLength, anchor.length(), img, anchor + explanation, null, null));
 		}
 	}
 	
@@ -449,7 +451,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FILE);
 			}
 			
-			proposals.add(new CompletionProposal(filePathSegment, newOffset, replacementLengthLeftFromCursor + linkTextRightFromCursor.length(), filePathSegment.length(), img, null, null, null));
+			proposals.add(new CompletionProposal(filePathSegment,
+					newOffset, replacementLengthLeftFromCursor + linkTextRightFromCursor.length(), filePathSegment.length(),
+					img, null, null, null));
 		}
 		
 		String parentDir = currentDir.getParent();
@@ -460,7 +464,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				toParentPathSegment = '/' + toParentPathSegment;
 			}
 			
-			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP); 
+			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP);
 			proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length(), img, null, null, null));
 		}
 	}
