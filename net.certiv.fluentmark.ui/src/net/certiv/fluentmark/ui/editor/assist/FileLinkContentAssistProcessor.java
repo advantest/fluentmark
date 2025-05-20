@@ -48,6 +48,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/', '#' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
+	private static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
+	
 	private final ITextEditor editor;
 	
 	public FileLinkContentAssistProcessor(ITextEditor editor) {
@@ -198,7 +200,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			// abort if the previous line does not only contain the link label (then it's not a link reference definition)
-			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*\\n")) {
+			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*" + REGEX_ANY_LINE_SEPARATOR)) {
 				return false;
 			}
 			
@@ -225,7 +227,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		// abort if the remainder of the line doesn't look like being a link reference definition
-		if (!lineRightFromCursor.matches(".*( \\t)*('\")*\\n*")) {
+		if (!lineRightFromCursor.matches(".*( \\t)*('\")*(" + REGEX_ANY_LINE_SEPARATOR + ")*")) {
 			return false;
 		}
 		
@@ -341,7 +343,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	}
 	
 	private Set<String> findSectionAnchorsInMarkdownCode(String markdownCode) {
-		return Arrays.stream(markdownCode.split("\\r\\n|\\n"))
+		return Arrays.stream(markdownCode.split(REGEX_ANY_LINE_SEPARATOR))
 				.filter(line -> line.matches("#+\\s.*\\{#\\S+\\}\\s*"))
 				.map(lineWithAnchor -> {
 					int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
