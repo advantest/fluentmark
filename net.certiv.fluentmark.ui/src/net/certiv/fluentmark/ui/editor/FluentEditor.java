@@ -243,7 +243,9 @@ public class FluentEditor extends TextEditor
 
 	@Override
 	protected void doSetInput(IEditorInput input) throws CoreException {
-		if (getDocument() != null) getDocument().removeDocumentListener(docListener);
+		if (getDocument() != null) {
+			getDocument().removeDocumentListener(docListener);
+		}
 		setPreferenceStore(getPrefsStore());
 		super.doSetInput(input);
 		IDocument doc = getDocumentProvider().getDocument(input);
