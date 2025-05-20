@@ -276,22 +276,22 @@ public final class FileUtils {
 	
 	public static boolean isMarkdownFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_MARKDOWN.equals(file.getFileExtension());
+				&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isPumlFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_PLANTUML.equals(file.getFileExtension());
+				&& FILE_EXTENSION_PLANTUML.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isSvgFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_SVG.equals(file.getFileExtension());
+				&& FILE_EXTENSION_SVG.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isJavaFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_JAVA.equals(file.getFileExtension());
+				&& FILE_EXTENSION_JAVA.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isAccessibleMarkdownFile(IFile file) {

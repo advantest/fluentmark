@@ -139,7 +139,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			return false;
 		}
 		
-		// TODO only propose image files in case we're in an image reference?
+		// TODO only propose image files if we're in an image reference?
 		int indexOfExclamationMark = -1;
 		if (indexOfOpeningSquareBracket > -1
 				&& indexOfOpeningSquareBracket - 1 >= 0

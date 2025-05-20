@@ -102,10 +102,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	@Override
 	public boolean isValidatorFor(IFile file) {
-		if (!FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension())) {
-			return false;
-		}
-		return true;
+		return FileUtils.isMarkdownFile(file);
 	}
 	
 	@Override
