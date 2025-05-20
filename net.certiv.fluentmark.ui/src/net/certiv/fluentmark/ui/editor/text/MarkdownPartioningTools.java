@@ -9,11 +9,15 @@
  */
 package net.certiv.fluentmark.ui.editor.text;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
 
 public class MarkdownPartioningTools {
@@ -41,6 +45,23 @@ public class MarkdownPartioningTools {
 	public IDocumentPartitioner createDocumentPartitioner() {
 		IPartitionTokenScanner scanner = getPartitionScanner();
 		return new FastPartitioner(scanner, MarkdownPartitions.getLegalContentTypes());
+	}
+	
+	public void setupDocumentPartitioner(IDocument document) {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		
+		if (partitioner == null) {
+			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
+			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		}
+	}
+	
+	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+		return MarkdownPartitions.computePartitions(document);
 	}
 
 }

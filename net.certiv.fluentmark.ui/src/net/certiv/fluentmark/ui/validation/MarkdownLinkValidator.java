@@ -22,12 +22,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
@@ -83,21 +81,12 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		if (document == null || file == null) {
-			throw new IllegalArgumentException();
-		}
-		
-		IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-		
-		if (partitioner == null) {
-			partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
-			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-		}
+		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
 	}
 	
 	@Override
 	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
-		return MarkdownPartitions.computePartitions(document);
+		return MarkdownPartioningTools.getTools().computePartitioning(document);
 	}
 	
 	@Override
