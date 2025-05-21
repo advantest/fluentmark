@@ -178,7 +178,7 @@ public class FilePathValidator {
 		}
 		
 		// we didn't find any target anchor ==> create a marker
-		return MarkerCalculator.createDocumentationProblemMarker(currentResource, IMarker.SEVERITY_WARNING,
+		return MarkerCalculator.createDocumentationProblemMarker(currentResource, IMarker.SEVERITY_ERROR,
 				String.format("There is no section with the given anchor '%s' in this Markdown document '%s'.", sectionAnchor, currentResource.getLocation().toString()),
 				lineNumber,
 				offset,
