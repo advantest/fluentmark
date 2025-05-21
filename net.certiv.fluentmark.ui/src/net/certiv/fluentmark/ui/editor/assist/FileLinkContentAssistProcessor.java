@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.io.File;
 
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -47,8 +48,6 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
 	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/', '#' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
-	
-	private static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
 	
 	private final ITextEditor editor;
 	
@@ -200,7 +199,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			}
 			
 			// abort if the previous line does not only contain the link label (then it's not a link reference definition)
-			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*" + REGEX_ANY_LINE_SEPARATOR)) {
+			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*" + MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR)) {
 				return false;
 			}
 			
@@ -227,7 +226,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		// abort if the remainder of the line doesn't look like being a link reference definition
-		if (!lineRightFromCursor.matches(".*( \\t)*('\")*(" + REGEX_ANY_LINE_SEPARATOR + ")*")) {
+		if (!lineRightFromCursor.matches(".*( \\t)*('\")*(" + MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR + ")*")) {
 			return false;
 		}
 		
@@ -343,13 +342,14 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	}
 	
 	private Set<String> findSectionAnchorsInMarkdownCode(String markdownCode) {
-		return Arrays.stream(markdownCode.split(REGEX_ANY_LINE_SEPARATOR))
-				.filter(line -> line.matches("#+\\s.*\\{#\\S+\\}\\s*"))
+		return Arrays.stream(markdownCode.split(MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR))
+				.filter(line -> line.matches(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR))
 				.map(lineWithAnchor -> {
 					int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
 					int endIndex = lineWithAnchor.lastIndexOf("}");
 					return lineWithAnchor.substring(startIndex, endIndex);
 				})
+				.filter(anchor -> anchor.matches("#" + MarkdownParsingTools.REGEX_VALID_ANCHOR_ID))
 				.collect(Collectors.toSet());
 	}
 	

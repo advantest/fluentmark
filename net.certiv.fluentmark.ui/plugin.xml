@@ -1013,6 +1013,10 @@
             class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
             id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
       </calculator>
+      <calculator
+            class="net.certiv.fluentmark.ui.validation.MarkdownAnchorValidator"
+            id="net.certiv.fluentmark.ui.validator.markdown.anchors">
+      </calculator>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
