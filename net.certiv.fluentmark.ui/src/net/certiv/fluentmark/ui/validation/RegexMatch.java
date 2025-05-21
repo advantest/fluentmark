@@ -28,6 +28,10 @@ public class RegexMatch {
 		this.endIndex = endIndex;
 	}
 	
+	public static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind) {
+		return findMatches(textToCheck, patternToFind, null);
+	}
+	
 	public static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind, String regexMatchGroupName) {
 		List<RegexMatch> matches = new ArrayList<>();
 		

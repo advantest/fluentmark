@@ -9,11 +9,8 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -109,7 +106,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			return;
 		}
 
-		findMatches(regionContent, LINK_PATTERN)
+		RegexMatch.findMatches(regionContent, LINK_PATTERN)
 			.forEach(match -> {
 				try {
 					validateLinkStatement(region, document, file, match.matchedText, match.startIndex, regionContent);
@@ -119,7 +116,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 		
 		
-		findMatches(regionContent, LINK_REF_DEF_PATTERN)
+		RegexMatch.findMatches(regionContent, LINK_REF_DEF_PATTERN)
 			.forEach(match -> {
 				try {
 					validateLinkReferenceDefinitionStatement(region, document, file, match.matchedText, match.startIndex);
@@ -128,7 +125,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		findMatches(regionContent, REF_LINK_FULL_PATTERN)
+		RegexMatch.findMatches(regionContent, REF_LINK_FULL_PATTERN)
 			.forEach(match -> {
 				try {
 					Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
@@ -149,7 +146,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		findMatches(regionContent, REF_LINK_SHORT_PATTERN)
+		RegexMatch.findMatches(regionContent, REF_LINK_SHORT_PATTERN)
 			.forEach(match -> {
 				try {
 					String linkLabel = match.matchedText.substring(1, match.matchedText.length() - 1);
@@ -161,34 +158,6 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 	}
 	
-	protected Stream<Match> findMatches(String textToCheck, Pattern patternToFind) {
-		List<Match> matches = new ArrayList<>();
-		
-		Matcher textMatcher = patternToFind.matcher(textToCheck);
-		boolean found = textMatcher.find();
-		
-		while (found) {
-			String currentTextMatch = textMatcher.group();
-			int startIndex = textMatcher.start();
-			
-			matches.add(new Match(currentTextMatch, startIndex));
-			
-			found = textMatcher.find();
-		}
-		
-		return matches.stream();
-	}
-	
-	private class Match {
-		public final String matchedText;
-		public final int startIndex;
-		
-		public Match(String matchedText, int startIndex) {
-			this.matchedText = matchedText;
-			this.startIndex = startIndex;
-		}
-	}
-
 	protected void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
