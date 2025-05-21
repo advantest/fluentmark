@@ -90,7 +90,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 				
 				try {
 					MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-							"The anchor identifier \"#" + anchorDeclaration.matchedText + "\" is invalid."
+							"The anchor identifier \"" + anchorDeclaration.matchedText + "\" is invalid."
 							+ " It has to contain at least one character, must start with a letter,"
 							+ " and is allowed to contain any number of the following characters in the remainder:"
 							+ " letters ([A-Za-z]), digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\").",
@@ -119,7 +119,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 					
 					try {
 						MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-								"The anchor identifier \"#" + anchor + "\" is not unique."
+								"The anchor identifier \"" + anchor + "\" is not unique."
 								+ " The same identifier is used in the following lines: " + lines,
 								lineNumber,
 								offset,
