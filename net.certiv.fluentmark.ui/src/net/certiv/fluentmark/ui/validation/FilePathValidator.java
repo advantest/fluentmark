@@ -10,14 +10,12 @@
 package net.certiv.fluentmark.ui.validation;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -26,27 +24,18 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class FilePathValidator {
 	
-	// pattern for headings with anchors, e.g. #### 1.2 Section {#topic-x}
-	private static final String REGEX_HEADING_ANCHOR_PREFIX = "#{1,6}( |\\t)+.*\\{#";
-	private static final String REGEX_HEADING_WITH_ANCHOR = REGEX_HEADING_ANCHOR_PREFIX + "\\S+\\}";
-	
-	private final Pattern HEADING_WITH_ANCHOR_PREFIX_PATTERN;
-	private final Pattern HEADING_WITH_ANCHOR_PATTERN;
-	
 	private JavaCodeMemberResolver javaMemberResolver;
 	
 	private String workspacePath = null;
 	
 	public FilePathValidator() {
-		HEADING_WITH_ANCHOR_PREFIX_PATTERN = Pattern.compile(REGEX_HEADING_ANCHOR_PREFIX);
-		HEADING_WITH_ANCHOR_PATTERN = Pattern.compile(REGEX_HEADING_WITH_ANCHOR);
-		
 		javaMemberResolver = new JavaCodeMemberResolver();
 	}
 	
@@ -154,32 +143,15 @@ public class FilePathValidator {
 	}
 	
 	private IMarker checkSectionAnchorExists(String sectionAnchor, String markdownFileContent, IResource currentResource, int lineNumber, int offset, int endOffset) throws CoreException {
-		Matcher headingMatcher = HEADING_WITH_ANCHOR_PATTERN.matcher(markdownFileContent);
-		boolean found = headingMatcher.find();
-		
-		// go through all the headings in the document and check their anchors
-		while (found) {
-			String currentHeadingMatch = headingMatcher.group();
-			
-			Matcher prefixMatcher = HEADING_WITH_ANCHOR_PREFIX_PATTERN.matcher(currentHeadingMatch);
-			boolean foundPrefix = prefixMatcher.find();
-			Assert.isTrue(foundPrefix);
-			int indexBeginAnchor = prefixMatcher.end();
-			
-			// cut off heading and "{#" and "}" parts to extract the anchor in between
-			String currentAnchor = currentHeadingMatch.substring(indexBeginAnchor, currentHeadingMatch.length() - 1);
-			
-			if (sectionAnchor.equals(currentAnchor)) {
-				// we found the target, no need to create markers
-				return null;
-			}
-			
-			found = headingMatcher.find();
+		Set<String> anchors = MarkdownParsingTools.findValidSectionAnchorsInMarkdownCode(markdownFileContent);
+		if (anchors.contains(sectionAnchor)) {
+			// we found the target, no need to create markers
+			return null;
 		}
 		
-		// we didn't find any target anchor ==> create a marker
+		// we didn't find any (valid) target anchor ==> create a marker
 		return MarkerCalculator.createDocumentationProblemMarker(currentResource, IMarker.SEVERITY_ERROR,
-				String.format("There is no section with the given anchor '%s' in this Markdown document '%s'.", sectionAnchor, currentResource.getLocation().toString()),
+				String.format("There is no section with the given anchor '%s' in the Markdown document '%s' or the anchor is invalid.", sectionAnchor, currentResource.getLocation().toString()),
 				lineNumber,
 				offset,
 				endOffset);

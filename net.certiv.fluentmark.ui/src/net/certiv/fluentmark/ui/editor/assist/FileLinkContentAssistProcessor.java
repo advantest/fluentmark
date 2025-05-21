@@ -9,18 +9,18 @@
  */
 package net.certiv.fluentmark.ui.editor.assist;
 
-import org.eclipse.swt.graphics.Image;
-
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -29,14 +29,9 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.io.File;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -162,7 +157,6 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 					lineOffset, lineLeftFromCursor, lineRightFromCursor,
 					linkTextLeftFromCursor, linkTextRightFromCursor);
 		}
-		// TODO add section anchor validation: check for duplicates / uniqueness per file
 		
 		// we're in a link or image statement
 		return true;
@@ -331,26 +325,15 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 	
 	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
 			int replacementOffset, int replacementLength, IFile markdownSourceCodeFile) {
-		Set<String> anchors = findSectionAnchorsInMarkdownCode(markdownCode);
+		Set<String> anchors = MarkdownParsingTools.findValidSectionAnchorsInMarkdownCode(markdownCode);
 		
 		for (String anchor: anchors) {
 			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_ANCHOR);
 			String fileName = markdownSourceCodeFile != null ? markdownSourceCodeFile.getName() : "";
 			String explanation = " (section identifier" + (fileName.isBlank() ? "" : " in " + fileName) + ")";
-			proposals.add(new CompletionProposal(anchor, replacementOffset, replacementLength, anchor.length(), img, anchor + explanation, null, null));
+			String replacementText = "#" + anchor;
+			proposals.add(new CompletionProposal(replacementText, replacementOffset, replacementLength, replacementText.length(), img, replacementText + explanation, null, null));
 		}
-	}
-	
-	private Set<String> findSectionAnchorsInMarkdownCode(String markdownCode) {
-		return Arrays.stream(markdownCode.split(MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR))
-				.filter(line -> line.matches(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR))
-				.map(lineWithAnchor -> {
-					int startIndex = lineWithAnchor.lastIndexOf("{#") + 1;
-					int endIndex = lineWithAnchor.lastIndexOf("}");
-					return lineWithAnchor.substring(startIndex, endIndex);
-				})
-				.filter(anchor -> anchor.matches("#" + MarkdownParsingTools.REGEX_VALID_ANCHOR_ID))
-				.collect(Collectors.toSet());
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,

@@ -9,6 +9,10 @@
  */
 package net.certiv.fluentmark.core.markdown;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class MarkdownParsingTools {
 	
 	public static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
@@ -19,4 +23,15 @@ public class MarkdownParsingTools {
 	public static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
 	public static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
+	public static Set<String> findValidSectionAnchorsInMarkdownCode(String markdownCode) {
+		return Arrays.stream(markdownCode.split(REGEX_ANY_LINE_SEPARATOR))
+				.filter(line -> line.matches(REGEX_HEADING_WITH_ANCHOR))
+				.map(lineWithAnchor -> {
+					int startIndex = lineWithAnchor.lastIndexOf("{#") + 2;
+					int endIndex = lineWithAnchor.lastIndexOf("}");
+					return lineWithAnchor.substring(startIndex, endIndex);
+				})
+				.filter(anchor -> anchor.matches(REGEX_VALID_ANCHOR_ID))
+				.collect(Collectors.toSet());
+	}
 }
