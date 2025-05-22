@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.validation;
 
@@ -21,6 +21,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -106,7 +107,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			return;
 		}
 
-		RegexMatch.findMatches(regionContent, LINK_PATTERN)
+		MarkdownParsingTools.findMatches(regionContent, LINK_PATTERN)
 			.forEach(match -> {
 				try {
 					validateLinkStatement(region, document, file, match.matchedText, match.startIndex, regionContent);
@@ -116,7 +117,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 		
 		
-		RegexMatch.findMatches(regionContent, LINK_REF_DEF_PATTERN)
+		MarkdownParsingTools.findMatches(regionContent, LINK_REF_DEF_PATTERN)
 			.forEach(match -> {
 				try {
 					validateLinkReferenceDefinitionStatement(region, document, file, match.matchedText, match.startIndex);
@@ -125,7 +126,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		RegexMatch.findMatches(regionContent, REF_LINK_FULL_PATTERN)
+		MarkdownParsingTools.findMatches(regionContent, REF_LINK_FULL_PATTERN)
 			.forEach(match -> {
 				try {
 					Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
@@ -146,7 +147,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		RegexMatch.findMatches(regionContent, REF_LINK_SHORT_PATTERN)
+		MarkdownParsingTools.findMatches(regionContent, REF_LINK_SHORT_PATTERN)
 			.forEach(match -> {
 				try {
 					String linkLabel = match.matchedText.substring(1, match.matchedText.length() - 1);

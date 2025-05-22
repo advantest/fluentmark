@@ -24,6 +24,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
@@ -69,7 +70,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 		
 		// collect all anchor declarations per anchor id
 		Map<String,List<RegexMatch>> anchors = new HashMap<>();
-		RegexMatch.findMatches(regionContent, HEADING_PATTERN, MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR)
+		MarkdownParsingTools.findMatches(regionContent, HEADING_PATTERN, MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR)
 			.forEach(match -> {
 				List<RegexMatch> matches = anchors.get(match.matchedText);
 				if (matches == null) {

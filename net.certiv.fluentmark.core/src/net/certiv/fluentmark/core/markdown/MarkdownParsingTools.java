@@ -9,9 +9,15 @@
  */
 package net.certiv.fluentmark.core.markdown;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public class MarkdownParsingTools {
 	
@@ -33,5 +39,28 @@ public class MarkdownParsingTools {
 				})
 				.filter(anchor -> anchor.matches(REGEX_VALID_ANCHOR_ID))
 				.collect(Collectors.toSet());
+	}
+	
+	public static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind) {
+		return findMatches(textToCheck, patternToFind, null);
+	}
+	
+	public static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind, String regexMatchGroupName) {
+		List<RegexMatch> matches = new ArrayList<>();
+		
+		Matcher textMatcher = patternToFind.matcher(textToCheck);
+		boolean found = textMatcher.find();
+		
+		while (found) {
+			String currentTextMatch = regexMatchGroupName != null ? textMatcher.group(regexMatchGroupName) : textMatcher.group();
+			int startIndex = regexMatchGroupName != null ? textMatcher.start(regexMatchGroupName) : textMatcher.start();
+			int endIndex = regexMatchGroupName != null ? textMatcher.end(regexMatchGroupName) : textMatcher.end();
+			
+			matches.add(new RegexMatch(currentTextMatch, startIndex, endIndex));
+			
+			found = textMatcher.find();
+		}
+		
+		return matches.stream();
 	}
 }
