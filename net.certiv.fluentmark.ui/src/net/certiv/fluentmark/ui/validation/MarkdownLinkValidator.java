@@ -32,28 +32,6 @@ import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionMarkerCalculator {
 	
-	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
-	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
-	// (link to [Topic Y](#topic-y))
-	private static final String REGEX_LINK_PREFIX = "(!){0,1}\\[.*?\\]\\(";
-	private static final String REGEX_LINK = REGEX_LINK_PREFIX + ".*?\\)";
-	
-	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
-	// but excludes footnote definitions like [^label]: Some text
-	private static final String REGEX_LINK_REF_DEF_OPENING_BRACKET = "\\[";
-	private static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
-	private static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
-	private static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
-	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
-	
-	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
-	// * full reference link:      [Markdown specification][CommonMark]
-	// * collapsed reference link: [CommonMark][]
-	// * shortcut reference link:  [CommonMark]
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
-	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[[^\\]]*?\\])(?!(\\[|\\(|:))";
-	
 	private final Pattern LINK_PATTERN;
 	private final Pattern LINK_PREFIX_PATTERN;
 	private final Pattern LINK_REF_DEF_PATTERN_PREFIX;
@@ -65,13 +43,13 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	private FilePathValidator filePathValidator;
 	
 	public MarkdownLinkValidator() {
-		LINK_PATTERN = Pattern.compile(REGEX_LINK);
-		LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
-		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
-		LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
-		REF_LINK_PEFIX_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
-		REF_LINK_FULL_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED);
-		REF_LINK_SHORT_PATTERN = Pattern.compile(REGEX_REF_LINK_SHORTCUT);
+		LINK_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK);
+		LINK_PREFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_PREFIX);
+		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(MarkdownParsingTools.REGEX_LINK_REF_DEF_PREFIX);
+		LINK_REF_DEF_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_REF_DEFINITION);
+		REF_LINK_PEFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
+		REF_LINK_FULL_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_FULL_OR_COLLAPSED);
+		REF_LINK_SHORT_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_SHORTCUT);
 		
 		filePathValidator = new FilePathValidator();
 	}
@@ -240,7 +218,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		
 		String documentContent = document.get();
 		
-		String linkRefDefinitionForLabelRegex = REGEX_LINK_REF_DEF_OPENING_BRACKET + Pattern.quote(linkLabel) + REGEX_LINK_REF_DEF_PART + REGEX_LINK_REF_DEF_SUFFIX;
+		String linkRefDefinitionForLabelRegex = MarkdownParsingTools.REGEX_LINK_REF_DEF_OPENING_BRACKET
+				+ Pattern.quote(linkLabel)
+				+ MarkdownParsingTools.REGEX_LINK_REF_DEF_PART
+				+ MarkdownParsingTools.REGEX_LINK_REF_DEF_SUFFIX;
 		Pattern linkRefDefinitionForLabelPattern = Pattern.compile(linkRefDefinitionForLabelRegex);
 		Matcher linkReferenceDefinitionForLabelMatcher = linkRefDefinitionForLabelPattern.matcher(documentContent);
 		boolean foundLinkReferenceDefinition = linkReferenceDefinitionForLabelMatcher.find();

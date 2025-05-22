@@ -26,6 +26,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
 
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.DocumentUtils;
@@ -33,11 +34,8 @@ import net.certiv.fluentmark.ui.util.DocumentUtils;
 public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		implements IHyperlinkDetector, IHyperlinkDetectorExtension {
 	
-	private static final String REGEX_LINK_PREFIX = "(!){0,1}\\[.*?\\]\\(";
-	private static final String REGEX_LINK = REGEX_LINK_PREFIX + ".*?\\)";
-	
-	private final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
-	private final Pattern LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
+	private final Pattern LINK_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK);
+	private final Pattern LINK_PREFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_PREFIX);
 
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {

@@ -22,6 +22,28 @@ import java.util.stream.Stream;
 public class MarkdownParsingTools {
 	
 	public static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
+	
+	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
+	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
+	// (link to [Topic Y](#topic-y))
+	public static final String REGEX_LINK_PREFIX = "(!){0,1}\\[.*?\\]\\(";
+	public static final String REGEX_LINK = REGEX_LINK_PREFIX + ".*?\\)";
+	
+	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
+	// but excludes footnote definitions like [^label]: Some text
+	public static final String REGEX_LINK_REF_DEF_OPENING_BRACKET = "\\[";
+	public static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
+	public static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
+	public static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
+	public static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
+	
+	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
+	// * full reference link:      [Markdown specification][CommonMark]
+	// * collapsed reference link: [CommonMark][]
+	// * shortcut reference link:  [CommonMark]
+	public static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
+	public static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
+	public static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[[^\\]]*?\\])(?!(\\[|\\(|:))";
 
 	public static final String REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR = "anchor";
 	
