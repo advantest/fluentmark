@@ -9,8 +9,8 @@
  */
 package net.certiv.fluentmark.ui.editor.hyperlinks;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -27,6 +27,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
 
 import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.DocumentUtils;
@@ -34,9 +35,6 @@ import net.certiv.fluentmark.ui.util.DocumentUtils;
 public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		implements IHyperlinkDetector, IHyperlinkDetectorExtension {
 	
-	private final Pattern LINK_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK);
-	private final Pattern LINK_PREFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_PREFIX);
-
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 		if (region == null || textViewer == null) {
@@ -49,6 +47,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return null;
 		}
 		
+		// the given region has length 0, so we have to use the offset only
 		int offset = region.getOffset();
 		
 		IRegion lineRegion;
@@ -62,44 +61,44 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		int offsetInLine = offset - lineRegion.getOffset();
 		
-		Matcher linkMatcher = LINK_PATTERN.matcher(line);
-		int startIndex = 0;
-		while (linkMatcher.find(startIndex) && linkMatcher.end() < offsetInLine) {
-			startIndex = linkMatcher.end();
+		// check for regular links and images
+		Optional <RegexMatch> linkMatch = MarkdownParsingTools.findLinksAndImages(line)
+			// find the link that belongs to the given offset
+			.filter(match -> match.startIndex < offsetInLine && match.endIndex > offsetInLine)
+			.findFirst();
+		
+		if (linkMatch.isPresent()) {
+			RegexMatch targetMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.REGEX_LINK_CAPTURING_GROUP_TARGET);
+			if (targetMatch != null) {
+				String linkTarget = targetMatch.matchedText;
+				
+				IRegion linkTargetRegion= new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
+				
+				return wrap(createHyperLink(linkTarget, linkTargetRegion, document));
+			}
 		}
 		
-		if (!linkMatcher.hasMatch()) {
-			return null;
-		}
+		// TODO check for link reference definitions
 		
-		if (linkMatcher.start() > offsetInLine || linkMatcher.end() <= offsetInLine) {
-			return null;
-		}
+		// TODO check for reference links
 		
-		String linkStatement = linkMatcher.group();
-		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
-		prefixMatcher.find();
-		int linkTargetStartIndex = prefixMatcher.end();
-		
-		String linkTarget = linkStatement.substring(linkTargetStartIndex, linkStatement.length() - 1);
-		
-		IRegion linkTargetRegion= new Region(lineRegion.getOffset() + linkMatcher.start() + linkTargetStartIndex, linkTarget.length());
-		
+		return null;
+	}
+	
+	private IHyperlink createHyperLink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
 		if (linkTarget.startsWith("https://")) {
 			// Since the default hyper link detector does not correctly detect URLs in Markdown files,
 			// we need to replace it with our own detector and create our custom URLHyperlinks.
 			// See FluentUI.start()
-			return new IHyperlink[] { new FluentUrlHyperlink(linkTargetRegion, linkTarget) };
-			//return null;
+			return new FluentUrlHyperlink(linkTargetRegion, linkTarget);
 		}
 		
-		IFile currentFile = DocumentUtils.findFileFor(document);
+		IFile currentFile = DocumentUtils.findFileFor(currentDocument);
 		if (currentFile == null) {
 			return null;
 		}
 		
 		String[] parts = linkTarget.split("#");
-		
 		String targetFilePath = parts[0];
 		String fragment = null;
 		if (parts.length == 2) {
@@ -112,7 +111,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		if (fragment != null && !fragment.isBlank() && (targetFilePath == null || targetFilePath.isBlank())) {
 			targetFile = currentFile;
 			
-			return new IHyperlink[] { new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment) };
+			return new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment);
 		}
 		
 		if (targetFilePath == null || targetFilePath.isBlank()) {
@@ -131,13 +130,13 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		if (targetFile != null) {
 			if (FileUtils.isMarkdownFile(targetFile)) {
-				return new IHyperlink[] { new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment) };
+				return new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment);
 			}
 			
 			if (fragment != null && FileUtils.isJavaFile(targetFile)) {
-				return new IHyperlink[] { new JavaMemberHyperlink(targetFile, linkTargetRegion, fragment) };
+				return new JavaMemberHyperlink(targetFile, linkTargetRegion, fragment);
 			}
-			return new IHyperlink[] { new FileHyperlink(targetFile, linkTargetRegion) };
+			return new FileHyperlink(targetFile, linkTargetRegion);
 		}
 		
 		IFileStore fileOutsideWorkspace = FileUtils.resolveToNonWorkspaceFile(absolutePath); 
@@ -145,7 +144,11 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return null;
 		}
 		
-		return new IHyperlink[] { new FileHyperlink(fileOutsideWorkspace, linkTargetRegion) };
+		return new FileHyperlink(fileOutsideWorkspace, linkTargetRegion);
+	}
+	
+	private IHyperlink[] wrap(IHyperlink hyperLink) {
+		return new IHyperlink[] { hyperLink };
 	}
 
 }

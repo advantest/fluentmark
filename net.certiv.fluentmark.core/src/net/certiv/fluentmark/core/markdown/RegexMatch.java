@@ -9,22 +9,28 @@
  */
 package net.certiv.fluentmark.core.markdown;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegexMatch {
 	
 	public final String matchedText;
 	public final int startIndex;
 	public final int endIndex;
+	public final Map<String,RegexMatch> subMatches = new HashMap<>();
 	
 	public RegexMatch(String matchedText, int startIndex, int endIndex) {
 		this.matchedText = matchedText;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
+	}
+	
+	public void addSubMatch(String matchName, RegexMatch subMatch) {
+		if (matchName == null || matchName.isBlank() || subMatch == null
+				|| subMatch.startIndex < startIndex || subMatch.endIndex > endIndex) {
+			throw new IllegalArgumentException();
+		}
+		
+		subMatches.put(matchName, subMatch);
 	}
 }

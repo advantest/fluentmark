@@ -32,28 +32,11 @@ import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionMarkerCalculator {
 	
-	private final Pattern LINK_PATTERN;
-	private final Pattern LINK_PREFIX_PATTERN;
-	private final Pattern LINK_REF_DEF_PATTERN_PREFIX;
-	private final Pattern LINK_REF_DEF_PATTERN;
-	private final Pattern REF_LINK_PEFIX_PATTERN;
-	private final Pattern REF_LINK_FULL_PATTERN;
-	private final Pattern REF_LINK_SHORT_PATTERN;
-	
 	private FilePathValidator filePathValidator;
 	
 	public MarkdownLinkValidator() {
-		LINK_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK);
-		LINK_PREFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_PREFIX);
-		LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(MarkdownParsingTools.REGEX_LINK_REF_DEF_PREFIX);
-		LINK_REF_DEF_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_LINK_REF_DEFINITION);
-		REF_LINK_PEFIX_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
-		REF_LINK_FULL_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_FULL_OR_COLLAPSED);
-		REF_LINK_SHORT_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_REF_LINK_SHORTCUT);
-		
 		filePathValidator = new FilePathValidator();
 	}
-	
 	
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
@@ -85,7 +68,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			return;
 		}
 
-		MarkdownParsingTools.findMatches(regionContent, LINK_PATTERN)
+		MarkdownParsingTools.findLinksAndImages(regionContent)
 			.forEach(match -> {
 				try {
 					validateLinkStatement(region, document, file, match.matchedText, match.startIndex, regionContent);
@@ -95,7 +78,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 		
 		
-		MarkdownParsingTools.findMatches(regionContent, LINK_REF_DEF_PATTERN)
+		MarkdownParsingTools.findLinkReferenceDefinitions(regionContent)
 			.forEach(match -> {
 				try {
 					validateLinkReferenceDefinitionStatement(region, document, file, match.matchedText, match.startIndex);
@@ -104,10 +87,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		MarkdownParsingTools.findMatches(regionContent, REF_LINK_FULL_PATTERN)
+		MarkdownParsingTools.findFullAndCollapsedReferenceLinks(regionContent)
 			.forEach(match -> {
 				try {
-					Matcher prefixMatcher = REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
+					Matcher prefixMatcher = MarkdownParsingTools.REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
 					boolean foundPrefix = prefixMatcher.find();
 					Assert.isTrue(foundPrefix);
 					int secondTextStartIndex = prefixMatcher.end();
@@ -125,7 +108,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		MarkdownParsingTools.findMatches(regionContent, REF_LINK_SHORT_PATTERN)
+		MarkdownParsingTools.findShortcutReferenceLinks(regionContent)
 			.forEach(match -> {
 				try {
 					String linkLabel = match.matchedText.substring(1, match.matchedText.length() - 1);
@@ -140,7 +123,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	protected void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
 		
-		Matcher prefixMatcher = LINK_PREFIX_PATTERN.matcher(linkStatement);
+		Matcher prefixMatcher = MarkdownParsingTools.LINK_PREFIX_PATTERN.matcher(linkStatement);
 		boolean foundPrefix = prefixMatcher.find();
 		Assert.isTrue(foundPrefix);
 		int linkTargetStartIndex = prefixMatcher.end();
@@ -188,7 +171,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	protected void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
 			String linkRefDefStatement, int linkStatementStartIndexInRegion) throws CoreException {
-		Matcher prefixMatcher = LINK_REF_DEF_PATTERN_PREFIX.matcher(linkRefDefStatement);
+		Matcher prefixMatcher = MarkdownParsingTools.LINK_REF_DEF_PATTERN_PREFIX.matcher(linkRefDefStatement);
 		boolean foundPrefix = prefixMatcher.find();
 		Assert.isTrue(foundPrefix);
 		int linkTargetStartIndex = prefixMatcher.end();

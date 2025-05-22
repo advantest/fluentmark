@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -33,12 +32,6 @@ import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 	
-	private final Pattern HEADING_PATTERN;
-	
-	public MarkdownAnchorValidator() {
-		HEADING_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR);
-	}
-
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
 		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
@@ -70,7 +63,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 		
 		// collect all anchor declarations per anchor id
 		Map<String,List<RegexMatch>> anchors = new HashMap<>();
-		MarkdownParsingTools.findMatches(regionContent, HEADING_PATTERN, MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR)
+		MarkdownParsingTools.findHeadingAnchorIds(regionContent)
 			.forEach(match -> {
 				List<RegexMatch> matches = anchors.get(match.matchedText);
 				if (matches == null) {
