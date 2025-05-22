@@ -12,14 +12,10 @@ package net.certiv.fluentmark.ui.editor.hyperlinks;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -29,7 +25,6 @@ import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
-import org.eclipse.jface.text.hyperlink.URLHyperlink;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -126,11 +121,10 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return null;
 		}
 		
-		IPath resourceRelativePath = new Path(targetFilePath);
-		IPath absolutePath = toAbsolutePath(resourceRelativePath, currentFile);
+		IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentFile);
 		
 		try {
-			targetFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+			targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
 		} catch (Exception e) {
 			FluentUI.log(IStatus.WARNING, "Could not find file " + absolutePath, e);
 			
@@ -148,24 +142,12 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return new IHyperlink[] { new FileHyperlink(targetFile, linkTargetRegion) };
 		}
 		
-		IFileStore fileOutsideWorkspace = EFS.getLocalFileSystem().getStore(absolutePath);
-		if (fileOutsideWorkspace == null
-				|| !fileOutsideWorkspace.fetchInfo().exists()
-				|| fileOutsideWorkspace.fetchInfo().isDirectory()) {
+		IFileStore fileOutsideWorkspace = FileUtils.resolveToNonWorkspaceFile(absolutePath); 
+		if (!FileUtils.isExistingFile(fileOutsideWorkspace)) {
 			return null;
 		}
 		
 		return new IHyperlink[] { new FileHyperlink(fileOutsideWorkspace, linkTargetRegion) };
 	}
-	
-	private IPath toAbsolutePath(IPath resourceRelativePath, IResource currentResource) {
-		IPath absolutePath;
-		if (resourceRelativePath.equals(currentResource.getLocation())) {
-			absolutePath = currentResource.getLocation();
-		} else {
-			absolutePath = currentResource.getLocation().removeLastSegments(1).append(resourceRelativePath);
-		}
-		return absolutePath;
-	}	
 
 }

@@ -9,18 +9,18 @@
  */
 package net.certiv.fluentmark.ui.editor.assist;
 
-import org.eclipse.swt.graphics.Image;
-
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -29,20 +29,19 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import java.io.File;
-
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.util.DocumentUtils;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
-	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/' };
+	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/', '#' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
 	private final ITextEditor editor;
@@ -76,11 +75,27 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			
 			ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 			
-			addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile,
+			boolean cursorInLinkOrImageStatement = addProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
 			
-			addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
+			boolean cursorInLinkRefDefinition = addProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
 					offset, currentLine, lineOffset, lineLength, lineLeftFromCursor, lineRightFromCursor);
+			
+			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
+			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition
+					// we don't propose link/image creation if we're in an anchor definition like "# Heading {#}"
+					&& !lineLeftFromCursor.matches("#+\\s.*\\{#\\S*")) {
+				
+				// propose creating a file link
+				proposals.add(new FilePathCompletionProposalWithDialog(editor,
+						offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.FILE_LINK));
+				
+				// in case, we're not in a header line, we'll also propose creating an image
+				if (!lineLeftFromCursor.matches("#+\\s.*")) {
+					proposals.add(new FilePathCompletionProposalWithDialog(editor,
+							offset, 0, FilePathCompletionProposalWithDialog.FileLinkCreationType.IMAGE));
+				}
+			}
 			
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
 		} catch (BadLocationException e) {
@@ -89,7 +104,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 	}
 	
-	private void addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+	private boolean addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
 		 *  Try to detect if we're in a statement like
@@ -114,10 +129,11 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		// we're not in a link declaration? ==> we have no proposals
 		if (indexOfClosingRoundBracket < 0 || indexOfOpeningRoundBracket < 0
 				|| indexOfClosingSquareBracket < 0 || indexOfOpeningSquareBracket < 0) {
-			return;
+			// we're not in a link or image statement
+			return false;
 		}
 		
-		// TODO only propose image files in case we're in an image reference?
+		// TODO only propose image files if we're in an image reference?
 		int indexOfExclamationMark = -1;
 		if (indexOfOpeningSquareBracket > -1
 				&& indexOfOpeningSquareBracket - 1 >= 0
@@ -134,9 +150,19 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		// if we have a file link, not an image
+		if (indexOfExclamationMark < 0) {
+			addAnchorProposalsForLinksAndImages(proposals, currentEditorsMarkdownFile, document,
+					lineOffset, lineLeftFromCursor, lineRightFromCursor,
+					linkTextLeftFromCursor, linkTextRightFromCursor);
+		}
+		
+		// we're in a link or image statement
+		return true;
 	}
-	
-	private void addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
+
+	private boolean addProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
 		 *  Try to detect if we're in a statement like
@@ -163,12 +189,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				previousLine = document.get(prevLineOffset, prevLineLength);
 			} catch (BadLocationException e) {
 				FluentUI.log(IStatus.ERROR, "Failed reading document for code assist proposals.", e);
-				return;
+				return false;
 			}
 			
 			// abort if the previous line does not only contain the link label (then it's not a link reference definition)
-			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*\\n")) {
-				return;
+			if (!previousLine.matches(" {0,3}\\[.*\\]:\\s*" + MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR)) {
+				return false;
 			}
 			
 			indexOfColon = previousLine.lastIndexOf(':');
@@ -181,7 +207,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			// abort if we don't find the mandatory link label (then it's not a link reference definition)
 			String textLeftFromColon = lineLeftFromCursor.substring(0, indexOfColon);
 			if (!textLeftFromColon.matches(" {0,3}\\[.*\\]")) {
-				return;
+				return false;
 			}
 		}
 		
@@ -194,8 +220,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		// abort if the remainder of the line doesn't look like being a link reference definition
-		if (!lineRightFromCursor.matches(".*( \\t)*('\")*\\n*")) {
-			return;
+		if (!lineRightFromCursor.matches(".*( \\t)*('\")*(" + MarkdownParsingTools.REGEX_ANY_LINE_SEPARATOR + ")*")) {
+			return false;
 		}
 		
 		int indexOfTitleBegin = lineRightFromCursor.indexOf('\'');
@@ -209,6 +235,105 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		
 		addFilePathProposals(proposals, currentEditorsMarkdownFile,
 				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		addAnchorProposalsForLinkReferenceDefinitions(proposals, currentEditorsMarkdownFile, document,
+				offset, linkTextLeftFromCursor, linkTextRightFromCursor);
+		
+		// we're in a link reference definition
+		return true;
+	}
+	
+	private void addAnchorProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, int lineOffset, String lineLeftFromCursor, String lineRightFromCursor,
+			String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		
+		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
+		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
+		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset = lineOffset + indexOfAnchorStart;
+			replacementLength = indexOfClosingBracket - indexOfAnchorStart;
+		}
+		
+		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+	}
+	
+	private void addAnchorProposalsForLinkReferenceDefinitions(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, int offset, String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		
+		int replacementOffset = offset - linkTextLeftFromCursor.length();
+		int replacementLength = linkTextLeftFromCursor.length() + linkTextRightFromCursor.length();
+		
+		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".md");
+			if (indexOfFileExtension < 0) {
+				indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".MD");
+			}
+			int indexOfAnchorStart = indexOfFileExtension + 3;
+			replacementOffset += indexOfAnchorStart;
+			replacementLength -= indexOfAnchorStart;
+		}
+		
+		addAnchorProposals(proposals, currentEditorsMarkdownFile, document,
+				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
+	}
+	
+	private void addAnchorProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
+			IDocument document, String linkTextLeftFromCursor, String linkTextRightFromCursor,
+			int replacmentOffset, int replacementLength) {
+		// are we having an empty target or only a section anchor in our link target?
+		if ((linkTextLeftFromCursor.isEmpty() && linkTextRightFromCursor.isEmpty())
+				|| (linkTextLeftFromCursor + linkTextRightFromCursor).matches("#\\S*")) {
+			
+			String markdownFileContent = document.get();
+			addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, currentEditorsMarkdownFile);
+			
+		// we have a path to a Markdown file in our link target
+		} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
+			String targetFilePath = linkTextLeftFromCursor;
+			if (indexOfHashtag >= 0) {
+				targetFilePath = linkTextLeftFromCursor.substring(0, indexOfHashtag);
+			}
+			
+			IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
+			IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
+			if (targetFile != null) {
+				// look up IDocument for the IFile in case it is opened in a text editor
+				IDocument targetFileDocument = DocumentUtils.findDocumentFor(targetFile);
+				
+				String markdownFileContent = targetFileDocument != null ?
+						targetFileDocument.get() : 
+						FileUtils.readFileContents(targetFile);
+				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, targetFile);
+			}
+		}
+	}
+	
+	private boolean cursorInOptionalAnchorAfterMarkdownFilePath(String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		String regex = ".+\\.(md|MD)(#\\S*)?";
+		return linkTextLeftFromCursor.matches(regex);
+	}
+	
+	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
+			int replacementOffset, int replacementLength, IFile markdownSourceCodeFile) {
+		Set<String> anchors = MarkdownParsingTools.findValidSectionAnchorsInMarkdownCode(markdownCode);
+		
+		for (String anchor: anchors) {
+			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_ANCHOR);
+			String fileName = markdownSourceCodeFile != null ? markdownSourceCodeFile.getName() : "";
+			String explanation = " (section identifier" + (fileName.isBlank() ? "" : " in " + fileName) + ")";
+			String replacementText = "#" + anchor;
+			proposals.add(new CompletionProposal(replacementText, replacementOffset, replacementLength, replacementText.length(), img, replacementText + explanation, null, null));
+		}
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
@@ -259,7 +384,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 		
 		proposals.add(new FilePathCompletionProposalWithDialog(editor,
-				offset - linkTextLeftFromCursor.length(), linkTextLeftFromCursor.length() + linkTextRightFromCursor.length()));
+				offset - linkTextLeftFromCursor.length(),
+				linkTextLeftFromCursor.length() + linkTextRightFromCursor.length(),
+				FilePathCompletionProposalWithDialog.FileLinkCreationType.PATH_ONLY));
 		
 		
 		List<File> files = Arrays.asList(currentDir.listFiles());
@@ -309,7 +436,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FILE);
 			}
 			
-			proposals.add(new CompletionProposal(filePathSegment, newOffset, replacementLengthLeftFromCursor + linkTextRightFromCursor.length(), filePathSegment.length(), img, null, null, null));
+			proposals.add(new CompletionProposal(filePathSegment,
+					newOffset, replacementLengthLeftFromCursor + linkTextRightFromCursor.length(), filePathSegment.length(),
+					img, null, null, null));
 		}
 		
 		String parentDir = currentDir.getParent();
@@ -320,7 +449,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				toParentPathSegment = '/' + toParentPathSegment;
 			}
 			
-			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP); 
+			Image img = FluentUI.getDefault().getImageProvider().get(FluentImages.DESC_OBJ_FOLDER_UP);
 			proposals.add(new CompletionProposal(toParentPathSegment, offset, linkTextRightFromCursor.length(), toParentPathSegment.length(), img, null, null, null));
 		}
 	}

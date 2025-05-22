@@ -275,6 +275,7 @@ public class MarkerCalculator {
 					}
 				}
 				
+				// TODO avoid computing same partitioning multiple times (and avoid setting up partitioner multiple times)
 				validator.setupDocumentPartitioner(document, file);
 				try {
 					typedRegions = validator.computePartitioning(document, file);

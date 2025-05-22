@@ -144,6 +144,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		buildRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
 		buildRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
 		buildRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
+		buildRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
 		buildRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;

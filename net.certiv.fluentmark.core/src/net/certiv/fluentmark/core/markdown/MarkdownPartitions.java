@@ -39,6 +39,9 @@ public class MarkdownPartitions {
 	}
 	
 	public static ITypedRegion[] computePartitions(IDocument document) {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
 		return FluentPartitioningTools.computePartitions(document, FLUENT_MARKDOWN_PARTITIONING);
 	}
 	

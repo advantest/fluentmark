@@ -33,8 +33,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -273,22 +276,22 @@ public final class FileUtils {
 	
 	public static boolean isMarkdownFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_MARKDOWN.equals(file.getFileExtension());
+				&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isPumlFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_PLANTUML.equals(file.getFileExtension());
+				&& FILE_EXTENSION_PLANTUML.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isSvgFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_SVG.equals(file.getFileExtension());
+				&& FILE_EXTENSION_SVG.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isJavaFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_JAVA.equals(file.getFileExtension());
+				&& FILE_EXTENSION_JAVA.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isAccessibleMarkdownFile(IFile file) {
@@ -301,6 +304,20 @@ public final class FileUtils {
 	
 	public static boolean isAccessibleSvgFile(IFile file) {
 		return isSvgFile(file) && file.isAccessible();
+	}
+	
+	public static IFile resolveToWorkspaceFile(IPath absolutePath) {
+		return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+	}
+	
+	public static IFileStore resolveToNonWorkspaceFile(IPath absolutePath) {
+		return EFS.getLocalFileSystem().getStore(absolutePath);
+	}
+	
+	public static boolean isExistingFile(IFileStore fileOutsideWorkspace) {
+		return fileOutsideWorkspace != null
+				&& fileOutsideWorkspace.fetchInfo().exists()
+				&& !fileOutsideWorkspace.fetchInfo().isDirectory();
 	}
 	
 	public static IPath resolveToAbsoluteResourcePath(String targetFilePath, IFile currentMarkdownFile) {
@@ -363,6 +380,21 @@ public final class FileUtils {
 	
 	public static boolean isOsMacOs() {
 		return operatingSystem.equals(OperatingSystem.MacOs);
+	}
+	
+	public static String getPreferredLineSeparatorFor(IFile file) {
+		if (file != null) {
+			IProject project = file.getProject();
+			if (project != null) {
+				try {
+					return project.getDefaultLineSeparator();
+				} catch (CoreException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		return System.lineSeparator();
 	}
 
 }
