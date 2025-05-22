@@ -10,7 +10,6 @@
 package net.certiv.fluentmark.ui.editor.hyperlinks;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -68,7 +67,7 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			.findFirst();
 		
 		if (linkMatch.isPresent()) {
-			RegexMatch targetMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.REGEX_LINK_CAPTURING_GROUP_TARGET);
+			RegexMatch targetMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
 			if (targetMatch != null) {
 				String linkTarget = targetMatch.matchedText;
 				
@@ -78,9 +77,41 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			}
 		}
 		
-		// TODO check for link reference definitions
-		
 		// TODO check for reference links
+		
+		// TODO check for link reference definitions
+		// we extend the region to the preceding line since link reference definitions might span multiple lines and the target text might be in the second line
+		// It might be something like the following (we ignore the title line, since the target is in the first or second line):
+		// [label]:
+		//    https://www.plantuml.com
+		//    "Title"
+		IRegion multipleLinesRegion;
+		String multipleLines;
+		try {
+			IRegion preceedingLineRegion = document.getLineInformationOfOffset(lineRegion.getOffset() - 1);
+			multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + lineRegion.getLength());
+			multipleLines = document.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
+		} catch (BadLocationException ex) {
+			return null;
+		}
+		
+		int offsetInMultipleLines = offset - multipleLinesRegion.getOffset();
+		
+		Optional <RegexMatch> linkRefDefMatch = MarkdownParsingTools.findLinkReferenceDefinitions(multipleLines)
+			// find the link reference definition that belongs to the given offset
+			.filter(match -> match.startIndex < offsetInMultipleLines && match.endIndex > offsetInMultipleLines)
+			.findFirst();
+		
+		if (linkRefDefMatch.isPresent()) {
+			RegexMatch targetMatch = linkRefDefMatch.get().subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+			if (targetMatch != null) {
+				String linkTarget = targetMatch.matchedText;
+				
+				IRegion linkTargetRegion= new Region(multipleLinesRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
+				
+				return wrap(createHyperLink(linkTarget, linkTargetRegion, document));
+			}
+		}
 		
 		return null;
 	}

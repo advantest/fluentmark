@@ -23,16 +23,16 @@ public class MarkdownParsingTools {
 	
 	public static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
 	
-	public static final String REGEX_LINK_CAPTURING_GROUP_LABEL = "label";
-	public static final String REGEX_LINK_CAPTURING_GROUP_TARGET = "target";
+	public static final String CAPTURING_GROUP_LABEL = "label";
+	public static final String CAPTURING_GROUP_TARGET = "target";
+	public static final String CAPTURING_GROUP_ANCHOR = "anchor";
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
 	private static final String REGEX_LINK_PREFIX = "(!){0,1}\\[.*?\\]\\(";
-	//private static final String REGEX_LINK = REGEX_LINK_PREFIX + ".*?\\)";
-	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + REGEX_LINK_CAPTURING_GROUP_LABEL
-			+ ">.*)?\\]\\((?<" + REGEX_LINK_CAPTURING_GROUP_TARGET + ">.*)?\\)";
+	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">.*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">.*)?\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
@@ -40,7 +40,9 @@ public class MarkdownParsingTools {
 	public static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
 	public static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
 	private static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
-	private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
+	//private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
+	private static final String REGEX_LINK_REF_DEFINITION = "\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">[^^\\n]+?)\\]:( |\\t|\\n)?( |\\t)*(?<" + CAPTURING_GROUP_TARGET + ">\\S+)";
 	
 	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
 	// * full reference link:      [Markdown specification][CommonMark]
@@ -50,10 +52,8 @@ public class MarkdownParsingTools {
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
 	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[[^\\]]*?\\])(?!(\\[|\\(|:))";
 
-	private static final String REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR = "anchor";
-	
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>Sally)
-	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
+	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
 	public static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
 	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
@@ -80,11 +80,11 @@ public class MarkdownParsingTools {
 	}
 	
 	public static Stream<RegexMatch> findLinksAndImages(String markdownCode) {
-		return findMatches(markdownCode, LINK_PATTERN, REGEX_LINK_CAPTURING_GROUP_LABEL, REGEX_LINK_CAPTURING_GROUP_TARGET);
+		return findMatches(markdownCode, LINK_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
 	public static Stream<RegexMatch> findLinkReferenceDefinitions(String markdownCode) {
-		return findMatches(markdownCode, LINK_REF_DEF_PATTERN);
+		return findMatches(markdownCode, LINK_REF_DEF_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
 	public static Stream<RegexMatch> findFullAndCollapsedReferenceLinks(String markdownCode) {
@@ -96,8 +96,8 @@ public class MarkdownParsingTools {
 	}
 	
 	public static Stream<RegexMatch> findHeadingAnchorIds(String markdownCode) {
-		return findMatches(markdownCode, HEADING_PATTERN, REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR)
-				.map(match -> match.subMatches.get(REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR));
+		return findMatches(markdownCode, HEADING_PATTERN, CAPTURING_GROUP_ANCHOR)
+				.map(match -> match.subMatches.get(CAPTURING_GROUP_ANCHOR));
 	}
 	
 	private static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind, String... capturingGroupNames) {
