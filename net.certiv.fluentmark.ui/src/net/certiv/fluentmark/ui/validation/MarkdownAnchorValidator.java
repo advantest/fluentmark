@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -24,6 +23,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
@@ -32,12 +32,6 @@ import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 
 public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 	
-	private final Pattern HEADING_PATTERN;
-	
-	public MarkdownAnchorValidator() {
-		HEADING_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR);
-	}
-
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
 		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
@@ -69,7 +63,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 		
 		// collect all anchor declarations per anchor id
 		Map<String,List<RegexMatch>> anchors = new HashMap<>();
-		RegexMatch.findMatches(regionContent, HEADING_PATTERN, MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR_CAPTURING_GROUP_ANCHOR)
+		MarkdownParsingTools.findHeadingAnchorIds(regionContent)
 			.forEach(match -> {
 				List<RegexMatch> matches = anchors.get(match.matchedText);
 				if (matches == null) {
@@ -79,18 +73,18 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 				matches.add(match);
 			});
 		
-		// go through all anchor declarations and check the use only allowed characters
+		// go through all anchor declarations and check they use only allowed characters
 		anchors.values().stream()
-			.flatMap(matcheForAnAnchor -> matcheForAnAnchor.stream())
-			.filter(anchorDeclaration -> !anchorDeclaration.matchedText.matches(MarkdownParsingTools.REGEX_VALID_ANCHOR_ID))
-			.forEach(anchorDeclaration -> {
-				int offset = region.getOffset() + anchorDeclaration.startIndex - 1;
-				int endOffset = region.getOffset() + anchorDeclaration.endIndex;
+			.flatMap(matchForAnAnchor -> matchForAnAnchor.stream())
+			.filter(anchorIdMatch -> !MarkdownParsingTools.isValidAnchorIdentifier(anchorIdMatch.matchedText))
+			.forEach(anchorIdMatch -> {
+				int offset = region.getOffset() + anchorIdMatch.startIndex - 1;
+				int endOffset = region.getOffset() + anchorIdMatch.endIndex;
 				int lineNumber = getLineForOffset(document, offset);
 				
 				try {
 					MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-							"The anchor identifier \"" + anchorDeclaration.matchedText + "\" is invalid."
+							"The anchor identifier \"" + anchorIdMatch.matchedText + "\" is invalid."
 							+ " It has to contain at least one character, must start with a letter,"
 							+ " and is allowed to contain any number of the following characters in the remainder:"
 							+ " letters ([A-Za-z]), digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\").",
