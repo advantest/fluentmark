@@ -12,6 +12,7 @@ package net.certiv.fluentmark.core.markdown;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,24 +33,11 @@ public class MarkdownParsingTools {
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
-	private static final String REGEX_LINK_PREFIX = "(!){0,1}\\[.*?\\]\\(";
 	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + CAPTURING_GROUP_LABEL
 			+ ">.*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">.*)?\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
-	@Deprecated
-	public static final String REGEX_LINK_REF_DEF_OPENING_BRACKET = "\\[";
-	
-	@Deprecated
-	public static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
-	
-	@Deprecated
-	public static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
-	
-	@Deprecated
-	private static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
-	
 	private static final String REGEX_LINK_REF_DEFINITION = "\\[(?<" + CAPTURING_GROUP_LABEL
 			+ ">[^^\\n]+?)\\]:( |\\t|\\n)?( |\\t)*(?<" + CAPTURING_GROUP_TARGET + ">\\S+)";
 	
@@ -57,8 +45,6 @@ public class MarkdownParsingTools {
 	// * full reference link:      [Markdown specification][CommonMark]
 	// * collapsed reference link: [CommonMark][]
 	// * shortcut reference link:  [CommonMark]
-	@Deprecated
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "\\[(?<"
 			+ CAPTURING_GROUP_LABEL + ">[^\\]]*?)\\]\\[(?<"
 			+ CAPTURING_GROUP_TARGET + ">[^\\]]*?)\\]";
@@ -67,16 +53,7 @@ public class MarkdownParsingTools {
 
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
-	public static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
-	
-	@Deprecated
-	public static final Pattern LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
-	
-	@Deprecated
-	public static final Pattern LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
-	
-	@Deprecated
-	public static final Pattern REF_LINK_PEFIX_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
+	private static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
 	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
 	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
@@ -85,6 +62,9 @@ public class MarkdownParsingTools {
 	
 	private static final Pattern HEADING_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR);
 	
+	public static boolean isValidAnchorIdentifier(String identifier) {
+		return identifier != null && identifier.matches(REGEX_VALID_ANCHOR_ID);
+	}
 	
 	public static Set<String> findValidSectionAnchorsInMarkdownCode(String markdownCode) {
 		return Arrays.stream(markdownCode.split(REGEX_ANY_LINE_SEPARATOR))
@@ -94,7 +74,7 @@ public class MarkdownParsingTools {
 					int endIndex = lineWithAnchor.lastIndexOf("}");
 					return lineWithAnchor.substring(startIndex, endIndex);
 				})
-				.filter(anchor -> anchor.matches(REGEX_VALID_ANCHOR_ID))
+				.filter(anchor -> isValidAnchorIdentifier(anchor))
 				.collect(Collectors.toSet());
 	}
 	
@@ -104,6 +84,19 @@ public class MarkdownParsingTools {
 	
 	public static Stream<RegexMatch> findLinkReferenceDefinitions(String markdownCode) {
 		return findMatches(markdownCode, LINK_REF_DEF_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
+	}
+	
+	public static Optional<RegexMatch> findLinkReferenceDefinition(String markdownCode, String linkReferenceDefinitionName) {
+		if (linkReferenceDefinitionName == null || linkReferenceDefinitionName.isBlank()) {
+			throw new IllegalArgumentException();
+		}
+		
+		return findLinkReferenceDefinitions(markdownCode)
+			.filter(match -> {
+				RegexMatch labelMatch = match.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+				return labelMatch != null && labelMatch.matchedText.equals(linkReferenceDefinitionName);
+			})
+			.findFirst();
 	}
 	
 	public static Stream<RegexMatch> findFullAndCollapsedReferenceLinks(String markdownCode) {
@@ -120,6 +113,10 @@ public class MarkdownParsingTools {
 	}
 	
 	private static Stream<RegexMatch> findMatches(String textToCheck, Pattern patternToFind, String... capturingGroupNames) {
+		if (textToCheck == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		List<RegexMatch> matches = new ArrayList<>();
 		
 		Matcher textMatcher = patternToFind.matcher(textToCheck);

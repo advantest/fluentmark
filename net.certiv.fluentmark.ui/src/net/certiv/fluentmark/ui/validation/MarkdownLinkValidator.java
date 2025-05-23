@@ -9,12 +9,10 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
@@ -23,6 +21,7 @@ import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
@@ -71,7 +70,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		MarkdownParsingTools.findLinksAndImages(regionContent)
 			.forEach(match -> {
 				try {
-					validateLinkStatement(region, document, file, match.matchedText, match.startIndex, regionContent);
+					validateLinkStatement(region, document, file, match, regionContent);
 				} catch (Exception e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
@@ -81,7 +80,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		MarkdownParsingTools.findLinkReferenceDefinitions(regionContent)
 			.forEach(match -> {
 				try {
-					validateLinkReferenceDefinitionStatement(region, document, file, match.matchedText, match.startIndex);
+					validateLinkReferenceDefinitionStatement(region, document, file, match);
 				} catch (Exception e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
@@ -90,19 +89,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		MarkdownParsingTools.findFullAndCollapsedReferenceLinks(regionContent)
 			.forEach(match -> {
 				try {
-					Matcher prefixMatcher = MarkdownParsingTools.REF_LINK_PEFIX_PATTERN.matcher(match.matchedText);
-					boolean foundPrefix = prefixMatcher.find();
-					Assert.isTrue(foundPrefix);
-					int secondTextStartIndex = prefixMatcher.end();
-					
-					String linkLabel = match.matchedText.substring(secondTextStartIndex, match.matchedText.length() - 1);
-					if (linkLabel.length() > 0) {
-						// we have a full reference link like [link text][linkLabel]
-					} else {
-						// we have a collapsed reference link like [linkLabel][]
-						linkLabel = match.matchedText.substring(1, secondTextStartIndex - 2);
-					}
-					validateReferenceLinkLabel(region, document, file, match.matchedText, linkLabel, match.startIndex);
+					validateReferenceLinkLabel(region, document, file, match);
 				} catch (Exception e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
@@ -111,9 +98,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		MarkdownParsingTools.findShortcutReferenceLinks(regionContent)
 			.forEach(match -> {
 				try {
-					String linkLabel = match.matchedText.substring(1, match.matchedText.length() - 1);
-					
-					validateReferenceLinkLabel(region, document, file, match.matchedText, linkLabel, match.startIndex);
+					validateReferenceLinkLabel(region, document, file, match);
 				} catch (Exception e) {
 					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
@@ -121,14 +106,12 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	}
 	
 	protected void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
-			String linkStatement, int linkStatementStartIndexInRegion, String regionContent) throws CoreException {
+			RegexMatch linkStatementMatch, String regionContent) throws CoreException {
 		
-		Matcher prefixMatcher = MarkdownParsingTools.LINK_PREFIX_PATTERN.matcher(linkStatement);
-		boolean foundPrefix = prefixMatcher.find();
-		Assert.isTrue(foundPrefix);
-		int linkTargetStartIndex = prefixMatcher.end();
+		RegexMatch targetMatch = linkStatementMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+		String linkTarget = targetMatch.matchedText;
 		
-		String linkTarget = linkStatement.substring(linkTargetStartIndex, linkStatement.length() - 1);
+		int linkTargetStartIndex = targetMatch.startIndex - linkStatementMatch.startIndex;
 		
 		if (linkTarget.contains("(")) {
 			// In some cases the regex for links doesn't catch the last ')'. Thus we have to parse the text once again
@@ -138,7 +121,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			// in lines where we have more than one link statement.
 			// The greedy match would match the last ')' in the line.
 			
-			String linkTargetWithRest = regionContent.substring(linkStatementStartIndexInRegion + linkTargetStartIndex);
+			String linkTargetWithRest = regionContent.substring(linkStatementMatch.startIndex + linkTargetStartIndex);
 			String[] lines = linkTargetWithRest.split("\\n");
 			linkTargetWithRest = lines[0];
 			
@@ -166,28 +149,49 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			}
 		}
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementMatch.startIndex);
 	}
 	
 	protected void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
-			String linkRefDefStatement, int linkStatementStartIndexInRegion) throws CoreException {
-		Matcher prefixMatcher = MarkdownParsingTools.LINK_REF_DEF_PATTERN_PREFIX.matcher(linkRefDefStatement);
-		boolean foundPrefix = prefixMatcher.find();
-		Assert.isTrue(foundPrefix);
-		int linkTargetStartIndex = prefixMatcher.end();
+			RegexMatch linkReferenceDefinitionStatementMatch) throws CoreException {
 		
-		String linkTarget = linkRefDefStatement.substring(linkTargetStartIndex, linkRefDefStatement.length());
+		RegexMatch targetMatch = linkReferenceDefinitionStatementMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+		String linkTarget = targetMatch.matchedText;
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementStartIndexInRegion);
+		int linkTargetStartIndex = targetMatch.startIndex - linkReferenceDefinitionStatementMatch.startIndex;
+		
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkReferenceDefinitionStatementMatch.startIndex);
+		
+		// TODO check if the label is unique
 	}
 	
 	protected void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
-			String referenceLinkStatement, String linkLabel, int referenceLinkStatementStartIndexInRegion) throws CoreException {
+			RegexMatch referenceLinkMatch) throws CoreException {
+		
+		RegexMatch targetMatch = referenceLinkMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+		RegexMatch labelMatch = referenceLinkMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+		
+		// First, we assume a full reference link like [link text][linkLabel]
+		// or a shortcut reference link like [linkLabel]
+		String linkLabel = targetMatch.matchedText;
+		
+		// in some rare cases we have a collapsed reference link like [linkLabel][]
+		boolean collapsedReferenceLink = false;
+		if (linkLabel.isEmpty() && labelMatch != null && !labelMatch.matchedText.isBlank()) {
+			linkLabel = labelMatch.matchedText;
+			collapsedReferenceLink = true;
+		}
 		
 		if (linkLabel.isBlank()) {
-			int startIndexInRefLink = referenceLinkStatement.lastIndexOf(linkLabel);
-			int offset = region.getOffset() + referenceLinkStatementStartIndexInRegion + startIndexInRefLink;
+			int offset = region.getOffset() + targetMatch.startIndex;
 			int endOffset = offset + linkLabel.length();
+			
+			// increase error marker region to include surrounding brackets, otherwise there is no character to underline
+			if (linkLabel.length() == 0) {
+				offset -= 1;
+				endOffset += 1;
+			}
+			
 			int lineNumber = getLineForOffset(document, offset);
 			
 			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
@@ -201,26 +205,39 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		
 		String documentContent = document.get();
 		
-		String linkRefDefinitionForLabelRegex = MarkdownParsingTools.REGEX_LINK_REF_DEF_OPENING_BRACKET
-				+ Pattern.quote(linkLabel)
-				+ MarkdownParsingTools.REGEX_LINK_REF_DEF_PART
-				+ MarkdownParsingTools.REGEX_LINK_REF_DEF_SUFFIX;
-		Pattern linkRefDefinitionForLabelPattern = Pattern.compile(linkRefDefinitionForLabelRegex);
-		Matcher linkReferenceDefinitionForLabelMatcher = linkRefDefinitionForLabelPattern.matcher(documentContent);
-		boolean foundLinkReferenceDefinition = linkReferenceDefinitionForLabelMatcher.find();
-		
-		if (!foundLinkReferenceDefinition) {
-			int startIndexInRefLink = referenceLinkStatement.lastIndexOf(linkLabel);
-			int offset = region.getOffset() + referenceLinkStatementStartIndexInRegion + startIndexInRefLink;
-			int endOffset = offset + linkLabel.length();
-			int lineNumber = getLineForOffset(document, offset);
-			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-					"There is no link reference definition for the reference link label \"" + linkLabel + "\". Expected a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\"",
-					lineNumber,
-					offset,
-					endOffset);
-			return;
+		Optional<RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinition(documentContent, linkLabel);
+		if (match.isEmpty()) {
+			if (collapsedReferenceLink) {
+				// An empty full reference link looks like a collapsed reference link.
+				// We have to adapt our marker message in that case.
+				// full reference link: [Some text][RefID]
+				// collapsed reference link: [RefID][]
+				// empty full reference link: [Some text][]
+				
+				// In this case, we create a marker for the whole reference link statement
+				int offset = region.getOffset() + referenceLinkMatch.startIndex;
+				int endOffset = offset + referenceLinkMatch.matchedText.length();
+				int lineNumber = getLineForOffset(document, offset);
+				
+				MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+						"There is either no link reference definition for the reference link label \"" + linkLabel + "\" (assuming this is a collapsed reference link like \"[ReferenceLinkLabel][]\")"
+								+ " or the reference link label is empty  (assuming this is a full reference link like \"[Some text][ReferenceLinkLabel]\")."
+								+ " Expected a link reference definition like \"[" + linkLabel + "]: https://plantuml.com\""
+								+ " or a reference link \"[" + linkLabel + "][ReferenceLinkLabel]\" to an existing link reference definition.",
+						lineNumber,
+						offset,
+						endOffset);
+			} else {
+				int offset = region.getOffset() + targetMatch.startIndex;
+				int endOffset = offset + linkLabel.length();
+				int lineNumber = getLineForOffset(document, offset);
+				
+				MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+						"There is no link reference definition for the reference link label \"" + linkLabel + "\". Expected a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\"",
+						lineNumber,
+						offset,
+						endOffset);
+			}
 		}
 	}
 	

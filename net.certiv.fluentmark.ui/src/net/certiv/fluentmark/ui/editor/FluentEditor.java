@@ -1033,6 +1033,8 @@ public class FluentEditor extends TextEditor
 		if (document != null) {
 			String documentContent = document.get();
 			
+			// TODO use MarkdownParsingTools instead of using this code
+			
 			String anchorRegex = "^#{1,6}[ \\t].*[ \\t]\\{#" + anchorInOpenFile + "\\}";
 			Pattern anchorPattern = Pattern.compile(anchorRegex, Pattern.MULTILINE);
 			Matcher headerAndAnchorMathcer = anchorPattern.matcher(documentContent);
@@ -1056,12 +1058,7 @@ public class FluentEditor extends TextEditor
 		if (document != null) {
 			String documentContent = document.get();
 			
-			Optional<RegexMatch> linkRefDefMatch = MarkdownParsingTools.findLinkReferenceDefinitions(documentContent)
-				.filter(match -> {
-					RegexMatch labelMatch = match.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
-					return labelMatch != null && labelMatch.matchedText.equals(linkReferenceDefinitionName);
-				})
-				.findFirst();
+			Optional<RegexMatch> linkRefDefMatch = MarkdownParsingTools.findLinkReferenceDefinition(documentContent, linkReferenceDefinitionName);
 			
 			if (linkRefDefMatch.isPresent()) {
 				selectAndReveal(linkRefDefMatch.get().startIndex, linkRefDefMatch.get().matchedText.length());

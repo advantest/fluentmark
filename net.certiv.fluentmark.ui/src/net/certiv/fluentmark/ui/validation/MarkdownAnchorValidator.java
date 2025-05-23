@@ -73,18 +73,18 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 				matches.add(match);
 			});
 		
-		// go through all anchor declarations and check the use only allowed characters
+		// go through all anchor declarations and check they use only allowed characters
 		anchors.values().stream()
-			.flatMap(matcheForAnAnchor -> matcheForAnAnchor.stream())
-			.filter(anchorDeclaration -> !anchorDeclaration.matchedText.matches(MarkdownParsingTools.REGEX_VALID_ANCHOR_ID))
-			.forEach(anchorDeclaration -> {
-				int offset = region.getOffset() + anchorDeclaration.startIndex - 1;
-				int endOffset = region.getOffset() + anchorDeclaration.endIndex;
+			.flatMap(matchForAnAnchor -> matchForAnAnchor.stream())
+			.filter(anchorIdMatch -> !MarkdownParsingTools.isValidAnchorIdentifier(anchorIdMatch.matchedText))
+			.forEach(anchorIdMatch -> {
+				int offset = region.getOffset() + anchorIdMatch.startIndex - 1;
+				int endOffset = region.getOffset() + anchorIdMatch.endIndex;
 				int lineNumber = getLineForOffset(document, offset);
 				
 				try {
 					MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-							"The anchor identifier \"" + anchorDeclaration.matchedText + "\" is invalid."
+							"The anchor identifier \"" + anchorIdMatch.matchedText + "\" is invalid."
 							+ " It has to contain at least one character, must start with a letter,"
 							+ " and is allowed to contain any number of the following characters in the remainder:"
 							+ " letters ([A-Za-z]), digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\").",
