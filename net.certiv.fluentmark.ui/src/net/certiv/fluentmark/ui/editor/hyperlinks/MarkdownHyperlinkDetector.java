@@ -176,7 +176,9 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			IRegion currentLineRegion = currentDocument.getLineInformationOfOffset(offset);
 			if (currentLineRegion.getOffset() - 1 >= 0) {
 				IRegion preceedingLineRegion = currentDocument.getLineInformationOfOffset(currentLineRegion.getOffset() - 1);
-				multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + currentLineRegion.getLength());
+				// the line regions do not contain line delimiter lengths, thus, we have consider both lines' offsets
+				int length = currentLineRegion.getOffset() - preceedingLineRegion.getOffset() + currentLineRegion.getLength();
+				multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), length);
 				multipleLines = currentDocument.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
 			} else {
 				// in case there is no preceding line, let's only consider the current line
@@ -209,7 +211,8 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 	}
 	
 	private IHyperlink createFileOrWebHyperlink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
-		if (linkTarget.startsWith("https://")) {
+		if (linkTarget.startsWith("https://") || linkTarget.startsWith("HTTPS://")
+				|| linkTarget.startsWith("http://") || linkTarget.startsWith("HTTP://")) {
 			// Since the default hyper link detector does not correctly detect URLs in Markdown files,
 			// we need to replace it with our own detector and create our custom URLHyperlinks.
 			// See FluentUI.start()
