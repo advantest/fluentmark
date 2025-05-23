@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.ui.validation;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -86,16 +87,9 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 		});
 		
-		MarkdownParsingTools.findFullAndCollapsedReferenceLinks(regionContent)
-			.forEach(match -> {
-				try {
-					validateReferenceLinkLabel(region, document, file, match);
-				} catch (Exception e) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
-				}
-		});
-		
-		MarkdownParsingTools.findShortcutReferenceLinks(regionContent)
+		Stream.concat(
+				MarkdownParsingTools.findFullAndCollapsedReferenceLinks(regionContent),
+				MarkdownParsingTools.findShortcutReferenceLinks(regionContent))
 			.forEach(match -> {
 				try {
 					validateReferenceLinkLabel(region, document, file, match);
