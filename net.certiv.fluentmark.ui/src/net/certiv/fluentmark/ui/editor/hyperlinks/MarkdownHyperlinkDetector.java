@@ -49,11 +49,27 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		// the given region has length 0, so we have to use the offset only
 		int offset = region.getOffset();
 		
+		IHyperlink hyperlinkInLinkOrImage = detectHyperlinkInLinkOrImage(document, offset);
+		if (hyperlinkInLinkOrImage != null) {
+			return wrap(hyperlinkInLinkOrImage);
+		}
+		
+		IHyperlink hyperlinkInLinkRefDefinition = detectHyperlinkInLinkReferenceDefinition(document, offset);
+		if (hyperlinkInLinkRefDefinition != null) {
+			return wrap(hyperlinkInLinkRefDefinition);
+		}
+		
+		// TODO check for reference links
+		
+		return null;
+	}
+	
+	private IHyperlink detectHyperlinkInLinkOrImage(IDocument currentDocument, int offset) {
 		IRegion lineRegion;
 		String line;
 		try {
-			lineRegion = document.getLineInformationOfOffset(offset);
-			line = document.get(lineRegion.getOffset(), lineRegion.getLength());
+			lineRegion = currentDocument.getLineInformationOfOffset(offset);
+			line = currentDocument.get(lineRegion.getOffset(), lineRegion.getLength());
 		} catch (BadLocationException ex) {
 			return null;
 		}
@@ -73,13 +89,14 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 				
 				IRegion linkTargetRegion= new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
 				
-				return wrap(createHyperLink(linkTarget, linkTargetRegion, document));
+				return createHyperlink(linkTarget, linkTargetRegion, currentDocument);
 			}
 		}
 		
-		// TODO check for reference links
-		
-		// TODO check for link reference definitions
+		return null;
+	}
+	
+	private IHyperlink detectHyperlinkInLinkReferenceDefinition(IDocument currentDocument, int offset) {
 		// we extend the region to the preceding line since link reference definitions might span multiple lines and the target text might be in the second line
 		// It might be something like the following (we ignore the title line, since the target is in the first or second line):
 		// [label]:
@@ -88,9 +105,10 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		IRegion multipleLinesRegion;
 		String multipleLines;
 		try {
-			IRegion preceedingLineRegion = document.getLineInformationOfOffset(lineRegion.getOffset() - 1);
-			multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + lineRegion.getLength());
-			multipleLines = document.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
+			IRegion currentLineRegion = currentDocument.getLineInformationOfOffset(offset);
+			IRegion preceedingLineRegion = currentDocument.getLineInformationOfOffset(currentLineRegion.getOffset() - 1);
+			multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + currentLineRegion.getLength());
+			multipleLines = currentDocument.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
 		} catch (BadLocationException ex) {
 			return null;
 		}
@@ -109,14 +127,14 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 				
 				IRegion linkTargetRegion= new Region(multipleLinesRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
 				
-				return wrap(createHyperLink(linkTarget, linkTargetRegion, document));
+				return createHyperlink(linkTarget, linkTargetRegion, currentDocument);
 			}
 		}
 		
 		return null;
 	}
 	
-	private IHyperlink createHyperLink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
+	private IHyperlink createHyperlink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
 		if (linkTarget.startsWith("https://")) {
 			// Since the default hyper link detector does not correctly detect URLs in Markdown files,
 			// we need to replace it with our own detector and create our custom URLHyperlinks.
