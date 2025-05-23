@@ -9,6 +9,10 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -78,6 +82,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 		
 		
+		// check link reference definition targets
 		MarkdownParsingTools.findLinkReferenceDefinitions(regionContent)
 			.forEach(match -> {
 				try {
@@ -86,6 +91,46 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
 		});
+		
+		// check link reference definition identifiers are unique
+		Map<String,List<RegexMatch>> linkRefDefIds = new HashMap<>();
+		MarkdownParsingTools.findLinkReferenceDefinitions(regionContent)
+			.map(linkRefDefMatch -> linkRefDefMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL))
+			.forEach(idMatch -> {
+				List<RegexMatch> matches = linkRefDefIds.get(idMatch.matchedText);
+				if (matches == null) {
+					matches = new ArrayList<>(2);
+					linkRefDefIds.put(idMatch.matchedText, matches);
+				}
+				matches.add(idMatch);
+			});
+		
+		linkRefDefIds.keySet().stream()
+			.filter(id -> linkRefDefIds.get(id).size() > 1)
+			.forEach(id -> {
+				String lines = linkRefDefIds.get(id).stream()
+						.map(idMatch -> getLineForOffset(document,
+								region.getOffset() + idMatch.startIndex))
+						.map(line -> String.valueOf(line))
+						.reduce("", (text1, text2) -> text1.isBlank() ? text2 : text1 + ", " + text2);
+				
+				for (RegexMatch idMatch : linkRefDefIds.get(id)) {
+					int offset = region.getOffset() + idMatch.startIndex;
+					int endOffset = region.getOffset() + idMatch.endIndex;
+					int lineNumber = getLineForOffset(document, offset);
+					
+					try {
+						MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+								"The link reference definition identifier \"" + id + "\" is not unique."
+								+ " The same identifier is used in the following lines: " + lines,
+								lineNumber,
+								offset,
+								endOffset);
+					} catch (CoreException e) {
+						FluentUI.log(IStatus.WARNING, "Could not create validation marker.", e);
+					}
+				}
+			});
 		
 		Stream.concat(
 				MarkdownParsingTools.findFullAndCollapsedReferenceLinks(regionContent),
@@ -155,8 +200,6 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		int linkTargetStartIndex = targetMatch.startIndex - linkReferenceDefinitionStatementMatch.startIndex;
 		
 		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkReferenceDefinitionStatementMatch.startIndex);
-		
-		// TODO check if the label is unique
 	}
 	
 	protected void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
