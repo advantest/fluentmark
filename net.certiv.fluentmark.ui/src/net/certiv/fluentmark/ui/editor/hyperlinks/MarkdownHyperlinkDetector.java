@@ -255,6 +255,10 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		}
 		
 		if (targetFile != null) {
+			if (!targetFile.exists()) {
+				return null;
+			}
+			
 			if (FileUtils.isMarkdownFile(targetFile)) {
 				return new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment);
 			}
@@ -276,6 +280,10 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 	private IHyperlink createReferenceHyperlink(String linkReferenceDefinitionName, IRegion linkTargetRegion, IDocument currentDocument) {
 		IFile currentFile = DocumentUtils.findFileFor(currentDocument);
 		if (currentFile == null) {
+			return null;
+		}
+		
+		if (MarkdownParsingTools.findLinkReferenceDefinition(currentDocument.get(), linkReferenceDefinitionName).isEmpty()) {
 			return null;
 		}
 		
