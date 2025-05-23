@@ -62,6 +62,11 @@ public class MarkdownParsingTools {
 	
 	private static final Pattern HEADING_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR);
 	
+	public static boolean isValidLinkReferenceDefinitionIdentifier(String identifier) {
+		// We assume the same rules for link reference definition identifiers like they are used for anchors
+		return isValidAnchorIdentifier(identifier);
+	}
+	
 	public static boolean isValidAnchorIdentifier(String identifier) {
 		return identifier != null && identifier.matches(REGEX_VALID_ANCHOR_ID);
 	}

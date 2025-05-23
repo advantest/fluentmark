@@ -82,7 +82,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		});
 		
 		
-		// check link reference definition targets
+		// check link reference definition targets and identifier rules
 		MarkdownParsingTools.findLinkReferenceDefinitions(regionContent)
 			.forEach(match -> {
 				try {
@@ -193,6 +193,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	protected void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
 			RegexMatch linkReferenceDefinitionStatementMatch) throws CoreException {
+		
+		RegexMatch labelMatch = linkReferenceDefinitionStatementMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+		
+		checkLinkReferenceDefinitionIdentifier(labelMatch, region, document, file);
 		
 		RegexMatch targetMatch = linkReferenceDefinitionStatementMatch.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
 		String linkTarget = targetMatch.matchedText;
@@ -326,4 +330,23 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		}
 	}
 	
+	private void checkLinkReferenceDefinitionIdentifier(RegexMatch linkRefDefIdMatch,
+			ITypedRegion region, IDocument document, IFile file) throws CoreException {
+		String linkRefDefId = linkRefDefIdMatch.matchedText;
+		
+		if (!MarkdownParsingTools.isValidLinkReferenceDefinitionIdentifier(linkRefDefId)) {
+			int offset = region.getOffset() + linkRefDefIdMatch.startIndex;
+			int endOffset = region.getOffset() + linkRefDefIdMatch.endIndex;
+			int lineNumber = getLineForOffset(document, offset);
+			
+			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+					"The link reference definition identifier \"" + linkRefDefId + "\" is invalid."
+					+ " It has to contain at least one character, must start with a letter,"
+					+ " and is allowed to contain any number of the following characters in the remainder:"
+					+ " letters ([A-Za-z]), digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\").",
+					lineNumber,
+					offset,
+					endOffset);
+		}
+	}
 }
