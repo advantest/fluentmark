@@ -106,9 +106,15 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		String multipleLines;
 		try {
 			IRegion currentLineRegion = currentDocument.getLineInformationOfOffset(offset);
-			IRegion preceedingLineRegion = currentDocument.getLineInformationOfOffset(currentLineRegion.getOffset() - 1);
-			multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + currentLineRegion.getLength());
-			multipleLines = currentDocument.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
+			if (currentLineRegion.getOffset() - 1 >= 0) {
+				IRegion preceedingLineRegion = currentDocument.getLineInformationOfOffset(currentLineRegion.getOffset() - 1);
+				multipleLinesRegion = new Region(preceedingLineRegion.getOffset(), preceedingLineRegion.getLength() + currentLineRegion.getLength());
+				multipleLines = currentDocument.get(preceedingLineRegion.getOffset(), multipleLinesRegion.getLength());
+			} else {
+				// in case there is no preceding line, let's only consider the current line
+				multipleLinesRegion = new Region(currentLineRegion.getOffset(), currentLineRegion.getLength());
+				multipleLines = currentDocument.get(currentLineRegion.getOffset(), multipleLinesRegion.getLength());
+			}
 		} catch (BadLocationException ex) {
 			return null;
 		}
