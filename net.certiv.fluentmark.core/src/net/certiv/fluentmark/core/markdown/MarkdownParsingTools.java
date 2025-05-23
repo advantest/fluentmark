@@ -23,6 +23,8 @@ public class MarkdownParsingTools {
 	
 	public static final String REGEX_ANY_LINE_SEPARATOR = "(\\r\\n|\\n)";
 	
+	// TODO replace all \\n in regex with REGEX_ANY_LINE_SEPARATOR
+	
 	public static final String CAPTURING_GROUP_LABEL = "label";
 	public static final String CAPTURING_GROUP_TARGET = "target";
 	public static final String CAPTURING_GROUP_ANCHOR = "anchor";
@@ -36,11 +38,18 @@ public class MarkdownParsingTools {
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
+	@Deprecated
 	public static final String REGEX_LINK_REF_DEF_OPENING_BRACKET = "\\[";
+	
+	@Deprecated
 	public static final String REGEX_LINK_REF_DEF_PART = "\\]:( |\\t|\\n)?( |\\t)*";
+	
+	@Deprecated
 	public static final String REGEX_LINK_REF_DEF_SUFFIX = "\\S+";
+	
+	@Deprecated
 	private static final String REGEX_LINK_REF_DEF_PREFIX = REGEX_LINK_REF_DEF_OPENING_BRACKET + "[^^\\n]+?" + REGEX_LINK_REF_DEF_PART;
-	//private static final String REGEX_LINK_REF_DEFINITION = REGEX_LINK_REF_DEF_PREFIX + REGEX_LINK_REF_DEF_SUFFIX;
+	
 	private static final String REGEX_LINK_REF_DEFINITION = "\\[(?<" + CAPTURING_GROUP_LABEL
 			+ ">[^^\\n]+?)\\]:( |\\t|\\n)?( |\\t)*(?<" + CAPTURING_GROUP_TARGET + ">\\S+)";
 	
@@ -48,19 +57,29 @@ public class MarkdownParsingTools {
 	// * full reference link:      [Markdown specification][CommonMark]
 	// * collapsed reference link: [CommonMark][]
 	// * shortcut reference link:  [CommonMark]
+	@Deprecated
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX = "\\[[^\\]]*?\\]\\[";
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX + "[^\\]]*?\\]";
-	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[[^\\]]*?\\])(?!(\\[|\\(|:))";
+	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "\\[(?<"
+			+ CAPTURING_GROUP_LABEL + ">[^\\]]*?)\\]\\[(?<"
+			+ CAPTURING_GROUP_TARGET + ">[^\\]]*?)\\]";
+	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[(?<"
+			+ CAPTURING_GROUP_TARGET+ ">[^\\]]*?)\\])(?!(\\[|\\(|:))";
 
-	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>Sally)
+	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
 	public static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
-	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
+	@Deprecated
 	public static final Pattern LINK_PREFIX_PATTERN = Pattern.compile(REGEX_LINK_PREFIX);
+	
+	@Deprecated
 	public static final Pattern LINK_REF_DEF_PATTERN_PREFIX = Pattern.compile(REGEX_LINK_REF_DEF_PREFIX);
-	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
+	
+	@Deprecated
 	public static final Pattern REF_LINK_PEFIX_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED_PREFIX);
+	
+	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
+	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
 	private static final Pattern REF_LINK_FULL_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED);
 	private static final Pattern REF_LINK_SHORT_PATTERN = Pattern.compile(REGEX_REF_LINK_SHORTCUT);
 	
@@ -88,11 +107,11 @@ public class MarkdownParsingTools {
 	}
 	
 	public static Stream<RegexMatch> findFullAndCollapsedReferenceLinks(String markdownCode) {
-		return findMatches(markdownCode, REF_LINK_FULL_PATTERN);
+		return findMatches(markdownCode, REF_LINK_FULL_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
 	public static Stream<RegexMatch> findShortcutReferenceLinks(String markdownCode) {
-		return findMatches(markdownCode, REF_LINK_SHORT_PATTERN);
+		return findMatches(markdownCode, REF_LINK_SHORT_PATTERN, CAPTURING_GROUP_TARGET);
 	}
 	
 	public static Stream<RegexMatch> findHeadingAnchorIds(String markdownCode) {

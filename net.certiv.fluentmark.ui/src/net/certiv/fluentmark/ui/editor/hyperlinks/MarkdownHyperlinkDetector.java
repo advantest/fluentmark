@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.editor.hyperlinks;
 
@@ -59,7 +59,10 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			return wrap(hyperlinkInLinkRefDefinition);
 		}
 		
-		// TODO check for reference links
+		IHyperlink hyperlinkInReferenceLink = detectHyperlinkInReferenceLink(document, offset);
+		if (hyperlinkInReferenceLink != null) {
+			return wrap(hyperlinkInReferenceLink);
+		}
 		
 		return null;
 	}
@@ -87,9 +90,72 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			if (targetMatch != null) {
 				String linkTarget = targetMatch.matchedText;
 				
-				IRegion linkTargetRegion= new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
+				IRegion linkTargetRegion = new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
 				
-				return createHyperlink(linkTarget, linkTargetRegion, currentDocument);
+				return createFileOrWebHyperlink(linkTarget, linkTargetRegion, currentDocument);
+			}
+		}
+		
+		return null;
+	}
+	
+	private IHyperlink detectHyperlinkInReferenceLink(IDocument currentDocument, int offset) {
+		IRegion lineRegion;
+		String line;
+		try {
+			lineRegion = currentDocument.getLineInformationOfOffset(offset);
+			line = currentDocument.get(lineRegion.getOffset(), lineRegion.getLength());
+		} catch (BadLocationException ex) {
+			return null;
+		}
+		
+		int offsetInLine = offset - lineRegion.getOffset();
+		
+		// check for full and collapsed reference links, i.e.
+		// * full reference link:      [Markdown specification][CommonMark]
+		// * collapsed reference link: [CommonMark][]
+		Optional <RegexMatch> linkMatch = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(line)
+			// find the link that belongs to the given offset
+			.filter(match -> match.startIndex < offsetInLine && match.endIndex > offsetInLine)
+			.findFirst();
+		
+		if (linkMatch.isPresent()) {
+			RegexMatch labelMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+			RegexMatch targetMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+			
+			String linkTarget = null;
+			IRegion linkTargetRegion = null;
+			if (targetMatch != null && !targetMatch.matchedText.isBlank()) {
+				// we have a full reference link
+				linkTarget = targetMatch.matchedText;
+				linkTargetRegion = new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
+			} else if (labelMatch != null && !labelMatch.matchedText.isBlank() && targetMatch != null && targetMatch.matchedText.isBlank()) {
+				// we have a collapsed reference link => label = target
+				linkTarget = labelMatch.matchedText;
+				linkTargetRegion = new Region(lineRegion.getOffset() + labelMatch.startIndex, linkTarget.length());
+			}
+			
+			if (linkTarget != null && !linkTarget.isBlank()) {
+				return createReferenceHyperlink(linkTarget, linkTargetRegion, currentDocument);
+			}
+		}
+		
+		// check for shortcut reference links, i.e.
+		// * shortcut reference link:  [CommonMark]
+		linkMatch = MarkdownParsingTools.findShortcutReferenceLinks(line)
+			// find the link that belongs to the given offset
+			.filter(match -> match.startIndex < offsetInLine && match.endIndex > offsetInLine)
+			.findFirst();
+		
+		if (linkMatch.isPresent()) {
+			RegexMatch targetMatch = linkMatch.get().subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_TARGET);
+			
+			if (targetMatch != null && !targetMatch.matchedText.isBlank()) {
+				String linkTarget = targetMatch.matchedText;
+				
+				IRegion linkTargetRegion = new Region(lineRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
+				
+				return createReferenceHyperlink(linkTarget, linkTargetRegion, currentDocument);
 			}
 		}
 		
@@ -98,7 +164,9 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 	
 	private IHyperlink detectHyperlinkInLinkReferenceDefinition(IDocument currentDocument, int offset) {
 		// we extend the region to the preceding line since link reference definitions might span multiple lines and the target text might be in the second line
-		// It might be something like the following (we ignore the title line, since the target is in the first or second line):
+		// It might be something like the following (we ignore the title, since the target is in the first or second line):
+		// [label]: https://www.plantuml.com "title"
+		// or
 		// [label]:
 		//    https://www.plantuml.com
 		//    "Title"
@@ -133,14 +201,14 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 				
 				IRegion linkTargetRegion= new Region(multipleLinesRegion.getOffset() + targetMatch.startIndex, linkTarget.length());
 				
-				return createHyperlink(linkTarget, linkTargetRegion, currentDocument);
+				return createFileOrWebHyperlink(linkTarget, linkTargetRegion, currentDocument);
 			}
 		}
 		
 		return null;
 	}
 	
-	private IHyperlink createHyperlink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
+	private IHyperlink createFileOrWebHyperlink(String linkTarget, IRegion linkTargetRegion, IDocument currentDocument) {
 		if (linkTarget.startsWith("https://")) {
 			// Since the default hyper link detector does not correctly detect URLs in Markdown files,
 			// we need to replace it with our own detector and create our custom URLHyperlinks.
@@ -200,6 +268,15 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		}
 		
 		return new FileHyperlink(fileOutsideWorkspace, linkTargetRegion);
+	}
+	
+	private IHyperlink createReferenceHyperlink(String linkReferenceDefinitionName, IRegion linkTargetRegion, IDocument currentDocument) {
+		IFile currentFile = DocumentUtils.findFileFor(currentDocument);
+		if (currentFile == null) {
+			return null;
+		}
+		
+		return new MarkdownReferenceHyperlink(currentFile, linkTargetRegion, linkReferenceDefinitionName);
 	}
 	
 	private IHyperlink[] wrap(IHyperlink hyperLink) {

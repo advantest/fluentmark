@@ -8,6 +8,7 @@ package net.certiv.fluentmark.ui.editor;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,9 +92,11 @@ import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.markdown.IOffsetProvider;
 import net.certiv.fluentmark.core.markdown.ISourceRange;
 import net.certiv.fluentmark.core.markdown.ISourceReference;
+import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.markdown.PagePart;
 import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
@@ -1037,6 +1040,31 @@ public class FluentEditor extends TextEditor
 				int startIndex = headerAndAnchorMathcer.start();
 				int endIndex = headerAndAnchorMathcer.end();
 				selectAndReveal(startIndex, endIndex - startIndex);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean gotoLinkReferenceDefinition(String linkReferenceDefinitionName) {
+		if (linkReferenceDefinitionName == null || linkReferenceDefinitionName.isBlank()) {
+			return false;
+		}
+		
+		IDocument document = this.getDocument();
+		if (document != null) {
+			String documentContent = document.get();
+			
+			Optional<RegexMatch> linkRefDefMatch = MarkdownParsingTools.findLinkReferenceDefinitions(documentContent)
+				.filter(match -> {
+					RegexMatch labelMatch = match.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+					return labelMatch != null && labelMatch.matchedText.equals(linkReferenceDefinitionName);
+				})
+				.findFirst();
+			
+			if (linkRefDefMatch.isPresent()) {
+				selectAndReveal(linkRefDefMatch.get().startIndex, linkRefDefMatch.get().matchedText.length());
 				return true;
 			}
 		}
