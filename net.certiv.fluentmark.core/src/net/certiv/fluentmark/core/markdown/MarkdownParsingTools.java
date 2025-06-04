@@ -34,7 +34,7 @@ public class MarkdownParsingTools {
 	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
 	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">.*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">.*)?\\)";
+			+ ">[^\\]\\n]*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\)\\n]*)?\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
