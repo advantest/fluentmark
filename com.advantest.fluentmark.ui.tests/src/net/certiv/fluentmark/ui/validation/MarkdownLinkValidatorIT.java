@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -25,6 +24,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,7 +47,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentMatcher;
+import org.mockito.internal.matchers.Equality;
+import org.mockito.internal.matchers.Equals;
 
+import net.certiv.fluentmark.core.markdown.RegexMatch;
 import net.certiv.fluentmark.ui.markers.MarkerConstants;
 
 
@@ -127,10 +131,10 @@ public class MarkdownLinkValidatorIT {
 		document = validateDocument(fileContents);
 		
 		// then
-		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), eq("[PlantUML](https://plantuml.com)"), anyInt(), any());
-		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), eq("[Graphviz](https://graphviz.org/)"), anyInt(), any());
-		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), eq("[UML](https://www.omg.org/spec/UML/2.5.1/About-UML)"), anyInt(), any());
-		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), eq("![some image](file/path/to/image.png)"), anyInt(), any());
+		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[PlantUML](https://plantuml.com)"), eq(fileContents));
+		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[Graphviz](https://graphviz.org/)"), eq(fileContents));
+		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[UML](https://www.omg.org/spec/UML/2.5.1/About-UML)"), eq(fileContents));
+		verify(linkValidator, atLeastOnce()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("![some image](file/path/to/image.png)"), eq(fileContents));
 	}
 	
 	@Test
@@ -161,9 +165,9 @@ public class MarkdownLinkValidatorIT {
 		document = validateDocument(fileContents);
 		
 		// then
-		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[PlantUML]: https://plantuml.com"), anyInt());
-		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[Graphviz]:\n   https://graphviz.org/"), anyInt());
-		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"), anyInt());
+		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[PlantUML]: https://plantuml.com"));
+		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[Graphviz]:\n   https://graphviz.org/"));
+		verify(linkValidator, atLeastOnce()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"));
 	}
 	
 	@Test
@@ -192,14 +196,14 @@ public class MarkdownLinkValidatorIT {
 		document = validateDocument(fileContents);
 		
 		// then
-		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^PlantUML]: https://plantuml.com"), anyInt());
-		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^Graphviz]:\n   https://graphviz.org/"), anyInt());
-		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), eq("[^UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"), anyInt());
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[^PlantUML]: https://plantuml.com"));
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[^Graphviz]:\n   https://graphviz.org/"));
+		verify(linkValidator, never()).validateLinkReferenceDefinitionStatement(any(), eq(document), eq(file), matchedTextEq("[^UML]: https://www.omg.org/spec/UML/2.5.1/About-UML"));
 		
 		// footnote links are handled (checked) as usual reference links
-		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^PlantUML]"), eq("^PlantUML"), anyInt());
-		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^Graphviz]"), eq("^Graphviz"), anyInt());
-		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[^UML]"), eq("^UML"), anyInt());
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[^PlantUML]"));
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[^Graphviz]"));
+		verify(linkValidator, atLeastOnce()).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[^UML]"));
 	}
 	
 	@Test
@@ -256,19 +260,19 @@ public class MarkdownLinkValidatorIT {
 		document = validateDocument(fileContents);
 		
 		// then
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[PlantUML]"), eq("PlantUML"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[DOT][Graphviz]"), eq("Graphviz"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[UML][]"), eq("UML"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref1]"), eq("ref1"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref2][]"), eq("ref2"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref3]"), eq("ref3"), anyInt());
-		verify(linkValidator, times(2)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref4]"), eq("ref4"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref5][]"), eq("ref5"), anyInt());
-		verify(linkValidator, times(2)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[bla blub][ref6]"), eq("ref6"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref5]"), eq("ref5"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[ref6]"), eq("ref6"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[bla blub][ref1]"), eq("ref1"), anyInt());
-		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), eq("[bla blub][ref4]"), eq("ref4"), anyInt());
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[PlantUML]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[DOT][Graphviz]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[UML][]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref1]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref2][]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref3]"));
+		verify(linkValidator, times(2)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref4]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref5][]"));
+		verify(linkValidator, times(2)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[bla blub][ref6]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref5]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[ref6]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[bla blub][ref1]"));
+		verify(linkValidator, times(1)).validateReferenceLinkLabel(any(), eq(document), eq(file), matchedTextEq("[bla blub][ref4]"));
 	}
 	
 	@Test
@@ -603,6 +607,38 @@ public class MarkdownLinkValidatorIT {
 		@Override
 		public void setAttributes(Map<String, ? extends Object> attributes) throws CoreException {
 			throw new NotImplementedException(MESSAGE);
+		}
+		
+	}
+	
+	private static RegexMatch matchedTextEq(String value) {
+			reportMatcher(new RegexMatchEquals(value));
+			if (value == null) return null;
+			return new RegexMatch(value, 0, value.length());
+	}
+	
+	private static void reportMatcher(ArgumentMatcher<?> matcher) {
+		mockingProgress().getArgumentMatcherStorage().reportMatcher(matcher);
+	}
+	
+	private static class RegexMatchEquals extends Equals {
+		
+		private static final long serialVersionUID = -4033160344714719536L;
+		
+		private final Object wanted;
+
+		public RegexMatchEquals(Object wanted) {
+			super(wanted);
+			this.wanted = wanted;
+		}
+		
+		@Override
+		public boolean matches(Object actual) {
+			if (this.wanted instanceof String && actual instanceof RegexMatch) {
+				String matchedText = ((RegexMatch) actual).matchedText;
+				return Equality.areEqual(this.wanted, matchedText);
+			}
+			return false;
 		}
 		
 	}
