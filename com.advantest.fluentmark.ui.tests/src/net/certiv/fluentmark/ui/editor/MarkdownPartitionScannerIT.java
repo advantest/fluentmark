@@ -119,5 +119,78 @@ public class MarkdownPartitionScannerIT {
 				another comment -->""");
 		assertRegion(regions[7], document, IDocument.DEFAULT_CONTENT_TYPE, "\ntext following...");
 	}
+	
+	@Test
+	public void checkDetectingCodeBlocks() throws Exception {
+		String markdown = """
+				# Heading
+				
+				```markdown
+				Some Markdown code
+				with links like this [example](path/to/missing-file.md).
+				
+				![](path/to/image.png)
+				
+				[PlantUML](https://plantuml.com)
+				```
+				
+				A link [to ensure](https://www.test.de) some links are found.
+				
+				~~~
+				More code with [Markdown links](path/to/file.txt)
+				
+				![](path/to/image.puml)
+				
+				[Bitbucket](https://www.bitbucket.com)
+				~~~
+				
+				Indented code block:
+				
+				    This is code, too
+				    Links here [are ignored](https://missing.org)
+				    
+				    ![diagram](file.svg)
+				    [](no/file.md)
+				""";
+		
+		// work-around to indent empty line in indented code block
+		String[] lines = markdown.split("\n");
+		int lineIndex = lines.length - 3;
+		String lineToIndent = lines[lineIndex];
+		lineToIndent = "    " + lineToIndent;
+		lines[lineIndex] = lineToIndent;
+		markdown = String.join("\n", lines);
+		
+		IDocument document = createDocument(markdown);
+		ITypedRegion[] regions = computePartitions(document);
+		
+		assertNotNull(regions);
+		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\n");
+		assertRegion(regions[1], document, MarkdownPartitions.CODEBLOCK, """
+				```markdown
+				Some Markdown code
+				with links like this [example](path/to/missing-file.md).
+				
+				![](path/to/image.png)
+				
+				[PlantUML](https://plantuml.com)
+				```""");
+		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nA link [to ensure](https://www.test.de) some links are found.\n\n");
+		assertRegion(regions[3], document, MarkdownPartitions.CODEBLOCK, """
+				~~~
+				More code with [Markdown links](path/to/file.txt)
+				
+				![](path/to/image.puml)
+				
+				[Bitbucket](https://www.bitbucket.com)
+				~~~""");
+		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nIndented code block:\n\n");
+		assertRegion(regions[5], document, MarkdownPartitions.CODEBLOCK, """
+				This is code, too
+				Links here [are ignored](https://missing.org)
+				
+				![diagram](file.svg)
+				[](no/file.md)""".indent(4).stripTrailing());
+	}
 
 }
