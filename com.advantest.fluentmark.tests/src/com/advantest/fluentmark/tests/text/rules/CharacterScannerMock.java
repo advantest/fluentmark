@@ -81,5 +81,36 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 		}
 		return this.text.substring(0, this.currentCharIndex + 1);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("index: ");
+		builder.append(currentCharIndex);
+		builder.append(", column: ");
+		builder.append(currentColumnIndex);
+		builder.append(", current char: ");
+		Character currentChar = currentCharIndex >= 0 && currentCharIndex < text.length() ? text.charAt(currentCharIndex) : null;
+		if (currentChar == null) {
+			builder.append(currentChar);
+		} else {
+			builder.append("'");
+			builder.append(currentChar);
+			builder.append("'");
+		}
+		
+		builder.append(", consumed:");
+		String consumedText = getConsumedText();
+		if (consumedText != null) {
+			builder.append("\n\"");
+			builder.append(consumedText);
+			builder.append("\"");
+		} else {
+			builder.append(" ");
+			builder.append(consumedText);
+		}
+		return builder.toString();
+	}
 
 }

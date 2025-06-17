@@ -66,7 +66,7 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 		builder.append(", column: ");
 		builder.append(scannerDelegate.getColumn());
 		builder.append(", current char: ");
-		Character currentChar = currentIndex >= 0 && currentIndex< text.length() ? text.charAt(currentIndex) : null;
+		Character currentChar = currentIndex >= 0 && currentIndex < text.length() ? text.charAt(currentIndex) : null;
 		if (currentChar == null) {
 			builder.append(currentChar);
 		} else {
