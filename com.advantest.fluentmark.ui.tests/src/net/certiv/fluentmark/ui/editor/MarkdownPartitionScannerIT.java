@@ -46,7 +46,7 @@ public class MarkdownPartitionScannerIT {
 				<!-- comment 1 -->
 				# Heading
 				
-				<!-- comment 2 -->
+				<!--- comment 2 --->
 				
 				Paragraph
 				
@@ -64,12 +64,60 @@ public class MarkdownPartitionScannerIT {
 		assertNotNull(regions);
 		assertRegion(regions[0], document, MarkdownPartitions.COMMENT, "<!-- comment 1 -->");
 		assertRegion(regions[1], document, IDocument.DEFAULT_CONTENT_TYPE, "\n# Heading\n\n");
-		assertRegion(regions[2], document, MarkdownPartitions.COMMENT, "<!-- comment 2 -->");
+		assertRegion(regions[2], document, MarkdownPartitions.COMMENT, "<!--- comment 2 --->");
 		assertRegion(regions[3], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nParagraph\n\nSome\nmore\n");
 		assertRegion(regions[4], document, MarkdownPartitions.COMMENT, "<!-- comment 3 -->");
 		assertRegion(regions[5], document, IDocument.DEFAULT_CONTENT_TYPE, "\ntext following...\n\n");
 		assertRegion(regions[6], document, MarkdownPartitions.COMMENT, "<!--comment 4-->");
 		assertRegion(regions[7], document, IDocument.DEFAULT_CONTENT_TYPE, "\n");
-	} 
+	}
+	
+	@Test
+	public void checkDetectingMultiLineComments() throws Exception {
+		String markdown = """
+				<!-- comment 1
+				spanning
+				 multiple
+				  lines
+				   ...
+				    very long -->
+				# Heading
+				
+				<!---
+				comment 2
+				--->
+				
+				Paragraph
+				
+				Some
+				more
+				<!-- comment 3 -->
+				<!-- comment 4
+				directly folowing
+				another comment -->
+				text following...""";
+		
+		IDocument document = createDocument(markdown);
+		ITypedRegion[] regions = computePartitions(document);
+		
+		assertNotNull(regions);
+		assertRegion(regions[0], document, MarkdownPartitions.COMMENT, """
+				<!-- comment 1
+				spanning
+				 multiple
+				  lines
+				   ...
+				    very long -->""");
+		assertRegion(regions[1], document, IDocument.DEFAULT_CONTENT_TYPE, "\n# Heading\n\n");
+		assertRegion(regions[2], document, MarkdownPartitions.COMMENT, "<!---\ncomment 2\n--->");
+		assertRegion(regions[3], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nParagraph\n\nSome\nmore\n");
+		assertRegion(regions[4], document, MarkdownPartitions.COMMENT, "<!-- comment 3 -->");
+		assertRegion(regions[5], document, IDocument.DEFAULT_CONTENT_TYPE, "\n");
+		assertRegion(regions[6], document, MarkdownPartitions.COMMENT, """
+				<!-- comment 4
+				directly folowing
+				another comment -->""");
+		assertRegion(regions[7], document, IDocument.DEFAULT_CONTENT_TYPE, "\ntext following...");
+	}
 
 }
