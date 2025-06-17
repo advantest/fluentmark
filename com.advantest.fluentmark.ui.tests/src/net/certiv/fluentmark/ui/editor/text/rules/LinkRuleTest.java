@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
@@ -113,7 +114,10 @@ public class LinkRuleTest {
 			"[label]:",
 			"[label]: ",
 			"[label]: \n\n some/path/to/a_file.puml",
-			"[label]: \n \t \n https://www.advantest.com"})
+			"[label]: \n \t \n https://www.advantest.com",
+			"\\[link-like text 1\\](https://www.something1.com)",
+			"\\[link-like text 2](https://www.something2.com)",
+			"[link-like text 3\\](https://www.something3.com)"})
 	public void stringsNotMatchedAsLinks(String input) {
 		scanner = new CharacterScannerMock(input);
 		
@@ -123,6 +127,19 @@ public class LinkRuleTest {
 		assertEquals("", scanner.getConsumedText());
 	}
 	
+	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
+	@CsvSource({
+			"[link-like text 4]\\(https://www.something-else-1.com\\),[link-like text 4]",
+			"[link-like text 5]\\(https://www.something-else-2.com),[link-like text 5]",
+			"[link-like text 6](https://www.something-else-3.com\\),[link-like text 6]"})
+	public void stringsNotMatchedAsCompleteLinksButAsRefLinks(String inputText, String consumedText) {
+		scanner = new CharacterScannerMock(inputText);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(consumedText, scanner.getConsumedText());
+	}
 	
 	// for reference links, see HMR-102 and https://spec.commonmark.org/0.30/#reference-link
 	
