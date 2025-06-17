@@ -356,6 +356,25 @@ public class MarkdownLinkValidatorIT {
 	}
 	
 	@Test
+	public void linksInPlantUmlBlocksAreNotChecked() throws Exception {
+		// given
+		String fileContents = """
+				@startuml
+				' Markdown link syntax in PlantUML code is also ignored
+				' [in comments](path/to/file.txt)
+				
+				[and outside comments](https://plantuml.com)
+				@enduml
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
 	public void testFileAndFolderPathValidation() throws Exception {
 		// given
 		String fileContents = """
