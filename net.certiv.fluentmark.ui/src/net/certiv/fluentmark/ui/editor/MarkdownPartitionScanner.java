@@ -39,6 +39,8 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken dotblock = new Token(MarkdownPartitions.DOTBLOCK);
 		IToken umlblock = new Token(MarkdownPartitions.UMLBLOCK);
 		IToken mathblock = new Token(MarkdownPartitions.MATHBLOCK);
+		
+		// TODO Get rid of the PlantUML inclusion statement type region in the partition scanner
 		Token plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		
 		// TODO Find another way to set token color, maybe in a second parsing step

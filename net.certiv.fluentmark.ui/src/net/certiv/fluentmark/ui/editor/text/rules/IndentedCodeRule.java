@@ -82,14 +82,12 @@ public class IndentedCodeRule implements IPredicateRule {
 	}
 
 	private boolean evaluateLine(ICharacterScanner scanner) {
-		// Log.error("Examining line at offset " + getOffset(scanner));
 		boolean found = false;
 		String indents = "";
 		int mark = scanner.getColumn();			// mark BOL
 		int c = scanner.read();
 
 		if (isEol(c)) {							// stop if blank line
-			// Log.error("Min blank line");
 			rewindToMark(scanner, mark);		// rewind to BOL
 			return false;
 		}
@@ -97,8 +95,7 @@ public class IndentedCodeRule implements IPredicateRule {
 		while (isHws(c)) {						// collect the indent
 			indents += (char) c;
 			c = scanner.read();
-			if (isEol(c)) {						// stop if blank line
-				// Log.error("Indented blank line");
+			if (isEol(c) && line == 0) {		// stop if first line is blank
 				rewindToMark(scanner, mark);	// rewind to BOL
 				return false;
 			}
@@ -107,7 +104,6 @@ public class IndentedCodeRule implements IPredicateRule {
 
 		if (line == 0) {						// check only first line of codeblock
 			if (isList(scanner)) {				// stop if a list
-				// Log.error("List line");
 				rewindToMark(scanner, mark);	// rewind to BOL
 				return false;
 			}
@@ -126,27 +122,28 @@ public class IndentedCodeRule implements IPredicateRule {
 	// otherwise, winds to the beginning of the blank line at the EOB
 	private boolean isList(ICharacterScanner scanner) {
 		int n = scanner.read();
-		if (isEol(n)) return false;					// blank line
+		if (isEol(n)) { // blank line
+			scanner.unread();
+			return false;
+		}
 
 		if (n == '-' || n == '+' || n == '*') {
-			// Log.error("List mark at " + getOffset(scanner));
 			if (spaceFollows(scanner)) {			// skip unordered lists
-				// Log.error("List item at " + getOffset(scanner));
 				gotoBOL(scanner);					// align, then consume the list
 				gotoEOB(scanner);
 				return true;
 			}
+			scanner.unread();
 			return false;
 		}
 		if (Character.isDigit(n)) {
-			// Log.error("Digit mark at " + getOffset(scanner));
 			if (isDigitSeq(scanner)) {		// skip ordered lists
-				// Log.error("Digit item at " + getOffset(scanner));
 				gotoBOL(scanner);			// align, then consume the list
 				gotoEOB(scanner);
 				return true;
 			}
 		}
+		scanner.unread();
 		return false;
 	}
 
@@ -166,14 +163,12 @@ public class IndentedCodeRule implements IPredicateRule {
 	}
 
 	private void gotoEOB(ICharacterScanner scanner) {
-		// Log.error("Beg block at " + getOffset(scanner));
 		int mark = scanner.getColumn();
 		while (!gotoEOL(scanner, true)) {	// read line, testing for blank
 			mark = scanner.getColumn();		// mark beginning of each line
 		}
 		rewindToMark(scanner, mark); 		// to start of blank line
 		rewindEOL(scanner);					// rewind through EOL
-		// Log.error("End block at " + getOffset(scanner));
 	}
 
 	private void gotoBOL(ICharacterScanner scanner) {
@@ -192,7 +187,7 @@ public class IndentedCodeRule implements IPredicateRule {
 			blank = blank && Character.isWhitespace(b);
 			b = scanner.read();
 		}
-		if (b == ICharacterScanner.EOF) scanner.unread();
+		scanner.unread();
 		if (consumeEOL) {
 			b = scanner.read();
 			if (b == '\r') {

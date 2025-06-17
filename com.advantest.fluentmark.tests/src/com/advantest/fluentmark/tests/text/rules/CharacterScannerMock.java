@@ -5,18 +5,20 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package com.advantest.fluentmark.tests.text.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
-public class CharacterScannerMock implements ICharacterScanner {
+public class CharacterScannerMock implements IObservableCharacterScanner {
+	
+	public static final int UNDEFINED= -1;
 	
 	private final String text;
 	private final String[] textLines;
-	private int currentCharIndex = -1;
-	private int currentColumnIndex = -1;
+	private int currentCharIndex = UNDEFINED;
+	private int currentColumnIndex = UNDEFINED;
 	private int currentLineIndex = 0;
 	
 	
@@ -34,6 +36,9 @@ public class CharacterScannerMock implements ICharacterScanner {
 
 	@Override
 	public int getColumn() {
+		if (currentColumnIndex == UNDEFINED) {
+			return 0;
+		}
 		return currentColumnIndex;
 	}
 
