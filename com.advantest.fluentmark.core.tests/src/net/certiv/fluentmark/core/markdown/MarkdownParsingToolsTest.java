@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class MarkdownParsingToolsTest {
 	
@@ -36,16 +37,20 @@ public class MarkdownParsingToolsTest {
 	}
 	
 	@ParameterizedTest
-	@CsvSource({"""
-			[label](target),label,target
-			[Some link title](),Some link title,
-			[](https://something.com),,https://something.com
-			[](),,
-			[Solunar](https://www.solunar.de),Solunar,https://www.solunar.de
-			[Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.puml
-			"""
+	@CsvSource({
+			"[label](target),label,target",
+			"[Some link title](),Some link title,''",
+			"[](https://something.com),'',https://something.com",
+			"[](),'',''",
+			"[Solunar](https://www.solunar.de),Solunar,https://www.solunar.de",
+			"[Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.puml",
+			"[Image](some/path/to/file.png),Image,some/path/to/file.png",
+			"[File X](some/path/to/file.txt),File X,some/path/to/file.txt",
+			"[More to see here!](../../relative/path/SomeClass.java),More to see here!,../../relative/path/SomeClass.java",
+			"[](../../../Test Markdown and PlantUML/doc/subsection/section.md),'',../../../Test Markdown and PlantUML/doc/subsection/section.md",
+			"[Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.cpp),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.cpp"
 	})
-	public void testSimpleLinksFound(String statement, String label, String target) {
+	public void simpleLinksAreFound(String statement, String label, String target) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
 		
 		assertTrue(match.isPresent());
@@ -54,6 +59,170 @@ public class MarkdownParsingToolsTest {
 		assertEquals(target, getTarget(match.get()));
 	}
 	
-	// TODO test escaping brackets
-
+	@ParameterizedTest
+	@CsvSource({
+			"![label](target),label,target",
+			"![Some link title](),Some link title,''",
+			"![](some/path/file.svg),'',some/path/file.svg",
+			"![](),'',''",
+			"![important](../../path/to/file.png),important,../../path/to/file.png",
+			"![Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.puml"
+	})
+	public void imagesAreFound(String statement, String label, String target) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(statement, match.get().matchedText);
+		assertEquals(label, getLabel(match.get()));
+		assertEquals(target, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[label][refKey],label,refKey",
+			"[Link title][link label],Link title,link label",
+			"[Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#'][special],Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#',special",
+			"[text][key],text,key",
+			"[Some \\] escaped brackets \\[ are ignored here][REF],Some \\] escaped brackets \\[ are ignored here,REF"
+	})
+	public void fullReferenceLinksAreFound(String statement, String label, String referenceKey) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(statement, match.get().matchedText);
+		assertEquals(label, getLabel(match.get()));
+		assertEquals(referenceKey, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[label][],label,",
+			"[Link label][],Link label",
+			"[Some longer text with special characters !?=)/(//%$§\"!°.#'][],Some longer text with special characters !?=)/(//%$§\"!°.#'",
+			"[Some \\] escaped brackets \\[ are ignored here][],Some \\] escaped brackets \\[ are ignored here"
+	})
+	public void collapsedReferenceLinksAreFound(String statement, String label) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(statement, match.get().matchedText);
+		assertEquals(label, getLabel(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[label],label",
+			"[Link label],Link label",
+			"[Some longer text with special characters !?=)/(//%$§\"!°.#'],Some longer text with special characters !?=)/(//%$§\"!°.#'",
+			"[Some \\] escaped brackets \\[ are ignored here],Some \\] escaped brackets \\[ are ignored here"
+	})
+	public void shortcutReferenceLinksAreFound(String statement, String label) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(statement, match.get().matchedText);
+		assertEquals(label, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[Text]someChars(path),[Text],Text",
+			"[link-like text 4]\\(https://www.something-else-1.com\\),[link-like text 4],link-like text 4",
+			"[link-like text 5]\\(https://www.something-else-2.com),[link-like text 5],link-like text 5",
+			"[link-like text 6](https://www.something-else-3.com\\),[link-like text 6],link-like text 6"
+	})
+	public void textNotMatchedAsCompleteLinksButAsShortcutReferenceLinks(String statement, String matchedText, String referenceKey) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(matchedText, match.get().matchedText);
+		assertEquals(referenceKey, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[label]: target,label,target",
+			"[adv]: https://www.advantest.com,adv,https://www.advantest.com",
+			"[adv]:https://www.advantest.com,adv,https://www.advantest.com",
+			"[Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#']: path/to/file.txt,Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#',path/to/file.txt",
+			"[Some \\] escaped brackets \\[ are ignored here]: REF,Some \\] escaped brackets \\[ are ignored here,REF"
+	})
+	public void linkReferenceDefinitionsAreFound(String statement, String label, String referenceKey) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(statement, match.get().matchedText);
+		assertEquals(label, getLabel(match.get()));
+		assertEquals(referenceKey, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"[adv]:\nhttps://www.advantest.com",
+			"[adv]: https://www.advantest.com \"Advantest Europe\"",
+			"[adv]:\nhttps://www.advantest.com\n\"Some description\""
+	})
+	public void linkReferenceDefinitionsSpanningMultipleLinesOrHavingDescriptionAreFound(String statement) {
+		String target = "https://www.advantest.com";
+		
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		
+		int indexOfTarget = statement.indexOf(target);
+		String matchedPart = statement.substring(0, indexOfTarget + target.length());
+		assertEquals(matchedPart, match.get().matchedText);
+		
+		assertEquals("adv", getLabel(match.get()));
+		assertEquals(target, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[\\]()",
+			"\\[label](link)",
+			"[label\\](link)",
+			"[\\]",
+			"\\[]",
+			"\\[][key\\]",
+			"\\[Solunar](https://www.solunar.de)",
+			"\\[adv]: https://www.advantest.com",
+			"[adv\\]:https://www.advantest.com",
+			"[adv\\]:\nhttps://www.advantest.com"
+	})
+	public void textWithEscapedBracketsDoesNotMatch(String statement) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[^1]: Footnote 1",
+			"[^9731]:Another footnote",
+			"[^footnote]: Some explaining text.",
+			"[^adv]:https://www.advantest.com",
+			"[^key]:\nhttps://www.advantest.com"
+	})
+	public void footnoteDefinitionsNotParsedAslinkReferenceDefinitions(String statement) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+	}
 }
