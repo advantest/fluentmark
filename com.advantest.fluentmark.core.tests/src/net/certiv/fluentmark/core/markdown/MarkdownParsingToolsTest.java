@@ -127,6 +127,7 @@ public class MarkdownParsingToolsTest {
 	@ParameterizedTest
 	@CsvSource({
 			"[Text]someChars(path),[Text],Text",
+			"[some text] sdf ](sdf),[some text],some text",
 			"[link-like text 4]\\(https://www.something-else-1.com\\),[link-like text 4],link-like text 4",
 			"[link-like text 5]\\(https://www.something-else-2.com),[link-like text 5],link-like text 5",
 			"[link-like text 6](https://www.something-else-3.com\\),[link-like text 6],link-like text 6"
@@ -225,4 +226,7 @@ public class MarkdownParsingToolsTest {
 		
 		assertTrue(match.isEmpty());
 	}
+	
+	// TODO Add tests for anchor search
+	// TODO Add tests for findings sets of links in longer texts
 }
