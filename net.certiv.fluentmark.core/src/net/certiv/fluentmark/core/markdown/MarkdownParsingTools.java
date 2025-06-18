@@ -51,7 +51,7 @@ public class MarkdownParsingTools {
 			+ CAPTURING_GROUP_LABEL + ">[^\\]]*?)\\]\\[(?<"
 			+ CAPTURING_GROUP_TARGET + ">[^\\]]*?)\\]";
 	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[(?<"
-			+ CAPTURING_GROUP_TARGET+ ">[^\\]]*?)\\])(?!(\\[|\\(|:))";
+			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\]\\]))*?)(?<!\\\\)\\])(?!(\\[|\\(|:))";
 
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";

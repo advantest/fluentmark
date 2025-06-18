@@ -113,6 +113,7 @@ public class MarkdownParsingToolsTest {
 	@CsvSource({
 			"[label],label",
 			"[Link label],Link label",
+			"[],''",
 			"[Some longer text with special characters !?=)/(//%$§\"!°.#'],Some longer text with special characters !?=)/(//%$§\"!°.#'",
 			"[Some \\] escaped brackets \\[ are ignored here],Some \\] escaped brackets \\[ are ignored here"
 	})
@@ -130,7 +131,6 @@ public class MarkdownParsingToolsTest {
 			"[some text] sdf ](sdf),[some text],some text",
 			"[link-like text 4]\\(https://www.something-else-1.com\\),[link-like text 4],link-like text 4",
 			"[link-like text 5]\\(https://www.something-else-2.com),[link-like text 5],link-like text 5",
-			"[link-like text 6](https://www.something-else-3.com\\),[link-like text 6],link-like text 6"
 	})
 	public void textNotMatchedAsCompleteLinksButAsShortcutReferenceLinks(String statement, String matchedText, String referenceKey) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
@@ -142,6 +142,22 @@ public class MarkdownParsingToolsTest {
 		assertTrue(match.isPresent());
 		assertEquals(matchedText, match.get().matchedText);
 		assertEquals(referenceKey, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[link-like text 6](https://www.something-else-3.com\\)",
+			"[link-like text 7][]",
+			"[link-like text 8][\\]"
+	})
+	public void textNotMatchedAsShortcutReferenceLinks(String statement) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
 	}
 	
 	@ParameterizedTest
