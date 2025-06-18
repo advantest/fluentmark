@@ -47,9 +47,9 @@ public class MarkdownParsingTools {
 	// * full reference link:      [Markdown specification][CommonMark]
 	// * collapsed reference link: [CommonMark][]
 	// * shortcut reference link:  [CommonMark]
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "\\[(?<"
-			+ CAPTURING_GROUP_LABEL + ">[^\\]]*?)\\]\\[(?<"
-			+ CAPTURING_GROUP_TARGET + ">[^\\]]*?)\\]";
+	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "(?<!\\\\)\\[(?<"
+			+ CAPTURING_GROUP_LABEL + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]\\[(?<"
+			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]";
 	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[(?<"
 			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\]\\]))*?)(?<!\\\\)\\])(?!(\\[|\\(|:))";
 

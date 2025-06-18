@@ -162,6 +162,39 @@ public class MarkdownParsingToolsTest {
 	
 	@ParameterizedTest
 	@CsvSource({
+			"[ sdf sdf sd ] sd ][sdf sd]",
+			"[ sdf sdf sd ][sdf [ sd]",
+			"[text\\][key]",
+			"[link-like text][\\]",
+			"\\[][]",
+			"[\\][]",
+			"[]\\[]",
+			"[][\\]",
+			"[]:[]"
+	})
+	public void textNotMatchedAsFullOrCollapsedReferenceLinks(String statement) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[ prefix [ label ][target],[ label ][target]",	
+			"[ label ][target ] sd],[ label ][target ]",
+			"[[label][target]],[label][target]",
+			"[surrounding [label][target] text...],[label][target]",
+			"[[][]],[][]"
+	})
+	public void textWithUnEscapedBracketsMatchedAsFullOrCollapsedReferenceLinks(String statement, String expectedMatch) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(expectedMatch, match.get().matchedText);
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
 			"[label]: target,label,target",
 			"[adv]: https://www.advantest.com,adv,https://www.advantest.com",
 			"[adv]:https://www.advantest.com,adv,https://www.advantest.com",
