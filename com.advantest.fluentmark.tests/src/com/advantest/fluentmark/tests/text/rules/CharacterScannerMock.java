@@ -52,9 +52,8 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 
 	@Override
 	public int read() {
-		currentCharIndex++;
-		
 		if (currentCharIndex + 1 < text.length()) {
+			currentCharIndex++;
 			currentColumnIndex++;
 			
 			char c = text.charAt(currentCharIndex);
@@ -67,23 +66,17 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 			}
 			return c;
 		} else {
-			currentColumnIndex = UNDEFINED;
 			return ICharacterScanner.EOF;
 		}
 	}
 
 	@Override
 	public void unread() {
-		currentCharIndex--;
-		
-		if (currentCharIndex - 1 >= UNDEFINED) {
-			if (currentColumnIndex == UNDEFINED) {
-				currentColumnIndex = textLines[currentLineIndex].length() - 1;
-			} else {
-				currentColumnIndex--;
-			}
+		if (currentCharIndex - 1 >= -1) {
+			currentCharIndex--;
+			currentColumnIndex--;
 			
-			if (currentColumnIndex < UNDEFINED) {
+			if (currentColumnIndex < -1) {
 				currentLineIndex--;
 				currentColumnIndex = textLines[currentLineIndex].length();
 			}
