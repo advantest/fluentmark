@@ -68,7 +68,7 @@ public class MarkdownParsingTools {
 	private static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
 	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
-	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
+	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION, Pattern.MULTILINE);
 	private static final Pattern REF_LINK_FULL_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED);
 	private static final Pattern REF_LINK_SHORT_PATTERN = Pattern.compile(REGEX_REF_LINK_SHORTCUT);
 	
