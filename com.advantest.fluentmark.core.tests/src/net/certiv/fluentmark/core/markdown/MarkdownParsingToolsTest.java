@@ -232,7 +232,8 @@ public class MarkdownParsingToolsTest {
 			"[adv]: https://www.advantest.com,adv,https://www.advantest.com",
 			"[adv]:https://www.advantest.com,adv,https://www.advantest.com",
 			"[Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#']: path/to/file.txt,Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#',path/to/file.txt",
-			"[Some \\] escaped brackets \\[ are ignored here]: REF,Some \\] escaped brackets \\[ are ignored here,REF"
+			"[Some \\] escaped brackets \\[ are ignored here]: REF,Some \\] escaped brackets \\[ are ignored here,REF",
+			"   [label]: target,label,target"
 	})
 	public void linkReferenceDefinitionsAreFound(String statement, String label, String referenceKey) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
@@ -248,7 +249,7 @@ public class MarkdownParsingToolsTest {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions("[ref2]:\n   ").findFirst();
 		
 		assertTrue(match.isPresent());
-		assertEquals("[ref2]:\n", match.get().matchedText);
+		assertEquals("[ref2]:", match.get().matchedText);
 		assertEquals("ref2", getLabel(match.get()));
 		assertEquals("", getTarget(match.get()));
 	}
@@ -286,7 +287,6 @@ public class MarkdownParsingToolsTest {
 			"\\[adv]: https://www.advantest.com",
 			"[adv\\]:https://www.advantest.com",
 			"[adv\\]:\nhttps://www.advantest.com",
-			" [adv]: https://www.advantest.com",
 			"\t[adv]: https://www.advantest.com",
 			"lsadfkj sdfk sd [adv]: https://www.advantest.com sdf sd",
 			"[bla [ blub]: link"

@@ -44,9 +44,9 @@ public class MarkdownParsingTools {
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
 	
-	// ^\[(?<label>([^^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]:( |\t|\n)?( |\t)*(?<target>[^ \n\r\t\f\v\]\[]*)
-	private static final String REGEX_LINK_REF_DEFINITION = "^\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">([^^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]:( |\\t|\\n)?( |\\t)*?(?<"
+	// ^ {0,3}\[(?<label>([^^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]:([ \t]*\n?[ \t]*(?=[^ \n\r\t\f\v\]\[]))?(?<target>[^ \n\r\t\f\v\]\[]*)
+	private static final String REGEX_LINK_REF_DEFINITION = "^ {0,3}\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">([^^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]:([ \\t]*\\n?[ \\t]*(?=[^ \\n\\r\\t\\f\\v\\]\\[]))?(?<"
 			+ CAPTURING_GROUP_TARGET + ">[^ \\n\\r\\t\\f\\v\\]\\[]*)";
 	
 	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
