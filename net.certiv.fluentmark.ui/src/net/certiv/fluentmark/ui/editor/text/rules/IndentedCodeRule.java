@@ -7,7 +7,6 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.text.rules;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -15,7 +14,6 @@ import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class IndentedCodeRule implements IPredicateRule {
@@ -69,18 +67,6 @@ public class IndentedCodeRule implements IPredicateRule {
 		return token;
 	}
 
-	private int getOffset(ICharacterScanner scanner) {
-		return ((IScannerExt) scanner).getOffset();
-	}
-
-	private char getCharAt(ICharacterScanner scanner, int idx) {
-		try {
-			return ((IScannerExt) scanner).getDocument().getChar(idx);
-		} catch (BadLocationException e) {
-			return 0; // NULL
-		}
-	}
-
 	private boolean evaluateLine(ICharacterScanner scanner) {
 		boolean found = false;
 		String indents = "";
@@ -129,30 +115,35 @@ public class IndentedCodeRule implements IPredicateRule {
 
 		if (n == '-' || n == '+' || n == '*') {
 			if (spaceFollows(scanner)) {			// skip unordered lists
-				gotoBOL(scanner);					// align, then consume the list
-				gotoEOB(scanner);
+				scanner.unread();
 				return true;
 			}
 			scanner.unread();
 			return false;
 		}
 		if (Character.isDigit(n)) {
-			if (isDigitSeq(scanner)) {		// skip ordered lists
-				gotoBOL(scanner);			// align, then consume the list
-				gotoEOB(scanner);
+			if (isDigitSequenceFollowedBySpace(scanner)) {		// skip ordered lists
+				scanner.unread();
 				return true;
 			}
 		}
 		scanner.unread();
 		return false;
 	}
-
-	// "\d*\."
-	private boolean isDigitSeq(ICharacterScanner scanner) {
+	
+	private boolean isDigitSequenceFollowedBySpace(ICharacterScanner scanner) {
+		int currentIndex = scanner.getColumn();
 		readDigits(scanner);
-		if (decimalFollows(scanner)) return true;
+		
+		if (spaceFollows(scanner)) {
+			rewindToMark(scanner, currentIndex);
+			return true;
+		}
+		
+		rewindToMark(scanner, currentIndex);
 		return false;
 	}
+
 
 	private void readDigits(ICharacterScanner scanner) {
 		int d;
@@ -160,24 +151,6 @@ public class IndentedCodeRule implements IPredicateRule {
 			d = scanner.read();
 		} while (Character.isDigit(d));
 		scanner.unread();
-	}
-
-	private void gotoEOB(ICharacterScanner scanner) {
-		int mark = scanner.getColumn();
-		while (!gotoEOL(scanner, true)) {	// read line, testing for blank
-			mark = scanner.getColumn();		// mark beginning of each line
-		}
-		rewindToMark(scanner, mark); 		// to start of blank line
-		rewindEOL(scanner);					// rewind through EOL
-	}
-
-	private void gotoBOL(ICharacterScanner scanner) {
-		for (int idx = getOffset(scanner) - 1; idx >= 0; idx--) {
-			char c = getCharAt(scanner, idx);
-			if (isEol(c)) break;
-			scanner.unread();
-		}
-		return;
 	}
 
 	private boolean gotoEOL(ICharacterScanner scanner, boolean consumeEOL) {
@@ -206,24 +179,8 @@ public class IndentedCodeRule implements IPredicateRule {
 		return true;
 	}
 
-	private boolean decimalFollows(ICharacterScanner scanner) {
-		int s = scanner.read();
-		scanner.unread();
-		if (s == ICharacterScanner.EOF) return false;
-		if (s != '.') return false;
-		return true;
-	}
-
 	private void rewindToMark(ICharacterScanner scanner, int mark) {
 		for (int idx = scanner.getColumn(); idx > mark; idx--) {
-			scanner.unread();
-		}
-	}
-
-	private void rewindEOL(ICharacterScanner scanner) {
-		for (int idx = getOffset(scanner) - 1; idx >= 0; idx--) {
-			char c = getCharAt(scanner, idx);
-			if (!isEol(c)) break;
 			scanner.unread();
 		}
 	}

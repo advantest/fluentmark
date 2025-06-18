@@ -126,12 +126,43 @@ public class IndentedCodeRuleIT {
 			  - item 2
 			""",
 			"""
+			  1 item a
+			  2 item b
+			  10 item c
+			""",
+			"""
 			   A
 			   B
 			   C
 			"""
 			})
 	public void textIndendedLessThanFourSpacesDoesNotMatch(String input) {
+		scanner = createScanner(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals("", scanner.getConsumedText());
+	}
+	
+	@ParameterizedTest(name = "[{index}] list does not match")
+	@ValueSource(strings = {
+			"""
+			    - item 1
+			    - item 2
+			""",
+			"""
+			    1 item a
+			    2 item b
+			    10 item c
+			""",
+			"""
+			    134 item a
+			    135 item b
+			    136 item c
+			"""
+			})
+	public void listsDoNotMatch(String input) {
 		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
