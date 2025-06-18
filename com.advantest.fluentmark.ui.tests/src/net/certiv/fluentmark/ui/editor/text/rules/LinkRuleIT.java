@@ -191,7 +191,17 @@ public class LinkRuleIT {
 	@ValueSource(strings = {
 				"[adv]: https://www.advantest.com",
 				"[adv]:https://www.advantest.com",
-				"[adv]:\nhttps://www.advantest.com"})
+				"[adv]:\nhttps://www.advantest.com",
+				"[]: https://plantuml.com",
+				"[Some \\\\] escaped brackets \\\\[ are ignored here]: REF",
+				"[adv]:\nhttps://www.advantest.com"
+				
+// TODO adapt LinkRule to cover the following cases
+//				"[key]:",
+//				"[]:",
+//				"   [label]: ../../path/to/file.png",
+//				"   [adv]: \t \n\t \thttps://www.advantest.com"
+	})
 	public void linkReferenceDefinitionsMatch(String input) {
 		scanner = createScanner(input);
 		
