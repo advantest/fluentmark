@@ -35,8 +35,11 @@ public class MarkdownParsingTools {
 	// (link to [Topic Y](#topic-y))
 	// "(?<!\\)" is a negative look-behind disallowing preceding "\" chars,
 	// the look-behind is placed before \] and \[ and before \) (before "(" we explicitly require "]")
-	private static final String REGEX_LINK = "(!){0,1}(?<!\\\\)\\[(?<"  + CAPTURING_GROUP_LABEL
-			+ ">([^\\n](?<![^\\\\]\\]))*?)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\n]*?)?(?<!\\\\)\\)";
+	
+	// (!){0,1}(?<!\\)\[(?<label>([^\n](?<![^\\](\]|\[)))*?)?(?<!\\)\]\((?<target>([^\n](?<![^\\](\)|\()))*?)?(?<!\\)\)
+	private static final String REGEX_LINK = "(!){0,1}(?<!\\\\)\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">([^\\n](?<![^\\\\](\\]|\\[)))*?)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET
+			+ ">([^\\n](?<![^\\\\](\\)|\\()))*?)?(?<!\\\\)\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
@@ -47,11 +50,15 @@ public class MarkdownParsingTools {
 	// * full reference link:      [Markdown specification][CommonMark]
 	// * collapsed reference link: [CommonMark][]
 	// * shortcut reference link:  [CommonMark]
+	
+	// (?<!\\)\[(?<label>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]\[(?<target>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]
 	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "(?<!\\\\)\\[(?<"
 			+ CAPTURING_GROUP_LABEL + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]\\[(?<"
 			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]";
+	
+	// (?<!\]|\\)(\[(?<target>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\])(?!(\[|\(|:))
 	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[(?<"
-			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\]\\]))*?)(?<!\\\\)\\])(?!(\\[|\\(|:))";
+			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\])(?!(\\[|\\(|:))";
 
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";

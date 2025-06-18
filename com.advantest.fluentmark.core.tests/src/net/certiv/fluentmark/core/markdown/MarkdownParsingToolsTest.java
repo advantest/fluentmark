@@ -48,15 +48,43 @@ public class MarkdownParsingToolsTest {
 			"[File X](some/path/to/file.txt),File X,some/path/to/file.txt",
 			"[More to see here!](../../relative/path/SomeClass.java),More to see here!,../../relative/path/SomeClass.java",
 			"[](../../../Test Markdown and PlantUML/doc/subsection/section.md),'',../../../Test Markdown and PlantUML/doc/subsection/section.md",
-			"[Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.cpp),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.cpp"
+			"[Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.cpp),Some text with almost any symbol :;.-_<>!\"§$%&/()=?`´´#')\\{},some/path/to/a_file.cpp",
+			"[Text \\] with escaped \\[ brackets](target),Text \\] with escaped \\[ brackets,target",
+			"[Text with escaped brackets](target with \\( escaped \\) brackets),Text with escaped brackets,target with \\( escaped \\) brackets",
+			"[Text \\] with escaped \\[ brackets](target with \\( escaped \\) brackets),Text \\] with escaped \\[ brackets,target with \\( escaped \\) brackets"
 	})
-	public void simpleLinksAreFound(String statement, String label, String target) {
+	public void linksAndImagesAreFound(String statement, String label, String target) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
 		
 		assertTrue(match.isPresent());
 		assertEquals(statement, match.get().matchedText);
 		assertEquals(label, getLabel(match.get()));
 		assertEquals(target, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"![Diagram [x] is here](some/path/to/file.svg)",
+			"![Diagram x is here](some text ( sd)",
+			"![Diagram x is here](some text (a) sd)"
+	})
+	public void textNotMatchedAsLink(String statement) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[File [  X](some/path/to/file.txt),[  X](some/path/to/file.txt)",
+			"![Diagram [a](some/path/to/file.puml),[a](some/path/to/file.puml)",
+			"![Diagram x is here](some text ) sd),![Diagram x is here](some text )"
+	})
+	public void textPartiallyMatchedAsLinkOrImage(String statement, String expectedMatch) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(expectedMatch, match.get().matchedText);
 	}
 	
 	@ParameterizedTest
@@ -146,9 +174,10 @@ public class MarkdownParsingToolsTest {
 	
 	@ParameterizedTest
 	@CsvSource({
-			"[link-like text 6](https://www.something-else-3.com\\)",
-			"[link-like text 7][]",
-			"[link-like text 8][\\]"
+			"[link-like text 6](https://www.something-else-3.com\\)", // we don't allow a "(" after "[...]"
+			"[link-like text 7][]", // we don't allow a "[" after "[...]"
+			"[link-like text 8][\\]",
+			"[text\\][key]"
 	})
 	public void textNotMatchedAsShortcutReferenceLinks(String statement) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
