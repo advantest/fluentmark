@@ -119,14 +119,17 @@ public class IndentedCodeRuleIT {
 			"   ![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)",
 			"""
 			  text in line 1
-			  text in line 2""",
+			  text in line 2
+			""",
 			"""
 			  - item 1
-			  - item 2""",
+			  - item 2
+			""",
 			"""
 			   A
 			   B
-			   C"""
+			   C
+			"""
 			})
 	public void textIndendedLessThanFourSpacesDoesNotMatch(String input) {
 		scanner = createScanner(input);
