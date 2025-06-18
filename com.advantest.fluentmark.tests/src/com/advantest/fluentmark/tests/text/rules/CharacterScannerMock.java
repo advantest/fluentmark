@@ -11,6 +11,10 @@ package com.advantest.fluentmark.tests.text.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
+/**
+ * @deprecated Use {@link CharacterScannerDelegate} instead. Using a mock is too error-prone.
+ */
+@Deprecated
 public class CharacterScannerMock implements IObservableCharacterScanner {
 	
 	public static final int UNDEFINED= -1;

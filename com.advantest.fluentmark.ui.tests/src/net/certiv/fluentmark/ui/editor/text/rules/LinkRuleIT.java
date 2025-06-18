@@ -20,12 +20,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
+import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
+import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
 
-public class LinkRuleTest {
+public class LinkRuleIT {
 	
-	private CharacterScannerMock scanner;
+	private IObservableCharacterScanner scanner;
 	private LinkRule rule;
 	private IToken successToken;
 	private String linkTokenKey = "Link";
@@ -43,11 +44,15 @@ public class LinkRuleTest {
 		scanner = null;
 	}
 	
+	private IObservableCharacterScanner createScanner(String input) {
+		return ScannerTools.createMarkdownScanner(input);
+	}
+	
 	@ParameterizedTest(name = "[{index}] Link {0} is successfully parsed")
 	@ValueSource(strings = { "[Solunar](https://www.solunar.de)",
 			"[Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
 	public void simpleHttpLinkMatches(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -58,7 +63,7 @@ public class LinkRuleTest {
 	@Test
 	public void emptyLinkMatches() {
 		String input = "[Some link title]()";
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -68,7 +73,7 @@ public class LinkRuleTest {
 	
 	@Test
 	public void intermediateCharsDontMatch() {
-		scanner = new CharacterScannerMock("[Text]someChars(path)");
+		scanner = createScanner("[Text]someChars(path)");
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -84,7 +89,7 @@ public class LinkRuleTest {
 			"[](../../../Test Markdown and PlantUML/doc/subsection/section.md)",
 			"[Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.cpp)"})
 	public void fileLinksDoMatch(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -100,7 +105,7 @@ public class LinkRuleTest {
 			"![](../../../Test Markdown and PlantUML/doc/subsection/diag.puml)",
 			"![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
 	public void imageLinksDoMatch(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -119,7 +124,7 @@ public class LinkRuleTest {
 			"\\[link-like text 2](https://www.something2.com)",
 			"[link-like text 3\\](https://www.something3.com)"})
 	public void stringsNotMatchedAsLinks(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -133,7 +138,7 @@ public class LinkRuleTest {
 			"[link-like text 5]\\(https://www.something-else-2.com),[link-like text 5]",
 			"[link-like text 6](https://www.something-else-3.com\\),[link-like text 6]"})
 	public void stringsNotMatchedAsCompleteLinksButAsRefLinks(String inputText, String consumedText) {
-		scanner = new CharacterScannerMock(inputText);
+		scanner = createScanner(inputText);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -150,7 +155,7 @@ public class LinkRuleTest {
 			"[text][key]",
 			"[Some \\] escaped brackets \\[ are ignored here][REF]"})
 	public void fullRefenceLinkMatches(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -161,7 +166,7 @@ public class LinkRuleTest {
 	@Test
 	public void collapsedRefenceLinkMatches() {
 		String input = "[Link label][]";
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -172,7 +177,7 @@ public class LinkRuleTest {
 	@Test
 	public void shortcutReferenceLinkMatches() {
 		String input = "[Link label]";
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -188,7 +193,7 @@ public class LinkRuleTest {
 				"[adv]:https://www.advantest.com",
 				"[adv]:\nhttps://www.advantest.com"})
 	public void linkReferenceDefinitionsMatch(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -200,7 +205,7 @@ public class LinkRuleTest {
 	public void linkReferenceDefinitionsMatchWithoutLabel() {
 		String match = "[adv]: https://www.advantest.com";
 		String input = match + " \"Advantest Europe\"";
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -221,7 +226,7 @@ public class LinkRuleTest {
 				"[adv\\]:https://www.advantest.com",
 				"[adv\\]:\nhttps://www.advantest.com"})
 	public void escapedBracketsDontMatch(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -236,8 +241,8 @@ public class LinkRuleTest {
 				"[^footnote]: Some explaining text.",
 				"[^adv]:https://www.advantest.com",
 				"[^key]:\nhttps://www.advantest.com"})
-	public void footnoteDefinitionsNotParsedAslinkReferenceDefinitions(String input) {
-		scanner = new CharacterScannerMock(input);
+	public void footnoteDefinitionsNotParsedAsLinkReferenceDefinitions(String input) {
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
