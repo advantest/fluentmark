@@ -19,14 +19,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.advantest.fluentmark.tests.text.rules.CharacterScannerMock;
+import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
+import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 
 
-public class PumlFileInclusionRuleTest {
+public class PumlFileInclusionRuleIT {
 	
-	private CharacterScannerMock scanner;
+	private IObservableCharacterScanner scanner;
 	private PumlFileInclusionRule rule;
 	private IToken successToken;
 	
@@ -43,10 +44,14 @@ public class PumlFileInclusionRuleTest {
 		scanner = null;
 	}
 	
+	private IObservableCharacterScanner createScanner(String input) {
+		return ScannerTools.createMarkdownScanner(input);
+	}
+	
 	@Test
 	public void pumlFileInclusionMatches() {
 		String input = "![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)";
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
@@ -61,7 +66,7 @@ public class PumlFileInclusionRuleTest {
 			"![Some text with almost any symbol (some details!)](any/PATH/to/some_image.png)"
 			})
 	public void imageFileInclusionDoesNotMatch(String input) {
-		scanner = new CharacterScannerMock(input);
+		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
