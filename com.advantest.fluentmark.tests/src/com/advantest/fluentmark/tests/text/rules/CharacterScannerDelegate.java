@@ -9,7 +9,9 @@
  */
 package com.advantest.fluentmark.tests.text.rules;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
+import org.eclipse.jface.text.IDocument;
+
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 
 /**
  * Test class, especially for debugging purposes. Uses a "real" scanner, but
@@ -18,11 +20,11 @@ import org.eclipse.jface.text.rules.ICharacterScanner;
  */
 public class CharacterScannerDelegate implements IObservableCharacterScanner {
 	
-	private final ICharacterScanner scannerDelegate;
+	private final IScannerExt scannerDelegate;
 	private final String text;
 	private int currentIndex = -1;
 	
-	public CharacterScannerDelegate(String text, ICharacterScanner delegate) {
+	public CharacterScannerDelegate(String text, IScannerExt delegate) {
 		this.text = text;
 		this.scannerDelegate = delegate;
 	}
@@ -35,6 +37,21 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 	@Override
 	public int getColumn() {
 		return scannerDelegate.getColumn();
+	}
+	
+	@Override
+	public IDocument getDocument() {
+		return scannerDelegate.getDocument();
+	}
+
+	@Override
+	public int getOffset() {
+		return scannerDelegate.getOffset();
+	}
+
+	@Override
+	public int getRangeEnd() {
+		return scannerDelegate.getRangeEnd();
 	}
 
 	@Override
@@ -87,5 +104,4 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 		}
 		return builder.toString();
 	}
-
 }

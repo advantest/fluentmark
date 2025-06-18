@@ -9,6 +9,8 @@
  */
 package com.advantest.fluentmark.tests.text.rules;
 
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
 /**
@@ -24,6 +26,7 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 	private int currentCharIndex = UNDEFINED;
 	private int currentColumnIndex = UNDEFINED;
 	private int currentLineIndex = 0;
+	private final IDocument document;
 	
 	
 	private static final char[][] LEGAL_LINE_DELIMITERS = { { '\n' }, {'\r'}, {'\r', '\n'}  };
@@ -31,6 +34,7 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 	public CharacterScannerMock(String text) {
 		this.text = text;
 		this.textLines = text.split("[\n|\r\n|\r]");
+		this.document = new Document(text);
 	}
 	
 	@Override
@@ -122,6 +126,21 @@ public class CharacterScannerMock implements IObservableCharacterScanner {
 			builder.append(consumedText);
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public IDocument getDocument() {
+		return this.document;
+	}
+
+	@Override
+	public int getOffset() {
+		return currentCharIndex;
+	}
+
+	@Override
+	public int getRangeEnd() {
+		return text.length();
 	}
 
 }

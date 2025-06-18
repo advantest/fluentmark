@@ -9,9 +9,9 @@
  */
 package com.advantest.fluentmark.tests.text.rules;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 
-public interface IObservableCharacterScanner extends ICharacterScanner {
+public interface IObservableCharacterScanner extends IScannerExt {
 	
 	String getConsumedText();
 

@@ -15,7 +15,7 @@ import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class IndentedCodeRule implements IPredicateRule {
@@ -70,12 +70,12 @@ public class IndentedCodeRule implements IPredicateRule {
 	}
 
 	private int getOffset(ICharacterScanner scanner) {
-		return ((MarkdownPartitionScanner) scanner).getOffset();
+		return ((IScannerExt) scanner).getOffset();
 	}
 
 	private char getCharAt(ICharacterScanner scanner, int idx) {
 		try {
-			return ((MarkdownPartitionScanner) scanner).getDocument().getChar(idx);
+			return ((IScannerExt) scanner).getDocument().getChar(idx);
 		} catch (BadLocationException e) {
 			return 0; // NULL
 		}
