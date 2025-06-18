@@ -225,6 +225,9 @@ public class MarkdownParsingToolsTest {
 	@ParameterizedTest
 	@CsvSource({
 			"[label]: target,label,target",
+			"[]: https://plantuml.com,'',https://plantuml.com",
+			"[key]:,key,''",
+			"[]:,'',''",
 			"[adv]: https://www.advantest.com,adv,https://www.advantest.com",
 			"[adv]:https://www.advantest.com,adv,https://www.advantest.com",
 			"[Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#']: path/to/file.txt,Some longer text! Yes! With special characters !?=)/(//%$§\"!°.#',path/to/file.txt",
@@ -261,7 +264,7 @@ public class MarkdownParsingToolsTest {
 	}
 	
 	@ParameterizedTest
-	@CsvSource({
+	@ValueSource(strings = {
 			"[\\]()",
 			"\\[label](link)",
 			"[label\\](link)",
@@ -271,9 +274,13 @@ public class MarkdownParsingToolsTest {
 			"\\[Solunar](https://www.solunar.de)",
 			"\\[adv]: https://www.advantest.com",
 			"[adv\\]:https://www.advantest.com",
-			"[adv\\]:\nhttps://www.advantest.com"
+			"[adv\\]:\nhttps://www.advantest.com",
+			" [adv]: https://www.advantest.com",
+			"\t[adv]: https://www.advantest.com",
+			"lsadfkj sdfk sd [adv]: https://www.advantest.com sdf sd",
+			"[bla [ blub]: link"
 	})
-	public void textWithEscapedBracketsDoesNotMatch(String statement) {
+	public void textDoesNotMatchAtAll(String statement) {
 		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
 		
 		assertTrue(match.isEmpty());
@@ -289,6 +296,29 @@ public class MarkdownParsingToolsTest {
 		match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
 		
 		assertTrue(match.isEmpty());
+	}
+	
+	@ParameterizedTest
+	@CsvSource({
+			"[bla ] blub]: link,[bla ]"
+	})
+	public void textDoesNotMatchAtAllExceptAsShortcutReferenceLink(String statement, String expectedMatch) {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinksAndImages(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findLinkReferenceDefinitions(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findFullAndCollapsedReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isEmpty());
+		
+		match = MarkdownParsingTools.findShortcutReferenceLinks(statement).findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals(expectedMatch, match.get().matchedText);
 	}
 	
 	@ParameterizedTest
