@@ -11,8 +11,6 @@ package net.certiv.fluentmark.ui.editor.text.rules;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.junit.jupiter.api.AfterEach;
@@ -20,11 +18,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.advantest.fluentmark.tests.text.rules.CharacterScannerDelegate;
 import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
+import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
 
 
 public class IndentedCodeRuleIT {
@@ -47,11 +44,7 @@ public class IndentedCodeRuleIT {
 	}
 	
 	private IObservableCharacterScanner createScanner(String input) {
-		MarkdownPartitionScanner realScanner = new MarkdownPartitionScanner();
-		IDocument document = new Document(input);
-		realScanner.setRange(document, 0, input.length());
-		IObservableCharacterScanner scanner =  new CharacterScannerDelegate(input, realScanner);
-		return scanner;
+		return ScannerTools.createMarkdownScanner(input);
 	}
 	
 	@ParameterizedTest(name = "[{index}] Single indented line {0} does match as a code block")
@@ -65,9 +58,6 @@ public class IndentedCodeRuleIT {
 			})
 	public void indentedSingleLineTextMatches(String input) {
 		scanner = createScanner(input);
-		//MarkdownPartitionScanner realScanner = new MarkdownPartitionScanner();
-		//IDocument document = new Document(input);
-		//realScanner.setRange(document, 0, input.length());
 		
 		IToken resultToken = rule.evaluate(scanner);
 		
