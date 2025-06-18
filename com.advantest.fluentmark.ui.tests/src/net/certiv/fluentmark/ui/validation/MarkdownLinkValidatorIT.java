@@ -491,9 +491,9 @@ public class MarkdownLinkValidatorIT {
 				Text with [reference][ref1] to empty link
 				or to a missing [ref2] reference definition.
 				
-				[ref1]: 
+				[ref3]: 
 				
-				[ref2]:
+				[ref4]:
 				   
 				""";
 		linkValidator = new MarkdownLinkValidator();
@@ -551,6 +551,16 @@ public class MarkdownLinkValidatorIT {
 				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
 				IMarker.SEVERITY_ERROR,
 				"no link reference definition");
+		
+		assertMarker(file, 22,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 24,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
 	}
 	
 	private void assertMarker(IFile file, int line, String markerType, int severity, String... containedMessageParts) throws Exception {
