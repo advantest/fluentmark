@@ -52,7 +52,7 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 	@Override
 	public String getConsumedText() {
 		if (currentIndex < 0 || currentIndex > text.length()) {
-			return null;
+			return "";
 		}
 		return text.substring(0, Math.min(text.length(), currentIndex + 1));
 	}
