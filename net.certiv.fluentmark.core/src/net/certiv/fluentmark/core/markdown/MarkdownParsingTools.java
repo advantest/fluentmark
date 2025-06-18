@@ -31,10 +31,12 @@ public class MarkdownParsingTools {
 	public static final String CAPTURING_GROUP_ANCHOR = "anchor";
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
-	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
+	// search non-greedy (e.g. ".*?" or "[^\n]*?") for label and target capturing groups, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
-	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">[^\\]\\n]*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\)\\n]*)?\\)";
+	// "(?<!\\)" is a negative look-behind disallowing preceding "\" chars,
+	// the look-behind is placed before \] and \[ and before \) (before "(" we explicitly require "]")
+	private static final String REGEX_LINK = "(!){0,1}(?<!\\\\)\\[(?<"  + CAPTURING_GROUP_LABEL
+			+ ">[^\\n]*)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\n]*?)?(?<!\\\\)\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
