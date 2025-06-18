@@ -46,7 +46,7 @@ public class MarkdownParsingTools {
 	
 	// ^\[(?<label>([^^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]:( |\t|\n)?( |\t)*(?<target>[^ \n\r\t\f\v\]\[]*)
 	private static final String REGEX_LINK_REF_DEFINITION = "^\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">([^^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]:( |\\t|\\n)?( |\\t)*(?<"
+			+ ">([^^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]:( |\\t|\\n)?( |\\t)*?(?<"
 			+ CAPTURING_GROUP_TARGET + ">[^ \\n\\r\\t\\f\\v\\]\\[]*)";
 	
 	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link

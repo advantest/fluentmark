@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -240,6 +241,16 @@ public class MarkdownParsingToolsTest {
 		assertEquals(statement, match.get().matchedText);
 		assertEquals(label, getLabel(match.get()));
 		assertEquals(referenceKey, getTarget(match.get()));
+	}
+	
+	@Test
+	public void linkReferenceDefinitionFollowedByWhitespaceIsFound() {
+		Optional <RegexMatch> match = MarkdownParsingTools.findLinkReferenceDefinitions("[ref2]:\n   ").findFirst();
+		
+		assertTrue(match.isPresent());
+		assertEquals("[ref2]:\n", match.get().matchedText);
+		assertEquals("ref2", getLabel(match.get()));
+		assertEquals("", getTarget(match.get()));
 	}
 	
 	@ParameterizedTest
