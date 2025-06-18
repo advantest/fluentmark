@@ -16,7 +16,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 
 public class DotCodeRule implements IPredicateRule {
 
@@ -57,7 +57,7 @@ public class DotCodeRule implements IPredicateRule {
 	private boolean dotStarts(ICharacterScanner scanner, int c) throws BadLocationException {
 		if (c != '`' && c != '~') return false;
 
-		MarkdownPartitionScanner scan = (MarkdownPartitionScanner) scanner;
+		IScannerExt scan = (IScannerExt) scanner;
 		IDocument doc = scan.getDocument();
 		IRegion info = doc.getLineInformationOfOffset(scan.getOffset());
 		String text = doc.get(info.getOffset(), info.getLength());

@@ -276,6 +276,132 @@ public class MarkdownLinkValidatorIT {
 	}
 	
 	@Test
+	public void linksInCommentsAreNotChecked() throws Exception {
+		// given
+		String fileContents = """
+				Some text with a [link](https://www.google.com) in it.
+				
+				<!--[This comment contains a link](https://www.ignored.com)-->
+				
+				 <!-- Some more links
+				    [PlantUML](https://plantuml.com)
+				    and [test](path/to/file.puml) -->
+				
+				<!-- ![alt](dir/file.png) -->
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[link](https://www.google.com)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[This comment contains a link](https://www.ignored.com)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[PlantUML](https://plantuml.com)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[test](path/to/file.puml)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("![alt](dir/file.png)"), any());
+		
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
+	public void linksInCodeBlocksAreNotChecked() throws Exception {
+		// given
+		String fileContents = """
+				# Heading
+				
+				```markdown
+				Some Markdown code
+				with links like this [example](path/to/missing-file.md).
+				
+				![](path/to/image.png)
+				
+				[PlantUML](https://plantuml.com)
+				```
+				
+				A link [to ensure](https://www.test.de) some links are found.
+				
+				~~~
+				More code with [Markdown links](path/to/file.txt)
+				
+				![](path/to/image.puml)
+				
+				[Bitbucket](https://www.bitbucket.com)
+				~~~
+				
+				Indented code block:
+				
+				    This is code, too
+				    Link here [are ignored](https://missing.org)
+				    
+				    ![diagram](file.svg)
+				    [](no/file.md)
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[to ensure](https://www.test.de)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[example](path/to/missing-file.md)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("![](path/to/image.png)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[PlantUML](https://plantuml.com)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[Markdown links](path/to/file.txt)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("![](path/to/image.puml)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[Bitbucket](https://www.bitbucket.com)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[are ignored](https://missing.org)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("![diagram](file.svg)"), any());
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[](no/file.md)"), any());
+		
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
+	public void linksInPlantUmlBlocksAreNotChecked() throws Exception {
+		// given
+		String fileContents = """
+				@startuml
+				' Markdown link syntax in PlantUML code is also ignored
+				' [in comments](path/to/file.txt)
+				
+				[and outside comments](https://plantuml.com)
+				@enduml
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, never()).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
+	public void linksAreNotDetectedIfBracketsAreEscaped() throws Exception {
+		// given
+		String fileContents = """
+				# Heading with a [link](https://somewhere.com) in it
+				
+				Paragraph 1 with \\[link-like text 1\\](https://www.something1.com) in it.
+				
+				Paragraph 2 with \\[link-like text 2](https://www.something2.com) in it.
+				
+				Paragraph 3 with [link-like text 3\\](https://www.something3.com) in it.
+				
+				Paragraph 4 with [link-like text 4]\\(https://www.something-else-1.com\\) in it.
+				
+				Paragraph 5 with [link-like text 5]\\(https://www.something-else-2.com) in it.
+				
+				Paragraph 6 with [link-like text 6](https://www.something-else-3.com\\) in it.
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[link](https://somewhere.com)"), any());
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
 	public void testFileAndFolderPathValidation() throws Exception {
 		// given
 		String fileContents = """
@@ -365,9 +491,9 @@ public class MarkdownLinkValidatorIT {
 				Text with [reference][ref1] to empty link
 				or to a missing [ref2] reference definition.
 				
-				[ref1]: 
+				[ref3]: 
 				
-				[ref2]:
+				[ref4]:
 				   
 				""";
 		linkValidator = new MarkdownLinkValidator();
@@ -425,6 +551,16 @@ public class MarkdownLinkValidatorIT {
 				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
 				IMarker.SEVERITY_ERROR,
 				"no link reference definition");
+		
+		assertMarker(file, 22,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
+		
+		assertMarker(file, 24,
+				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IMarker.SEVERITY_ERROR,
+				"target file path or URL is empty");
 	}
 	
 	private void assertMarker(IFile file, int line, String markerType, int severity, String... containedMessageParts) throws Exception {

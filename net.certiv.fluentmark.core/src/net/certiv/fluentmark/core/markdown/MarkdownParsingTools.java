@@ -31,32 +31,44 @@ public class MarkdownParsingTools {
 	public static final String CAPTURING_GROUP_ANCHOR = "anchor";
 	
 	// pattern for images and links, e.g. ![](../image.png) or [some text](https://www.advantext.com)
-	// search non-greedy ("?" parameter) for "]" and ")" brackets, otherwise we match the last ")" in the following example
+	// search non-greedy (e.g. ".*?" or "[^\n]*?") for label and target capturing groups, otherwise we match the last ")" in the following example
 	// (link to [Topic Y](#topic-y))
-	private static final String REGEX_LINK = "(!){0,1}\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">[^\\]\\n]*)?\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\)\\n]*)?\\)";
+	// "(?<!\\)" is a negative look-behind disallowing preceding "\" chars,
+	// the look-behind is placed before \] and \[ and before \) (before "(" we explicitly require "]")
+	
+	// (!){0,1}(?<!\\)\[(?<label>([^\n](?<![^\\](\]|\[)))*?)?(?<!\\)\]\((?<target>([^\n](?<![^\\](\)|\()))*?)?(?<!\\)\)
+	private static final String REGEX_LINK = "(!){0,1}(?<!\\\\)\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">([^\\n](?<![^\\\\](\\]|\\[)))*?)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET
+			+ ">([^\\n](?<![^\\\\](\\)|\\()))*?)?(?<!\\\\)\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
-	private static final String REGEX_LINK_REF_DEFINITION = "\\[(?<" + CAPTURING_GROUP_LABEL
-			+ ">[^^\\n]+?)\\]:( |\\t|\\n)?( |\\t)*(?<" + CAPTURING_GROUP_TARGET + ">\\S+)";
+	
+	// ^ {0,3}\[(?<label>([^^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]:([ \t]*\n?[ \t]*(?=[^ \n\r\t\f\v\]\[]))?(?<target>[^ \n\r\t\f\v\]\[]*)
+	private static final String REGEX_LINK_REF_DEFINITION = "^ {0,3}\\[(?<" + CAPTURING_GROUP_LABEL
+			+ ">([^^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]:([ \\t]*\\n?[ \\t]*(?=[^ \\n\\r\\t\\f\\v\\]\\[]))?(?<"
+			+ CAPTURING_GROUP_TARGET + ">[^ \\n\\r\\t\\f\\v\\]\\[]*)";
 	
 	// patterns for reference links like the following three variants specified in CommonMark: https://spec.commonmark.org/0.31.2/#reference-link
 	// * full reference link:      [Markdown specification][CommonMark]
 	// * collapsed reference link: [CommonMark][]
 	// * shortcut reference link:  [CommonMark]
-	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "\\[(?<"
-			+ CAPTURING_GROUP_LABEL + ">[^\\]]*?)\\]\\[(?<"
-			+ CAPTURING_GROUP_TARGET + ">[^\\]]*?)\\]";
+	
+	// (?<!\\)\[(?<label>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]\[(?<target>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\]
+	private static final String REGEX_REF_LINK_FULL_OR_COLLAPSED = "(?<!\\\\)\\[(?<"
+			+ CAPTURING_GROUP_LABEL + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]\\[(?<"
+			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\]";
+	
+	// (?<!\]|\\)(\[(?<target>([^\n](?<![^\\](\]|\[)))*?)(?<!\\)\])(?!(\[|\(|:))
 	private static final String REGEX_REF_LINK_SHORTCUT = "(?<!\\]|\\\\)(\\[(?<"
-			+ CAPTURING_GROUP_TARGET+ ">[^\\]]*?)\\])(?!(\\[|\\(|:))";
+			+ CAPTURING_GROUP_TARGET + ">([^\\n](?<![^\\\\](\\]|\\[)))*?)(?<!\\\\)\\])(?!(\\[|\\(|:))";
 
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
 	private static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
 	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
-	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION);
+	private static final Pattern LINK_REF_DEF_PATTERN = Pattern.compile(REGEX_LINK_REF_DEFINITION, Pattern.MULTILINE);
 	private static final Pattern REF_LINK_FULL_PATTERN = Pattern.compile(REGEX_REF_LINK_FULL_OR_COLLAPSED);
 	private static final Pattern REF_LINK_SHORT_PATTERN = Pattern.compile(REGEX_REF_LINK_SHORTCUT);
 	

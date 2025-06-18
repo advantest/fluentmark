@@ -188,7 +188,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			}
 		}
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementMatch.startIndex);
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkStatementMatch.startIndex, false);
 	}
 	
 	protected void validateLinkReferenceDefinitionStatement(ITypedRegion region, IDocument document, IFile file,
@@ -203,7 +203,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		
 		int linkTargetStartIndex = targetMatch.startIndex - linkReferenceDefinitionStatementMatch.startIndex;
 		
-		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkReferenceDefinitionStatementMatch.startIndex);
+		checkLinkTarget(linkTarget, linkTargetStartIndex, region, document, file, linkReferenceDefinitionStatementMatch.startIndex, true);
 	}
 	
 	protected void validateReferenceLinkLabel(ITypedRegion region, IDocument document, IFile file,
@@ -284,7 +284,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 	
 	private void checkLinkTarget(String linkTarget, int linkTargetStartIndex,
 			ITypedRegion region, IDocument document, IFile file,
-			int linkStatementStartIndexInRegion) throws CoreException {
+			int linkStatementStartIndexInRegion, boolean targetInLinkReferenceDefinition) throws CoreException {
 		
 		UriDto uriDto = parseUri(linkTarget);
 		
@@ -297,9 +297,15 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			int lineNumber = getLineForOffset(document, offset);
 			
 			if (linkTarget == null || linkTarget.length() == 0) {
-				// extend character set to be marked, since we otherwise have not a single char
-				offset -= 1;
-				endOffset += 1;
+				if (targetInLinkReferenceDefinition) {
+					// extend characters to be marked to the beginning of the link reference definition statement
+					offset = region.getOffset() + linkStatementStartIndexInRegion;
+					lineNumber = getLineForOffset(document, offset);
+				} else {
+					// extend characters to be marked to enclose the target's surrounding brackets, since we otherwise have not a single char
+					offset -= 1;
+					endOffset += 1;
+				}
 			}
 			
 			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
