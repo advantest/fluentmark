@@ -375,6 +375,33 @@ public class MarkdownLinkValidatorIT {
 	}
 	
 	@Test
+	public void linksAreNotDetectedIfBracketsAreEscaped() throws Exception {
+		// given
+		String fileContents = """
+				# Heading with a [link](https://somewhere.com) in it
+				
+				Paragraph 1 with \\[link-like text 1\\](https://www.something1.com) in it.
+				
+				Paragraph 2 with \\[link-like text 2](https://www.something2.com) in it.
+				
+				Paragraph 3 with [link-like text 3\\](https://www.something3.com) in it.
+				
+				Paragraph 4 with [link-like text 4]\\(https://www.something-else-1.com\\) in it.
+				
+				Paragraph 5 with [link-like text 5]\\(https://www.something-else-2.com) in it.
+				
+				Paragraph 6 with [link-like text 6](https://www.something-else-3.com\\) in it.
+				""";
+		
+		// when
+		document = validateDocument(fileContents);
+		
+		//then
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), matchedTextEq("[link](https://somewhere.com)"), any());
+		verify(linkValidator, times(1)).validateLinkStatement(any(), eq(document), eq(file), any(), any());
+	}
+	
+	@Test
 	public void testFileAndFolderPathValidation() throws Exception {
 		// given
 		String fileContents = """
