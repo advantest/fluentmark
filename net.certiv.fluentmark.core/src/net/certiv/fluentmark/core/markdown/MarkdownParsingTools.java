@@ -36,7 +36,7 @@ public class MarkdownParsingTools {
 	// "(?<!\\)" is a negative look-behind disallowing preceding "\" chars,
 	// the look-behind is placed before \] and \[ and before \) (before "(" we explicitly require "]")
 	private static final String REGEX_LINK = "(!){0,1}(?<!\\\\)\\[(?<"  + CAPTURING_GROUP_LABEL
-			+ ">[^\\n]*)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\n]*?)?(?<!\\\\)\\)";
+			+ ">([^\\n](?<![^\\\\]\\]))*?)?(?<!\\\\)\\]\\((?<" + CAPTURING_GROUP_TARGET + ">[^\\n]*?)?(?<!\\\\)\\)";
 	
 	// pattern for link reference definitions, like [label]: https://www.plantuml.com "title",
 	// but excludes footnote definitions like [^label]: Some text
