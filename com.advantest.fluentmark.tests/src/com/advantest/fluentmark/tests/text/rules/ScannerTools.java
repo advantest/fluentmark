@@ -23,5 +23,13 @@ public class ScannerTools {
 		IObservableCharacterScanner scanner =  new CharacterScannerDelegate(input, realScanner);
 		return scanner;
 	}
+	
+	public static IObservableCharacterScanner createMarkdownScanner(String input, int scannerOffset) {
+		MarkdownPartitionScanner realScanner = new MarkdownPartitionScanner();
+		IDocument document = new Document(input);
+		realScanner.setRange(document, scannerOffset, input.length() - scannerOffset);
+		IObservableCharacterScanner scanner =  new CharacterScannerDelegate(input, realScanner);
+		return scanner;
+	}
 
 }

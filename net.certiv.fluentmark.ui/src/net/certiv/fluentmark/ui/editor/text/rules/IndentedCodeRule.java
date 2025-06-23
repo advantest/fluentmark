@@ -7,13 +7,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.text.rules;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.Log;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class IndentedCodeRule implements IPredicateRule {
@@ -41,6 +42,11 @@ public class IndentedCodeRule implements IPredicateRule {
 		int c = scanner.read();
 		scanner.unread();
 		if (isHws(c)) {
+			
+			if (!hasNoOrBlankPreceedingLine(scanner)) {
+				return Token.UNDEFINED;
+			}
+			
 			int col = scanner.getColumn();
 			if (col == 1) {
 				scanner.unread();
@@ -65,7 +71,55 @@ public class IndentedCodeRule implements IPredicateRule {
 	public IToken getSuccessToken() {
 		return token;
 	}
+	
+	private int getDocumentOffset(ICharacterScanner scanner) {
+		return ((IScannerExt) scanner).getOffset();
+	}
+	
+	private Character getCharAt(ICharacterScanner scanner, int documentOffset) {
+		try {
+			return ((IScannerExt) scanner).getDocument().getChar(documentOffset);
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
+	
+	private boolean hasNoOrBlankPreceedingLine(ICharacterScanner scanner) {
+		int column = scanner.getColumn();
+		
+		int index = getDocumentOffset(scanner);
+		if (column > 0) {
+			index = index - column;
+		}
+		
+		// first char in current line
+		Character currentChar = getCharAt(scanner, index);
+		
+		// read the last non-EOL-char of previous line
+		index--;
+		currentChar = getCharAt(scanner, index);
+		if (currentChar != null && currentChar.charValue() == '\n') {
+			index--;
+			currentChar = getCharAt(scanner, index);
+			
+			if (currentChar != null && currentChar.charValue() == '\r') {
+				index--;
+				currentChar = getCharAt(scanner, index);
+			}
+		}
 
+		while (index >= 0 && currentChar != null && !isEol(currentChar.charValue())) {
+			if (currentChar != null && currentChar.charValue() != ICharacterScanner.EOF && !isHws(currentChar.charValue()) && !isEol(currentChar.charValue())) {
+				return false;
+			}
+			
+			index--;
+			currentChar = getCharAt(scanner, index);
+		}
+		
+		return true;
+	}
+	
 	private boolean evaluateLine(ICharacterScanner scanner) {
 		boolean found = false;
 		String indents = "";
