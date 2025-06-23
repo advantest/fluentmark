@@ -210,12 +210,9 @@ public class LinkRuleIT {
 	
 	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
 	@ValueSource(strings = {
-				"[key]:\n\n",
-				// TODO adapt LinkRule to cover the following cases
-//				"   [label]: ../../path/to/file.png",
-//				"   [adv]: \t \n\t \thttps://www.advantest.com"
+				"[key]:\n\n"
 	})
-	public void linkReferenceDefinitionsMatchWithoutLeadingAndTralingWhitespace(String input) {
+	public void linkReferenceDefinitionsMatchWithoutTralingWhitespace(String input) {
 		scanner = createScanner(input);
 		
 		IToken resultToken = rule.evaluate(scanner);
