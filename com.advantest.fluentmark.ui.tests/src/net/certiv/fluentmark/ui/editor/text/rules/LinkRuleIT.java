@@ -192,15 +192,12 @@ public class LinkRuleIT {
 				"[adv]: https://www.advantest.com",
 				"[adv]:https://www.advantest.com",
 				"[adv]:\nhttps://www.advantest.com",
+				"[adv]:  \n \t  https://www.advantest.com",
 				"[]: https://plantuml.com",
 				"[Some \\\\] escaped brackets \\\\[ are ignored here]: REF",
-				"[adv]:\nhttps://www.advantest.com"
-				
-// TODO adapt LinkRule to cover the following cases
-//				"[key]:",
-//				"[]:",
-//				"   [label]: ../../path/to/file.png",
-//				"   [adv]: \t \n\t \thttps://www.advantest.com"
+				"[adv]:\nhttps://www.advantest.com",
+				"[key]:",
+				"[]:"
 	})
 	public void linkReferenceDefinitionsMatch(String input) {
 		scanner = createScanner(input);
@@ -209,6 +206,22 @@ public class LinkRuleIT {
 		
 		assertEquals(successToken, resultToken);
 		assertEquals(input, scanner.getConsumedText());
+	}
+	
+	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
+	@ValueSource(strings = {
+				"[key]:\n\n",
+				// TODO adapt LinkRule to cover the following cases
+//				"   [label]: ../../path/to/file.png",
+//				"   [adv]: \t \n\t \thttps://www.advantest.com"
+	})
+	public void linkReferenceDefinitionsMatchWithoutLeadingAndTralingWhitespace(String input) {
+		scanner = createScanner(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(input.trim(), scanner.getConsumedText());
 	}
 	
 	@Test
