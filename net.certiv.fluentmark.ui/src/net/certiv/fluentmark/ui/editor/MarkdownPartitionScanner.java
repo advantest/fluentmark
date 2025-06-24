@@ -45,7 +45,9 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		// TODO Get rid of the PlantUML inclusion statement type region in the partition scanner
 		Token plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		
-		// TODO Find another way to set token color, maybe in a second parsing step
+		// TODO Find another way to set token color.
+		// That should work as soon as we get rid of PumlFileInclusionRule,
+		// then the ScannerMarkup and its LinkRule will be responsible for the syntax highlighting.
 		// The following code doesn't work, since FastPartinioner expects String as token data,
 		// but link color and style are set via TextAttribute as token data.
 		
