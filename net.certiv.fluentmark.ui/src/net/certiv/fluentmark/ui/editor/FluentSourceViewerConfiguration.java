@@ -64,6 +64,7 @@ import net.certiv.fluentmark.ui.editor.text.ScannerHtml;
 import net.certiv.fluentmark.ui.editor.text.ScannerMarkup;
 import net.certiv.fluentmark.ui.editor.text.ScannerMath;
 import net.certiv.fluentmark.ui.editor.text.ScannerUml;
+import net.certiv.fluentmark.ui.editor.text.presentation.PartitionDamageRepairer;
 import net.certiv.fluentmark.ui.extensionpoints.ContentAssistProcessorsManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -131,23 +132,30 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		PresentationReconciler reconciler = new FluentPresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
-		buildRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
-		buildRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
-		buildRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
-		buildRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
-		buildRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
-		buildRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
-		buildRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
-		buildRepairer(reconciler, markup, MarkdownPartitions.CODESPAN);
-		buildRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
-		buildRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
+		buildLineRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
+		buildPartitionRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
+		buildPartitionRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
+		buildPartitionRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
+		buildPartitionRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
+		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
+		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
+		buildLineRepairer(reconciler, markup, MarkdownPartitions.CODESPAN);
+		buildLineRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
+		buildLineRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
 	}
 
-	protected void buildRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
+	protected void buildLineRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
 			String token) {
 		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(scanner);
+		reconciler.setDamager(dr, token);
+		reconciler.setRepairer(dr, token);
+	}
+	
+	protected void buildPartitionRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
+			String token) {
+		PartitionDamageRepairer dr = new PartitionDamageRepairer(scanner);
 		reconciler.setDamager(dr, token);
 		reconciler.setRepairer(dr, token);
 	}

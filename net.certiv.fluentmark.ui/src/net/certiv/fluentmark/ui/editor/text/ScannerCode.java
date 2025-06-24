@@ -17,6 +17,7 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
+import net.certiv.fluentmark.ui.editor.text.rules.IndentedCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -46,6 +47,7 @@ public class ScannerCode extends AbstractBufferedRuleBasedScanner implements ISc
 		rules.add(new MultiLineRule("```", "```", block, '\\', true));
 		rules.add(new MultiLineRule("~~~", "~~~", block, '\\', true));
 		rules.add(new SingleLineRule("`", "`", code, '\\', true));
+		rules.add(new IndentedCodeRule(block));
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
 		return rules;
 	}
