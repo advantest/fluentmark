@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 /**

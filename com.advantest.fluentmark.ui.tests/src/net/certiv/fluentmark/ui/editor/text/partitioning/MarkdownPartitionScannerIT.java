@@ -7,7 +7,7 @@
  * 
  * Copyright © 2025 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,7 +19,6 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.junit.jupiter.api.Test;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 
 public class MarkdownPartitionScannerIT {
 

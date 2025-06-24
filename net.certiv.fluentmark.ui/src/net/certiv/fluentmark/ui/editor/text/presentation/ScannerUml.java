@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.presentation;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IRule;
@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
+import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.editor.text.rules.UmlSymbolDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.UmlWordDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;

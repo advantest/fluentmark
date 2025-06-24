@@ -12,7 +12,7 @@ import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 
-
+// TODO Move this class to net.certiv.fluentmark.ui.editor.text.partitioning
 public class MarkdownPartitions {
 
 	// unique partitioning type

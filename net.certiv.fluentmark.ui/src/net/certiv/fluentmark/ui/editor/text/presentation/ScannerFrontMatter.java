@@ -5,27 +5,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.presentation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.WhitespaceRule;
-import org.eclipse.jface.text.rules.WordRule;
 
-import net.certiv.fluentmark.ui.editor.text.rules.MathSymbolDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.MathWordDetector;
+import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
+import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;
 import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
-public class ScannerMath extends AbstractBufferedRuleBasedScanner {
+public class ScannerFrontMatter extends AbstractBufferedRuleBasedScanner {
 
 	private String[] tokenProperties;
 
-	public ScannerMath() {
+	public ScannerFrontMatter() {
 		super();
 		initialize();
 	}
@@ -33,26 +31,17 @@ public class ScannerMath extends AbstractBufferedRuleBasedScanner {
 	@Override
 	protected String[] getTokenProperties() {
 		if (tokenProperties == null) {
-			tokenProperties = new String[] { Prefs.EDITOR_MATH_KEYWORD_COLOR, Prefs.EDITOR_MATH_SYMBOL_COLOR,
-					Prefs.EDITOR_MATH_COMMENT_COLOR, Prefs.EDITOR_DEFAULT_COLOR };
+			tokenProperties = new String[] { Prefs.EDITOR_FRONTMATTER_COLOR };
 		}
 		return tokenProperties;
 	}
 
 	@Override
 	protected List<IRule> createRules() {
-		IToken keywordToken = getToken(Prefs.EDITOR_MATH_KEYWORD_COLOR);
-		IToken symbolToken = getToken(Prefs.EDITOR_MATH_SYMBOL_COLOR);
-		IToken commentToken = getToken(Prefs.EDITOR_MATH_COMMENT_COLOR);
-		// IToken defaultToken = getToken(Prefs.EDITOR_DEFAULT_COLOR);
-
-		WordRule wordRule = new WordRule(new MathWordDetector(), keywordToken, true);
-		WordRule symbolRule = new WordRule(new MathSymbolDetector(), symbolToken, true);
+		IToken matter = getToken(Prefs.EDITOR_FRONTMATTER_COLOR);
 
 		List<IRule> rules = new ArrayList<IRule>();
-		rules.add(wordRule);
-		rules.add(symbolRule);
-		rules.add(new EndOfLineRule("%", commentToken));
+		rules.add(new FrontMatterRule("---", "---", matter, '\\'));
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
 		return rules;
 	}

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import java.util.ArrayList;
 import java.util.List;

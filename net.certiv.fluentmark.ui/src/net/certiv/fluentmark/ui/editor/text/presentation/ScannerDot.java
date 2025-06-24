@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.presentation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,8 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 import net.certiv.fluentmark.ui.editor.text.rules.DotSymbolDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.DotWordDetector;
 import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;

@@ -12,7 +12,7 @@ package com.advantest.fluentmark.tests.text.rules;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
+import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartitionScanner;
 
 public class ScannerTools {
 	
