@@ -100,6 +100,9 @@ public class DefaultUriValidator implements IUriValidator {
 			statusCode = response.statusCode(); 
 		} catch (IOException | InterruptedException e) {
 			errorMessage = e.getMessage();
+			if (errorMessage == null) {
+				errorMessage = e.getClass().getName();
+			}
 			statusCode = -404;
 		}
 		
