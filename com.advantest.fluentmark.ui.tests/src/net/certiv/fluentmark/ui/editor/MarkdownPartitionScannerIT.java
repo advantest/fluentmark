@@ -192,5 +192,52 @@ public class MarkdownPartitionScannerIT {
 				![diagram](file.svg)
 				[](no/file.md)""".indent(4).stripTrailing());
 	}
+	
+	@Test
+	public void checkDetectingCodeSpans() throws Exception {
+		String markdown = """
+				# Heading
+				
+				Some paragraph with `variables`
+				and other `complex = expressions - 5 * a` in code spans.
+				
+				```
+				Some code
+				in a code block
+				```
+				
+				```
+				More code with `backticks` symbols in it.
+				```
+				
+				Another `paragraph` with in-line code spans
+				`that have to be detected` correctly.
+				""";
+		
+		IDocument document = createDocument(markdown);
+		ITypedRegion[] regions = computePartitions(document);
+		
+		assertNotNull(regions);
+		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\nSome paragraph with ");
+		assertRegion(regions[1], document, MarkdownPartitions.CODESPAN, "`variables`");
+		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, "\nand other ");
+		assertRegion(regions[3], document, MarkdownPartitions.CODESPAN, "`complex = expressions - 5 * a`");
+		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, " in code spans.\n\n");
+		assertRegion(regions[5], document, MarkdownPartitions.CODEBLOCK, """
+				```
+				Some code
+				in a code block
+				```""");
+		assertRegion(regions[6], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\n");
+		assertRegion(regions[7], document, MarkdownPartitions.CODEBLOCK, """
+				```
+				More code with `backticks` symbols in it.
+				```""");
+		assertRegion(regions[8], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nAnother ");
+		assertRegion(regions[9], document, MarkdownPartitions.CODESPAN, "`paragraph`");
+		assertRegion(regions[10], document, IDocument.DEFAULT_CONTENT_TYPE, " with in-line code spans\n");
+		assertRegion(regions[11], document, MarkdownPartitions.CODESPAN, "`that have to be detected`");
+		assertRegion(regions[12], document, IDocument.DEFAULT_CONTENT_TYPE, " correctly.\n");
+	}
 
 }

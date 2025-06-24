@@ -15,6 +15,7 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
@@ -35,6 +36,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken matter = new Token(MarkdownPartitions.FRONT_MATTER);
 		IToken comment = new Token(MarkdownPartitions.COMMENT);
 		IToken codeblock = new Token(MarkdownPartitions.CODEBLOCK);
+		IToken codespan = new Token(MarkdownPartitions.CODESPAN);
 		IToken htmlblock = new Token(MarkdownPartitions.HTMLBLOCK);
 		IToken dotblock = new Token(MarkdownPartitions.DOTBLOCK);
 		IToken umlblock = new Token(MarkdownPartitions.UMLBLOCK);
@@ -62,7 +64,9 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', false));
 		rules.add(new MultiLineRule("$$", "$$", mathblock, '\\', false));
 		rules.add(new MatchRule("\\$\\S", "\\S\\$\\D", mathblock, '\\', true, true));
+		
 		rules.add(new PumlFileInclusionRule(plantUmlInclude));
+		
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));
 		rules.add(new MultiLineRule(DiagramConstants.UML_START, DiagramConstants.UML_END, umlblock, '\\', false));
@@ -75,6 +79,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		rules.add(new MultiLineRule(DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS, umlblock, '\\', false));
 		rules.add(new MultiLineRule("~~~", "~~~", codeblock, '\\', false));
 		rules.add(new MultiLineRule("```", "```", codeblock, '\\', false));
+		rules.add(new SingleLineRule("`", "`", codespan, '\\', true));
 		rules.add(new IndentedCodeRule(codeblock));
 
 		IPredicateRule[] rule = new IPredicateRule[rules.size()];
