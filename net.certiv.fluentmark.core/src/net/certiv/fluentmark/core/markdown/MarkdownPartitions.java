@@ -12,7 +12,7 @@ import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 
-
+// TODO Move this class to net.certiv.fluentmark.ui.editor.text.partitioning
 public class MarkdownPartitions {
 
 	// unique partitioning type
@@ -22,6 +22,7 @@ public class MarkdownPartitions {
 	public static final String FRONT_MATTER = "__frontmatter";
 	public static final String COMMENT = "__comment";
 	public static final String CODEBLOCK = "__codeblock";
+	public static final String CODESPAN = "__codespan";
 	public static final String HTMLBLOCK = "__htmlblock";
 	public static final String DOTBLOCK = "__dotblock";
 	public static final String UMLBLOCK = "__umlblock";
@@ -29,7 +30,7 @@ public class MarkdownPartitions {
 	public static final String PLANTUML_INCLUDE = "__plantuml_include";
 
 	/** Partition type groups by similar treatment */
-	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
+	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, CODESPAN, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
 			MATHBLOCK, PLANTUML_INCLUDE, FRONT_MATTER };
 
 	private MarkdownPartitions() {}

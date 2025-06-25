@@ -15,6 +15,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -171,4 +172,42 @@ public class IndentedCodeRuleIT {
 		assertEquals("", scanner.getConsumedText());
 	}
 	
+	@Test
+	public void codeBlockEndsWithUnindentedNonEmptyLine() {
+		String input = """
+				    Some code
+				    Another code line
+				      more indented line
+				    another line of code
+				   First paragraph line with less than 4 spaces of indentation.
+				""";
+		String expected = """
+			    Some code
+			    Another code line
+			      more indented line
+			    another line of code
+			""";
+		
+		scanner = createScanner(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(expected, scanner.getConsumedText());
+	}
+	
+	@Test
+	public void noCodeBlockWithNonEmptyPrecedingLine() {
+		String input = """
+				   non empty non-code-block line
+				    Some code
+				    Another code line
+				""";
+		
+		scanner = ScannerTools.createMarkdownScanner(input, "   non empty non-code-block line\n".length());
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
+	}
 }

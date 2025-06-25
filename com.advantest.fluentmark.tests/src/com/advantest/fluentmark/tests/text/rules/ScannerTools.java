@@ -12,7 +12,7 @@ package com.advantest.fluentmark.tests.text.rules;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
+import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartitionScanner;
 
 public class ScannerTools {
 	
@@ -20,6 +20,14 @@ public class ScannerTools {
 		MarkdownPartitionScanner realScanner = new MarkdownPartitionScanner();
 		IDocument document = new Document(input);
 		realScanner.setRange(document, 0, input.length());
+		IObservableCharacterScanner scanner =  new CharacterScannerDelegate(input, realScanner);
+		return scanner;
+	}
+	
+	public static IObservableCharacterScanner createMarkdownScanner(String input, int scannerOffset) {
+		MarkdownPartitionScanner realScanner = new MarkdownPartitionScanner();
+		IDocument document = new Document(input);
+		realScanner.setRange(document, scannerOffset, input.length() - scannerOffset);
 		IObservableCharacterScanner scanner =  new CharacterScannerDelegate(input, realScanner);
 		return scanner;
 	}

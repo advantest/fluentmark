@@ -103,7 +103,8 @@ public class LinkRuleIT {
 			"![Diagram X](some/path/to/file.svg)",
 			"![More to see here!](../../relative/path/diagram.puml)",
 			"![](../../../Test Markdown and PlantUML/doc/subsection/diag.puml)",
-			"![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"})
+			"![Some text with almost any symbol :;.,-_<>!\"§$%&/()=?`´´#')\\{}](some/path/to/a_file.puml)"
+	})
 	public void imageLinksDoMatch(String input) {
 		scanner = createScanner(input);
 		
@@ -114,15 +115,13 @@ public class LinkRuleIT {
 	}
 	
 	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
-	@ValueSource(strings = { "[Solunar\\](https://www.solunar.de)",
+	@ValueSource(strings = {
+			"[Solunar\\](https://www.solunar.de)",
 			"\\[label](some/path/to/a_file.puml)",
-			"[label]:",
-			"[label]: ",
-			"[label]: \n\n some/path/to/a_file.puml",
-			"[label]: \n \t \n https://www.advantest.com",
 			"\\[link-like text 1\\](https://www.something1.com)",
 			"\\[link-like text 2](https://www.something2.com)",
-			"[link-like text 3\\](https://www.something3.com)"})
+			"[link-like text 3\\](https://www.something3.com)"
+	})
 	public void stringsNotMatchedAsLinks(String input) {
 		scanner = createScanner(input);
 		
@@ -130,6 +129,22 @@ public class LinkRuleIT {
 		
 		assertEquals(Token.UNDEFINED, resultToken);
 		assertEquals("", scanner.getConsumedText());
+	}
+	
+	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
+	@ValueSource(strings = {
+			"[label]:",
+			"[label]: ",
+			"[label]: \n\n some/path/to/a_file.puml",
+			"[label]: \n \t \n https://www.advantest.com"
+	})
+	public void emptyLinkReferenceDefinitionsMatchedAsLinks(String input) {
+		scanner = createScanner(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals("[label]:", scanner.getConsumedText());
 	}
 	
 	@ParameterizedTest(name = "[{index}] Text {0} should not be matched as a link")
@@ -192,15 +207,12 @@ public class LinkRuleIT {
 				"[adv]: https://www.advantest.com",
 				"[adv]:https://www.advantest.com",
 				"[adv]:\nhttps://www.advantest.com",
+				"[adv]:  \n \t  https://www.advantest.com",
 				"[]: https://plantuml.com",
 				"[Some \\\\] escaped brackets \\\\[ are ignored here]: REF",
-				"[adv]:\nhttps://www.advantest.com"
-				
-// TODO adapt LinkRule to cover the following cases
-//				"[key]:",
-//				"[]:",
-//				"   [label]: ../../path/to/file.png",
-//				"   [adv]: \t \n\t \thttps://www.advantest.com"
+				"[adv]:\nhttps://www.advantest.com",
+				"[key]:",
+				"[]:"
 	})
 	public void linkReferenceDefinitionsMatch(String input) {
 		scanner = createScanner(input);
@@ -209,6 +221,19 @@ public class LinkRuleIT {
 		
 		assertEquals(successToken, resultToken);
 		assertEquals(input, scanner.getConsumedText());
+	}
+	
+	@ParameterizedTest(name = "[{index}] Link reference definition {0} is successfully parsed")
+	@ValueSource(strings = {
+				"[key]:\n\n"
+	})
+	public void linkReferenceDefinitionsMatchWithoutTralingWhitespace(String input) {
+		scanner = createScanner(input);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(successToken, resultToken);
+		assertEquals(input.trim(), scanner.getConsumedText());
 	}
 	
 	@Test

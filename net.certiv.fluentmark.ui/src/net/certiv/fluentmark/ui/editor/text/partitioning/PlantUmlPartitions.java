@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;

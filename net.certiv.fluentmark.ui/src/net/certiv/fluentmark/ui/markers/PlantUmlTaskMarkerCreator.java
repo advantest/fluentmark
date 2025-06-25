@@ -24,9 +24,9 @@ import org.eclipse.jface.text.ITypedRegion;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
-import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.PlantUmlPartitions;
+import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.editor.text.partitioning.PlantUmlPartitioningTools;
+import net.certiv.fluentmark.ui.editor.text.partitioning.PlantUmlPartitions;
 
 public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	

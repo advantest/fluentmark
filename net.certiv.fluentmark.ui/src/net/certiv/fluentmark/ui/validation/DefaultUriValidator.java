@@ -69,27 +69,29 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 			
 		URI uri = null;
+		HttpRequest headRequest = null;
+		
 		try {
 			uri = new URI(uriText);
-		} catch (URISyntaxException e) {
+			
+			// we only need HTTP HEAD, no page content, just reachability
+			headRequest = HttpRequest.newBuilder()
+					.method("HEAD", HttpRequest.BodyPublishers.noBody())
+					.uri(uri)
+					// Some web sites / servers check the user agent header and expect certain common values, otherwise they answer with http status code 403.
+					// Hint: call curl -v https://your-domain.com to check, which user agent header is sent by curl (which is usually successful)
+					// and use the same use agent value here
+					.header("User-Agent", "curl/8.11.0")
+					.header("Accept", "*/*")
+					.timeout(Duration.ofSeconds(2))
+					.build();
+		} catch (URISyntaxException | IllegalArgumentException e) {
 			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		}
-			
-		// we only need HTTP HEAD, no page content, just reachability
-		HttpRequest headRequest = HttpRequest.newBuilder()
-				.method("HEAD", HttpRequest.BodyPublishers.noBody())
-				.uri(uri)
-				// Some web sites / servers check the user agent header and expect certain common values, otherwise they answer with http status code 403.
-				// Hint: call curl -v https://your-domain.com to check, which user agent header is sent by curl (which is usually successful)
-				// and use the same use agent value here
-				.header("User-Agent", "curl/8.11.0")
-				.header("Accept", "*/*")
-				.timeout(Duration.ofSeconds(2))
-				.build();
 		
 		int statusCode = -1;
 		String errorMessage = null;
@@ -98,6 +100,9 @@ public class DefaultUriValidator implements IUriValidator {
 			statusCode = response.statusCode(); 
 		} catch (IOException | InterruptedException e) {
 			errorMessage = e.getMessage();
+			if (errorMessage == null) {
+				errorMessage = e.getClass().getName();
+			}
 			statusCode = -404;
 		}
 		

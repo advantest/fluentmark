@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,8 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
+
+import net.certiv.fluentmark.ui.editor.text.IScannerExt;
 
 public class PlantUmlPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 

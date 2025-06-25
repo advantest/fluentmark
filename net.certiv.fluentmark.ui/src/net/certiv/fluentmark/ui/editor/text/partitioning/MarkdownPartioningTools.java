@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.editor.text;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -18,7 +18,6 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.MarkdownPartitionScanner;
 
 public class MarkdownPartioningTools {
 	

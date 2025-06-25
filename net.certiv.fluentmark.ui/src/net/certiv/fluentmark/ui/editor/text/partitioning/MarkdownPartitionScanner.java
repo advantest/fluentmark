@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.ui.editor;
+package net.certiv.fluentmark.ui.editor.text.partitioning;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
@@ -35,6 +36,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken matter = new Token(MarkdownPartitions.FRONT_MATTER);
 		IToken comment = new Token(MarkdownPartitions.COMMENT);
 		IToken codeblock = new Token(MarkdownPartitions.CODEBLOCK);
+		IToken codespan = new Token(MarkdownPartitions.CODESPAN);
 		IToken htmlblock = new Token(MarkdownPartitions.HTMLBLOCK);
 		IToken dotblock = new Token(MarkdownPartitions.DOTBLOCK);
 		IToken umlblock = new Token(MarkdownPartitions.UMLBLOCK);
@@ -43,7 +45,9 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		// TODO Get rid of the PlantUML inclusion statement type region in the partition scanner
 		Token plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
 		
-		// TODO Find another way to set token color, maybe in a second parsing step
+		// TODO Find another way to set token color.
+		// That should work as soon as we get rid of PumlFileInclusionRule,
+		// then the ScannerMarkup and its LinkRule will be responsible for the syntax highlighting.
 		// The following code doesn't work, since FastPartinioner expects String as token data,
 		// but link color and style are set via TextAttribute as token data.
 		
@@ -62,7 +66,9 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', false));
 		rules.add(new MultiLineRule("$$", "$$", mathblock, '\\', false));
 		rules.add(new MatchRule("\\$\\S", "\\S\\$\\D", mathblock, '\\', true, true));
+		
 		rules.add(new PumlFileInclusionRule(plantUmlInclude));
+		
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));
 		rules.add(new MultiLineRule(DiagramConstants.UML_START, DiagramConstants.UML_END, umlblock, '\\', false));
@@ -75,6 +81,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		rules.add(new MultiLineRule(DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS, umlblock, '\\', false));
 		rules.add(new MultiLineRule("~~~", "~~~", codeblock, '\\', false));
 		rules.add(new MultiLineRule("```", "```", codeblock, '\\', false));
+		rules.add(new SingleLineRule("`", "`", codespan, '\\', true));
 		rules.add(new IndentedCodeRule(codeblock));
 
 		IPredicateRule[] rule = new IPredicateRule[rules.size()];

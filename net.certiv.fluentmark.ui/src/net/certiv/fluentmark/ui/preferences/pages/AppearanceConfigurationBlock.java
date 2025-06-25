@@ -7,8 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.preferences.pages;
 
-import org.eclipse.jface.resource.JFaceResources;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.preference.ColorSelector;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -20,27 +32,14 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-
-import org.eclipse.core.runtime.Preferences;
-
-import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.jface.preference.ColorSelector;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -50,13 +49,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
@@ -66,7 +60,7 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.ui.editor.FluentSourceViewer;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
+import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore.OverlayKey;
@@ -213,7 +207,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		@Override
 		public Object[] getElements(Object inputElement) {
 			return new String[] { fMarkupCategory, fCodeCategory, fCommentsCategory, fMathCategory, fHtmlCategory,
-					fDotCategory, fUmlCategory };
+					fDotCategory, fUmlCategory, fDefaultCategory };
 		}
 
 		@Override
@@ -232,7 +226,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				if (fDotCategory.equals(entry)) return fListModel.subList(8, 13).toArray();
 				if (fMarkupCategory.equals(entry)) return fListModel.subList(13, 21).toArray();
 				if (fMathCategory.equals(entry)) return fListModel.subList(21, 24).toArray();
-				if (fUmlCategory.equals(entry)) return fListModel.subList(24, fListModel.size()).toArray();
+				if (fUmlCategory.equals(entry)) return fListModel.subList(24, 29).toArray();
+				if (fDefaultCategory.equals(entry)) return fListModel.subList(29, fListModel.size()).toArray();
 			}
 			return new Object[0];
 		}
@@ -242,6 +237,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			if (element instanceof String) return null;
 			int index = fListModel.indexOf(element);
 
+			if (index >= 29) return fDefaultCategory;
 			if (index >= 24) return fUmlCategory;
 			if (index >= 21) return fMathCategory;
 			if (index >= 13) return fMarkupCategory;
@@ -263,7 +259,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private static final String STRIKETHROUGH = Prefs.EDITOR_STRIKETHROUGH_SUFFIX;
 	private static final String UNDERLINE = Prefs.EDITOR_UNDERLINE_SUFFIX;
 
-	private static final String LINK_MSG = "Default colors and font can be configured on the "
+	private static final String LINK_MSG = "Default colors and fonts can be configured on the "
 			+ "<a href=\"org.eclipse.ui.preferencePages.GeneralTextEditor\">'Text Editors'</a> "
 			+ "and on the <a href=\"org.eclipse.ui.preferencePages.ColorsAndFonts\">'Colors "
 			+ "and Fonts'</a> preference page.";
@@ -305,16 +301,19 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Symbols", Prefs.EDITOR_UML_SYMBOL_COLOR }, //
 			{ "Comments", Prefs.EDITOR_UML_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_UML_STRING_COLOR }, //
+			
+			{ "Default Text Attributes", Prefs.EDITOR_DEFAULT_COLOR }, // 29
 
 	};
 
 	private final String fMarkupCategory = "Markup";
 	private final String fCodeCategory = "Code & Code Blocks";
 	private final String fCommentsCategory = "Comments";
-	private final String fHtmlCategory = "Html";
+	private final String fHtmlCategory = "HTML";
 	private final String fMathCategory = "Math";
-	private final String fDotCategory = "Dot";
-	private final String fUmlCategory = "Uml";
+	private final String fDotCategory = "DOT";
+	private final String fUmlCategory = "PlantUML";
+	private final String fDefaultCategory = "Default";
 
 	private ColorSelector fSyntaxForegroundColorEditor;
 	private Label fColorEditorLabel;
@@ -337,11 +336,11 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		super(store);
 
 		fColorManager = FluentUI.getDefault().getColorMgr();
-
+		
 		for (String[] element : fSyntaxColorListModel)
 			fListModel.add(new HighlightingColorListItem(element[0], element[1], element[1] + BOLD, element[1] + ITALIC,
 					element[1] + STRIKETHROUGH, element[1] + UNDERLINE));
-
+		
 		store.addKeys(createOverlayStoreKeys());
 	}
 

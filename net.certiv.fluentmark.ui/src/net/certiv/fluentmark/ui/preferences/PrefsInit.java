@@ -11,6 +11,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -20,6 +21,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.StringConverter;
 import org.osgi.framework.Bundle;
 
 import java.util.Locale;
@@ -128,7 +130,11 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		// colors
 
-		PreferenceConverter.setDefault(store, EDITOR_DEFAULT_COLOR, DEF_DEFAULT);
+		// Read text editors' foreground color from preferences in General -> Editors -> Text Editors -> Appearance color options: -> Foreground color 
+		String textEditorsForegroundColorText = Platform.getPreferencesService().getString("org.eclipse.ui.editors", AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, null, null);
+		RGB textEditorsForegroundColor = StringConverter.asRGB(textEditorsForegroundColorText, DEF_DEFAULT);
+		
+		PreferenceConverter.setDefault(store, EDITOR_DEFAULT_COLOR, textEditorsForegroundColor);
 
 		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_COMMENT_VISIBLE_COLOR, DEF_COMMENT);

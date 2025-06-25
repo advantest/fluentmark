@@ -7,15 +7,7 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
-
-import org.eclipse.ui.IWorkbenchPreferenceConstants;
-import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
-import org.eclipse.ui.part.IShowInTarget;
-import org.eclipse.ui.texteditor.HippieProposalProcessor;
-import org.eclipse.ui.texteditor.ITextEditor;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +34,14 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPreferenceConstants;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.part.IShowInTarget;
+import org.eclipse.ui.texteditor.HippieProposalProcessor;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -57,14 +56,15 @@ import net.certiv.fluentmark.ui.editor.strategies.PairEditStrategy;
 import net.certiv.fluentmark.ui.editor.strategies.SmartAutoEditStrategy;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
 import net.certiv.fluentmark.ui.editor.text.CompositeReconcilingStrategy;
-import net.certiv.fluentmark.ui.editor.text.ScannerCode;
-import net.certiv.fluentmark.ui.editor.text.ScannerComment;
-import net.certiv.fluentmark.ui.editor.text.ScannerDot;
-import net.certiv.fluentmark.ui.editor.text.ScannerFrontMatter;
-import net.certiv.fluentmark.ui.editor.text.ScannerHtml;
-import net.certiv.fluentmark.ui.editor.text.ScannerMarkup;
-import net.certiv.fluentmark.ui.editor.text.ScannerMath;
-import net.certiv.fluentmark.ui.editor.text.ScannerUml;
+import net.certiv.fluentmark.ui.editor.text.presentation.PartitionDamageRepairer;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerCode;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerComment;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerDot;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerFrontMatter;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerHtml;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerMarkup;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerMath;
+import net.certiv.fluentmark.ui.editor.text.presentation.ScannerUml;
 import net.certiv.fluentmark.ui.extensionpoints.ContentAssistProcessorsManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -76,12 +76,9 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	private static final String PARAMETERS_BACKGROUND = Prefs.CODEASSIST_PARAMETERS_BACKGROUND;
 	private static final String AUTOINSERT = Prefs.CODEASSIST_AUTOINSERT;
 	private static final String AUTOACTIVATION_TRIGGERS_MD = Prefs.CODEASSIST_AUTOACTIVATION_TRIGGERS_MD;
-	// private static final String AUTOACTIVATION_TRIGGERS_DOT =
-	// Prefs.CODEASSIST_AUTOACTIVATION_TRIGGERS_DOT;
 
 	private static final String SHOW_VISIBLE_PROPOSALS = Prefs.CODEASSIST_SHOW_VISIBLE_PROPOSALS;
 	private static final String CASE_SENSITIVITY = Prefs.CODEASSIST_CASE_SENSITIVITY;
-	// private static final String FILL_METHOD_ARGUMENTS = Prefs.CODEASSIST_FILL_ARGUMENT_NAMES;
 	private static final String PREFIX_COMPLETION = Prefs.CODEASSIST_PREFIX_COMPLETION;
 	private static final String USE_COLORED_LABELS = IWorkbenchPreferenceConstants.USE_COLORED_LABELS;
 
@@ -106,8 +103,6 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 
 	private boolean debugModel;
 
-	// private OutlineItem outline;
-	// private IInformationPresenter informationPresenter;
 
 	public FluentSourceViewerConfiguration(IColorManager colorManager, IPreferenceStore store, ITextEditor editor,
 			String partitioning) {
@@ -137,22 +132,30 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		PresentationReconciler reconciler = new FluentPresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
-		buildRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
-		buildRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
-		buildRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
-		buildRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
-		buildRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
-		buildRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
-		buildRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
-		buildRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
-		buildRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
+		buildLineRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
+		buildPartitionRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
+		buildPartitionRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
+		buildPartitionRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
+		buildPartitionRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
+		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
+		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
+		buildLineRepairer(reconciler, markup, MarkdownPartitions.CODESPAN);
+		buildLineRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
+		buildLineRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
 	}
 
-	protected void buildRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
+	protected void buildLineRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
 			String token) {
 		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(scanner);
+		reconciler.setDamager(dr, token);
+		reconciler.setRepairer(dr, token);
+	}
+	
+	protected void buildPartitionRepairer(PresentationReconciler reconciler, AbstractBufferedRuleBasedScanner scanner,
+			String token) {
+		PartitionDamageRepairer dr = new PartitionDamageRepairer(scanner);
 		reconciler.setDamager(dr, token);
 		reconciler.setRepairer(dr, token);
 	}
@@ -390,12 +393,21 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	public IInformationPresenter getHierarchyPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		return null;
 	}
-
+	
+	private static final String[] CONTENT_TYPES;
+	
+	static {
+		List<String> types = new ArrayList<>(MarkdownPartitions.LEGAL_TYPES.length + 1);
+		types.add(IDocument.DEFAULT_CONTENT_TYPE);
+		for (String type : MarkdownPartitions.LEGAL_TYPES) {
+			types.add(type);
+		}
+		CONTENT_TYPES = types.toArray(new String[types.size()]);
+	}
+	
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return new String[] { IDocument.DEFAULT_CONTENT_TYPE, MarkdownPartitions.FRONT_MATTER, MarkdownPartitions.COMMENT,
-				MarkdownPartitions.CODEBLOCK, MarkdownPartitions.HTMLBLOCK, MarkdownPartitions.DOTBLOCK, MarkdownPartitions.UMLBLOCK,
-				MarkdownPartitions.MATHBLOCK };
+		return CONTENT_TYPES;
 	}
 
 	@Override

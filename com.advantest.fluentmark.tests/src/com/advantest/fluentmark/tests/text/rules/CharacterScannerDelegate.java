@@ -23,10 +23,13 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 	private final IScannerExt scannerDelegate;
 	private final String text;
 	private int currentIndex = -1;
+	private final int startOffset;
 	
 	public CharacterScannerDelegate(String text, IScannerExt delegate) {
 		this.text = text;
 		this.scannerDelegate = delegate;
+		this.startOffset = delegate.getOffset();
+		this.currentIndex = startOffset;
 	}
 
 	@Override
@@ -68,10 +71,10 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 
 	@Override
 	public String getConsumedText() {
-		if (currentIndex < 0 || currentIndex > text.length()) {
+		if (currentIndex - 1 < 0 || currentIndex - 1 < startOffset || currentIndex - 1 > text.length()) {
 			return "";
 		}
-		return text.substring(0, Math.min(text.length(), currentIndex + 1));
+		return text.substring(startOffset, Math.min(text.length(), currentIndex));
 	}
 	
 	@Override
@@ -83,7 +86,7 @@ public class CharacterScannerDelegate implements IObservableCharacterScanner {
 		builder.append(", column: ");
 		builder.append(scannerDelegate.getColumn());
 		builder.append(", current char: ");
-		Character currentChar = currentIndex >= 0 && currentIndex < text.length() ? text.charAt(currentIndex) : null;
+		Character currentChar = currentIndex - 1 >= 0 && currentIndex - 1 >= startOffset && currentIndex - 1 < text.length() ? text.charAt(currentIndex - 1) : null;
 		if (currentChar == null) {
 			builder.append(currentChar);
 		} else {

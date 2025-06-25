@@ -161,6 +161,8 @@ public class LinkRule implements IRule {
 		// [key][]
 		// [label]: https://www.advantest.com
 		// [label]: https://www.advantest.com "Link title"
+		// []:
+		// [key]:
 		// But there are also cases that we do not want to match, esp. footnote definitions like the following:
 		// [^1]: Some text
 		// [^plantuml]: https://www.plantuml.com
@@ -249,6 +251,9 @@ public class LinkRule implements IRule {
 				return Token.UNDEFINED;
 			}
 			
+			// let's remember where we were when we read the ":" symbol
+			int readCountColon = readCount;
+			
 			// try reading until we find the first non-whitespace char
 			int lineBreaks = 0;
 			do {
@@ -276,13 +281,14 @@ public class LinkRule implements IRule {
 			
 			// do we have a non-whitespace char now?
 			if (lineBreaks > 1 || c == ICharacterScanner.EOF || Character.isWhitespace(c)) {
-				// un-read read chars
-				while (readCount > 0) {
+				// It seems, we have a link reference definition without a target.
+				// Un-read chars until we're on the position where we read the ":" symbol
+				while (readCount > readCountColon) {
 					scanner.unread();
 					readCount--;
 				}
 				
-				return Token.UNDEFINED;
+				return fToken;
 			}
 			
 			// now, let's read the link reference definition's URI or path
