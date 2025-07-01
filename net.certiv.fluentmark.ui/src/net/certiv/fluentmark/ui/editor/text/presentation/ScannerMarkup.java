@@ -76,7 +76,7 @@ public class ScannerMarkup extends AbstractBufferedRuleBasedScanner {
 		rules.add(new EmphasisRule("~~", strikeout));
 		//rules.add(new EmphasisRule("``", code));
 		//rules.add(new EmphasisRule("`", code));
-		rules.add(new SingleLineRule("`", "`", code, '\\', true));
+		rules.add(new SingleLineRule("`", "`", code, (char) 0, true));
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
 		return rules;
 	}
