@@ -81,6 +81,24 @@ public class LinkRuleIT {
 		assertEquals("[Text]", scanner.getConsumedText());
 	}
 	
+	@ParameterizedTest()
+	@ValueSource(strings = {
+			"\\[Image](some/path/to/file.png)",
+			"\\[File X]more text",
+			"\\[Keyword] more text",
+			" !\\[label](../../relative/path/image.png)",
+			"\\[label][]",
+			"\\[Some label][key]"
+	})
+	public void linksWithEscapedBracketsDontMatch(String input) {
+		scanner = ScannerTools.createMarkdownScanner(input, 1);
+		
+		IToken resultToken = rule.evaluate(scanner);
+		
+		assertEquals(Token.UNDEFINED, resultToken);
+		assertEquals("", scanner.getConsumedText());
+	}
+	
 	@ParameterizedTest(name = "[{index}] File link {0} is successfully parsed")
 	@ValueSource(strings = {
 			"[Image](some/path/to/file.png)",
