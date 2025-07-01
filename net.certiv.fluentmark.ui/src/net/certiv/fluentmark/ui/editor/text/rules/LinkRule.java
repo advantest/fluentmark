@@ -10,7 +10,6 @@
 package net.certiv.fluentmark.ui.editor.text.rules;
 
 import org.eclipse.core.runtime.Assert;
-
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -112,6 +111,24 @@ public class LinkRule implements IRule {
 			if (c != '[') {
 				scanner.unread();
 				scanner.unread();
+				return Token.UNDEFINED;
+			}
+		}
+		
+		// We've read a '['. Let's check if it is preceded by a '\'
+		int column = scanner.getColumn();
+		if (column - 2 >= 0) {
+			scanner.unread();
+			scanner.unread();
+			int precedingChar = scanner.read();
+			scanner.read();
+			
+			if (precedingChar == '\\') {
+				// un-read read chars
+				while (readCount > 0) {
+					scanner.unread();
+					readCount--;
+				}
 				return Token.UNDEFINED;
 			}
 		}
