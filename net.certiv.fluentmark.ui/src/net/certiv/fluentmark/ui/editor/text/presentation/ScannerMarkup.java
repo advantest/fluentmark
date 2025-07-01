@@ -12,10 +12,10 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
+import net.certiv.fluentmark.ui.editor.text.rules.CodeSpanRule;
 import net.certiv.fluentmark.ui.editor.text.rules.EmphasisRule;
 import net.certiv.fluentmark.ui.editor.text.rules.FirstColumnRule;
 import net.certiv.fluentmark.ui.editor.text.rules.HeaderUnderlineRule;
@@ -74,9 +74,7 @@ public class ScannerMarkup extends AbstractBufferedRuleBasedScanner {
 		rules.add(new EmphasisRule("_", italic));
 		rules.add(new EmphasisRule("*", italic));
 		rules.add(new EmphasisRule("~~", strikeout));
-		//rules.add(new EmphasisRule("``", code));
-		//rules.add(new EmphasisRule("`", code));
-		rules.add(new SingleLineRule("`", "`", code, (char) 0, true));
+		rules.add(new CodeSpanRule(code));
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
 		return rules;
 	}

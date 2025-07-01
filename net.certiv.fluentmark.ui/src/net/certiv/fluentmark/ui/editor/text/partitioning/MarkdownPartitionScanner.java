@@ -15,12 +15,12 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
-import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 
 import net.certiv.fluentmark.core.markdown.DiagramConstants;
 import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
 import net.certiv.fluentmark.ui.editor.text.IScannerExt;
+import net.certiv.fluentmark.ui.editor.text.rules.CodeSpanRule;
 import net.certiv.fluentmark.ui.editor.text.rules.DotCodeRule;
 import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;
 import net.certiv.fluentmark.ui.editor.text.rules.HtmlCodeRule;
@@ -81,7 +81,7 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		rules.add(new MultiLineRule(DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS, umlblock, '\\', false));
 		rules.add(new MultiLineRule("~~~", "~~~", codeblock, '\\', false));
 		rules.add(new MultiLineRule("```", "```", codeblock, '\\', false));
-		rules.add(new SingleLineRule("`", "`", codespan, '\\', true));
+		rules.add(new CodeSpanRule(codespan));
 		rules.add(new IndentedCodeRule(codeblock));
 
 		IPredicateRule[] rule = new IPredicateRule[rules.size()];
