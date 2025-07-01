@@ -22,7 +22,8 @@ import org.eclipse.jface.text.rules.Token;
 public class LinkRule implements IRule {
 
 	private static char[][] fDelimiters = null;
-	protected IToken fToken;
+	
+	protected final IToken fToken;
 
 	public LinkRule(IToken token) {
 		Assert.isNotNull(token);

@@ -238,5 +238,29 @@ public class MarkdownPartitionScannerIT {
 		assertRegion(regions[11], document, MarkdownPartitions.CODESPAN, "`that have to be detected`");
 		assertRegion(regions[12], document, IDocument.DEFAULT_CONTENT_TYPE, " correctly.\n");
 	}
+	
+	@Test
+	public void checkEscapingInCodeSpans() throws Exception {
+		String markdown = """
+				# Heading
+				
+				Some text `this is code` with code.
+				
+				More text with \\`not code`.
+				
+				Even more `code with a backslash\\` ending here` that
+				does not escape a backtick in a code span.
+				""";
+		
+		IDocument document = createDocument(markdown);
+		ITypedRegion[] regions = computePartitions(document);
+		
+		assertNotNull(regions);
+		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\nSome text ");
+		assertRegion(regions[1], document, MarkdownPartitions.CODESPAN, "`this is code`");
+		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, " with code.\n\nMore text with \\`not code`.\n\nEven more ");
+		assertRegion(regions[3], document, MarkdownPartitions.CODESPAN, "`code with a backslash\\`");
+		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, " ending here` that\ndoes not escape a backtick in a code span.\n");
+	}
 
 }
