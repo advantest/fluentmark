@@ -23,7 +23,7 @@
             file-extensions="md,mdown,mkd,text"
             id="net.certiv.fluentmark.contentType"
             name="FluentMark Editor"
-            priority="normal">
+            priority="high">
       </content-type>
    </extension>
 
