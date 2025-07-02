@@ -23,7 +23,7 @@
             file-extensions="md,mdown,mkd,text"
             id="net.certiv.fluentmark.contentType"
             name="FluentMark Editor"
-            priority="normal">
+            priority="high">
       </content-type>
    </extension>
 
@@ -50,6 +50,7 @@
             class="net.certiv.fluentmark.ui.editor.FluentEditor"
             contributorClass="net.certiv.fluentmark.ui.editor.FluentActionBarContributor"
             default="true"
+            extensions="md,mdown,mkd"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.ui.editor.FluentEditor"
             name="FluentMark Editor"
