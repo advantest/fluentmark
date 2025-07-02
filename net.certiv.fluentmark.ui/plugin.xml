@@ -50,6 +50,7 @@
             class="net.certiv.fluentmark.ui.editor.FluentEditor"
             contributorClass="net.certiv.fluentmark.ui.editor.FluentActionBarContributor"
             default="true"
+            extensions="md,mdown,mkd"
             icon="icons/obj16/fluentmark_doc.png"
             id="net.certiv.fluentmark.ui.editor.FluentEditor"
             name="FluentMark Editor"
