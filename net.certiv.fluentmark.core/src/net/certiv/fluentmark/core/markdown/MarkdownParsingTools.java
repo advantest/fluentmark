@@ -65,6 +65,7 @@ public class MarkdownParsingTools {
 
 	// the following regex contains a named capturing group, name is "anchor", syntax: (?<name>expressionToMatch)
 	private static final String REGEX_HEADING_WITH_ANCHOR = "#+\\s.*\\{#(?<" + CAPTURING_GROUP_ANCHOR + ">.*)\\}\\s*";
+	private static final String REGEX_VALID_LINK_REF_DEF_LABEL = "[A-Za-z0-9-_:\\. /]+";
 	private static final String REGEX_VALID_ANCHOR_ID = "[A-Za-z][A-Za-z0-9-_:\\.]*";
 	
 	private static final Pattern LINK_PATTERN = Pattern.compile(REGEX_LINK);
@@ -75,8 +76,7 @@ public class MarkdownParsingTools {
 	private static final Pattern HEADING_PATTERN = Pattern.compile(MarkdownParsingTools.REGEX_HEADING_WITH_ANCHOR);
 	
 	public static boolean isValidLinkReferenceDefinitionIdentifier(String identifier) {
-		// We assume the same rules for link reference definition identifiers like they are used for anchors
-		return isValidAnchorIdentifier(identifier);
+		return identifier != null && !identifier.isBlank() && identifier.matches(REGEX_VALID_LINK_REF_DEF_LABEL);
 	}
 	
 	public static boolean isValidAnchorIdentifier(String identifier) {

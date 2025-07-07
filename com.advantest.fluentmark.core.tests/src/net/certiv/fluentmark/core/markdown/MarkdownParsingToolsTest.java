@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.core.markdown;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
@@ -273,6 +274,67 @@ public class MarkdownParsingToolsTest {
 		
 		assertEquals("adv", getLabel(match.get()));
 		assertEquals(target, getTarget(match.get()));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"a",
+			"anchorId",
+			"anchor:id:",
+			"anchor.id.",
+			"anchor_id_",
+			"anchor-id-"
+	})
+	public void anchorIdValid(String linkLabel) {
+		assertTrue(MarkdownParsingTools.isValidAnchorIdentifier(linkLabel));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"",
+			" ",
+			"\t",
+			"$anchor/id",
+			"<anchorId>",
+			"93anchorId",
+			"anchor id",
+			"anchor/id",
+			"/anchor/id/",
+			":anchor:id/",
+			".anchor.id.",
+			"_anchor_id_",
+			"-anchor-id-"
+	})
+	public void anchorIdInvalid(String linkLabel) {
+		assertFalse(MarkdownParsingTools.isValidAnchorIdentifier(linkLabel));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"linkLabel",
+			"93linkLabel",
+			"link Label",
+			"link/Label",
+			"/link/label/",
+			":link:label/",
+			".link.label.",
+			"_link_label_",
+			"-link-label-"
+	})
+	public void linkReferenceDefinitionsLinkLabelValid(String linkLabel) {
+		assertTrue(MarkdownParsingTools.isValidLinkReferenceDefinitionIdentifier(linkLabel));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"",
+			" ",
+			"\t",
+			"$link/Label",
+			"<linkLabel>"
+	})
+	public void linkReferenceDefinitionsLinkLabelInvalid(String linkLabel) {
+		assertFalse(MarkdownParsingTools.isValidLinkReferenceDefinitionIdentifier(linkLabel));
 	}
 	
 	@ParameterizedTest
