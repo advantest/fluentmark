@@ -2,7 +2,7 @@
 <feature
       id="net.certiv.fluentmark.feature"
       label="FluentMark Editor"
-      version="1.5.2.qualifier"
+      version="1.5.3.qualifier"
       provider-name="Certiv Analytics">
 
    <description>
@@ -63,10 +63,10 @@ Copyright (c) 2022-2024.
 
    <plugin
          id="net.certiv.fluentmark.core"
-         version="1.5.2.qualifier"/>
+         version="1.5.3.qualifier"/>
 
    <plugin
          id="net.certiv.fluentmark.ui"
-         version="1.5.2.qualifier"/>
+         version="1.5.3.qualifier"/>
 
 </feature>
