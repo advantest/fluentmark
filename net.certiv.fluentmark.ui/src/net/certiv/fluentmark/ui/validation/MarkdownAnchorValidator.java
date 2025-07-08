@@ -85,6 +85,7 @@ public class MarkdownAnchorValidator implements ITypedRegionMarkerCalculator {
 				try {
 					MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
 							"The anchor identifier \"" + anchorIdMatch.matchedText + "\" is invalid."
+							// see MarkdownParsingTools.REGEX_VALID_ANCHOR_ID
 							+ " It has to contain at least one character, must start with a letter,"
 							+ " and is allowed to contain any number of the following characters in the remainder:"
 							+ " letters ([A-Za-z]), digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\").",
