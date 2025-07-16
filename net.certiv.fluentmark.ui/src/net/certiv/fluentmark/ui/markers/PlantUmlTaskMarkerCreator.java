@@ -23,10 +23,10 @@ import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitioningTools;
 import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 
 public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	

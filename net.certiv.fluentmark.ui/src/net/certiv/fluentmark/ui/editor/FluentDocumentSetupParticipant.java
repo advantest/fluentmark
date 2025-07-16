@@ -17,7 +17,7 @@ import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
 /**
  * Reacts to IDocument changes and allows for calculating partitions or validating and creating (problem) markers, for example. 

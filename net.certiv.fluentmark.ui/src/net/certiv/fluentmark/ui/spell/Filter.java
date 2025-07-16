@@ -20,7 +20,7 @@ import java.util.List;
 
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
 public class Filter {
 

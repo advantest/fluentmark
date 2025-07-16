@@ -12,7 +12,7 @@ package net.certiv.fluentmark.core.plantuml.partitions;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
 public class PlantUmlPartitions {
 	

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.core.util;
+package net.certiv.fluentmark.core.partitions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.text.BadLocationException;
