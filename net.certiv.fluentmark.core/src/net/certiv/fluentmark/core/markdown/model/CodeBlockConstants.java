@@ -7,10 +7,13 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.core.markdown;
+package net.certiv.fluentmark.core.markdown.model;
 
-public interface IOffsetProvider {
+public interface CodeBlockConstants {
 	
-	int getCursorOffset();
+	static String CODE_BLOCK_DOT = "dot";
+	static String CODE_BLOCK_UML = "uml";
+	
+	static String PLAIN = "nohighlight";
 
 }

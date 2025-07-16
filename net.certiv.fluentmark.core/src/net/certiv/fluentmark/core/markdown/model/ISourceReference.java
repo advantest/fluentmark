@@ -5,18 +5,24 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.core.markdown;
-
-import org.eclipse.core.resources.IResource;
+package net.certiv.fluentmark.core.markdown.model;
 
 
-public interface IElement extends ISourceReference {
+public interface ISourceReference {
 
-	IResource getResource();
+	/**
+	 * Returns the source code associated with this element.
+	 * 
+	 * @return the source code, or <code>null</code> if this element has no associated source code
+	 */
+	String getContent();
 
-	Type getKind();
+	/**
+	 * Returns the source range associated with this element.
+	 * 
+	 * @return the source range
+	 */
+	ISourceRange getSourceRange();
 
-	int getLevel();
-
-	void dispose();
+	String getContent(boolean noTerm);
 }

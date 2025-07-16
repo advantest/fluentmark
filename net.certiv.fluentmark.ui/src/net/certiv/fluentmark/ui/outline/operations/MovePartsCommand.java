@@ -17,8 +17,8 @@ import org.eclipse.text.edits.TextEdit;
 import java.util.Comparator;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.ISourceRange;
-import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.model.ISourceRange;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
 
 
 /**

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import net.certiv.fluentmark.core.TestFileUtil;
+import net.certiv.fluentmark.core.markdown.model.Lines;
+import net.certiv.fluentmark.core.markdown.model.Type;
 
 
 public class LinesTest {

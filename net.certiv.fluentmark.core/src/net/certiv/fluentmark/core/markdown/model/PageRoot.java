@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package net.certiv.fluentmark.core.markdown;
+package net.certiv.fluentmark.core.markdown.model;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.markdown.Lines.Line;
+import net.certiv.fluentmark.core.markdown.model.Lines.Line;
 import net.certiv.fluentmark.core.util.FloorKeyMap;
 
 public class PageRoot extends Parent {

@@ -30,12 +30,12 @@ import java.nio.charset.Charset;
 
 import net.certiv.fluentmark.core.convert.ConverterType;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
-import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
-import net.certiv.fluentmark.core.markdown.ISourceRange;
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
-import net.certiv.fluentmark.core.markdown.SourceRange;
-import net.certiv.fluentmark.core.markdown.Type;
+import net.certiv.fluentmark.core.markdown.model.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.model.ISourceRange;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.SourceRange;
+import net.certiv.fluentmark.core.markdown.model.Type;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;

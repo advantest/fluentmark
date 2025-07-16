@@ -12,8 +12,8 @@ package net.certiv.fluentmark.ui.outline;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.Type;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.Type;
 
 
 public class HideNonHeadingsFilter extends ViewerFilter {
