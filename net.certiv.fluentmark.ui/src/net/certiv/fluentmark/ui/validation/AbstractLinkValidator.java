@@ -49,32 +49,36 @@ public abstract class AbstractLinkValidator {
 				final List<IMarker> markers = new ArrayList<>(1);
 				
 				ISafeRunnable runnable = new ISafeRunnable() {
-		            @Override
-		            public void handleException(Throwable e) {
-		            	Exception ex;
-		            	if (e instanceof Exception) {
-		            		ex = (Exception) e;
-		            	} else {
-		            		ex = new RuntimeException(e);
-		            	}
-		            	FluentUI.log(IStatus.WARNING, String.format("Could not run URI validator \"%s\".", uriValidator.getClass().getName()), ex);
-		            }
+					@Override
+					public void handleException(Throwable e) {
+						Exception ex;
+						if (e instanceof Exception) {
+							ex = (Exception) e;
+						} else {
+							ex = new RuntimeException(e);
+						}
+						FluentUI.log(IStatus.WARNING,
+								String.format("Could not run URI validator \"%s\".", uriValidator.getClass().getName()),
+								ex);
+					}
 
-		            @Override
-		            public void run() throws Exception {
-		            	if (uriValidator.isResponsibleFor(uriText)) {
-		            		markers.add(uriValidator.checkUri(uriText, file, contextDetails, lineNumber, offset, defaultUriValidator.getHttpClient()));
-		            	}
-		            }
-		        };
-		        SafeRunner.run(runnable);
-		        
-		        if (markers.size() > 0) {
-		        	return markers.get(0);
-		        }
-		        
-		        // do not run other validations if we found a responsible validator from extensions
-		        return null;
+					@Override
+					public void run() throws Exception {
+						if (uriValidator.isResponsibleFor(uriText)) {
+							markers.add(uriValidator.checkUri(uriText, file, contextDetails, lineNumber, offset,
+									defaultUriValidator.getHttpClient()));
+						}
+					}
+				};
+				SafeRunner.run(runnable);
+
+				if (markers.size() > 0) {
+					return markers.get(0);
+				}
+
+				// do not run other validations if we found a responsible validator from
+				// extensions
+				return null;
 			}
 		}
 		
