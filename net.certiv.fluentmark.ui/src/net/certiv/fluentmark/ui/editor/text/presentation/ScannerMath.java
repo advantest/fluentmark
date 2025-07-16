@@ -16,10 +16,10 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.certiv.fluentmark.core.markdown.scanner.rules.MathSymbolDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.MathWordDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.rules.MathSymbolDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.MathWordDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerMath extends AbstractBufferedRuleBasedScanner {

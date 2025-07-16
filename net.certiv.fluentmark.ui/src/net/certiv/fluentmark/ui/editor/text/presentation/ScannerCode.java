@@ -17,18 +17,24 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
+import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
+import net.certiv.fluentmark.core.markdown.scanner.rules.IndentedCodeRule;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
-import net.certiv.fluentmark.ui.editor.text.rules.IndentedCodeRule;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerCode extends AbstractBufferedRuleBasedScanner implements IScannerExt {
 
 	private String[] tokenProperties;
+	private final int tabWidth;
 
 	public ScannerCode() {
+		this(4);
+	}
+	
+	public ScannerCode(int tabWidth) {
 		super();
+		this.tabWidth = tabWidth;
 		initialize();
 	}
 
@@ -49,7 +55,7 @@ public class ScannerCode extends AbstractBufferedRuleBasedScanner implements ISc
 		rules.add(new MultiLineRule("```", "```", block, '\\', true));
 		rules.add(new MultiLineRule("~~~", "~~~", block, '\\', true));
 		rules.add(new SingleLineRule("`", "`", code, '\\', true));
-		rules.add(new IndentedCodeRule(block));
+		rules.add(new IndentedCodeRule(block, tabWidth));
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
 		return rules;
 	}

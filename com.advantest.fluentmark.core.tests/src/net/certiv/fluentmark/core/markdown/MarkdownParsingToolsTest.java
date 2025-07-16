@@ -20,6 +20,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
+
 public class MarkdownParsingToolsTest {
 	
 	private String getLabel(RegexMatch match) {

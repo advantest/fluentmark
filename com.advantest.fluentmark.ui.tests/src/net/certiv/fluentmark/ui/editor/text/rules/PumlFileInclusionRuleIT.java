@@ -22,7 +22,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
 import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.scanner.rules.PumlFileInclusionRule;
 
 
 public class PumlFileInclusionRuleIT {

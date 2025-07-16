@@ -9,7 +9,7 @@
  */
 package com.advantest.fluentmark.tests.text.rules;
 
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
+import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
 
 public interface IObservableCharacterScanner extends IScannerExt {
 	

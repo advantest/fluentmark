@@ -16,10 +16,10 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.certiv.fluentmark.core.markdown.scanner.rules.HtmlSymbolDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.HtmlWordDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.rules.HtmlSymbolDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.HtmlWordDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerHtml extends AbstractBufferedRuleBasedScanner {

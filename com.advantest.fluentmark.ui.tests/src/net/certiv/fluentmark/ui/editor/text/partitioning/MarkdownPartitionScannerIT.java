@@ -18,7 +18,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.junit.jupiter.api.Test;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 
 public class MarkdownPartitionScannerIT {
 

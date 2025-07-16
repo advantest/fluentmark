@@ -18,12 +18,12 @@ import org.eclipse.jface.text.rules.WordRule;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.DiagramConstants;
+import net.certiv.fluentmark.core.markdown.partitions.DiagramConstants;
+import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
+import net.certiv.fluentmark.core.markdown.scanner.rules.UmlSymbolDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.UmlWordDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
-import net.certiv.fluentmark.ui.editor.text.rules.UmlSymbolDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.UmlWordDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerUml extends AbstractBufferedRuleBasedScanner implements IScannerExt {

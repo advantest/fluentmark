@@ -51,7 +51,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.internal.matchers.Equality;
 import org.mockito.internal.matchers.Equals;
 
-import net.certiv.fluentmark.core.markdown.RegexMatch;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
 import net.certiv.fluentmark.ui.markers.MarkerConstants;
 
 

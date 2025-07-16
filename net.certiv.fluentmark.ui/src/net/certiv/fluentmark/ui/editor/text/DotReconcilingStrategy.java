@@ -47,7 +47,7 @@ import java.util.Map.Entry;
 import net.certiv.fluentmark.core.dot.DotProblemCollector;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.dot.DotSourceParser;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.marker.DotProblem;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;

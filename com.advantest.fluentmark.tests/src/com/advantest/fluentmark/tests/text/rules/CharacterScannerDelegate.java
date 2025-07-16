@@ -11,7 +11,7 @@ package com.advantest.fluentmark.tests.text.rules;
 
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
+import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
 
 /**
  * Test class, especially for debugging purposes. Uses a "real" scanner, but

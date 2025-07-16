@@ -52,7 +52,8 @@ import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -60,7 +61,6 @@ import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.ui.editor.FluentSourceViewer;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
-import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore.OverlayKey;

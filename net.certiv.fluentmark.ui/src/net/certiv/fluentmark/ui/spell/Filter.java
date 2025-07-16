@@ -18,9 +18,9 @@ import org.eclipse.jface.text.Region;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 
 public class Filter {
 

@@ -22,11 +22,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
-import net.certiv.fluentmark.core.markdown.RegexMatch;
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
 import net.certiv.fluentmark.ui.markers.MarkerCalculator;
 

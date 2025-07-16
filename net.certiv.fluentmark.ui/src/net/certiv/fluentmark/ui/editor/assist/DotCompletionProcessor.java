@@ -41,7 +41,7 @@ import net.certiv.fluentmark.core.dot.Attr;
 import net.certiv.fluentmark.core.dot.AttrMap;
 import net.certiv.fluentmark.core.dot.ContextVisitor;
 import net.certiv.fluentmark.core.dot.DotRecord;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
 public class DotCompletionProcessor implements IContentAssistProcessor {

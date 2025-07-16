@@ -18,11 +18,11 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
+import net.certiv.fluentmark.core.markdown.scanner.rules.DotSymbolDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.DotWordDetector;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.IScannerExt;
-import net.certiv.fluentmark.ui.editor.text.rules.DotSymbolDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.DotWordDetector;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerDot extends AbstractBufferedRuleBasedScanner implements IScannerExt {

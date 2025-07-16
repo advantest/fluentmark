@@ -19,9 +19,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
 
 public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	
