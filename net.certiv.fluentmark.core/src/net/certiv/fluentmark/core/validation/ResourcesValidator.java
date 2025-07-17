@@ -57,29 +57,22 @@ public class ResourcesValidator {
 				return;
 			}
 			
-			document = readFile(file);
+			IDocument newDocument = readFile(file);
 			
-			if (document == null) {
+			if (newDocument == null) {
 				return;
 			}
+			
+			computePartitionsAndValidate(newDocument, file, monitor, responsibleValidators);
+		} else {
+			computePartitionsAndValidate(document, file, monitor, responsibleValidators);
 		}
+	}
+
+	private void computePartitionsAndValidate(IDocument document, IFile file, IProgressMonitor monitor,
+			List<ITypedRegionValidator> responsibleValidators) {
 		
-		Map<String,List<ITypedRegionValidator>> partitioningToValidatorsMap = new HashMap<>();
-		for (ITypedRegionValidator validator: responsibleValidators) {
-			String partitioning = validator.getRequiredPartitioning(file);
-			
-			if (partitioning == null || partitioning.isBlank()) {
-				FluentCore.log(IStatus.ERROR, String.format("Validator %s requires illegal (empty) partitioning", validator.getClass().getName()));
-				continue;
-			}
-			
-			List<ITypedRegionValidator> validatorsForPartioning = partitioningToValidatorsMap.get(partitioning);
-			if (validatorsForPartioning == null) {
-				validatorsForPartioning = new ArrayList<>();
-				partitioningToValidatorsMap.put(partitioning, validatorsForPartioning);
-			}
-			validatorsForPartioning.add(validator);
-		}
+		Map<String,List<ITypedRegionValidator>> partitioningToValidatorsMap = mapValidatorsToPartitioning(responsibleValidators, file);
 		
 		for (String partitioning: partitioningToValidatorsMap.keySet()) {
 			if (monitor.isCanceled()) {
@@ -126,6 +119,28 @@ public class ResourcesValidator {
 		}
 		
 		return null;
+	}
+	
+	private Map<String,List<ITypedRegionValidator>> mapValidatorsToPartitioning(List<ITypedRegionValidator> validators, IFile file) {
+		Map<String,List<ITypedRegionValidator>> partitioningToValidatorsMap = new HashMap<>();
+		
+		for (ITypedRegionValidator validator: validators) {
+			String partitioning = validator.getRequiredPartitioning(file);
+			
+			if (partitioning == null || partitioning.isBlank()) {
+				FluentCore.log(IStatus.ERROR, String.format("Validator %s requires illegal (empty) partitioning", validator.getClass().getName()));
+				continue;
+			}
+			
+			List<ITypedRegionValidator> validatorsForPartioning = partitioningToValidatorsMap.get(partitioning);
+			if (validatorsForPartioning == null) {
+				validatorsForPartioning = new ArrayList<>();
+				partitioningToValidatorsMap.put(partitioning, validatorsForPartioning);
+			}
+			validatorsForPartioning.add(validator);
+		}
+		
+		return partitioningToValidatorsMap;
 	}
 	
 	private ITypedRegion[] computePartitions(IDocument document, IFile file, String partitioning) {
