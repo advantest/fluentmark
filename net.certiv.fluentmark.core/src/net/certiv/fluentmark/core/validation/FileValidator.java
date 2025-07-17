@@ -16,19 +16,27 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
-import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.partitions.IDocumentPartitioner;
 import net.certiv.fluentmark.core.util.FileUtils;
 
 
-public class ResourcesValidator {
+public class FileValidator {
 	
-	private final List<ITypedRegionValidator> validators = TypedRegionValidatorsManager.getInstance().getTypedRegionValidators();
-	private final List<IDocumentPartitioner> partitioners = DocumentPartitionersManager.getInstance().getDocumentPartitionerss();
+	private final List<IDocumentPartitioner> partitioners;
+	private final List<ITypedRegionValidator> validators;
+	private final IValidationResultConsumer validationResultConsumer;
 	
-	// TODO somewhere set the IValidationResultConsumer
-	private IValidationResultConsumer validationResultConsumer;
+	public FileValidator(List<IDocumentPartitioner> partitioners, List<ITypedRegionValidator> validators,
+			IValidationResultConsumer validationResultConsumer) {
+		
+		if (validationResultConsumer == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		this.validationResultConsumer = validationResultConsumer;
+		this.partitioners = partitioners;
+		this.validators = validators;
+	}
 	
 	public void performResourceValidation(IDocument document, IFile file, IProgressMonitor monitor) {
 		if (file == null || monitor == null) {
