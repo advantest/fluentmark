@@ -9,39 +9,31 @@
  */
 package net.certiv.fluentmark.ui.markers;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
-
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
 
-import java.nio.charset.Charset;
-
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.extensionpoints.TypedRegionMarkerCalculatorsManager;
 
 public class MarkerCalculator {
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-	
 	private static final String JOB_NAME = "Re-calculating markers";
 	
 	private static MarkerCalculator INSTANCE = null;
@@ -80,7 +72,7 @@ public class MarkerCalculator {
 			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
 			if (startOffset != null && endOffset != null) {
 				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
-			    marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
+				marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
 			}
 			if (lineNumber != null && lineNumber.intValue() > 0) {
 				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
@@ -201,17 +193,6 @@ public class MarkerCalculator {
 		}
 	}
 	
-	private String readFileContents(IFile markdownFile) {
-		try (InputStream fileInputStream = markdownFile.getContents()) {
-			return new String(fileInputStream.readAllBytes(), UTF8);
-		} catch (IOException | CoreException e) {
-			FluentUI.log(IStatus.ERROR,
-					String.format("Couldn't read file %s", markdownFile.getFullPath().toString()), e);
-		}
-		
-		return null;
-	}
-	
 	public void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
 		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
 		
@@ -266,7 +247,7 @@ public class MarkerCalculator {
 
 					
 					try {
-						String fileContents = readFileContents(file);
+						String fileContents = FileUtils.readFileContents(file);
 						document = new Document(fileContents);
 					} catch (Exception e) {
 						FluentUI.log(IStatus.ERROR, "Failed reading / valdating file " + file.getLocation().toString(), e);
