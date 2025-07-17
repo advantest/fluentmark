@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -15,14 +16,16 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
+import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.partitions.IDocumentPartitioner;
 import net.certiv.fluentmark.core.util.FileUtils;
 
 
 public class ResourcesValidator {
 	
-	// TODO collect all ITypedRegionValidators
-	private List<ITypedRegionValidator> validators;
+	private final List<ITypedRegionValidator> validators = TypedRegionValidatorsManager.getInstance().getTypedRegionValidators();
+	private final List<IDocumentPartitioner> partitioners = DocumentPartitionersManager.getInstance().getDocumentPartitionerss();
 	
 	// TODO somewhere set the IValidationResultConsumer
 	private IValidationResultConsumer validationResultConsumer;
@@ -144,8 +147,16 @@ public class ResourcesValidator {
 	}
 	
 	private ITypedRegion[] computePartitions(IDocument document, IFile file, String partitioning) {
-		// TODO find IDocumentPartitioner for given partitioning
-		IDocumentPartitioner partitioner = null;
+		Optional<IDocumentPartitioner> partitonerOpt = partitioners.stream()
+			.filter(partitioner -> partitioner.getSupportedPartitioning().equals(partitioning))
+			.findFirst();
+		
+		if (partitonerOpt.isEmpty()) {
+			FluentCore.log(IStatus.ERROR, "No document partitioner found for partioning \"" + partitioning + "\".");
+			return null;
+		}
+		
+		IDocumentPartitioner partitioner = partitonerOpt.get();
 		
 		// TODO can we check if the partitioner we need is already set up?
 		partitioner.setupDocumentPartitioner(document, file);
