@@ -28,5 +28,3 @@ public interface ITypedRegionValidator extends IValidationResultReporter {
 
 // TODO Add a validation calculator similar to MarkerCalculator, but without having to create IMarker
 // TODO Add interface and two implementations for (a) printing validation failures to console and (b) create markers 
-// TODO Add extension point for validators
-// TODO Add extension point for partitioners

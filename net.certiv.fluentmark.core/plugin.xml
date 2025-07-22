@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="partitioners" name="Partitioner that creates ITypedRegions for a certain type of partitioning" schema="schema/partitioners.exsd"/>
-   <extension-point id="validators" name="Validators based on typed regions (partitions)" schema="schema/validators.exsd"/>
+   <extension-point id="partitioner" name="Partitioner that creates ITypedRegions for a certain type of partitioning" schema="schema/partitioner.exsd"/>
+   <extension-point id="partitionValidator" name="Validators based on typed regions (partitions)" schema="schema/partitionValidator.exsd"/>
 </plugin>

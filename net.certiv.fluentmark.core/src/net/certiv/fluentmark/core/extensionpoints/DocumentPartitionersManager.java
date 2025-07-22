@@ -21,11 +21,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.partitions.IDocumentPartitioner;
+import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
 
 public class DocumentPartitionersManager {
 	
-	private static final String EXTENSION_POINT_ID_DOCUMENT_PARTITIONERS = "net.certiv.fluentmark.core.partitioners";
+	private static final String EXTENSION_POINT_ID_DOCUMENT_PARTITIONERS = FluentCore.PLUGIN_ID + ".partitioner";
 
 	private static DocumentPartitionersManager INSTANCE = null;
 	
@@ -36,13 +36,13 @@ public class DocumentPartitionersManager {
 		return INSTANCE;
 	}
 	
-	private final List<IDocumentPartitioner> partitioners = new ArrayList<>();
+	private final List<IFluentDocumentPartitioner> partitioners = new ArrayList<>();
 	
 	private DocumentPartitionersManager() {
 		this.init();
 	}
 	
-	public List<IDocumentPartitioner> getDocumentPartitionerss() {
+	public List<IFluentDocumentPartitioner> getDocumentPartitionerss() {
 		return Collections.unmodifiableList(partitioners);
 	}
 	
@@ -55,12 +55,12 @@ public class DocumentPartitionersManager {
 			try {
 				for (IConfigurationElement configElement : configElements) {
 					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IDocumentPartitioner) {
-						partitioners.add((IDocumentPartitioner) obj);
+					if (obj instanceof IFluentDocumentPartitioner) {
+						partitioners.add((IFluentDocumentPartitioner) obj);
 					}
 				}
 			} catch (CoreException e) {
-				FluentCore.log(IStatus.ERROR, "Could not load IDocumentPartitioner from extension", e);
+				FluentCore.log(IStatus.ERROR, "Could not load IFluentDocumentPartitioner from extension", e);
 			}
 		}
 	}

@@ -25,7 +25,7 @@ import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
 
 public class TypedRegionValidatorsManager {
 	
-	private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATORS = "net.certiv.fluentmark.core.validators";
+	private static final String EXTENSION_POINT_ID_TYPED_REGION_VALIDATORS = FluentCore.PLUGIN_ID + ".partitionValidator";
 
 	private static TypedRegionValidatorsManager INSTANCE = null;
 	
