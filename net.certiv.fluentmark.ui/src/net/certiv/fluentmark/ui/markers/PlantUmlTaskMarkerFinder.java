@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.markers;
 
@@ -14,21 +14,22 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitioningTools;
 import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitions;
+import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
+import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 
-public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
+public class PlantUmlTaskMarkerFinder implements ITypedRegionValidator {
 	
 	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME):?[ \\t](?<message>.*?(?='\\/)|.*(?!'\\/))";
 	private static final String REGEX_CAPTURING_GROUP_KEYWORD = "keyword";
@@ -36,38 +37,18 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	
 	private Pattern pattern;
 	
-	public PlantUmlTaskMarkerCreator() {
+	private IValidationResultConsumer issueConsumer;
+	
+	public PlantUmlTaskMarkerFinder() {
 		pattern = Pattern.compile(TODO_FIXME_REGEX, Pattern.CASE_INSENSITIVE);
 	}
-
+	
 	@Override
-	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		if (document == null) {
-			throw new IllegalArgumentException();
-		}
-		
-		IDocumentPartitioner partitioner;
+	public String getRequiredPartitioning(IFile file) {
 		if (FileUtils.isPumlFile(file)) {
-			partitioner = FluentPartitioningTools.getDocumentPartitioner(document, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-			if (partitioner == null) {
-				partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
-				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-			}
-		} else if (FileUtils.isMarkdownFile(file)) {
-			partitioner = FluentPartitioningTools.getDocumentPartitioner(document, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-			if (partitioner == null) {
-				partitioner = MarkdownPartioningTools.getTools().createDocumentPartitioner();
-				FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
-			}
-		}
-	}
-
-	@Override
-	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
-		if (FileUtils.isPumlFile(file)) {
-			return PlantUmlPartitions.computePartitions(document);
+			return PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING;
 		} else {
-			return MarkdownPartitions.computePartitions(document);
+			return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
 		}
 	}
 
@@ -81,9 +62,14 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 		return (PlantUmlPartitions.COMMENT.equals(region.getType()) && FileUtils.isPumlFile(file))
 				|| (MarkdownPartitions.UMLBLOCK.equals(region.getType()) && FileUtils.isMarkdownFile(file));
 	}
+	
+	@Override
+	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
+		this.issueConsumer = issueConsumer;
+	}
 
 	@Override
-	public void validateRegion(ITypedRegion region, IDocument document, IFile resource) throws CoreException {
+	public void validateRegion(ITypedRegion region, IDocument document, IFile resource) {
 		String regionContent;
 		try {
 			regionContent = document.get(region.getOffset(), region.getLength());
@@ -114,7 +100,7 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 		}
 	}
 	
-	private void doValidateRegion(ITypedRegion region, String regionContent, IDocument document, IFile resource, int additionalOffset) throws CoreException {
+	private void doValidateRegion(ITypedRegion region, String regionContent, IDocument document, IFile file, int additionalOffset) {
 		Matcher patternMatcher = this.pattern.matcher(regionContent);
 		boolean found = patternMatcher.find();
 		int startIndex = -1;
@@ -127,22 +113,20 @@ public class PlantUmlTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 			String message = patternMatcher.group(REGEX_CAPTURING_GROUP_MESSAGE).trim();
 			
 			int offset = region.getOffset() + startIndex + additionalOffset;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			int endOffset = region.getOffset() + endIndex + additionalOffset;
 			int priority = "FIXME".equalsIgnoreCase(todoOrFixmeText) ? IMarker.PRIORITY_HIGH : IMarker.PRIORITY_NORMAL;
 			
-			MarkerCalculator.createPlantUmlTaskMarker(resource, priority, todoOrFixmeText + " " + message, lineNumber, offset, endOffset);
+			issueConsumer.reportValidationResult(file,
+					TaskTypes.PLANTUML_TASK,
+					priority,
+					todoOrFixmeText + " " + message,
+					lineNumber,
+					offset,
+					endOffset);
 			
 			found = patternMatcher.find();
 		}
 	}
 	
-	protected int getLineForOffset(IDocument document, int offset) {
-		try {
-			return document.getLineOfOffset(offset) + 1;
-		} catch (BadLocationException e) {
-			return -1;
-		}
-	}
-
 }

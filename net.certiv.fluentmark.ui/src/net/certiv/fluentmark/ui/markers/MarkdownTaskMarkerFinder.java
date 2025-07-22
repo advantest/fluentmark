@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.markers;
 
@@ -14,16 +14,17 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
+import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 
-public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
+public class MarkdownTaskMarkerFinder implements ITypedRegionValidator {
 	
 	private static final String TODO_FIXME_REGEX = "(?<keyword>TODO|FIXME):?[ \\t](?<message>.*?(?=-?-->)|.*(?!-->))";
 	private static final String REGEX_CAPTURING_GROUP_KEYWORD = "keyword";
@@ -31,18 +32,15 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 	
 	private Pattern pattern;
 	
-	public MarkdownTaskMarkerCreator() {
+	private IValidationResultConsumer issueConsumer;
+	
+	public MarkdownTaskMarkerFinder() {
 		pattern = Pattern.compile(TODO_FIXME_REGEX, Pattern.CASE_INSENSITIVE);
 	}
-
+	
 	@Override
-	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
-	}
-
-	@Override
-	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
-		return MarkdownPartioningTools.getTools().computePartitioning(document);
+	public String getRequiredPartitioning(IFile file) {
+		return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
 	}
 
 	@Override
@@ -55,9 +53,14 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 		return MarkdownPartitions.COMMENT.equals(region.getType())
 				&& isValidatorFor(file);
 	}
+	
+	@Override
+	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
+		this.issueConsumer = issueConsumer;
+	}
 
 	@Override
-	public void validateRegion(ITypedRegion region, IDocument document, IFile resource) throws CoreException {
+	public void validateRegion(ITypedRegion region, IDocument document, IFile file) {
 		String regionContent;
 		try {
 			regionContent = document.get(region.getOffset(), region.getLength());
@@ -77,23 +80,20 @@ public class MarkdownTaskMarkerCreator implements ITypedRegionMarkerCalculator {
 			String message = patternMatcher.group(REGEX_CAPTURING_GROUP_MESSAGE).trim();
 			
 			int offset = region.getOffset() + startIndex;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			int endOffset = region.getOffset() + endIndex;
 			int priority = "FIXME".equalsIgnoreCase(todoOrFixmeText) ? IMarker.PRIORITY_HIGH : IMarker.PRIORITY_NORMAL;
 			
-			MarkerCalculator.createMarkdownTaskMarker(resource, priority, todoOrFixmeText + " " + message, lineNumber, offset, endOffset);
+			issueConsumer.reportValidationResult(file,
+					TaskTypes.MARKDOWN_TASK,
+					priority,
+					todoOrFixmeText + " " + message,
+					lineNumber,
+					offset,
+					endOffset);
 			
 			found = patternMatcher.find();
 		}
 	}
-	
-	protected int getLineForOffset(IDocument document, int offset) {
-		try {
-			return document.getLineOfOffset(offset) + 1;
-		} catch (BadLocationException e) {
-			return -1;
-		}
-	}
-	
 
 }

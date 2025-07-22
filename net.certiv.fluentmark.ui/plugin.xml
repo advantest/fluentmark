@@ -1053,5 +1053,16 @@
             id="net.certiv.fluentmark.ui.resolver.java">
       </resolver>
    </extension>
+   <extension
+         point="net.certiv.fluentmark.core.partitionValidator">
+      <validator
+            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.markdown">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.plantuml">
+      </validator>
+   </extension>
    
 </plugin>
