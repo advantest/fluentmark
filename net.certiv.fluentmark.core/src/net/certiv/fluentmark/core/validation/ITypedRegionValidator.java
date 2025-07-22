@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-public interface ITypedRegionValidator {
+public interface ITypedRegionValidator extends IValidationResultReporter {
 	
 	String getRequiredPartitioning(IFile file);
 	
@@ -21,7 +21,7 @@ public interface ITypedRegionValidator {
 	
 	boolean isValidatorFor(ITypedRegion region, IFile file);
 	
-	void validateRegion(ITypedRegion region, IDocument document, IFile file, IValidationResultConsumer issueConsumer);
+	void validateRegion(ITypedRegion region, IDocument document, IFile file);
 
 }
 
