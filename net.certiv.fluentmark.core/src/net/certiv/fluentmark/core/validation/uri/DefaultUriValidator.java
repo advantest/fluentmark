@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.core.validation.uri;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,9 +23,9 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 
-import net.certiv.fluentmark.ui.markers.MarkerCalculator;
+import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
+import net.certiv.fluentmark.core.validation.IssueTypes;
 
 public class DefaultUriValidator implements IUriValidator {
 	
@@ -49,23 +49,33 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 		return this.httpClient;
 	}
-
+	
 	@Override
 	public boolean isResponsibleFor(String uriText) {
 		return uriText != null && !uriText.isBlank();
 	}
+	
+	private IValidationResultConsumer issueConsumer;
+	
+	@Override
+	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
+		this.issueConsumer = issueConsumer;
+	}
 
 	@Override
-	public IMarker checkUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset,
-			HttpClient defaultHttpClient) throws CoreException {
+	public void checkUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset,
+			HttpClient defaultHttpClient) {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
-			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file,
+					IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. It has to start with https:// or http://", uriText),
 					lineNumber,
 					offset,
 					offset + uriText.length());
+			return;
 		}
 			
 		URI uri = null;
@@ -86,11 +96,14 @@ public class DefaultUriValidator implements IUriValidator {
 					.timeout(Duration.ofSeconds(2))
 					.build();
 		} catch (URISyntaxException | IllegalArgumentException e) {
-			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file,
+					IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' seems not to be a valid HTTP web address. " + e.getMessage(), uriText),
 					lineNumber,
 					offset,
 					offset + uriText.length());
+			return;
 		}
 		
 		int statusCode = -1;
@@ -107,20 +120,22 @@ public class DefaultUriValidator implements IUriValidator {
 		}
 		
 		if (statusCode >= 400) {
-			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file,
+					IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		} else if (statusCode == -404) {
-			return MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_WARNING,
+			issueConsumer.reportValidationResult(file,
+					IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_WARNING,
 					String.format("The referenced web address '%s' seems not to exist. (Error message: %s)", uriText, errorMessage),
 					lineNumber,
 					offset,
 					offset + uriText.length());
 		}
-		
-		return null;
 	}
 
 }

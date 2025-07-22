@@ -5,9 +5,13 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.extensionpoints;
+package net.certiv.fluentmark.core.extensionpoints;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -16,16 +20,12 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.validation.IUriValidator;
+import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.validation.uri.IUriValidator;
 
 public class UriValidatorsManager {
 	
-	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = "net.certiv.fluentmark.ui.validator.uri";
+	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = FluentCore.PLUGIN_ID + ".uriValidator";
 	
 	private static UriValidatorsManager INSTANCE = null;
 	
@@ -49,7 +49,7 @@ public class UriValidatorsManager {
 					}
 				}
 			} catch (CoreException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load IUriValidator extension", e);
+				FluentCore.log(IStatus.ERROR, "Could not load IUriValidator extension", e);
 			}
 		}
 	}
