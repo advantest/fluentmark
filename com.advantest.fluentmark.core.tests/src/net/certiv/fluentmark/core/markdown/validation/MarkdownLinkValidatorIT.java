@@ -79,7 +79,12 @@ public class MarkdownLinkValidatorIT {
 			public void reportValidationResult(IFile file, String issueTypeId, int issueSeverity, String message,
 					Integer issueLineNumber, Integer issueStartOffset, Integer issueEndOffset) {
 				try {
-					file.createMarker(issueTypeId);
+					IMarker marker = file.createMarker(issueTypeId);
+					
+					// set only the attributes that we will check in tests
+					marker.setAttribute(IMarker.MESSAGE, message);
+					marker.setAttribute(IMarker.LINE_NUMBER, issueLineNumber.intValue());
+					marker.setAttribute(IMarker.SEVERITY, issueSeverity);
 				} catch (CoreException e) {
 					fail();
 				}
@@ -446,6 +451,10 @@ public class MarkdownLinkValidatorIT {
 				
 				[folder-missing]: missing/
 				""";
+		// use the real validator, no mock
+		linkValidator = new MarkdownLinkValidator();
+		linkValidator.setValidationResultConsumer(validationResultConsumer);
+		
 		File newFile = new File(temporaryFolder, "markdown.md");
 		assertTrue(newFile.createNewFile());
 		assertTrue(new File(temporaryFolder, "important.txt").createNewFile());
@@ -517,17 +526,15 @@ public class MarkdownLinkValidatorIT {
 				[ref4]:
 				   
 				""";
+		// use the real validator, no mock
 		linkValidator = new MarkdownLinkValidator();
+		linkValidator.setValidationResultConsumer(validationResultConsumer);
+		
 		File newFile = new File(temporaryFolder, "markdown.md");
 		assertTrue(newFile.createNewFile());
 		
 		IPath path = Path.fromOSString(newFile.getAbsolutePath());
 		when(file.getLocation()).thenReturn(path);
-		when(file.createMarker(anyString())).thenAnswer(invocation -> {
-				String markerType = invocation.getArgument(0);
-				return TestMarker.create(file, markerType);
-			});
-		;
 		
 		// when
 		document = validateDocument(fileContents);
