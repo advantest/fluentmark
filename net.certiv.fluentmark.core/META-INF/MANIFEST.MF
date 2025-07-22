@@ -109,7 +109,8 @@ Require-Bundle: com.google.guava;bundle-version="30.1.0",
  org.eclipse.core.runtime,
  org.eclipse.jface.text;bundle-version="3.18.100",
  org.eclipse.core.resources;bundle-version="3.15.100",
- org.eclipse.core.filesystem;bundle-version="1.10.200"
+ org.eclipse.core.filesystem;bundle-version="1.10.200",
+ org.eclipse.core.filebuffers;bundle-version="3.8.400"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.certiv.fluentmark.core
 Bundle-ActivationPolicy: lazy

@@ -9,7 +9,6 @@
  */
 package net.certiv.fluentmark.core.markdown.partitions;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
@@ -58,7 +57,7 @@ public class MarkdownPartioningTools {
 		}
 	}
 	
-	public ITypedRegion[] computePartitioning(IDocument document) throws BadLocationException {
+	public ITypedRegion[] computePartitioning(IDocument document) {
 		return MarkdownPartitions.computePartitions(document);
 	}
 
