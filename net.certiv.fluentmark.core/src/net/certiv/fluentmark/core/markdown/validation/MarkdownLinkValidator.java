@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.core.markdown.validation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,47 +24,57 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
+import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.extensionpoints.AnchorResolversManager;
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.markers.ITypedRegionMarkerCalculator;
-import net.certiv.fluentmark.ui.markers.MarkerCalculator;
+import net.certiv.fluentmark.core.validation.FilePathValidator;
+import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
+import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
+import net.certiv.fluentmark.core.validation.IssueTypes;
+import net.certiv.fluentmark.core.validation.uri.LinkValidator;
+import net.certiv.fluentmark.core.validation.uri.UriDto;
 
-
-public class MarkdownLinkValidator extends AbstractLinkValidator implements ITypedRegionMarkerCalculator {
+public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
+	private LinkValidator linkValidator;
 	private FilePathValidator filePathValidator;
+
+	private IValidationResultConsumer issueConsumer;
 	
 	public MarkdownLinkValidator() {
-		filePathValidator = new FilePathValidator();
+		linkValidator = new LinkValidator();
+		filePathValidator = new FilePathValidator(AnchorResolversManager.getInstance().getAnchorResolvers());
 	}
 	
 	@Override
-	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
+	public String getRequiredPartitioning(IFile file) {
+		return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
 	}
-	
-	@Override
-	public ITypedRegion[] computePartitioning(IDocument document, IFile file) throws BadLocationException {
-		return MarkdownPartioningTools.getTools().computePartitioning(document);
-	}
-	
+
 	@Override
 	public boolean isValidatorFor(IFile file) {
 		return FileUtils.isMarkdownFile(file);
 	}
-	
+
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
 		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType())
 				|| MarkdownPartitions.PLANTUML_INCLUDE.equals(region.getType());
 	}
+	
+	@Override
+	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
+		this.issueConsumer = issueConsumer;
+		this.linkValidator.setValidationResultConsumer(issueConsumer);
+		this.filePathValidator.setValidationResultConsumer(issueConsumer);
+	}
 
 	@Override
-	public void validateRegion(ITypedRegion region, IDocument document, IFile file) throws CoreException {
+	public void validateRegion(ITypedRegion region, IDocument document, IFile file) {
 		String regionContent;
 		try {
 			regionContent = document.get(region.getOffset(), region.getLength());
@@ -77,7 +87,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				try {
 					validateLinkStatement(region, document, file, match, regionContent);
 				} catch (Exception e) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+					FluentCore.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
 		});
 		
@@ -88,7 +98,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				try {
 					validateLinkReferenceDefinitionStatement(region, document, file, match);
 				} catch (Exception e) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+					FluentCore.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
 		});
 		
@@ -109,7 +119,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			.filter(id -> linkRefDefIds.get(id).size() > 1)
 			.forEach(id -> {
 				String lines = linkRefDefIds.get(id).stream()
-						.map(idMatch -> getLineForOffset(document,
+						.map(idMatch -> DocumentUtils.getLineNumberForOffset(document,
 								region.getOffset() + idMatch.startIndex))
 						.map(line -> String.valueOf(line))
 						.reduce("", (text1, text2) -> text1.isBlank() ? text2 : text1 + ", " + text2);
@@ -117,18 +127,16 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				for (RegexMatch idMatch : linkRefDefIds.get(id)) {
 					int offset = region.getOffset() + idMatch.startIndex;
 					int endOffset = region.getOffset() + idMatch.endIndex;
-					int lineNumber = getLineForOffset(document, offset);
+					int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 					
-					try {
-						MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
-								"The link reference definition identifier \"" + id + "\" is not unique."
-								+ " The same identifier is used in the following lines: " + lines,
-								lineNumber,
-								offset,
-								endOffset);
-					} catch (CoreException e) {
-						FluentUI.log(IStatus.WARNING, "Could not create validation marker.", e);
-					}
+					issueConsumer.reportValidationResult(file,
+							IssueTypes.MARKDOWN_ISSUE,
+							IMarker.SEVERITY_ERROR,
+							"The link reference definition identifier \"" + id + "\" is not unique."
+									+ " The same identifier is used in the following lines: " + lines,
+									lineNumber,
+									offset,
+									endOffset);
 				}
 			});
 		
@@ -139,9 +147,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				try {
 					validateReferenceLinkLabel(region, document, file, match);
 				} catch (Exception e) {
-					FluentUI.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
+					FluentCore.log(IStatus.WARNING, String.format("Could not validate statement \"%s\".", match.matchedText), e);
 				}
 		});
+		
 	}
 	
 	protected void validateLinkStatement(ITypedRegion region, IDocument document, IFile file,
@@ -233,14 +242,16 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				endOffset += 1;
 			}
 			
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file, IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					"The reference link label is empty. Please create a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\""
 					+ " and use that reference link label in your link, e.g. \"[your link text][ReferenceLinkLabel]\" or \"[ReferenceLinkLabel]\".",
 					lineNumber,
 					offset,
 					endOffset);
+			
 			return;
 		}
 		
@@ -258,9 +269,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				// In this case, we create a marker for the whole reference link statement
 				int offset = region.getOffset() + referenceLinkMatch.startIndex;
 				int endOffset = offset + referenceLinkMatch.matchedText.length();
-				int lineNumber = getLineForOffset(document, offset);
+				int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 				
-				MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+				issueConsumer.reportValidationResult(file, IssueTypes.MARKDOWN_ISSUE,
+						IMarker.SEVERITY_ERROR,
 						"There is either no link reference definition for the reference link label \"" + linkLabel
 								+ "\" (assuming this is a collapsed reference link like \"[ReferenceLinkLabel][]\")"
 								+ " or the reference link label is empty  (assuming this is a full reference link like \"[Some text][ReferenceLinkLabel]\")."
@@ -272,9 +284,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			} else {
 				int offset = region.getOffset() + targetMatch.startIndex;
 				int endOffset = offset + linkLabel.length();
-				int lineNumber = getLineForOffset(document, offset);
+				int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 				
-				MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+				issueConsumer.reportValidationResult(file, IssueTypes.MARKDOWN_ISSUE,
+						IMarker.SEVERITY_ERROR,
 						"There is no link reference definition for the reference link label \"" + linkLabel
 						+ "\". Expected a link reference definition like \"[ReferenceLinkLabel]: https://plantuml.com\"",
 						lineNumber,
@@ -288,7 +301,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			ITypedRegion region, IDocument document, IFile file,
 			int linkStatementStartIndexInRegion, boolean targetInLinkReferenceDefinition) throws CoreException {
 		
-		UriDto uriDto = parseUri(linkTarget);
+		UriDto uriDto = UriDto.parseUri(linkTarget);
 		
 		// no path and no scheme?
 		if (linkTarget == null
@@ -296,13 +309,13 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 			
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
 			int endOffset = linkTarget != null ? offset + linkTarget.length() : offset;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
 			if (linkTarget == null || linkTarget.length() == 0) {
 				if (targetInLinkReferenceDefinition) {
 					// extend characters to be marked to the beginning of the link reference definition statement
 					offset = region.getOffset() + linkStatementStartIndexInRegion;
-					lineNumber = getLineForOffset(document, offset);
+					lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 				} else {
 					// extend characters to be marked to enclose the target's surrounding brackets, since we otherwise have not a single char
 					offset -= 1;
@@ -310,7 +323,8 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				}
 			}
 			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file, IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					"The target file path or URL is empty.",
 					lineNumber,
 					offset,
@@ -321,7 +335,7 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		// check file target (without URI scheme)
 		if (uriDto.scheme == null) {
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			int endOffset = offset + uriDto.path.length();
 			
 			filePathValidator.checkFilePathAndFragment(linkTarget, uriDto.path, uriDto.fragment, document, file, lineNumber, offset, endOffset);
@@ -332,9 +346,9 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 				&& (uriDto.scheme.equalsIgnoreCase("http") || uriDto.scheme.equalsIgnoreCase("https"))) {
 			
 			int offset = region.getOffset() + linkStatementStartIndexInRegion + linkTargetStartIndex;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
-			checkHttpUri(linkTarget, file, null, lineNumber, offset);
+			linkValidator.checkHttpUri(linkTarget, file, null, lineNumber, offset);
 		}
 	}
 	
@@ -345,9 +359,10 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 		if (!MarkdownParsingTools.isValidLinkReferenceDefinitionIdentifier(linkRefDefId)) {
 			int offset = region.getOffset() + linkRefDefIdMatch.startIndex;
 			int endOffset = region.getOffset() + linkRefDefIdMatch.endIndex;
-			int lineNumber = getLineForOffset(document, offset);
+			int lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
-			MarkerCalculator.createDocumentationProblemMarker(file, IMarker.SEVERITY_ERROR,
+			issueConsumer.reportValidationResult(file, IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
 					"The link reference definition identifier \"" + linkRefDefId + "\" is invalid."
 					// see MarkdownParsingTools.REGEX_VALID_LINK_REF_DEF_LABEL
 					+ " It has to contain at least one non-space character "
@@ -359,4 +374,5 @@ public class MarkdownLinkValidator extends AbstractLinkValidator implements ITyp
 					endOffset);
 		}
 	}
+
 }

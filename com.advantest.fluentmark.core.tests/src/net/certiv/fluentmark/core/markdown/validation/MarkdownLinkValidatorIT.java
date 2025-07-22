@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.ui.validation;
+package net.certiv.fluentmark.core.markdown.validation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,7 +52,9 @@ import org.mockito.internal.matchers.Equality;
 import org.mockito.internal.matchers.Equals;
 
 import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
-import net.certiv.fluentmark.ui.markers.MarkerConstants;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
+import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
+import net.certiv.fluentmark.core.validation.IssueTypes;
 
 
 public class MarkdownLinkValidatorIT {
@@ -60,29 +62,54 @@ public class MarkdownLinkValidatorIT {
 	private MarkdownLinkValidator linkValidator;
 	private IFile file;
 	private IDocument document;
+	private MarkdownPartitioner partitioner;
+	private IValidationResultConsumer validationResultConsumer;
 	
 	@TempDir
 	File temporaryFolder;
 	
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws Exception {
 		linkValidator = new MarkdownLinkValidatorFake();
 		linkValidator = spy(linkValidator);
+		
+		validationResultConsumer = new IValidationResultConsumer() {
+			
+			@Override
+			public void reportValidationResult(IFile file, String issueTypeId, int issueSeverity, String message,
+					Integer issueLineNumber, Integer issueStartOffset, Integer issueEndOffset) {
+				try {
+					file.createMarker(issueTypeId);
+				} catch (CoreException e) {
+					fail();
+				}
+			}
+		};
+		linkValidator.setValidationResultConsumer(validationResultConsumer);
+		
 		file = prepareFileMock("md", true);
+		partitioner = new MarkdownPartitioner();
+		
+		when(file.createMarker(anyString())).thenAnswer(invocation -> {
+			String markerType = invocation.getArgument(0);
+			return TestMarker.create(file, markerType);
+		});
 	}
 	
 	@AfterEach
 	public void tearDown() {
 		linkValidator = null;
+		validationResultConsumer = null;
 		file = null;
 		document = null;
+		partitioner = null;
 	}
 	
 	private ITypedRegion[] findPartitions(IDocument document) throws Exception {
 		assertNotNull(document);
 		
-		linkValidator.setupDocumentPartitioner(document, file);
-		return linkValidator.computePartitioning(document, file);
+		partitioner.setupDocumentPartitioner(document, file);
+		return partitioner.computePartitioning(document, file);
 	}
 	
 	private IDocument createDocument(String content) {
@@ -419,7 +446,6 @@ public class MarkdownLinkValidatorIT {
 				
 				[folder-missing]: missing/
 				""";
-		linkValidator = new MarkdownLinkValidator();
 		File newFile = new File(temporaryFolder, "markdown.md");
 		assertTrue(newFile.createNewFile());
 		assertTrue(new File(temporaryFolder, "important.txt").createNewFile());
@@ -427,11 +453,6 @@ public class MarkdownLinkValidatorIT {
 		
 		IPath path = Path.fromOSString(newFile.getAbsolutePath());
 		when(file.getLocation()).thenReturn(path);
-		when(file.createMarker(anyString())).thenAnswer(invocation -> {
-				String markerType = invocation.getArgument(0);
-				return TestMarker.create(file, markerType);
-			});
-		;
 		
 		// when
 		document = validateDocument(fileContents);
@@ -441,7 +462,7 @@ public class MarkdownLinkValidatorIT {
 		assertFalse(marker.isPresent());
 		
 		assertMarker(file, 4,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"does not exist");
 		
@@ -449,19 +470,19 @@ public class MarkdownLinkValidatorIT {
 		assertFalse(marker.isPresent());
 		
 		assertMarker(file, 8,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_WARNING,
 				"not a file",
 				"Please add a trailing '/'");
 		
 		assertMarker(file, 11,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"not a file",
 				"remove the trailing '/'");
 		
 		assertMarker(file, 13,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"does not exist");
 	}
@@ -513,52 +534,52 @@ public class MarkdownLinkValidatorIT {
 		
 		// then
 		assertMarker(file, 3,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 		
 		assertMarker(file, 5,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 		
 		assertMarker(file, 8,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"reference link label is empty");
 		
 		assertMarker(file, 9,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"reference link label is empty");
 		
 		assertMarker(file, 13,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 		
 		assertMarker(file, 15,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 		
 		assertMarker(file, 19,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"no link reference definition");
 		
 		assertMarker(file, 20,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"no link reference definition");
 		
 		assertMarker(file, 22,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 		
 		assertMarker(file, 24,
-				MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM,
+				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
 				"target file path or URL is empty");
 	}

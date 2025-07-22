@@ -1000,25 +1000,6 @@
       </decorator>
    </extension>
    <extension
-         point="net.certiv.fluentmark.ui.marker.calculators">
-      <calculator
-            class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
-            id="net.certiv.fluentmark.ui.validator.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.validation.MarkdownAnchorValidator"
-            id="net.certiv.fluentmark.ui.validator.markdown.anchors">
-      </calculator>
-   </extension>
-   <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
       <hyperlinkDetector
             activate="true"

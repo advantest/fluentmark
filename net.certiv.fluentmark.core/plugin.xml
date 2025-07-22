@@ -16,4 +16,15 @@
             id="net.certiv.fluentmark.core.partitioner.plantuml">
       </partitioner>
    </extension>
+   <extension
+         point="net.certiv.fluentmark.core.partitionValidator">
+      <validator
+            class="net.certiv.fluentmark.core.markdown.validation.MarkdownLinkValidator"
+            id="net.certiv.fluentmark.core.validator.markdown.link">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.core.markdown.validation.MarkdownAnchorValidator"
+            id="net.certiv.fluentmark.core.validator.markdown.anchor">
+      </validator>
+   </extension>
 </plugin>
