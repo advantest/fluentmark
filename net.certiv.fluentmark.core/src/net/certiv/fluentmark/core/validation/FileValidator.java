@@ -16,17 +16,17 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.FluentCore;
-import net.certiv.fluentmark.core.partitions.IDocumentPartitioner;
+import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
 import net.certiv.fluentmark.core.util.FileUtils;
 
 
 public class FileValidator {
 	
-	private final List<IDocumentPartitioner> partitioners;
+	private final List<IFluentDocumentPartitioner> partitioners;
 	private final List<ITypedRegionValidator> validators;
 	private final IValidationResultConsumer validationResultConsumer;
 	
-	public FileValidator(List<IDocumentPartitioner> partitioners, List<ITypedRegionValidator> validators,
+	public FileValidator(List<IFluentDocumentPartitioner> partitioners, List<ITypedRegionValidator> validators,
 			IValidationResultConsumer validationResultConsumer) {
 		
 		if (validationResultConsumer == null) {
@@ -104,7 +104,8 @@ public class FileValidator {
 					}
 					
 					if (validator.isValidatorFor(region, file) ) {
-						validator.validateRegion(region, document, file, validationResultConsumer);
+						validator.setValidationResultConsumer(validationResultConsumer);
+						validator.validateRegion(region, document, file);
 					}
 				}
 			}
@@ -155,7 +156,7 @@ public class FileValidator {
 	}
 	
 	private ITypedRegion[] computePartitions(IDocument document, IFile file, String partitioning) {
-		Optional<IDocumentPartitioner> partitonerOpt = partitioners.stream()
+		Optional<IFluentDocumentPartitioner> partitonerOpt = partitioners.stream()
 			.filter(partitioner -> partitioner.getSupportedPartitioning().equals(partitioning))
 			.findFirst();
 		
@@ -164,7 +165,7 @@ public class FileValidator {
 			return null;
 		}
 		
-		IDocumentPartitioner partitioner = partitonerOpt.get();
+		IFluentDocumentPartitioner partitioner = partitonerOpt.get();
 		
 		// TODO can we check if the partitioner we need is already set up?
 		partitioner.setupDocumentPartitioner(document, file);
