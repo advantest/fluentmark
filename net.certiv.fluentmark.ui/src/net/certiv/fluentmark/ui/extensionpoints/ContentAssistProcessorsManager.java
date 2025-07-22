@@ -25,7 +25,7 @@ import net.certiv.fluentmark.ui.FluentUI;
 
 public class ContentAssistProcessorsManager {
 	
-	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = "net.certiv.fluentmark.ui.content.assist.processor";
+	private static final String EXTENSION_POINT_ID_CONTENT_ASSIST_PROCESSOR = FluentUI.PLUGIN_ID + ".content.assist.processor";
 	
 	private static ContentAssistProcessorsManager INSTANCE = null;
 	
@@ -43,7 +43,7 @@ public class ContentAssistProcessorsManager {
 	}
 	
 	private void init() {
-		IExtensionPoint contentAssistProcessorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_URI_VALIDATOR);
+		IExtensionPoint contentAssistProcessorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_CONTENT_ASSIST_PROCESSOR);
 		IExtension[] contentAssistProcessorExtensions = contentAssistProcessorExtensionPoint.getExtensions();
 		for (IExtension contentAssistProcessorExtension: contentAssistProcessorExtensions) {
 			IConfigurationElement[] configElements = contentAssistProcessorExtension.getConfigurationElements();

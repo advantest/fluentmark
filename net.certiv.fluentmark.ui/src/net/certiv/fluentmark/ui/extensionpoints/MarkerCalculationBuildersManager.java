@@ -30,7 +30,7 @@ import net.certiv.fluentmark.ui.builders.IMarkerCalculationResourcesVisitor;
  */
 public class MarkerCalculationBuildersManager {
 	
-	private static final String EXTENSION_POINT_ID_FLUENT_BUILDER = "net.certiv.fluentmark.ui.marker.builders";
+	private static final String EXTENSION_POINT_ID_FLUENT_BUILDER = FluentUI.PLUGIN_ID + ".marker.builders";
 
 	private static MarkerCalculationBuildersManager INSTANCE = null;
 	
