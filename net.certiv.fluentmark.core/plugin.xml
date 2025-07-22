@@ -4,4 +4,5 @@
    <extension-point id="partitioner" name="Partitioner that creates ITypedRegions for a certain type of partitioning" schema="schema/partitioner.exsd"/>
    <extension-point id="partitionValidator" name="Validators based on typed regions (partitions)" schema="schema/partitionValidator.exsd"/>
    <extension-point id="uriValidator" name="URI validators" schema="schema/uriValidator.exsd"/>
+   <extension-point id="anchorResolver" name="Anchor resolvers" schema="schema/anchorResolver.exsd"/>
 </plugin>

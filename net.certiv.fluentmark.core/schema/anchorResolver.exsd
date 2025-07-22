@@ -3,7 +3,7 @@
 <schema targetNamespace="net.certiv.fluentmark.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.certiv.fluentmark.core" id="partitioner" name="Partitioner that creates ITypedRegions for a certain type of partitioning"/>
+         <meta.schema plugin="net.certiv.fluentmark.core" id="resolver.anchor" name="Anchor resolvers"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="partitioner"/>
+            <element ref="resolver"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="partitioner">
+   <element name="resolver">
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -65,7 +65,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.core.partitions.IDocumentPartitioner"/>
+                  <meta.attribute kind="java" basedOn=":net.certiv.fluentmark.core.validation.IAnchorResolver"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -108,5 +108,13 @@
       </documentation>
    </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Advantest Europe GmbH
+      </documentation>
+   </annotation>
 
 </schema>

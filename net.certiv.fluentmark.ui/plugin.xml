@@ -1046,5 +1046,12 @@
          </context>
       </target>
    </extension>
+   <extension
+         point="net.certiv.fluentmark.core.anchorResolver">
+      <resolver
+            class="net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver"
+            id="net.certiv.fluentmark.ui.resolver.java">
+      </resolver>
+   </extension>
    
 </plugin>
