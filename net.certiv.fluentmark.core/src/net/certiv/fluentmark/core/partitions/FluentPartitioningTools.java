@@ -50,6 +50,10 @@ public class FluentPartitioningTools {
 	}
 	
 	public static ITypedRegion[] computePartitions(IDocument document, String partitioning) {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		int beg = 0;
 		int len = document.getLength();
 		

@@ -87,7 +87,7 @@ public class Converter {
 
                     return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
                 case PANDOC:
-                    ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
+                    ITypedRegion[] typedRegions = MarkdownPartitions.get().computePartitions(document);
                     
                     String text = getText(filePath, document, typedRegions, true);
                     return usePandoc(basepath, text, kind);

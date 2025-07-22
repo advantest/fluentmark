@@ -42,7 +42,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -218,7 +217,7 @@ public class FluentSourceViewerInfoControl
 		IDocument doc = new Document(content);
 		FluentPartitioningTools.setupDocumentPartitioner(
 				doc,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.get().createDocumentPartitioner(),
 				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		viewer.setInput(doc);
 	}

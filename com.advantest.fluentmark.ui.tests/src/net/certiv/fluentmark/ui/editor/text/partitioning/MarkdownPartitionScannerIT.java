@@ -18,7 +18,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.junit.jupiter.api.Test;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 
 public class MarkdownPartitionScannerIT {
@@ -28,8 +27,8 @@ public class MarkdownPartitionScannerIT {
 	}
 	
 	private ITypedRegion[] computePartitions(IDocument document) throws Exception {
-		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
-		return MarkdownPartioningTools.getTools().computePartitioning(document);
+		MarkdownPartitions.get().setupDocumentPartitioner(document);
+		return MarkdownPartitions.get().computePartitions(document);
 	}
 	
 	private void assertRegion(ITypedRegion region, IDocument document, String expectedRegionType, String expectedText) throws BadLocationException {

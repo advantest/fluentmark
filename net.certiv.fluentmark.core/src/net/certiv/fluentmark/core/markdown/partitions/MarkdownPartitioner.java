@@ -24,13 +24,13 @@ public class MarkdownPartitioner implements IFluentDocumentPartitioner {
 
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
+		MarkdownPartitions.get().setupDocumentPartitioner(document);
 
 	}
 
 	@Override
 	public ITypedRegion[] computePartitioning(IDocument document, IFile file) {
-		return MarkdownPartioningTools.getTools().computePartitioning(document);
+		return MarkdownPartitions.get().computePartitions(document);
 	}
 
 }

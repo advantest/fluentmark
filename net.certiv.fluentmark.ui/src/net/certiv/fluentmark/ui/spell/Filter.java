@@ -7,6 +7,9 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.spell;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
@@ -15,10 +18,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
@@ -33,7 +32,7 @@ public class Filter {
 			if (docExtension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
 				FluentPartitioningTools.setupDocumentPartitioner(
 						doc,
-						MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+						MarkdownPartitions.get().createDocumentPartitioner(),
 						MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 			}
 			

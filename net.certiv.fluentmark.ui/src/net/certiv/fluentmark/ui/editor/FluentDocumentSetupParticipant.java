@@ -7,15 +7,12 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipantExtension;
 import org.eclipse.core.filebuffers.LocationKind;
-
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
@@ -31,7 +28,7 @@ public class FluentDocumentSetupParticipant implements IDocumentSetupParticipant
 	public void setup(IDocument document, IPath location, LocationKind locationKind) {
 		FluentPartitioningTools.setupDocumentPartitioner(
 				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.get().createDocumentPartitioner(),
 				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 	}
 	

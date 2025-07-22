@@ -52,7 +52,6 @@ import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 import net.certiv.fluentmark.core.util.Strings;
@@ -750,7 +749,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		IDocument document = new Document(content);
 		FluentPartitioningTools.setupDocumentPartitioner(
 				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.get().createDocumentPartitioner(),
 				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 		fPreviewViewer.setDocument(document);
 

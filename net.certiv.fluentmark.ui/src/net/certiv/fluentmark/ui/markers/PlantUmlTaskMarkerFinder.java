@@ -22,7 +22,6 @@ import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
-import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitioningTools;
 import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitions;
 import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -80,9 +79,9 @@ public class PlantUmlTaskMarkerFinder implements ITypedRegionValidator {
 		if (FileUtils.isMarkdownFile(resource)
 				&& MarkdownPartitions.UMLBLOCK.equals(region.getType())) {
 			IDocument codeBlockDocument = new Document(regionContent);
-			IDocumentPartitioner partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
+			IDocumentPartitioner partitioner = MarkdownPartitions.get().createDocumentPartitioner();
 			FluentPartitioningTools.setupDocumentPartitioner(codeBlockDocument, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-			ITypedRegion[] inCodeBlockRegions = PlantUmlPartitions.computePartitions(codeBlockDocument);
+			ITypedRegion[] inCodeBlockRegions = PlantUmlPartitions.get().computePartitions(codeBlockDocument);
 			
 			for (ITypedRegion inCodeBlockRegion: inCodeBlockRegions) {
 				if (PlantUmlPartitions.COMMENT.equals(inCodeBlockRegion.getType())) {

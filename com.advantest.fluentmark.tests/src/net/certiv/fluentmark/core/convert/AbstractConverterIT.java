@@ -22,7 +22,6 @@ import org.eclipse.jface.text.IDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartioningTools;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
@@ -43,7 +42,7 @@ public abstract class AbstractConverterIT {
 	protected void setupDocumentPartitioner(IDocument document) {
 		FluentPartitioningTools.setupDocumentPartitioner(
 				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
+				MarkdownPartitions.get().createDocumentPartitioner(),
 				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
 	}
 	

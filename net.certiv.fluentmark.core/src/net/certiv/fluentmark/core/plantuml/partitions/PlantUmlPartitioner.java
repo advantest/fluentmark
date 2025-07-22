@@ -13,7 +13,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
 
 
@@ -26,20 +25,12 @@ public class PlantUmlPartitioner implements IFluentDocumentPartitioner {
 
 	@Override
 	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		if (document == null) {
-			throw new IllegalArgumentException();
-		}
-		
-		org.eclipse.jface.text.IDocumentPartitioner partitioner = FluentPartitioningTools.getDocumentPartitioner(document, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-		if (partitioner == null) {
-			partitioner = PlantUmlPartitioningTools.getTools().createDocumentPartitioner();
-			FluentPartitioningTools.setupDocumentPartitioner(document, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-		}
+		PlantUmlPartitions.get().setupDocumentPartitioner(document);
 	}
 
 	@Override
 	public ITypedRegion[] computePartitioning(IDocument document, IFile file) {
-		return PlantUmlPartitions.computePartitions(document);
+		return PlantUmlPartitions.get().computePartitions(document);
 	}
 	
 }
