@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
 import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.markdown.scanner.rules.IndentedCodeRule;
 
 
@@ -34,7 +34,7 @@ public class IndentedCodeRuleIT {
 	
 	@BeforeEach
 	public void setUp() {
-		successToken = new Token(MarkdownPartitions.CODEBLOCK);
+		successToken = new Token(MarkdownPartitioner.CODEBLOCK);
 		rule = new IndentedCodeRule(successToken, 4);
 	}
 	

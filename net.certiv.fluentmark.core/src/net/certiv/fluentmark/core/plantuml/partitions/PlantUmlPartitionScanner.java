@@ -27,7 +27,7 @@ public class PlantUmlPartitionScanner extends RuleBasedPartitionScanner implemen
 	public PlantUmlPartitionScanner() {
 		super();
 		
-		IToken commentToken = new Token(PlantUmlPartitions.COMMENT);
+		IToken commentToken = new Token(PlantUmlPartitioner.COMMENT);
 		
 		List<IPredicateRule> rules = new ArrayList<>();
 		rules.add(new MultiLineRule("/'", "'/", commentToken, '\\', true));

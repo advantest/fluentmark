@@ -7,18 +7,9 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.jface.resource.JFaceResources;
-
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
-
 import org.eclipse.core.runtime.Assert;
-
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
@@ -34,6 +25,12 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -42,8 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -215,10 +211,7 @@ public class FluentSourceViewerInfoControl
 		}
 
 		IDocument doc = new Document(content);
-		FluentPartitioningTools.setupDocumentPartitioner(
-				doc,
-				MarkdownPartitions.get().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		MarkdownPartitioner.get().setupDocumentPartitioner(doc);
 		viewer.setInput(doc);
 	}
 

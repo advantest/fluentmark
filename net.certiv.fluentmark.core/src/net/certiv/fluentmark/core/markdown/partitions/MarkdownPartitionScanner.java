@@ -35,17 +35,17 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 	public MarkdownPartitionScanner(int tabWidth) {
 		super();
 
-		IToken matter = new Token(MarkdownPartitions.FRONT_MATTER);
-		IToken comment = new Token(MarkdownPartitions.COMMENT);
-		IToken codeblock = new Token(MarkdownPartitions.CODEBLOCK);
-		IToken codespan = new Token(MarkdownPartitions.CODESPAN);
-		IToken htmlblock = new Token(MarkdownPartitions.HTMLBLOCK);
-		IToken dotblock = new Token(MarkdownPartitions.DOTBLOCK);
-		IToken umlblock = new Token(MarkdownPartitions.UMLBLOCK);
-		IToken mathblock = new Token(MarkdownPartitions.MATHBLOCK);
+		IToken matter = new Token(MarkdownPartitioner.FRONT_MATTER);
+		IToken comment = new Token(MarkdownPartitioner.COMMENT);
+		IToken codeblock = new Token(MarkdownPartitioner.CODEBLOCK);
+		IToken codespan = new Token(MarkdownPartitioner.CODESPAN);
+		IToken htmlblock = new Token(MarkdownPartitioner.HTMLBLOCK);
+		IToken dotblock = new Token(MarkdownPartitioner.DOTBLOCK);
+		IToken umlblock = new Token(MarkdownPartitioner.UMLBLOCK);
+		IToken mathblock = new Token(MarkdownPartitioner.MATHBLOCK);
 		
 		// TODO Get rid of the PlantUML inclusion statement type region in the partition scanner
-		Token plantUmlInclude = new Token(MarkdownPartitions.PLANTUML_INCLUDE);
+		Token plantUmlInclude = new Token(MarkdownPartitioner.PLANTUML_INCLUDE);
 		
 		// TODO Find another way to set token color.
 		// That should work as soon as we get rid of PumlFileInclusionRule,

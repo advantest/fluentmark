@@ -9,28 +9,53 @@
  */
 package net.certiv.fluentmark.core.markdown.partitions;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
-import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
+import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
+import net.certiv.fluentmark.core.partitions.AbstractDocumentPartitioner;
 
-public class MarkdownPartitioner implements IFluentDocumentPartitioner {
+public class MarkdownPartitioner extends AbstractDocumentPartitioner {
 
+	// unique partitioning type
+	public final static String FLUENT_MARKDOWN_PARTITIONING = "__fluent_partitioning";
+
+	// specialized partition content types
+	public static final String FRONT_MATTER = "__frontmatter";
+	public static final String COMMENT = "__comment";
+	public static final String CODEBLOCK = "__codeblock";
+	public static final String CODESPAN = "__codespan";
+	public static final String HTMLBLOCK = "__htmlblock";
+	public static final String DOTBLOCK = "__dotblock";
+	public static final String UMLBLOCK = "__umlblock";
+	public static final String MATHBLOCK = "__mathblock";
+	public static final String PLANTUML_INCLUDE = "__plantuml_include";
+
+	/** Partition type groups by similar treatment */
+	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, CODESPAN, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
+			MATHBLOCK, PLANTUML_INCLUDE, FRONT_MATTER };
+	
+	private static MarkdownPartitioner INSTANCE = null;
+	
+	public static MarkdownPartitioner get() {
+		if (INSTANCE == null ) {
+			INSTANCE = (MarkdownPartitioner) DocumentPartitionersManager.getInstance()
+					.getDocumentPartitioner(FLUENT_MARKDOWN_PARTITIONING);
+		}
+		return INSTANCE;
+	}
+	
 	@Override
 	public String getSupportedPartitioning() {
-		return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
+		return FLUENT_MARKDOWN_PARTITIONING;
 	}
-
+	
 	@Override
-	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		MarkdownPartitions.get().setupDocumentPartitioner(document);
-
+	protected IPartitionTokenScanner createPartitionScanner() {
+		return new MarkdownPartitionScanner();
 	}
-
+	
 	@Override
-	public ITypedRegion[] computePartitioning(IDocument document, IFile file) {
-		return MarkdownPartitions.get().computePartitions(document);
+	public String[] getLegalContentTypes() {
+		return LEGAL_TYPES;
 	}
-
 }

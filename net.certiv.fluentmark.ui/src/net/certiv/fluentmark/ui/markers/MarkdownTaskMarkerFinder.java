@@ -18,7 +18,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
@@ -40,7 +40,7 @@ public class MarkdownTaskMarkerFinder implements ITypedRegionValidator {
 	
 	@Override
 	public String getRequiredPartitioning(IFile file) {
-		return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
+		return MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class MarkdownTaskMarkerFinder implements ITypedRegionValidator {
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
-		return MarkdownPartitions.COMMENT.equals(region.getType())
+		return MarkdownPartitioner.COMMENT.equals(region.getType())
 				&& isValidatorFor(file);
 	}
 	

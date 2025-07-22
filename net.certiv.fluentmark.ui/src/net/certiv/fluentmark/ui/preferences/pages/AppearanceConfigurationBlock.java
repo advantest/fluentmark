@@ -52,8 +52,7 @@ import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
@@ -732,7 +731,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		fPreviewViewer = new FluentSourceViewer(parent, null, null, false, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER,
 				store);
 		FluentSimpleSourceViewerConfiguration configuration = new FluentSimpleSourceViewerConfiguration(fColorManager,
-				store, null, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, false);
+				store, null, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, false);
 		fPreviewViewer.configure(configuration);
 		Font font = JFaceResources.getFont(Prefs.EDITOR_TEXT_FONT);
 		fPreviewViewer.getTextWidget().setFont(font);
@@ -747,10 +746,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 		String content = loadPreviewContentFromFile("ColorsPreview.md"); //$NON-NLS-1$
 		IDocument document = new Document(content);
-		FluentPartitioningTools.setupDocumentPartitioner(
-				document,
-				MarkdownPartitions.get().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		MarkdownPartitioner.get().setupDocumentPartitioner(document);
 		fPreviewViewer.setDocument(document);
 
 		return fPreviewViewer.getControl();

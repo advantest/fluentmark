@@ -18,7 +18,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
 
 public class Filter {
@@ -29,14 +29,11 @@ public class Filter {
 		if (doc instanceof IDocumentExtension3) {
 			IDocumentExtension3 docExtension = (IDocumentExtension3) doc;
 			
-			if (docExtension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
-				FluentPartitioningTools.setupDocumentPartitioner(
-						doc,
-						MarkdownPartitions.get().createDocumentPartitioner(),
-						MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			if (docExtension.getDocumentPartitioner(MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING) == null) {
+				MarkdownPartitioner.get().setupDocumentPartitioner(doc);
 			}
 			
-			ITypedRegion[] partitions = FluentPartitioningTools.computePartitions(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+			ITypedRegion[] partitions = FluentPartitioningTools.computePartitions(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING);
 
 			List<ITypedRegion> partitionsList = new ArrayList<>();
 			for (ITypedRegion partition : partitions) {

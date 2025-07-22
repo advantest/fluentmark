@@ -168,9 +168,8 @@ public class FileValidator {
 		IFluentDocumentPartitioner partitioner = partitonerOpt.get();
 		
 		// TODO can we check if the partitioner we need is already set up?
-		partitioner.setupDocumentPartitioner(document, file);
-		
-		return partitioner.computePartitioning(document, file);
+		partitioner.setupDocumentPartitioner(document);
+		return partitioner.computePartitioning(document);
 	}
 
 }

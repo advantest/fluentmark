@@ -13,8 +13,7 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 
 /**
  * Reacts to IDocument changes and allows for calculating partitions or validating and creating (problem) markers, for example. 
@@ -26,10 +25,6 @@ public class FluentDocumentSetupParticipant implements IDocumentSetupParticipant
 	}
 
 	public void setup(IDocument document, IPath location, LocationKind locationKind) {
-		FluentPartitioningTools.setupDocumentPartitioner(
-				document,
-				MarkdownPartitions.get().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		MarkdownPartitioner.get().setupDocumentPartitioner(document);
 	}
-	
 }

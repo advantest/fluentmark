@@ -50,7 +50,7 @@ public class MarkerCalculator {
 	
 	private MarkerCalculator() {
 		fileValidator = new FileValidator(
-				DocumentPartitionersManager.getInstance().getDocumentPartitionerss(),
+				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
 				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
 				new MarkerCreator());
 	}

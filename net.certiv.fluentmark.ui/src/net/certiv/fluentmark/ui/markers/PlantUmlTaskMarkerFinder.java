@@ -17,12 +17,10 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
-import net.certiv.fluentmark.core.partitions.FluentPartitioningTools;
-import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
+import net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitioner;
 import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
@@ -45,9 +43,9 @@ public class PlantUmlTaskMarkerFinder implements ITypedRegionValidator {
 	@Override
 	public String getRequiredPartitioning(IFile file) {
 		if (FileUtils.isPumlFile(file)) {
-			return PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING;
+			return PlantUmlPartitioner.FLUENT_PLANTUML_PARTITIONING;
 		} else {
-			return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
+			return MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING;
 		}
 	}
 
@@ -58,8 +56,8 @@ public class PlantUmlTaskMarkerFinder implements ITypedRegionValidator {
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
-		return (PlantUmlPartitions.COMMENT.equals(region.getType()) && FileUtils.isPumlFile(file))
-				|| (MarkdownPartitions.UMLBLOCK.equals(region.getType()) && FileUtils.isMarkdownFile(file));
+		return (PlantUmlPartitioner.COMMENT.equals(region.getType()) && FileUtils.isPumlFile(file))
+				|| (MarkdownPartitioner.UMLBLOCK.equals(region.getType()) && FileUtils.isMarkdownFile(file));
 	}
 	
 	@Override
@@ -77,14 +75,13 @@ public class PlantUmlTaskMarkerFinder implements ITypedRegionValidator {
 		}
 		
 		if (FileUtils.isMarkdownFile(resource)
-				&& MarkdownPartitions.UMLBLOCK.equals(region.getType())) {
+				&& MarkdownPartitioner.UMLBLOCK.equals(region.getType())) {
 			IDocument codeBlockDocument = new Document(regionContent);
-			IDocumentPartitioner partitioner = MarkdownPartitions.get().createDocumentPartitioner();
-			FluentPartitioningTools.setupDocumentPartitioner(codeBlockDocument, partitioner, PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING);
-			ITypedRegion[] inCodeBlockRegions = PlantUmlPartitions.get().computePartitions(codeBlockDocument);
+			PlantUmlPartitioner.get().setupDocumentPartitioner(codeBlockDocument);
+			ITypedRegion[] inCodeBlockRegions = PlantUmlPartitioner.get().computePartitioning(codeBlockDocument);
 			
 			for (ITypedRegion inCodeBlockRegion: inCodeBlockRegions) {
-				if (PlantUmlPartitions.COMMENT.equals(inCodeBlockRegion.getType())) {
+				if (PlantUmlPartitioner.COMMENT.equals(inCodeBlockRegion.getType())) {
 					String inCodeBlockRegionContent;
 					try {
 						inCodeBlockRegionContent = codeBlockDocument.get(inCodeBlockRegion.getOffset(), inCodeBlockRegion.getLength());

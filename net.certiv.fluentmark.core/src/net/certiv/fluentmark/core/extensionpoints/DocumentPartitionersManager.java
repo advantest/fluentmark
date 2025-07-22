@@ -42,8 +42,19 @@ public class DocumentPartitionersManager {
 		this.init();
 	}
 	
-	public List<IFluentDocumentPartitioner> getDocumentPartitionerss() {
+	public List<IFluentDocumentPartitioner> getDocumentPartitioners() {
 		return Collections.unmodifiableList(partitioners);
+	}
+	
+	public IFluentDocumentPartitioner getDocumentPartitioner(String partitioning) {
+		if (partitioning == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		return partitioners.stream()
+			.filter(partitioner -> partitioning.equals(partitioner.getSupportedPartitioning()))
+			.findFirst()
+			.orElse(null);
 	}
 	
 	private void init() {

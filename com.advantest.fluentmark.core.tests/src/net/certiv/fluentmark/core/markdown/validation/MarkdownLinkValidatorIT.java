@@ -108,8 +108,8 @@ public class MarkdownLinkValidatorIT {
 	private ITypedRegion[] findPartitions(IDocument document) throws Exception {
 		assertNotNull(document);
 		
-		partitioner.setupDocumentPartitioner(document, file);
-		return partitioner.computePartitioning(document, file);
+		partitioner.setupDocumentPartitioner(document);
+		return partitioner.computePartitioning(document);
 	}
 	
 	private IDocument createDocument(String content) {

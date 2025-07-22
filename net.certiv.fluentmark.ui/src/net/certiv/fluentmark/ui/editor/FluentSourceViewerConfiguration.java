@@ -43,7 +43,7 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.texteditor.HippieProposalProcessor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
@@ -132,15 +132,15 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		PresentationReconciler reconciler = new FluentPresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
-		buildLineRepairer(reconciler, frontMatter, MarkdownPartitions.FRONT_MATTER);
-		buildPartitionRepairer(reconciler, commentScanner, MarkdownPartitions.COMMENT);
-		buildPartitionRepairer(reconciler, codeScanner, MarkdownPartitions.CODEBLOCK);
-		buildPartitionRepairer(reconciler, dotScanner, MarkdownPartitions.DOTBLOCK);
-		buildPartitionRepairer(reconciler, umlScanner, MarkdownPartitions.UMLBLOCK);
-		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitions.MATHBLOCK);
-		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitions.HTMLBLOCK);
-		buildLineRepairer(reconciler, markup, MarkdownPartitions.CODESPAN);
-		buildLineRepairer(reconciler, markup, MarkdownPartitions.PLANTUML_INCLUDE);
+		buildLineRepairer(reconciler, frontMatter, MarkdownPartitioner.FRONT_MATTER);
+		buildPartitionRepairer(reconciler, commentScanner, MarkdownPartitioner.COMMENT);
+		buildPartitionRepairer(reconciler, codeScanner, MarkdownPartitioner.CODEBLOCK);
+		buildPartitionRepairer(reconciler, dotScanner, MarkdownPartitioner.DOTBLOCK);
+		buildPartitionRepairer(reconciler, umlScanner, MarkdownPartitioner.UMLBLOCK);
+		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitioner.MATHBLOCK);
+		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitioner.HTMLBLOCK);
+		buildLineRepairer(reconciler, markup, MarkdownPartitioner.CODESPAN);
+		buildLineRepairer(reconciler, markup, MarkdownPartitioner.PLANTUML_INCLUDE);
 		buildLineRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
@@ -208,7 +208,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
 		switch (contentType) {
-			case MarkdownPartitions.DOTBLOCK:
+			case MarkdownPartitioner.DOTBLOCK:
 				// return new IAutoEditStrategy[] { new DotAutoEditStrategy(partitioning),
 				// new LineWrapEditStrategy(editor), new PairEditStrategy() };
 
@@ -272,8 +272,8 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
-		assistant.setContentAssistProcessor(processor, MarkdownPartitions.DOTBLOCK);
-		assistant.setContentAssistProcessor(processor, MarkdownPartitions.PLANTUML_INCLUDE);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.DOTBLOCK);
+		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
@@ -397,9 +397,9 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	private static final String[] CONTENT_TYPES;
 	
 	static {
-		List<String> types = new ArrayList<>(MarkdownPartitions.LEGAL_TYPES.length + 1);
+		List<String> types = new ArrayList<>(MarkdownPartitioner.LEGAL_TYPES.length + 1);
 		types.add(IDocument.DEFAULT_CONTENT_TYPE);
-		for (String type : MarkdownPartitions.LEGAL_TYPES) {
+		for (String type : MarkdownPartitioner.LEGAL_TYPES) {
 			types.add(type);
 		}
 		CONTENT_TYPES = types.toArray(new String[types.size()]);
@@ -417,7 +417,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	}
 	
 	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor) {
-		return createSourceViewerConfiguraton(store, editor, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		return createSourceViewerConfiguraton(store, editor, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING);
 	}
 
 	public static SourceViewerConfiguration createSourceViewerConfiguraton(IPreferenceStore store, ITextEditor editor,
@@ -426,7 +426,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 	}
 
 	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store) {
-		return createSimpleSourceViewerConfiguration(store, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		return createSimpleSourceViewerConfiguration(store, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING);
 	}
 
 	public static SourceViewerConfiguration createSimpleSourceViewerConfiguration(IPreferenceStore store,

@@ -28,7 +28,7 @@ import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.extensionpoints.AnchorResolversManager;
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
-import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.validation.FilePathValidator;
@@ -52,7 +52,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 	
 	@Override
 	public String getRequiredPartitioning(IFile file) {
-		return MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING;
+		return MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING;
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
 		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType())
-				|| MarkdownPartitions.PLANTUML_INCLUDE.equals(region.getType());
+				|| MarkdownPartitioner.PLANTUML_INCLUDE.equals(region.getType());
 	}
 	
 	@Override

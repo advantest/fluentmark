@@ -9,28 +9,45 @@
  */
 package net.certiv.fluentmark.core.plantuml.partitions;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
-import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
+import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
+import net.certiv.fluentmark.core.partitions.AbstractDocumentPartitioner;
 
 
-public class PlantUmlPartitioner implements IFluentDocumentPartitioner {
+public class PlantUmlPartitioner extends AbstractDocumentPartitioner {
 
-	@Override
-	public String getSupportedPartitioning() {
-		return PlantUmlPartitions.FLUENT_PLANTUML_PARTITIONING;
-	}
+	// unique partitioning type
+	public final static String FLUENT_PLANTUML_PARTITIONING = "__fluent_plantuml_partitioning";
 
-	@Override
-	public void setupDocumentPartitioner(IDocument document, IFile file) {
-		PlantUmlPartitions.get().setupDocumentPartitioner(document);
-	}
+	// specialized partition content types
+	public static final String COMMENT = "__comment";
 
-	@Override
-	public ITypedRegion[] computePartitioning(IDocument document, IFile file) {
-		return PlantUmlPartitions.get().computePartitions(document);
+	public static final String[] LEGAL_TYPES = new String[] { COMMENT };
+	
+	private static PlantUmlPartitioner INSTANCE = null;
+	
+	public static PlantUmlPartitioner get() {
+		if (INSTANCE == null ) {
+			INSTANCE = (PlantUmlPartitioner) DocumentPartitionersManager.getInstance()
+					.getDocumentPartitioner(FLUENT_PLANTUML_PARTITIONING);
+		}
+		return INSTANCE;
 	}
 	
+	@Override
+	public String getSupportedPartitioning() {
+		return FLUENT_PLANTUML_PARTITIONING;
+	}
+
+	@Override
+	protected IPartitionTokenScanner createPartitionScanner() {
+		return new PlantUmlPartitionScanner();
+	}
+
+	@Override
+	public String[] getLegalContentTypes() {
+		return LEGAL_TYPES;
+	}
+
 }
