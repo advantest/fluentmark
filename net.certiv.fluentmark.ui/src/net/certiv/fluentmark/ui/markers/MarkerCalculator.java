@@ -26,7 +26,6 @@ import org.eclipse.jface.text.IDocument;
 import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
 import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.validation.FileValidator;
-import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class MarkerCalculator {
@@ -54,89 +53,6 @@ public class MarkerCalculator {
 				DocumentPartitionersManager.getInstance().getDocumentPartitionerss(),
 				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
 				new MarkerCreator());
-	}
-	
-	private class MarkerCreator implements IValidationResultConsumer {
-
-		@Override
-		public void reportValidationResult(IFile file, String issueTypeId, int issueSeverity, String message,
-				Integer issueLineNumber, Integer issueStartOffset, Integer issueEndOffset) {
-			
-			switch (issueTypeId) {
-				case MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM ->
-					createDocumentationProblemMarker(file, issueSeverity, message,
-							issueLineNumber, issueStartOffset, issueEndOffset);
-				
-				case MarkerConstants.MARKER_ID_TASK_MARKDOWN ->
-					createMarkdownTaskMarker(file, issueSeverity, message,
-							issueLineNumber, issueStartOffset, issueEndOffset);
-				
-				case MarkerConstants.MARKER_ID_TASK_PLANTUML ->
-					createPlantUmlTaskMarker(file, issueSeverity, message,
-						issueLineNumber, issueStartOffset, issueEndOffset);
-				
-				default ->
-					throw new IllegalArgumentException("Unexpected issue type ID: " + issueTypeId);
-			}
-		}
-		
-	}
-	
-	public static IMarker createDocumentationProblemMarker(IResource resource, int markerSeverity, String markerMessage,
-			Integer lineNumber, Integer startOffset, Integer endOffset) {
-		IMarker marker;
-		try {
-			marker  = resource.createMarker(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-			marker.setAttribute(IMarker.MESSAGE, markerMessage);
-			marker.setAttribute(IMarker.SEVERITY, markerSeverity);
-			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
-			if (startOffset != null && endOffset != null) {
-				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
-				marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
-			}
-			if (lineNumber != null && lineNumber.intValue() > 0) {
-				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-			}
-			
-			return marker;
-		} catch (CoreException e) {
-			FluentUI.log(IStatus.WARNING, "Problem marker couldn't be created.", e);
-		}
-		return null;
-	}
-	
-	public static IMarker createMarkdownTaskMarker(IResource resource, int markerPriority, String markerMessage,
-			Integer lineNumber, Integer startOffset, Integer endOffset) {
-		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_MARKDOWN, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
-	}
-	
-	public static IMarker createPlantUmlTaskMarker(IResource resource, int markerPriority, String markerMessage,
-			Integer lineNumber, Integer startOffset, Integer endOffset) {
-		return createTaskMarker(resource, MarkerConstants.MARKER_ID_TASK_PLANTUML, markerPriority, markerMessage, lineNumber, startOffset, endOffset);
-	}
-	
-	private static IMarker createTaskMarker(IResource resource, String markerType, int markerPriority, String markerMessage,
-			Integer lineNumber, Integer startOffset, Integer endOffset) {
-		IMarker marker;
-		try {
-			marker  = resource.createMarker(markerType);
-			marker.setAttribute(IMarker.MESSAGE, markerMessage);
-			marker.setAttribute(IMarker.PRIORITY, markerPriority);
-			marker.setAttribute(IMarker.LOCATION, String.format("line %s", lineNumber != null && lineNumber.intValue() > 0 ? lineNumber.intValue() : "unknown"));
-			marker.setAttribute(IMarker.USER_EDITABLE, false);
-			if (startOffset != null && endOffset != null) {
-				marker.setAttribute(IMarker.CHAR_START, startOffset.intValue());
-				marker.setAttribute(IMarker.CHAR_END, endOffset.intValue());
-			}
-			if (lineNumber != null && lineNumber.intValue() > 0) {
-				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-			}
-			
-			return marker;
-		} catch (CoreException e) {
-			FluentUI.log(IStatus.WARNING, "Task marker couldn't be created.", e);
-		}
-		return null;
 	}
 	
 	public void scheduleMarkerCalculation(IDocument document, IFile file) {

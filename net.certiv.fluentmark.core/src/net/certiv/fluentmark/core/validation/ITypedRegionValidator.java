@@ -24,7 +24,3 @@ public interface ITypedRegionValidator extends IValidationResultReporter {
 	void validateRegion(ITypedRegion region, IDocument document, IFile file);
 
 }
-
-
-// TODO Add a validation calculator similar to MarkerCalculator, but without having to create IMarker
-// TODO Add interface and two implementations for (a) printing validation failures to console and (b) create markers 
