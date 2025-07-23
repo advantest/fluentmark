@@ -26,6 +26,7 @@
 			<unit id="org.eclipse.swt.tools.feature.feature.group" version="3.109.600.v20241007-2143"/>
 			<unit id="org.eclipse.core.runtime.feature.feature.group" version="1.4.700.v20250228-0640"/>
 			<unit id="org.eclipse.platform.feature.group" version="4.35.0.v20250228-0640"/>
+			<unit id="org.eclipse.equinox.executable.feature.group" version="3.8.2800.v20250227-1734"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://hallvard.github.io/plantuml/"/>
