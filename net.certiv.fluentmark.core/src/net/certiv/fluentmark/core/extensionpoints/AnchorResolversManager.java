@@ -25,7 +25,7 @@ import net.certiv.fluentmark.core.validation.IAnchorResolver;
 
 public class AnchorResolversManager {
 	
-	private static final String EXTENSION_POINT_ID_URI_VALIDATOR = FluentCore.PLUGIN_ID + ".anchorResolver";
+	private static final String EXTENSION_POINT_ID_ANCHOR_RESOLVER = FluentCore.PLUGIN_ID + ".anchorResolver";
 	
 	private static AnchorResolversManager INSTANCE = null;
 	
@@ -36,7 +36,7 @@ public class AnchorResolversManager {
 	}
 	
 	private void init() {
-		IExtensionPoint validatorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_URI_VALIDATOR);
+		IExtensionPoint validatorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_ANCHOR_RESOLVER);
 		IExtension[] validatorExtensions = validatorExtensionPoint.getExtensions();
 		for (IExtension validatorExtension: validatorExtensions) {
 			IConfigurationElement[] configElements = validatorExtension.getConfigurationElements();
