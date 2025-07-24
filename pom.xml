@@ -123,7 +123,6 @@
 				<configuration>
 					<showEclipseLog>true</showEclipseLog>
 					<useUIHarness>false</useUIHarness>
-					<showEclipseLog>true</showEclipseLog>
 					<failIfNoTests>true</failIfNoTests>
 					<includes>
 						<include>**/*Test.java</include>
