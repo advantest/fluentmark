@@ -18,7 +18,8 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.6-20250310-1632</markdown-core-version>
+		<markdown-core-version>1.0.7-SNAPSHOT</markdown-core-version>
+		<!-- <markdown-core-version>1.0.6-20250310-1632</markdown-core-version> -->
 		<sass-version>1.85.1</sass-version>
 	</properties>
 	
