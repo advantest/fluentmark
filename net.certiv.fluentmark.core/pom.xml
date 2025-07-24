@@ -21,6 +21,17 @@
 		<markdown-core-version>1.0.6-20250310-1632</markdown-core-version>
 		<sass-version>1.85.1</sass-version>
 	</properties>
+	
+	<repositories>
+		<repository>
+			<id>github-packages-flexmark</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+		<repository>
+			<id>github-packages-markdown-core</id>
+			<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 
