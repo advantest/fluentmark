@@ -18,9 +18,21 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.6-20250310-1632</markdown-core-version>
+		<markdown-core-version>1.0.7-SNAPSHOT</markdown-core-version>
+		<!-- <markdown-core-version>1.0.6-20250310-1632</markdown-core-version> -->
 		<sass-version>1.85.1</sass-version>
 	</properties>
+	
+	<repositories>
+		<repository>
+			<id>github-packages-flexmark</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+		<repository>
+			<id>github-packages-markdown-core</id>
+			<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 
@@ -83,11 +95,11 @@
 			<version>0.13</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.advantest.markdown</groupId>
-            <artifactId>markdown-core</artifactId>
-            <version>${markdown-core-version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.advantest.markdown</groupId>
+			<artifactId>markdown-core</artifactId>
+			<version>${markdown-core-version}</version>
+		</dependency>
 
 	</dependencies>
 
