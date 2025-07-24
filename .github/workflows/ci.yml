@@ -23,6 +23,9 @@ jobs:
       #run: sudo apt install graphviz
       run: brew install graphviz
 
+    - name: Install pandoc (used by FluentMark for rendering Markdown)
+      run: brew install pandoc
+
     - name: Check out
       uses: actions/checkout@v4
 
