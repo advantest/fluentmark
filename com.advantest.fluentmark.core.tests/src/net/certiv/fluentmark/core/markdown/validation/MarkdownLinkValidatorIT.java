@@ -59,7 +59,7 @@ import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.IssueTypes;
 
 // TODO For some reason on MacOs the extension point of the plug-in under test are not loaded, why this test fails
-@DisabledOnOs(OS.MAC)
+//@DisabledOnOs(OS.MAC)
 public class MarkdownLinkValidatorIT {
 	
 	private MarkdownLinkValidator linkValidator;
