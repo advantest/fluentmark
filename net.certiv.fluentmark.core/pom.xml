@@ -83,11 +83,11 @@
 			<version>0.13</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.advantest.markdown</groupId>
-            <artifactId>markdown-core</artifactId>
-            <version>${markdown-core-version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.advantest.markdown</groupId>
+			<artifactId>markdown-core</artifactId>
+			<version>${markdown-core-version}</version>
+		</dependency>
 
 	</dependencies>
 
