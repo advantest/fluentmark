@@ -28,7 +28,7 @@
 		     see: https://github.com/eclipse-tycho/tycho/issues/725
 		     If you do and encounter problem, you could try deleting / moving
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
-		<tycho.version>4.0.8</tycho.version>
+		<tycho.version>4.0.13</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>21</java.version>
 	</properties>
@@ -42,6 +42,9 @@
 		<module>com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
+		
+		<module>com.advantest.fluentmark.cli</module>
+		<module>com.advantest.fluentmark.cli.product</module>
 	</modules>
 
 	<build>
