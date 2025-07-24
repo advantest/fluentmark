@@ -24,7 +24,6 @@
 				<configuration>
 					<showEclipseLog>true</showEclipseLog>
 					<useUIHarness>true</useUIHarness>
-					<showEclipseLog>true</showEclipseLog>
 					<includes>
 						<include>**/*Test.java</include>
 						<include>**/*IT.java</include>
