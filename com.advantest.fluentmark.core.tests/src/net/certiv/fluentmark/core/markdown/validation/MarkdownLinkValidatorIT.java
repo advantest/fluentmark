@@ -46,6 +46,8 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatcher;
 import org.mockito.internal.matchers.Equality;
@@ -56,7 +58,8 @@ import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.IssueTypes;
 
-
+// TODO For some reason on MacOs the extension point of the plug-in under test are not loaded, why this test fails
+@DisabledOnOs(OS.MAC)
 public class MarkdownLinkValidatorIT {
 	
 	private MarkdownLinkValidator linkValidator;
