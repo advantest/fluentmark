@@ -4,9 +4,6 @@ Bundle-Name: Command line interface for file validations
 Bundle-SymbolicName: com.advantest.fluentmark.cli;singleton:=true
 Bundle-Version: 1.5.4.qualifier
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.33.0",
- org.apache.felix.scr;bundle-version="2.2.12",
- org.eclipse.equinox.event;bundle-version="1.7.200",
- org.eclipse.equinox.simpleconfigurator;bundle-version="1.5.400",
  net.certiv.fluentmark.core;bundle-version="1.5.4"
 Bundle-Vendor: Advantest Europe GmbH
 Automatic-Module-Name: com.advantest.fluentmark.cli

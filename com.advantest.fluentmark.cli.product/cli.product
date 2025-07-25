@@ -27,6 +27,10 @@
 
    <plugins>
       <plugin id="com.advantest.fluentmark.cli"/>
+      <plugin id="org.apache.felix.scr"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.event"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
    </plugins>
 
    <configurations>
