@@ -145,6 +145,10 @@
 							<artifactId>eclipse-435</artifactId>
 							<version>${project.version}</version>
 						</artifact>
+						<!-- the following seems not to help building the product
+						<includeAllPlatforms>true</includeAllPlatforms>
+						<includeAllEnvironments>true</includeAllEnvironments>
+						-->
 					</target>
 					<pomDependencies>consider</pomDependencies>
 					<environments>
