@@ -47,6 +47,10 @@ public class FileValidator {
 		this.validators = validators;
 	}
 	
+	public void performResourceValidation(IFile file, IProgressMonitor monitor) {
+		performResourceValidation(null, file, monitor);
+	}
+	
 	public void performResourceValidation(IDocument document, IFile file, IProgressMonitor monitor) {
 		if (file == null || monitor == null) {
 			throw new IllegalArgumentException();
