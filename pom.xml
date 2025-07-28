@@ -95,9 +95,12 @@
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
-					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
-				         for more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
-					<useJdk>BREE</useJdk>
+					<!-- Use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
+						 requires a toolchain for, e.g. JavaSE-21.
+						 For more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+					<!-- temporarily switch that off
+					<useJDK>BREE</useJDK>
+					 -->
 				</configuration>
 			</plugin>
 			
