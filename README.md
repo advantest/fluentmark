@@ -6,7 +6,11 @@ was modified for [Advantest Europe GmbH](https://www.advantest.com/) to better s
 
 This work is forked from [https://github.com/grosenberg/Fluentmark](https://github.com/grosenberg/Fluentmark).
 
-## Features 
+## Status
+
+[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci.yml/badge.svg)](https://github.com/advantest/fluentmark/actions/workflows/ci.yml)
+
+## Features
 
 + Choice of Markdown converter
     - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred)
