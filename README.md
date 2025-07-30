@@ -1,3 +1,8 @@
+<!-- see https://shields.io/badges -->
+
+![GitHub License](https://img.shields.io/github/license/advantest/fluentmark)
+[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci.yml/badge.svg)](https://github.com/advantest/fluentmark/actions/workflows/ci.yml)
+
 # FluentMark Advantest Edition (AE)
 
 A full-featured Markdown editing environment for Eclipse IDE.
@@ -5,10 +10,6 @@ FluentMark was originally developed by [Certiv Analytics](https://www.certiv.net
 was modified for [Advantest Europe GmbH](https://www.advantest.com/) to better satisfy company-specific needs.
 
 This work is forked from [https://github.com/grosenberg/Fluentmark](https://github.com/grosenberg/Fluentmark).
-
-## Status
-
-[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci.yml/badge.svg)](https://github.com/advantest/fluentmark/actions/workflows/ci.yml)
 
 ## Features
 
