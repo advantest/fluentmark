@@ -6,28 +6,25 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.handlers;
 
-import org.eclipse.jface.viewers.ISelection;
-
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
@@ -69,17 +66,17 @@ public abstract class AbstractMarksHandler extends AbstractHandler {
 	}
 
 	private boolean samePartition(int beg, int len) throws BadLocationException {
-		if (len == 0) return TextUtilities.getContentType(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, cpos, false)
+		if (len == 0) return TextUtilities.getContentType(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, cpos, false)
 				.equals(IDocument.DEFAULT_CONTENT_TYPE);
 
-		boolean begDef = TextUtilities.getContentType(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg, false)
+		boolean begDef = TextUtilities.getContentType(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, beg, false)
 				.equals(IDocument.DEFAULT_CONTENT_TYPE);
-		boolean endDef = TextUtilities.getContentType(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg + len - 1, false)
+		boolean endDef = TextUtilities.getContentType(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, beg + len - 1, false)
 				.equals(IDocument.DEFAULT_CONTENT_TYPE);
 
 		if (begDef && endDef) {
-			ITypedRegion begRegion = TextUtilities.getPartition(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg, false);
-			ITypedRegion endRegion = TextUtilities.getPartition(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, beg + len - 1, false);
+			ITypedRegion begRegion = TextUtilities.getPartition(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, beg, false);
+			ITypedRegion endRegion = TextUtilities.getPartition(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, beg + len - 1, false);
 			if (begRegion.getOffset() == endRegion.getOffset()) return true;
 		}
 		return false;

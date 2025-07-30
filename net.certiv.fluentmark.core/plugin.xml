@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="partitioner" name="Partitioner that creates ITypedRegions for a certain type of partitioning" schema="schema/partitioner.exsd"/>
+   <extension-point id="partitionValidator" name="Validators based on typed regions (partitions)" schema="schema/partitionValidator.exsd"/>
+   <extension-point id="uriValidator" name="URI validators" schema="schema/uriValidator.exsd"/>
+   <extension-point id="anchorResolver" name="Anchor resolvers" schema="schema/anchorResolver.exsd"/>
+   <extension
+         point="net.certiv.fluentmark.core.partitioner">
+      <partitioner
+            class="net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner"
+            id="net.certiv.fluentmark.core.partitioner.markdown">
+      </partitioner>
+      <partitioner
+            class="net.certiv.fluentmark.core.plantuml.partitions.PlantUmlPartitioner"
+            id="net.certiv.fluentmark.core.partitioner.plantuml">
+      </partitioner>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.core.partitionValidator">
+      <validator
+            class="net.certiv.fluentmark.core.markdown.validation.MarkdownLinkValidator"
+            id="net.certiv.fluentmark.core.validator.markdown.link">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.core.markdown.validation.MarkdownAnchorValidator"
+            id="net.certiv.fluentmark.core.validator.markdown.anchor">
+      </validator>
+   </extension>
+</plugin>

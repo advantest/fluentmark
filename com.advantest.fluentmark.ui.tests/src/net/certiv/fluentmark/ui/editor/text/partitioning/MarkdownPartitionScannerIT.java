@@ -18,7 +18,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.junit.jupiter.api.Test;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 
 public class MarkdownPartitionScannerIT {
 
@@ -27,8 +27,8 @@ public class MarkdownPartitionScannerIT {
 	}
 	
 	private ITypedRegion[] computePartitions(IDocument document) throws Exception {
-		MarkdownPartioningTools.getTools().setupDocumentPartitioner(document);
-		return MarkdownPartioningTools.getTools().computePartitioning(document);
+		MarkdownPartitioner.get().setupDocumentPartitioner(document);
+		return MarkdownPartitioner.get().computePartitioning(document);
 	}
 	
 	private void assertRegion(ITypedRegion region, IDocument document, String expectedRegionType, String expectedText) throws BadLocationException {
@@ -61,13 +61,13 @@ public class MarkdownPartitionScannerIT {
 		ITypedRegion[] regions = computePartitions(document);
 		
 		assertNotNull(regions);
-		assertRegion(regions[0], document, MarkdownPartitions.COMMENT, "<!-- comment 1 -->");
+		assertRegion(regions[0], document, MarkdownPartitioner.COMMENT, "<!-- comment 1 -->");
 		assertRegion(regions[1], document, IDocument.DEFAULT_CONTENT_TYPE, "\n# Heading\n\n");
-		assertRegion(regions[2], document, MarkdownPartitions.COMMENT, "<!--- comment 2 --->");
+		assertRegion(regions[2], document, MarkdownPartitioner.COMMENT, "<!--- comment 2 --->");
 		assertRegion(regions[3], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nParagraph\n\nSome\nmore\n");
-		assertRegion(regions[4], document, MarkdownPartitions.COMMENT, "<!-- comment 3 -->");
+		assertRegion(regions[4], document, MarkdownPartitioner.COMMENT, "<!-- comment 3 -->");
 		assertRegion(regions[5], document, IDocument.DEFAULT_CONTENT_TYPE, "\ntext following...\n\n");
-		assertRegion(regions[6], document, MarkdownPartitions.COMMENT, "<!--comment 4-->");
+		assertRegion(regions[6], document, MarkdownPartitioner.COMMENT, "<!--comment 4-->");
 		assertRegion(regions[7], document, IDocument.DEFAULT_CONTENT_TYPE, "\n");
 	}
 	
@@ -100,7 +100,7 @@ public class MarkdownPartitionScannerIT {
 		ITypedRegion[] regions = computePartitions(document);
 		
 		assertNotNull(regions);
-		assertRegion(regions[0], document, MarkdownPartitions.COMMENT, """
+		assertRegion(regions[0], document, MarkdownPartitioner.COMMENT, """
 				<!-- comment 1
 				spanning
 				 multiple
@@ -108,11 +108,11 @@ public class MarkdownPartitionScannerIT {
 				   ...
 				    very long -->""");
 		assertRegion(regions[1], document, IDocument.DEFAULT_CONTENT_TYPE, "\n# Heading\n\n");
-		assertRegion(regions[2], document, MarkdownPartitions.COMMENT, "<!---\ncomment 2\n--->");
+		assertRegion(regions[2], document, MarkdownPartitioner.COMMENT, "<!---\ncomment 2\n--->");
 		assertRegion(regions[3], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nParagraph\n\nSome\nmore\n");
-		assertRegion(regions[4], document, MarkdownPartitions.COMMENT, "<!-- comment 3 -->");
+		assertRegion(regions[4], document, MarkdownPartitioner.COMMENT, "<!-- comment 3 -->");
 		assertRegion(regions[5], document, IDocument.DEFAULT_CONTENT_TYPE, "\n");
-		assertRegion(regions[6], document, MarkdownPartitions.COMMENT, """
+		assertRegion(regions[6], document, MarkdownPartitioner.COMMENT, """
 				<!-- comment 4
 				directly folowing
 				another comment -->""");
@@ -165,7 +165,7 @@ public class MarkdownPartitionScannerIT {
 		
 		assertNotNull(regions);
 		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\n");
-		assertRegion(regions[1], document, MarkdownPartitions.CODEBLOCK, """
+		assertRegion(regions[1], document, MarkdownPartitioner.CODEBLOCK, """
 				```markdown
 				Some Markdown code
 				with links like this [example](path/to/missing-file.md).
@@ -175,7 +175,7 @@ public class MarkdownPartitionScannerIT {
 				[PlantUML](https://plantuml.com)
 				```""");
 		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nA link [to ensure](https://www.test.de) some links are found.\n\n");
-		assertRegion(regions[3], document, MarkdownPartitions.CODEBLOCK, """
+		assertRegion(regions[3], document, MarkdownPartitioner.CODEBLOCK, """
 				~~~
 				More code with [Markdown links](path/to/file.txt)
 				
@@ -184,7 +184,7 @@ public class MarkdownPartitionScannerIT {
 				[Bitbucket](https://www.bitbucket.com)
 				~~~""");
 		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nIndented code block:\n\n");
-		assertRegion(regions[5], document, MarkdownPartitions.CODEBLOCK, """
+		assertRegion(regions[5], document, MarkdownPartitioner.CODEBLOCK, """
 				This is code, too
 				Links here [are ignored](https://missing.org)
 				
@@ -218,24 +218,24 @@ public class MarkdownPartitionScannerIT {
 		
 		assertNotNull(regions);
 		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\nSome paragraph with ");
-		assertRegion(regions[1], document, MarkdownPartitions.CODESPAN, "`variables`");
+		assertRegion(regions[1], document, MarkdownPartitioner.CODESPAN, "`variables`");
 		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, "\nand other ");
-		assertRegion(regions[3], document, MarkdownPartitions.CODESPAN, "`complex = expressions - 5 * a`");
+		assertRegion(regions[3], document, MarkdownPartitioner.CODESPAN, "`complex = expressions - 5 * a`");
 		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, " in code spans.\n\n");
-		assertRegion(regions[5], document, MarkdownPartitions.CODEBLOCK, """
+		assertRegion(regions[5], document, MarkdownPartitioner.CODEBLOCK, """
 				```
 				Some code
 				in a code block
 				```""");
 		assertRegion(regions[6], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\n");
-		assertRegion(regions[7], document, MarkdownPartitions.CODEBLOCK, """
+		assertRegion(regions[7], document, MarkdownPartitioner.CODEBLOCK, """
 				```
 				More code with `backticks` symbols in it.
 				```""");
 		assertRegion(regions[8], document, IDocument.DEFAULT_CONTENT_TYPE, "\n\nAnother ");
-		assertRegion(regions[9], document, MarkdownPartitions.CODESPAN, "`paragraph`");
+		assertRegion(regions[9], document, MarkdownPartitioner.CODESPAN, "`paragraph`");
 		assertRegion(regions[10], document, IDocument.DEFAULT_CONTENT_TYPE, " with in-line code spans\n");
-		assertRegion(regions[11], document, MarkdownPartitions.CODESPAN, "`that have to be detected`");
+		assertRegion(regions[11], document, MarkdownPartitioner.CODESPAN, "`that have to be detected`");
 		assertRegion(regions[12], document, IDocument.DEFAULT_CONTENT_TYPE, " correctly.\n");
 	}
 	
@@ -257,9 +257,9 @@ public class MarkdownPartitionScannerIT {
 		
 		assertNotNull(regions);
 		assertRegion(regions[0], document, IDocument.DEFAULT_CONTENT_TYPE, "# Heading\n\nSome text ");
-		assertRegion(regions[1], document, MarkdownPartitions.CODESPAN, "`this is code`");
+		assertRegion(regions[1], document, MarkdownPartitioner.CODESPAN, "`this is code`");
 		assertRegion(regions[2], document, IDocument.DEFAULT_CONTENT_TYPE, " with code.\n\nMore text with \\`not code`.\n\nEven more ");
-		assertRegion(regions[3], document, MarkdownPartitions.CODESPAN, "`code with a backslash\\`");
+		assertRegion(regions[3], document, MarkdownPartitioner.CODESPAN, "`code with a backslash\\`");
 		assertRegion(regions[4], document, IDocument.DEFAULT_CONTENT_TYPE, " ending here` that\ndoes not escape a backtick in a code span.\n");
 	}
 

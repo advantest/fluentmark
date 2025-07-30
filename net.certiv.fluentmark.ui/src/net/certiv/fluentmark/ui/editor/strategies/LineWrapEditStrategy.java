@@ -20,9 +20,9 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.text.edits.DeleteEdit;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
-import net.certiv.fluentmark.core.markdown.Type;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.Type;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.preferences.Prefs;

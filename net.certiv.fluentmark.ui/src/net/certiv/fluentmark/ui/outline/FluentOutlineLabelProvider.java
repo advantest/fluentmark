@@ -18,7 +18,7 @@ import org.eclipse.swt.graphics.Image;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 

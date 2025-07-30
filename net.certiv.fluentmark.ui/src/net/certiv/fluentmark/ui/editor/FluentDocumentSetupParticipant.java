@@ -7,17 +7,13 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipantExtension;
 import org.eclipse.core.filebuffers.LocationKind;
-
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
-import net.certiv.fluentmark.ui.editor.text.partitioning.MarkdownPartioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 
 /**
  * Reacts to IDocument changes and allows for calculating partitions or validating and creating (problem) markers, for example. 
@@ -29,10 +25,6 @@ public class FluentDocumentSetupParticipant implements IDocumentSetupParticipant
 	}
 
 	public void setup(IDocument document, IPath location, LocationKind locationKind) {
-		FluentPartitioningTools.setupDocumentPartitioner(
-				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		MarkdownPartitioner.get().setupDocumentPartitioner(document);
 	}
-	
 }

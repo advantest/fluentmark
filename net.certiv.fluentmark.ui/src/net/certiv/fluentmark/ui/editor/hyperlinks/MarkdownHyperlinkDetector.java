@@ -25,11 +25,11 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetectorExtension;
 
-import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
-import net.certiv.fluentmark.core.markdown.RegexMatch;
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
+import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.util.DocumentUtils;
 
 public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		implements IHyperlinkDetector, IHyperlinkDetectorExtension {

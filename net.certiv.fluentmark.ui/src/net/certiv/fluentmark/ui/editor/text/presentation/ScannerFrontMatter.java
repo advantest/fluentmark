@@ -14,9 +14,9 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
+import net.certiv.fluentmark.core.markdown.scanner.rules.FrontMatterRule;
+import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
-import net.certiv.fluentmark.ui.editor.text.rules.FrontMatterRule;
-import net.certiv.fluentmark.ui.editor.text.rules.WhitespaceDetector;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 public class ScannerFrontMatter extends AbstractBufferedRuleBasedScanner {

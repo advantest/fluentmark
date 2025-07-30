@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.dialog.tables.TableModel.Row;

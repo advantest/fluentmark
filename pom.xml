@@ -92,9 +92,12 @@
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
-					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
-				         for more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
-					<useJdk>BREE</useJdk>
+					<!-- Use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
+						 requires a toolchain for, e.g. JavaSE-21.
+						 For more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+					<!-- temporarily switch that off
+					<useJDK>BREE</useJDK>
+					 -->
 				</configuration>
 			</plugin>
 			
@@ -123,7 +126,6 @@
 				<configuration>
 					<showEclipseLog>true</showEclipseLog>
 					<useUIHarness>false</useUIHarness>
-					<showEclipseLog>true</showEclipseLog>
 					<failIfNoTests>true</failIfNoTests>
 					<includes>
 						<include>**/*Test.java</include>
@@ -143,6 +145,10 @@
 							<artifactId>eclipse-435</artifactId>
 							<version>${project.version}</version>
 						</artifact>
+						<!-- the following seems not to help building the product
+						<includeAllPlatforms>true</includeAllPlatforms>
+						<includeAllEnvironments>true</includeAllEnvironments>
+						-->
 					</target>
 					<pomDependencies>consider</pomDependencies>
 					<environments>

@@ -15,7 +15,8 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 
-import net.certiv.fluentmark.ui.util.DocumentUtils;
+import net.certiv.fluentmark.core.util.DocumentUtils;
+
 
 /**
  * This class registers an {@link IDocumentListener} that triggers marker calculation each time

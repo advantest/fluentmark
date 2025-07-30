@@ -13,8 +13,8 @@ import org.eclipse.swt.SWT;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
 import net.certiv.fluentmark.core.util.Strings;
 
 public class TableModel {

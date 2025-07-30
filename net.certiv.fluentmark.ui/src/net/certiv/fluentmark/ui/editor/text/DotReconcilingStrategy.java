@@ -6,13 +6,15 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.text;
 
-import org.eclipse.ui.ide.ResourceUtil;
-
-import org.eclipse.ui.texteditor.ITextEditor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,7 +22,6 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -36,18 +37,13 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.jface.text.source.ISourceViewer;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import org.eclipse.ui.ide.ResourceUtil;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.dot.DotProblemCollector;
 import net.certiv.fluentmark.core.dot.DotRecord;
 import net.certiv.fluentmark.core.dot.DotSourceParser;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.marker.DotProblem;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -101,7 +97,7 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		collector.beginCollecting();
 		ITypedRegion[] partitions = null;
 		try {
-			partitions = TextUtilities.computePartitioning(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, region.getOffset(),
+			partitions = TextUtilities.computePartitioning(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, region.getOffset(),
 					region.getLength(), false);
 		} catch (BadLocationException e) {
 			return;
@@ -110,7 +106,7 @@ public class DotReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		int tabWidth = editor.getPrefsStore().getDefaultInt(Prefs.EDITOR_TAB_WIDTH);;
 
 		for (ITypedRegion partition : partitions) {
-			if (partition.getType().equals(MarkdownPartitions.DOTBLOCK)) {
+			if (partition.getType().equals(MarkdownPartitioner.DOTBLOCK)) {
 				SafeRunner.run(new ISafeRunnable() {
 
 					@Override

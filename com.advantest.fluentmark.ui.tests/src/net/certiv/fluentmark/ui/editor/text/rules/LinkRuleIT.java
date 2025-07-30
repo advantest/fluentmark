@@ -23,6 +23,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.advantest.fluentmark.tests.text.rules.IObservableCharacterScanner;
 import com.advantest.fluentmark.tests.text.rules.ScannerTools;
 
+import net.certiv.fluentmark.core.markdown.scanner.rules.LinkRule;
+
 
 public class LinkRuleIT {
 	

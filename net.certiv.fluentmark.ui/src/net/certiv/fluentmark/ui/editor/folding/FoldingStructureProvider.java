@@ -7,12 +7,17 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.folding;
 
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -27,21 +32,14 @@ import org.eclipse.jface.text.source.projection.IProjectionPosition;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.certiv.fluentmark.core.markdown.ISourceRange;
-import net.certiv.fluentmark.core.markdown.ISourceReference;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.core.markdown.SourceRange;
+import net.certiv.fluentmark.core.markdown.model.ISourceRange;
+import net.certiv.fluentmark.core.markdown.model.ISourceReference;
+import net.certiv.fluentmark.core.markdown.model.SourceRange;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.editor.DocumentCharacterIterator;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.editor.IReconcilingListener;
@@ -660,7 +658,7 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 	private void computeFoldingStructure(final FoldingStructureComputationContext ctx) {
 		try {
 			IDocument doc = ctx.getDocument();
-			ITypedRegion[] partitions = TextUtilities.computePartitioning(doc, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, 0,
+			ITypedRegion[] partitions = TextUtilities.computePartitioning(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, 0,
 					doc.getLength(), false);
 			computeBlockFoldingStructure(partitions, ctx);
 		} catch (BadLocationException e) {}
@@ -721,16 +719,16 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 
 	private boolean isFoldablePartition(String type) {
 		switch (type) {
-			case MarkdownPartitions.FRONT_MATTER:
+			case MarkdownPartitioner.FRONT_MATTER:
 				return frontMatterFoldingEnabled;
-			case MarkdownPartitions.COMMENT:
+			case MarkdownPartitioner.COMMENT:
 				return commentFoldingEnabled;
-			case MarkdownPartitions.DOTBLOCK:
-			case MarkdownPartitions.CODEBLOCK:
-			case MarkdownPartitions.MATHBLOCK:
-			case MarkdownPartitions.UMLBLOCK:
+			case MarkdownPartitioner.DOTBLOCK:
+			case MarkdownPartitioner.CODEBLOCK:
+			case MarkdownPartitioner.MATHBLOCK:
+			case MarkdownPartitioner.UMLBLOCK:
 				return codeBlockFoldingEnabled;
-			case MarkdownPartitions.HTMLBLOCK:
+			case MarkdownPartitioner.HTMLBLOCK:
 				return htmlBlockFoldingEnabled;
 		}
 		return false;

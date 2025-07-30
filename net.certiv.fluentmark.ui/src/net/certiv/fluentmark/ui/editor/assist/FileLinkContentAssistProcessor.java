@@ -33,11 +33,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import net.certiv.fluentmark.core.markdown.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.util.DocumentUtils;
+import net.certiv.fluentmark.ui.util.DocumentEditorUtils;
 
 public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 
@@ -308,7 +308,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
 			if (targetFile != null) {
 				// look up IDocument for the IFile in case it is opened in a text editor
-				IDocument targetFileDocument = DocumentUtils.findDocumentFor(targetFile);
+				IDocument targetFileDocument = DocumentEditorUtils.findDocumentFor(targetFile);
 				
 				String markdownFileContent = targetFileDocument != null ?
 						targetFileDocument.get() : 

@@ -7,14 +7,9 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.strategies;
 
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ITextEditorExtension2;
-import org.eclipse.ui.texteditor.ITextEditorExtension3;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.Assert;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -30,10 +25,13 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.ITextEditorExtension2;
+import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import java.util.Arrays;
-
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -959,9 +957,9 @@ public class SmartAutoEditStrategy implements IAutoEditStrategy {
 	private static int getValidPositionForPartition(IDocument doc, ITypedRegion partition, int maxOffset) {
 		final int INVALID = -1;
 
-		if (MarkdownPartitions.FRONT_MATTER.equals(partition.getType())) return INVALID;
-		if (MarkdownPartitions.COMMENT.equals(partition.getType())) return INVALID;
-		if (MarkdownPartitions.CODEBLOCK.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitioner.FRONT_MATTER.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitioner.COMMENT.equals(partition.getType())) return INVALID;
+		if (MarkdownPartitioner.CODEBLOCK.equals(partition.getType())) return INVALID;
 
 		int endOffset = Math.min(maxOffset, partition.getOffset() + partition.getLength());
 		if (IDocument.DEFAULT_CONTENT_TYPE.equals(partition.getType())) {

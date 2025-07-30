@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-   <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
    <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
    <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
    <extension-point id="content.assist.processor" name="Addtional content assist processor for Fluent Editor" schema="schema/net.certiv.fluentmark.ui.contentAssistProcessor.exsd"/>
@@ -1001,25 +1000,6 @@
       </decorator>
    </extension>
    <extension
-         point="net.certiv.fluentmark.ui.marker.calculators">
-      <calculator
-            class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
-            id="net.certiv.fluentmark.ui.validator.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.validation.MarkdownAnchorValidator"
-            id="net.certiv.fluentmark.ui.validator.markdown.anchors">
-      </calculator>
-   </extension>
-   <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
       <hyperlinkDetector
             activate="true"
@@ -1046,6 +1026,24 @@
                type="net.certiv.fluentmark.ui.editorScope">
          </context>
       </target>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.core.anchorResolver">
+      <resolver
+            class="net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver"
+            id="net.certiv.fluentmark.ui.resolver.java">
+      </resolver>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.core.partitionValidator">
+      <validator
+            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.markdown">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.plantuml">
+      </validator>
    </extension>
    
 </plugin>

@@ -11,7 +11,7 @@ import com.github.rjeschke.txtmark.BlockEmitter;
 
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.model.CodeBlockConstants;
 import net.certiv.fluentmark.core.util.Strings;
 
 public class DotCodeBlockEmitter implements BlockEmitter {

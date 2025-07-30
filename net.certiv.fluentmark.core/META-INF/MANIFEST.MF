@@ -44,9 +44,20 @@ Export-Package: com.advantest,
  net.certiv.fluentmark.core,
  net.certiv.fluentmark.core.convert,
  net.certiv.fluentmark.core.dot,
+ net.certiv.fluentmark.core.extensionpoints,
  net.certiv.fluentmark.core.markdown,
+ net.certiv.fluentmark.core.markdown.model,
+ net.certiv.fluentmark.core.markdown.parsing,
+ net.certiv.fluentmark.core.markdown.partitions,
+ net.certiv.fluentmark.core.markdown.scanner,
+ net.certiv.fluentmark.core.markdown.scanner.rules,
+ net.certiv.fluentmark.core.markdown.validation,
  net.certiv.fluentmark.core.marker,
+ net.certiv.fluentmark.core.partitions,
+ net.certiv.fluentmark.core.plantuml.partitions,
  net.certiv.fluentmark.core.util,
+ net.certiv.fluentmark.core.validation,
+ net.certiv.fluentmark.core.validation.uri,
  net.sourceforge.plantuml,
  org.antlr.v4.runtime,
  org.apache.commons.lang3
@@ -95,10 +106,11 @@ Bundle-ClassPath: .,
  lib/flexmark-util-visitor-0.64.14-SNAPSHOT.jar
 Bundle-Vendor: Certiv Analytics
 Require-Bundle: com.google.guava;bundle-version="30.1.0",
- org.eclipse.core.runtime,
+ org.eclipse.core.runtime;bundle-version="3.23.0",
  org.eclipse.core.resources;bundle-version="3.15.100",
- org.eclipse.text;bundle-version="3.12.200",
- org.eclipse.core.filesystem;bundle-version="1.10.200"
+ org.eclipse.core.filesystem;bundle-version="1.10.200",
+ org.eclipse.core.filebuffers;bundle-version="3.8.400",
+ org.eclipse.jface.text;bundle-version="3.18.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.certiv.fluentmark.core
 Bundle-ActivationPolicy: lazy

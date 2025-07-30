@@ -29,7 +29,7 @@ import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
 
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
@@ -76,22 +76,22 @@ public class Converter {
 
 	public String convert(IPath filePath, String basepath, IDocument document, Kind kind) {
 		try {
-            switch (configurationProvider.getConverterType()) {
-                case FLEXMARK:
-                    String markdownSourceCode = document.get();
-
-                    Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
-
-                    // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
-                    parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
-
-                    return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
-                case PANDOC:
-                    ITypedRegion[] typedRegions = MarkdownPartitions.computePartitions(document);
-                    
-                    String text = getText(filePath, document, typedRegions, true);
-                    return usePandoc(basepath, text, kind);
-            }
+			switch (configurationProvider.getConverterType()) {
+				case FLEXMARK:
+					String markdownSourceCode = document.get();
+					
+					Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+					
+					// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+					parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
+					
+					return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
+				case PANDOC:
+					ITypedRegion[] typedRegions = MarkdownPartitioner.get().computePartitioning(document);
+					
+					String text = getText(filePath, document, typedRegions, true);
+					return usePandoc(basepath, text, kind);
+			}
 		} catch (Exception e) {
 			return createHtmlMessageCouldNotConvertMarkdown(e.getMessage());
 		}
@@ -198,26 +198,26 @@ public class Converter {
 			regionType = typedRegion.getType();
 			
 			switch (regionType) {
-				case MarkdownPartitions.FRONT_MATTER:
+				case MarkdownPartitioner.FRONT_MATTER:
 					if (!includeFrontMatter) continue;
 					break;
-				case MarkdownPartitions.DOTBLOCK:
+				case MarkdownPartitioner.DOTBLOCK:
 					if (configurationProvider.isDotEnabled()) {
 						text = filter(text, DOTBEG, DOTEND);
 						text = translateDotCodeToHtmlFigure(text);
 					}
 					break;
-				case MarkdownPartitions.UMLBLOCK:
+				case MarkdownPartitioner.UMLBLOCK:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
-				case MarkdownPartitions.PLANTUML_INCLUDE:
+				case MarkdownPartitioner.PLANTUML_INCLUDE:
 					if (configurationProvider.isPlantUMLEnabled()) {
 						text = translatePumlIncludeLineToHtml(text, filePath);
 					}
 					break;
-				case MarkdownPartitions.COMMENT:
+				case MarkdownPartitioner.COMMENT:
 					if (!text.isEmpty()
 							&& text.startsWith("<!---")
 							&& text.endsWith("--->")) {
