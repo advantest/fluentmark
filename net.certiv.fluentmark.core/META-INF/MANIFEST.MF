@@ -58,6 +58,7 @@ Export-Package: com.advantest,
  net.certiv.fluentmark.core.util,
  net.certiv.fluentmark.core.validation,
  net.certiv.fluentmark.core.validation.uri,
+ net.certiv.fluentmark.core.validation.visitor,
  net.sourceforge.plantuml,
  org.antlr.v4.runtime,
  org.apache.commons.lang3

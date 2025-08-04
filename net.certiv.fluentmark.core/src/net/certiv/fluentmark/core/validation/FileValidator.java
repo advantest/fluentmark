@@ -47,6 +47,16 @@ public class FileValidator {
 		this.validators = validators;
 	}
 	
+	public boolean hasApplicablePartitionValidatorsFor(IFile file) {
+		return !getApplicablePartitionValidators(file).isEmpty();
+	}
+	
+	private List<ITypedRegionValidator> getApplicablePartitionValidators(IFile file) {
+		return validators.stream()
+				.filter(validator -> validator.isValidatorFor(file))
+				.toList();
+	}
+	
 	public void performResourceValidation(IFile file, IProgressMonitor monitor) {
 		performResourceValidation(null, file, monitor);
 	}
@@ -65,10 +75,7 @@ public class FileValidator {
 			return;
 		}
 		
-		List<ITypedRegionValidator> responsibleValidators = validators.stream()
-			.filter(validator -> validator.isValidatorFor(file))
-			.toList();
-		
+		List<ITypedRegionValidator> responsibleValidators = getApplicablePartitionValidators(file);
 		if (responsibleValidators.isEmpty()) {
 			return;
 		}
