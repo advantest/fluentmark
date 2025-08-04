@@ -5,6 +5,7 @@
    <extension-point id="partitionValidator" name="Validators based on typed regions (partitions)" schema="schema/partitionValidator.exsd"/>
    <extension-point id="uriValidator" name="URI validators" schema="schema/uriValidator.exsd"/>
    <extension-point id="anchorResolver" name="Anchor resolvers" schema="schema/anchorResolver.exsd"/>
+   <extension-point id="documentResolver" name="IDocument resolver" schema="schema/documentResolver.exsd"/>
    <extension
          point="net.certiv.fluentmark.core.partitioner">
       <partitioner
@@ -26,5 +27,17 @@
             class="net.certiv.fluentmark.core.markdown.validation.MarkdownAnchorValidator"
             id="net.certiv.fluentmark.core.validator.markdown.anchor">
       </validator>
+   </extension>
+   <extension
+         id="builder"
+         name="Adaptable file validation builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.core.builders.FileValidationBuilder">
+         </run>
+      </builder>
    </extension>
 </plugin>
