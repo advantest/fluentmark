@@ -1045,5 +1045,12 @@
             id="net.certiv.fluentmark.ui.validation.tasks.plantuml">
       </validator>
    </extension>
+   <extension
+         point="net.certiv.fluentmark.core.documentResolver">
+      <resolver
+            class="net.certiv.fluentmark.ui.editor.MarkdownDocumentResolver"
+            id="net.certiv.fluentmark.ui.document.resolver.markdown">
+      </resolver>
+   </extension>
    
 </plugin>
