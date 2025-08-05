@@ -56,12 +56,11 @@ public class AdaptableFilesValidatingVisitor extends AbstractFileValidationVisit
 			.filter(doc -> doc != null)
 			.findFirst();
 		
-		// TODO schedule file validation if run in GUI
+		// perform the validation
 		if (document.isPresent()) {
-			validator.performResourceValidation(document.get(), file, progressMonitor);
+			validator.performResourceValidation(document.get(), file, this.progressMonitor);
 		} else {
 			validator.performResourceValidation(file, this.progressMonitor);
 		}
 	}
-
 }

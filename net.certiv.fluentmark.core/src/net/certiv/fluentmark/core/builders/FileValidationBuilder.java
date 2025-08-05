@@ -11,6 +11,7 @@ package net.certiv.fluentmark.core.builders;
 
 import java.util.Map;
 
+import org.eclipse.core.resources.IIncrementalProjectBuilder2;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -26,7 +27,7 @@ import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.visitor.AdaptableFilesCountingVisitor;
 import net.certiv.fluentmark.core.validation.visitor.AdaptableFilesValidatingVisitor;
 
-public class FileValidationBuilder extends IncrementalProjectBuilder {
+public class FileValidationBuilder extends IncrementalProjectBuilder implements IIncrementalProjectBuilder2 {
 	
 	public static final String BUILDER_ID = FluentCore.PLUGIN_ID + ".builder";
 	
@@ -81,6 +82,11 @@ public class FileValidationBuilder extends IncrementalProjectBuilder {
 	private void fullBuild(SubMonitor monitor) throws CoreException {
 		AdaptableFilesValidatingVisitor filesValidatingVisitor = new AdaptableFilesValidatingVisitor(fileValidator, monitor);
 		getProject().accept(filesValidatingVisitor);
+	}
+
+	@Override
+	public void clean(Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+		// Do nothing yet. Subclasses may override this method
 	}
 
 }
