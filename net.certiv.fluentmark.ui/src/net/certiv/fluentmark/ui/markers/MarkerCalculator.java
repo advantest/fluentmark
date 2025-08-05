@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
@@ -126,16 +125,6 @@ public class MarkerCalculator {
 		}
 	}
 	
-	public void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
-		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
-		
-		for (IMarker marker: markers) {
-			if (marker.exists()) {
-				marker.delete();
-			}
-		}
-	} 
-	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IFile file) throws CoreException {
 		if (monitor.isCanceled()) {
 			return;
@@ -147,9 +136,9 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Delete obsolete markers");
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_MARKDOWN);
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_PLANTUML);
+		MarkerCreator.deleteAllDocumentationProblemMarkers(file);
+		MarkerCreator.deleteAllMarkdownTaskMarkers(file);
+		MarkerCreator.deleteAllPlantUmlTaskMarkers(file);
 		
 		if (monitor.isCanceled()) {
 			return;

@@ -9,16 +9,11 @@
  */
 package net.certiv.fluentmark.ui.propertytesters;
 
-import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.core.expressions.PropertyTester;
-
-import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder;
 
 public class MarkdownValidationsBuilderEnabledTester extends PropertyTester {
 
@@ -34,28 +29,9 @@ public class MarkdownValidationsBuilderEnabledTester extends PropertyTester {
 			final IProject project = (IProject) Platform.getAdapterManager().getAdapter(receiver, IProject.class);
 
 			if (project != null)
-				return hasBuilder(project);
+				return MarkerCalculatingFileValidationBuilder.hasBuilder(project);
 		}
 
 		return false;
 	}
-	
-	public static final boolean hasBuilder(final IProject project) {
-		if (project == null || !project.isAccessible()) {
-			return false;
-		}
-		
-		try {
-			for (final ICommand buildSpec : project.getDescription().getBuildSpec()) {
-				if (IncrementalMarkdownValidationProjectBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())) {
-					return true;
-				}
-			}
-		} catch (final CoreException e) {
-			Log.error("Could not check project's build configuration, project: " + project.getName(), e);
-		}
-
-		return false;
-	}
-
 }

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-   <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
-   <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
    <extension-point id="content.assist.processor" name="Addtional content assist processor for Fluent Editor" schema="schema/net.certiv.fluentmark.ui.contentAssistProcessor.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
@@ -929,30 +927,6 @@
             id="net.certiv.fluentmark.ui.wizards.FluentNewWizard"
             name="FluentMark file">
       </wizard>
-   </extension>
-   <extension
-         id="builders.markdown"
-         name="Markdown file validator"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="false"
-            hasNature="false">
-         <run
-               class="net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
-         id="builders.plantuml"
-         name="PlantUML file and code blocks in Markdown files validator"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="false"
-            hasNature="false">
-         <run
-               class="net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder">
-         </run>
-      </builder>
    </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">

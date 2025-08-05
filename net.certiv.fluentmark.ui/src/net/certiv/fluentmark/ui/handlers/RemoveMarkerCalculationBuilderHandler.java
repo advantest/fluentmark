@@ -11,7 +11,6 @@ package net.certiv.fluentmark.ui.handlers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,12 +26,9 @@ import org.eclipse.ui.IDecoratorManager;
 import org.eclipse.ui.PlatformUI;
 
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
-import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
-import net.certiv.fluentmark.ui.markers.MarkerCalculator;
-import net.certiv.fluentmark.ui.markers.MarkerConstants;
+import net.certiv.fluentmark.ui.markers.MarkerCreator;
 
 public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler implements IHandler {
 
@@ -46,31 +42,10 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 				final List<ICommand> commands = new ArrayList<ICommand>();
 				commands.addAll(Arrays.asList(description.getBuildSpec()));
 				
-				Set<String> builderIds = MarkerCalculationBuildersManager.getInstance().getMarkerCalculationBuilderIdsFromExtensions();
-				
-				Set<String> markerIds = new HashSet<>();
-				markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-				markerIds.add(MarkerConstants.MARKER_ID_TASK_MARKDOWN);
-				markerIds.add(MarkerConstants.MARKER_ID_TASK_PLANTUML);
-
 				for (final ICommand buildSpec : description.getBuildSpec()) {
-					if (IncrementalMarkdownValidationProjectBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())) {
+					if (MarkerCalculatingFileValidationBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())
+							|| MarkerCalculatingFileValidationBuilder.isObsoleteBuilderId(buildSpec.getBuilderName())) {
 						commands.remove(buildSpec);
-					}
-					
-					if (IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID.equals(buildSpec.getBuilderName())) {
-						commands.remove(buildSpec);
-					}
-					
-					for (String builderId: builderIds) {
-						if (buildSpec.getBuilderName().equals(builderId)) {
-							commands.remove(buildSpec);
-							
-							for (String additionalMarkerId: MarkerCalculationBuildersManager.getInstance()
-									.getMarkersForBuilder(builderId)) {
-								markerIds.add(additionalMarkerId);
-							}
-						}
 					}
 				}
 
@@ -80,10 +55,9 @@ public class RemoveMarkerCalculationBuilderHandler extends AbstractHandler imple
 				IDecoratorManager decoratorManager = PlatformUI.getWorkbench().getDecoratorManager();
 				decoratorManager.update(MarkdownFileValidationsDecorator.DECORATOR_ID);
 				
-				MarkerCalculator markerCalculator = MarkerCalculator.get();
-				for (String markerId: markerIds) {
-					markerCalculator.deleteAllMarkersOfType(project, markerId);
-				}
+				MarkerCreator.deleteAllDocumentationProblemMarkers(project);
+				MarkerCreator.deleteAllMarkdownTaskMarkers(project);
+				MarkerCreator.deleteAllPlantUmlTaskMarkers(project);
 			} catch (final CoreException e) {
 				Log.error("Could not remove Markdown marker calculation builder on project " + project.getName(), e);
 			}
