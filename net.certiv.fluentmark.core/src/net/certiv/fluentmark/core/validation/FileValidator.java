@@ -25,6 +25,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
+import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
 import net.certiv.fluentmark.core.util.FileUtils;
 
@@ -45,6 +47,13 @@ public class FileValidator {
 		this.validationResultConsumer = validationResultConsumer;
 		this.partitioners = partitioners;
 		this.validators = validators;
+	}
+	
+	public static FileValidator create(IValidationResultConsumer validationResultConsumer) {
+		return new FileValidator(
+				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
+				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
+				validationResultConsumer);
 	}
 	
 	public boolean hasApplicablePartitionValidatorsFor(IFile file) {

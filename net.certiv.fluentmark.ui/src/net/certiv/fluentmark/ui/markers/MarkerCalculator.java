@@ -22,14 +22,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
-import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.validation.FileValidator;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class MarkerCalculator {
 
-	private static final String JOB_NAME = "Re-calculating markers";
+	private static final String JOB_NAME = "Calculating markers";
 	
 	private static MarkerCalculator INSTANCE = null;
 	
@@ -48,10 +46,7 @@ public class MarkerCalculator {
 	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
 	private MarkerCalculator() {
-		fileValidator = new FileValidator(
-				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
-				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
-				new MarkerCreator());
+		fileValidator = FileValidator.create(new MarkerCreator());
 	}
 	
 	public void scheduleMarkerCalculation(IDocument document, IFile file) {

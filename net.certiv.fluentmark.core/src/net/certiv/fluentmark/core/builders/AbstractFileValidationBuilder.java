@@ -19,8 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
-import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.validation.FileValidator;
 import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.visitor.AdaptableFilesCountingVisitor;
@@ -36,10 +34,7 @@ public abstract class AbstractFileValidationBuilder extends IncrementalProjectBu
 			throw new IllegalArgumentException();
 		}
 		
-		fileValidator = new FileValidator(
-				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
-				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
-				validationResultConsumer);
+		fileValidator = FileValidator.create(validationResultConsumer);
 		this.validationResultConsumer = validationResultConsumer;
 	}
 
