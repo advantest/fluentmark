@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
 import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.validation.FileValidator;
@@ -27,13 +26,12 @@ import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.visitor.AdaptableFilesCountingVisitor;
 import net.certiv.fluentmark.core.validation.visitor.AdaptableFilesValidatingVisitor;
 
-public class FileValidationBuilder extends IncrementalProjectBuilder implements IIncrementalProjectBuilder2 {
-	
-	public static final String BUILDER_ID = FluentCore.PLUGIN_ID + ".builder";
+public abstract class AbstractFileValidationBuilder extends IncrementalProjectBuilder implements IIncrementalProjectBuilder2 {
 	
 	private final FileValidator fileValidator;
+	protected final IValidationResultConsumer validationResultConsumer;
 	
-	public FileValidationBuilder(IValidationResultConsumer validationResultConsumer) {
+	public AbstractFileValidationBuilder(IValidationResultConsumer validationResultConsumer) {
 		if (validationResultConsumer == null) {
 			throw new IllegalArgumentException();
 		}
@@ -42,13 +40,14 @@ public class FileValidationBuilder extends IncrementalProjectBuilder implements 
 				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
 				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
 				validationResultConsumer);
+		this.validationResultConsumer = validationResultConsumer;
 	}
 
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
 		
-		AdaptableFilesCountingVisitor filesCountingVisitor = new AdaptableFilesCountingVisitor(fileValidator);
+		AdaptableFilesCountingVisitor filesCountingVisitor = new AdaptableFilesCountingVisitor(fileValidator, monitor);
 		project.accept(filesCountingVisitor);
 		int numFiles = filesCountingVisitor.getNumFiles();
 		

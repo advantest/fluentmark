@@ -1052,5 +1052,16 @@
             id="net.certiv.fluentmark.ui.document.resolver.markdown">
       </resolver>
    </extension>
-   
+   <extension
+         id="builder"
+         name="Adaptable file validation builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder">
+         </run>
+      </builder>
+   </extension>
 </plugin>

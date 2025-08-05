@@ -28,16 +28,4 @@
             id="net.certiv.fluentmark.core.validator.markdown.anchor">
       </validator>
    </extension>
-   <extension
-         id="builder"
-         name="Adaptable file validation builder"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="false"
-            hasNature="false">
-         <run
-               class="net.certiv.fluentmark.core.builders.FileValidationBuilder">
-         </run>
-      </builder>
-   </extension>
 </plugin>

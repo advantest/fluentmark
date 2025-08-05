@@ -11,7 +11,6 @@ package net.certiv.fluentmark.core.validation.visitor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.certiv.fluentmark.core.validation.FileValidator;
 
@@ -19,10 +18,6 @@ public class AdaptableFilesCountingVisitor extends AbstractFileValidationVisitor
 	
 	private int numFiles = 0;
 
-	public AdaptableFilesCountingVisitor(FileValidator validator) {
-		this(validator, new NullProgressMonitor());
-	}
-	
 	public AdaptableFilesCountingVisitor(FileValidator validator, IProgressMonitor monitor) {
 		super(validator, monitor);
 	}

@@ -104,4 +104,25 @@ public class MarkerCreator implements IValidationResultConsumer {
 		return null;
 	}
 	
+	private static void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
+		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
+		
+		for (IMarker marker: markers) {
+			if (marker.exists()) {
+				marker.delete();
+			}
+		}
+	}
+	
+	public static void deleteAllDocumentationProblemMarkers(IResource resource) throws CoreException {
+		deleteAllMarkersOfType(resource, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
+	}
+	
+	public static void deleteAllMarkdownTaskMarkers(IResource resource) throws CoreException {
+		deleteAllMarkersOfType(resource, MarkerConstants.MARKER_ID_TASK_MARKDOWN);
+	}
+	
+	public static void deleteAllPlantUmlTaskMarkers(IResource resource) throws CoreException {
+		deleteAllMarkersOfType(resource, MarkerConstants.MARKER_ID_TASK_PLANTUML);
+	}
 }
