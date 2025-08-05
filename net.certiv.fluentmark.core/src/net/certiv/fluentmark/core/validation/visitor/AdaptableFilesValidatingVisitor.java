@@ -53,6 +53,7 @@ public class AdaptableFilesValidatingVisitor extends AbstractFileValidationVisit
 		Optional<IDocument> document = resolvers.stream()
 			.filter(resolver -> resolver.isApplicableTo(file))
 			.map(resolver -> resolver.resolveDocumentFor(file))
+			.filter(doc -> doc != null)
 			.findFirst();
 		
 		// TODO schedule file validation if run in GUI
