@@ -56,7 +56,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) {
-				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size());
+				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size() + 1);
 				
 				for (IProject project: projectsWithOurBuilder) {
 					if(subMonitor.isCanceled()) {
@@ -66,9 +66,16 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 					subMonitor.setTaskName("Performing marker re-calculation on project " + project.getName() + "...");
 					
 					try {
-						// clean build triggers clean method on the builder and then a full build
+						// trigger the builder's clean operation
 						project.build(
 								IncrementalProjectBuilder.CLEAN_BUILD, 
+								MarkerCalculatingFileValidationBuilder.BUILDER_ID,
+								null,
+								subMonitor.split(1));
+						
+						// trigger a full build
+						project.build(
+								IncrementalProjectBuilder.FULL_BUILD, 
 								MarkerCalculatingFileValidationBuilder.BUILDER_ID,
 								null,
 								subMonitor);
