@@ -60,7 +60,9 @@ abstract class AbstractFileValidationVisitor implements IResourceVisitor {
 			return resource.isAccessible();
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			handleFile(file);
+			if (validator.hasApplicablePartitionValidatorsFor(file)) {
+				handleFile(file);
+			}
 			progressMonitor.worked(1);
 		}
 		

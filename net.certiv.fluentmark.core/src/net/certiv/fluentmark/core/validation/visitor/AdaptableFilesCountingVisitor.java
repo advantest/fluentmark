@@ -28,8 +28,6 @@ public class AdaptableFilesCountingVisitor extends AbstractFileValidationVisitor
 
 	@Override
 	protected void handleFile(IFile file) {
-		if (validator.hasApplicablePartitionValidatorsFor(file)) {
-			numFiles++;
-		}
+		numFiles++;
 	}
 }
