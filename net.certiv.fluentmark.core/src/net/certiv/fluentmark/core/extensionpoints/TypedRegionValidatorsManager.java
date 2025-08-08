@@ -13,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.util.ExtensionsUtil;
 import net.certiv.fluentmark.core.validation.ITypedRegionValidator;
 
 public class TypedRegionValidatorsManager {
@@ -47,21 +41,9 @@ public class TypedRegionValidatorsManager {
 	}
 	
 	private void init() {
-		IExtensionPoint validatorsExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_TYPED_REGION_VALIDATORS);
-		IExtension[] validatorExtensions = validatorsExtensionPoint.getExtensions();
-		for (IExtension validatorExtension: validatorExtensions) {
-			IConfigurationElement[] configElements = validatorExtension.getConfigurationElements();
-			
-			try {
-				for (IConfigurationElement configElement : configElements) {
-					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof ITypedRegionValidator) {
-						validators.add((ITypedRegionValidator) obj);
-					}
-				}
-			} catch (CoreException e) {
-				FluentCore.log(IStatus.ERROR, "Could not load ITypedRegionValidator from extension", e);
-			}
-		}
+		validators.addAll(
+				ExtensionsUtil.createExecutableExtensionsFor(
+						EXTENSION_POINT_ID_TYPED_REGION_VALIDATORS, 
+						ITypedRegionValidator.class));
 	}
 }

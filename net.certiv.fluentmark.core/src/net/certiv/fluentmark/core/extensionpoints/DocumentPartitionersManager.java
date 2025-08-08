@@ -13,15 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
+import net.certiv.fluentmark.core.util.ExtensionsUtil;
 
 public class DocumentPartitionersManager {
 	
@@ -58,21 +52,9 @@ public class DocumentPartitionersManager {
 	}
 	
 	private void init() {
-		IExtensionPoint partitionersExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_DOCUMENT_PARTITIONERS);
-		IExtension[] partitionerExtensions = partitionersExtensionPoint.getExtensions();
-		for (IExtension partitionerExtension: partitionerExtensions) {
-			IConfigurationElement[] configElements = partitionerExtension.getConfigurationElements();
-			
-			try {
-				for (IConfigurationElement configElement : configElements) {
-					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IFluentDocumentPartitioner) {
-						partitioners.add((IFluentDocumentPartitioner) obj);
-					}
-				}
-			} catch (CoreException e) {
-				FluentCore.log(IStatus.ERROR, "Could not load IFluentDocumentPartitioner from extension", e);
-			}
-		}
+		partitioners.addAll(
+				ExtensionsUtil.createExecutableExtensionsFor(
+						EXTENSION_POINT_ID_DOCUMENT_PARTITIONERS, 
+						IFluentDocumentPartitioner.class));
 	}
 }

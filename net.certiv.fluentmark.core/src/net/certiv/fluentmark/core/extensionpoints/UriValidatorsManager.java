@@ -13,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.util.ExtensionsUtil;
 import net.certiv.fluentmark.core.validation.uri.IUriValidator;
 
 public class UriValidatorsManager {
@@ -36,22 +30,10 @@ public class UriValidatorsManager {
 	}
 	
 	private void init() {
-		IExtensionPoint validatorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_URI_VALIDATOR);
-		IExtension[] validatorExtensions = validatorExtensionPoint.getExtensions();
-		for (IExtension validatorExtension: validatorExtensions) {
-			IConfigurationElement[] configElements = validatorExtension.getConfigurationElements();
-			
-			try {
-				for (IConfigurationElement configElement : configElements) {
-					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IUriValidator) {
-						validators.add((IUriValidator) obj);
-					}
-				}
-			} catch (CoreException e) {
-				FluentCore.log(IStatus.ERROR, "Could not load IUriValidator extension", e);
-			}
-		}
+		validators.addAll(
+				ExtensionsUtil.createExecutableExtensionsFor(
+						EXTENSION_POINT_ID_URI_VALIDATOR, 
+						IUriValidator.class));
 	}
 	
 	public static UriValidatorsManager getInstance() {

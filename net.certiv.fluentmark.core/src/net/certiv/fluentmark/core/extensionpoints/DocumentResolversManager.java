@@ -13,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.util.ExtensionsUtil;
 import net.certiv.fluentmark.core.validation.visitor.IDocumentResolver;
 
 public class DocumentResolversManager {
@@ -36,22 +30,10 @@ public class DocumentResolversManager {
 	}
 	
 	private void init() {
-		IExtensionPoint resolverExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_DOCUMENT_RESOLVER);
-		IExtension[] resolverExtensions = resolverExtensionPoint.getExtensions();
-		for (IExtension resolverExtension: resolverExtensions) {
-			IConfigurationElement[] configElements = resolverExtension.getConfigurationElements();
-			
-			try {
-				for (IConfigurationElement configElement : configElements) {
-					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IDocumentResolver) {
-						resolvers.add((IDocumentResolver) obj);
-					}
-				}
-			} catch (CoreException e) {
-				FluentCore.log(IStatus.ERROR, "Could not load IDocumentResolver extension", e);
-			}
-		}
+		resolvers.addAll(
+				ExtensionsUtil.createExecutableExtensionsFor(
+						EXTENSION_POINT_ID_DOCUMENT_RESOLVER, 
+						IDocumentResolver.class));
 	}
 	
 	public static DocumentResolversManager getInstance() {
