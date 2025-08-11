@@ -81,13 +81,15 @@ abstract class AbstractFileValidationVisitor implements IResourceVisitor {
 			return resource.isAccessible();
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			boolean ignore = filters.stream()
-					.anyMatch(filter -> filter.ignore(file));
-			if (ignore) {
-				return false;
-			}
 			
 			if (validator.hasApplicablePartitionValidatorsFor(file)) {
+				boolean ignore = filters.stream()
+						.anyMatch(filter -> filter.ignore(file));
+				
+				if (ignore) {
+					return false;
+				}
+				
 				handleFile(file);
 			}
 			progressMonitor.worked(1);
