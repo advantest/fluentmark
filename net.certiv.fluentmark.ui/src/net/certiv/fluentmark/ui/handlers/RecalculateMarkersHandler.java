@@ -11,6 +11,7 @@ package net.certiv.fluentmark.ui.handlers;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -56,6 +57,8 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) {
+				long start = System.nanoTime();
+				
 				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size() * 100 + 1);
 				
 				for (IProject project: projectsWithOurBuilder) {
@@ -85,6 +88,16 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 					}
 				}
 				monitor.done();
+				
+				long end = System.nanoTime();
+				long elapsedTime = end - start;
+				
+				long tmpSeconds = TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
+				long seconds = tmpSeconds % 60;
+				long minutes = seconds / 60;
+				
+				System.out.println("Analysis took " + minutes + ":" + seconds + " (min:sec).");
+				
 				return Status.OK_STATUS;
 			}
 		};
