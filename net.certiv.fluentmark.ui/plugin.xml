@@ -1028,7 +1028,7 @@
    </extension>
    <extension
          id="builder"
-         name="Adaptable file validation builder"
+         name="Fluentmark file validation for Markdown, PlantUML,..."
          point="org.eclipse.core.resources.builders">
       <builder
             callOnEmptyDelta="false"
