@@ -56,7 +56,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) {
-				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size() + 1);
+				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size() * 100 + 1);
 				
 				for (IProject project: projectsWithOurBuilder) {
 					if(subMonitor.isCanceled()) {
@@ -78,14 +78,13 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 								IncrementalProjectBuilder.FULL_BUILD, 
 								MarkerCalculatingFileValidationBuilder.BUILDER_ID,
 								null,
-								subMonitor);
+								subMonitor.split(100));
 					} catch (CoreException e) {
 						FluentUI.log(IStatus.ERROR, "Could not re-calculate markers on project " + project.getName(), e);
 						return e.getStatus();
 					}
-					
-					subMonitor.worked(1);
 				}
+				monitor.done();
 				return Status.OK_STATUS;
 			}
 		};

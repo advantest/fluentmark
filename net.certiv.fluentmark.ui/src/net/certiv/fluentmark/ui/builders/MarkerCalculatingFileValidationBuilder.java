@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.SubMonitor;
 
 import net.certiv.fluentmark.core.builders.AbstractFileValidationBuilder;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -47,10 +48,11 @@ public class MarkerCalculatingFileValidationBuilder extends AbstractFileValidati
 	
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-		IProject[] result = super.build(kind, args, monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		
-		monitor.beginTask("Update builder configuration (replace obsolete builders)", 1);
-		replaceObsoleteBuilderIds(getProject(), monitor);
+		IProject[] result = super.build(kind, args, subMonitor.split(99));
+		
+		replaceObsoleteBuilderIds(getProject(), subMonitor.split(1));
 		
 		return result;
 	}
@@ -65,11 +67,17 @@ public class MarkerCalculatingFileValidationBuilder extends AbstractFileValidati
 		if (!project.isAccessible()) {
 			return;
 		}
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
 		
 		monitor.subTask("Delete obsolete markers");
 		MarkerCreator.deleteAllDocumentationProblemMarkers(project);
+		subMonitor.worked(1);
+		
 		MarkerCreator.deleteAllMarkdownTaskMarkers(project);
+		subMonitor.worked(1);
+		
 		MarkerCreator.deleteAllPlantUmlTaskMarkers(project);
+		subMonitor.worked(1);
 	}
 	
 	public static boolean hasBuilder(final IProject project) {
@@ -106,6 +114,8 @@ public class MarkerCalculatingFileValidationBuilder extends AbstractFileValidati
 	}
 	
 	private void replaceObsoleteBuilderIds(IProject project, IProgressMonitor monitor) throws CoreException {
+		monitor.subTask("Update builder configuration (replace obsolete builders)");
+		
 		final IProjectDescription description = project.getDescription();
 		final List<ICommand> commands = new ArrayList<ICommand>();
 		commands.addAll(Arrays.asList(description.getBuildSpec()));

@@ -50,7 +50,8 @@ public abstract class AbstractFileValidationBuilder extends IncrementalProjectBu
 			return null;
 		}
 		
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown, PlantUML and other files", numFiles);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, numFiles);
+		subMonitor.subTask("Analyzing Markdown, PlantUML and other files");
 		
 		switch (kind) {
 			case FULL_BUILD:
