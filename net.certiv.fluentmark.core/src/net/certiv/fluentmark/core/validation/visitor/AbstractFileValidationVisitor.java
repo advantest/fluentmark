@@ -95,9 +95,9 @@ abstract class AbstractFileValidationVisitor implements IResourceVisitor {
 				handleFile(file);
 			}
 			progressMonitor.worked(1);
+		} else {
+			FluentCore.log(IStatus.WARNING, "Found unexpected resource type: " + resource.getClass().getName());
 		}
-		
-		FluentCore.log(IStatus.WARNING, "Found unexpected resource type: " + resource.getClass().getName());
 		
 		return false;
 	}
