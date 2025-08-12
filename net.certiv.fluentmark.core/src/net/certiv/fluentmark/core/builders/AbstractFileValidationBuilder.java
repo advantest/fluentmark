@@ -42,6 +42,8 @@ public abstract class AbstractFileValidationBuilder extends IncrementalProjectBu
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
 		
+		monitor.subTask("Counting files");
+		
 		AdaptableFilesCountingVisitor filesCountingVisitor = new AdaptableFilesCountingVisitor(fileValidator, monitor);
 		project.accept(filesCountingVisitor);
 		int numFiles = filesCountingVisitor.getNumFiles();
@@ -51,7 +53,7 @@ public abstract class AbstractFileValidationBuilder extends IncrementalProjectBu
 		}
 		
 		SubMonitor subMonitor = SubMonitor.convert(monitor, numFiles);
-		subMonitor.subTask("Analyzing Markdown, PlantUML and other files");
+		subMonitor.setTaskName("Analyzing " + numFiles + " Markdown, PlantUML and other files");
 		
 		switch (kind) {
 			case FULL_BUILD:

@@ -90,6 +90,8 @@ abstract class AbstractFileValidationVisitor implements IResourceVisitor {
 					return false;
 				}
 				
+				progressMonitor.subTask("Checking " + file.getFullPath().toOSString());
+				
 				handleFile(file);
 			}
 			progressMonitor.worked(1);

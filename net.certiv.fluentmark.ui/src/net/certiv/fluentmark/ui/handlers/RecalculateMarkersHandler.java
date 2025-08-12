@@ -63,7 +63,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 						return Status.CANCEL_STATUS;
 					}
 					
-					subMonitor.setTaskName("Performing marker re-calculation on project " + project.getName() + "...");
+					subMonitor.setTaskName("Performing marker calculation on project " + project.getName());
 					
 					try {
 						// trigger the builder's clean operation
@@ -80,7 +80,7 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 								null,
 								subMonitor.split(100));
 					} catch (CoreException e) {
-						FluentUI.log(IStatus.ERROR, "Could not re-calculate markers on project " + project.getName(), e);
+						FluentUI.log(IStatus.ERROR, "Could not calculate markers on project " + project.getName(), e);
 						return e.getStatus();
 					}
 				}
