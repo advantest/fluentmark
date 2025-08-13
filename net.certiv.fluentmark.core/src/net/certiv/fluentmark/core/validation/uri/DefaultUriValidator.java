@@ -19,11 +19,15 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.IssueTypes;
@@ -41,7 +45,16 @@ public class DefaultUriValidator implements IUriValidator {
 	
 	private HttpClient httpClient;
 	
-	private final HashMap<String,HttpResponse<Void>> uriResponseCache = new HashMap<>();
+	private final ConcurrentMap<String, HttpResponse<Void>> uriResponseCache = CacheBuilder.newBuilder()
+			.maximumSize(100000)
+			.removalListener(new RemovalListener<String, HttpResponse<Void>>() {
+				@Override
+				public void onRemoval(RemovalNotification<String, HttpResponse<Void>> notification) {
+					// Do nothing, the listener only constrains the builder's type variables
+				}
+			})
+			.build()
+			.asMap();
 	
 	HttpClient getHttpClient() {
 		if (this.httpClient == null) {
