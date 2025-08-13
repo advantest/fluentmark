@@ -93,7 +93,7 @@ public class DefaultUriValidator implements IUriValidator {
 					// and use the same use agent value here
 					.header("User-Agent", "curl/8.11.0")
 					.header("Accept", "*/*")
-					.timeout(Duration.ofSeconds(2))
+					.timeout(Duration.ofMillis(200))
 					.build();
 		} catch (URISyntaxException | IllegalArgumentException e) {
 			issueConsumer.reportValidationResult(file,
