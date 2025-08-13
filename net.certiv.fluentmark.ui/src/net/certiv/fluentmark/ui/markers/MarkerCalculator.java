@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
@@ -23,14 +22,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 
-import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
-import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.validation.FileValidator;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class MarkerCalculator {
 
-	private static final String JOB_NAME = "Re-calculating markers";
+	private static final String JOB_NAME = "Calculating markers";
 	
 	private static MarkerCalculator INSTANCE = null;
 	
@@ -49,10 +46,7 @@ public class MarkerCalculator {
 	private final Map<IResource, IDocument> filesDocumentsMap = new HashMap<>();
 	
 	private MarkerCalculator() {
-		fileValidator = new FileValidator(
-				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
-				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
-				new MarkerCreator());
+		fileValidator = FileValidator.create(new MarkerCreator());
 	}
 	
 	public void scheduleMarkerCalculation(IDocument document, IFile file) {
@@ -126,16 +120,6 @@ public class MarkerCalculator {
 		}
 	}
 	
-	public void deleteAllMarkersOfType(IResource resource, String markerTypeId) throws CoreException {
-		IMarker[] markers = resource.findMarkers(markerTypeId, true, IResource.DEPTH_INFINITE);
-		
-		for (IMarker marker: markers) {
-			if (marker.exists()) {
-				marker.delete();
-			}
-		}
-	} 
-	
 	private void calculateMarkers(IProgressMonitor monitor, IDocument document, IFile file) throws CoreException {
 		if (monitor.isCanceled()) {
 			return;
@@ -147,9 +131,9 @@ public class MarkerCalculator {
 		}
 		
 		monitor.subTask("Delete obsolete markers");
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_MARKDOWN);
-		deleteAllMarkersOfType(file, MarkerConstants.MARKER_ID_TASK_PLANTUML);
+		MarkerCreator.deleteAllDocumentationProblemMarkers(file);
+		MarkerCreator.deleteAllMarkdownTaskMarkers(file);
+		MarkerCreator.deleteAllPlantUmlTaskMarkers(file);
 		
 		if (monitor.isCanceled()) {
 			return;

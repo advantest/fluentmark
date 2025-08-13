@@ -9,17 +9,15 @@
  */
 package net.certiv.fluentmark.ui.handlers;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
@@ -30,15 +28,8 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.IProgressConstants2;
 
-import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.builders.IMarkerCalculationResourcesVisitor;
-import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
-import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
-import net.certiv.fluentmark.ui.builders.MarkdownFileValidationVisitor;
-import net.certiv.fluentmark.ui.builders.PlantUMLValidationVisitor;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
-import net.certiv.fluentmark.ui.markers.MarkerCalculator;
-import net.certiv.fluentmark.ui.markers.MarkerConstants;
+import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder;
 
 public class RecalculateMarkersHandler extends AbstractHandler implements IHandler {
 	
@@ -51,24 +42,10 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 	}
 	
 	static void recalculateMarkers(Set<IProject> projectSet) {
-		final Map<IProject, Set<String>> projectBuilderIds = new HashMap<>();
-		final Map<String, IMarkerCalculationResourcesVisitor> builderIdsToVisitorMap = MarkerCalculationBuildersManager.getInstance().getAllMarkerCalculationResourceVisitors();
-		
-		for (IProject project: projectSet) {
-			if (project == null || !project.isAccessible()) {
-				continue;
-			}
-			
-			try {
-				Set<String> builderIds = new HashSet<>();
-				for (final ICommand buildSpec : project.getDescription().getBuildSpec()) {
-					builderIds.add(buildSpec.getBuilderName());
-				}
-				projectBuilderIds.put(project, builderIds);
-			} catch (CoreException e) {
-				Log.error("Could not re-calculate markers on project " + project.getName(), e);
-			}
-		}
+		final List<IProject> projectsWithOurBuilder = projectSet.stream()
+				.filter(project -> project.isAccessible())
+				.filter(project -> MarkerCalculatingFileValidationBuilder.hasBuilder(project))
+				.toList();
 		
 		Job job = new WorkspaceJob("Re-calculate markers and references") {
 
@@ -79,54 +56,35 @@ public class RecalculateMarkersHandler extends AbstractHandler implements IHandl
 
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) {
-				for (IProject project: projectBuilderIds.keySet()) {
-					Set<String> builderIds = projectBuilderIds.get(project);
+				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsWithOurBuilder.size() * 100 + 1);
+				
+				for (IProject project: projectsWithOurBuilder) {
+					if(subMonitor.isCanceled()) {
+						return Status.CANCEL_STATUS;
+					}
 					
-					SubMonitor progress = SubMonitor.convert(monitor, builderIds.size());
-					progress.setTaskName("Performing marker re-calculation on project " + project.getName() + "...");
+					subMonitor.setTaskName("Performing marker calculation on project " + project.getName());
 					
 					try {
-						// First, remove all our markers on given project
-						MarkerCalculator markerCalculator = MarkerCalculator.get();
-						Set<String> markerIds = new HashSet<>();
-						markerIds.add(MarkerConstants.MARKER_ID_DOCUMENTATION_PROBLEM);
-						markerIds.add(MarkerConstants.MARKER_ID_TASK_MARKDOWN);
-						markerIds.add(MarkerConstants.MARKER_ID_TASK_PLANTUML);
-						for (String builderId: projectBuilderIds.get(project)) {
-							for (String markerId: MarkerCalculationBuildersManager.getInstance().getMarkersForBuilder(builderId)) {
-								markerIds.add(markerId);
-							}
-						}
-						for (String markerId: markerIds) {
-							markerCalculator.deleteAllMarkersOfType(project, markerId);
-						}
+						// trigger the builder's clean operation
+						project.build(
+								IncrementalProjectBuilder.CLEAN_BUILD, 
+								MarkerCalculatingFileValidationBuilder.BUILDER_ID,
+								null,
+								subMonitor.split(1));
 						
-						// Then, calculate new markers 
-						for (String builderId: projectBuilderIds.get(project)) {
-							if (IncrementalMarkdownValidationProjectBuilder.BUILDER_ID.equals(builderId)) {
-								IMarkerCalculationResourcesVisitor visitor = new MarkdownFileValidationVisitor();
-								visitor.setMonitor(progress.split(1));
-								project.accept(visitor);
-							}
-							
-							if (IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID.equals(builderId)) {
-								IMarkerCalculationResourcesVisitor visitor = new PlantUMLValidationVisitor();
-								visitor.setMonitor(progress.split(1));
-								project.accept(visitor);
-							}
-							
-							for (String additionalBuilderId: builderIdsToVisitorMap.keySet()) {
-								if (builderId.equals(additionalBuilderId)) {
-									IMarkerCalculationResourcesVisitor visitor = builderIdsToVisitorMap.get(additionalBuilderId);
-									visitor.setMonitor(progress.split(1));
-									project.accept(visitor);
-								}
-							}
-						}
+						// trigger a full build
+						project.build(
+								IncrementalProjectBuilder.FULL_BUILD, 
+								MarkerCalculatingFileValidationBuilder.BUILDER_ID,
+								null,
+								subMonitor.split(100));
 					} catch (CoreException e) {
+						FluentUI.log(IStatus.ERROR, "Could not calculate markers on project " + project.getName(), e);
 						return e.getStatus();
 					}
 				}
+				monitor.done();
 				return Status.OK_STATUS;
 			}
 		};

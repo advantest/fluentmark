@@ -34,23 +34,19 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import net.certiv.fluentmark.ui.Log;
-import net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder;
-import net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder;
+import net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder;
 import net.certiv.fluentmark.ui.decorators.MarkdownFileValidationsDecorator;
-import net.certiv.fluentmark.ui.extensionpoints.MarkerCalculationBuildersManager;
-import net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester;
 
 public class AddMarkerCalculationBuilderHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Set<IProject> projectSet = getProjects(event);
-		MarkerCalculationBuildersManager builderManager = MarkerCalculationBuildersManager.getInstance();
 
 		for (IProject project: projectSet) {
 			try {
 				// verify already registered builders
-				if (MarkdownValidationsBuilderEnabledTester.hasBuilder(project)) {
+				if (MarkerCalculatingFileValidationBuilder.hasBuilder(project)) {
 					return null;
 				}
 
@@ -61,24 +57,8 @@ public class AddMarkerCalculationBuilderHandler extends AbstractHandler implemen
 				commands.addAll(Arrays.asList(description.getBuildSpec()));
 				
 				ICommand builderCommand = description.newCommand();
-				builderCommand.setBuilderName(IncrementalMarkdownValidationProjectBuilder.BUILDER_ID);
+				builderCommand.setBuilderName(MarkerCalculatingFileValidationBuilder.BUILDER_ID);
 				commands.add(builderCommand);
-				
-				builderCommand = description.newCommand();
-				builderCommand.setBuilderName(IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID);
-				commands.add(builderCommand);
-				
-				// add builders from extensions
-				Set<String> builderIds = builderManager.getMarkerCalculationBuilderIdsFromExtensions();
-				for (String builderId: builderIds) {
-					Set<String> natureIds = builderManager.getProjectNaturesForBuilder(builderId);
-					
-					if (natureIds.isEmpty() || hasAtLeastOneOfNatures(project, natureIds)) {
-						builderCommand = description.newCommand();
-						builderCommand.setBuilderName(builderId);
-						commands.add(builderCommand);
-					}
-				}
 				
 				description.setBuildSpec(commands.toArray(new ICommand[commands.size()]));
 				project.setDescription(description, null);
@@ -86,7 +66,7 @@ public class AddMarkerCalculationBuilderHandler extends AbstractHandler implemen
 				IDecoratorManager decoratorManager = PlatformUI.getWorkbench().getDecoratorManager();
 				decoratorManager.update(MarkdownFileValidationsDecorator.DECORATOR_ID);
 			} catch (final CoreException e) {
-				Log.error("Could not add marker calculation builder(s) to project " + project.getName(), e);
+				Log.error("Could not add marker calculation builder to project " + project.getName(), e);
 			}
 		}
 		
@@ -96,18 +76,6 @@ public class AddMarkerCalculationBuilderHandler extends AbstractHandler implemen
 		return null;
 	}
 	
-	private boolean hasAtLeastOneOfNatures(IProject project, Set<String> natureIds) throws CoreException {
-		IProjectDescription description = project.getDescription();
-		for (String projectNatureId: description.getNatureIds()) {
-			for (String natureIdToFind: natureIds) {
-				if (projectNatureId.equals(natureIdToFind)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public static Set<IProject> getProjects(final ExecutionEvent event) {
 		final ISelection selection = HandlerUtil.getCurrentSelection(event);
 		if (selection instanceof IStructuredSelection) {

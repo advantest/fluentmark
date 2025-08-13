@@ -20,9 +20,14 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import net.certiv.fluentmark.core.validation.IValidationResultConsumer;
 import net.certiv.fluentmark.core.validation.IssueTypes;
@@ -39,6 +44,17 @@ public class DefaultUriValidator implements IUriValidator {
 	}
 	
 	private HttpClient httpClient;
+	
+	private final ConcurrentMap<String, HttpResponse<Void>> uriResponseCache = CacheBuilder.newBuilder()
+			.maximumSize(100000)
+			.removalListener(new RemovalListener<String, HttpResponse<Void>>() {
+				@Override
+				public void onRemoval(RemovalNotification<String, HttpResponse<Void>> notification) {
+					// Do nothing, the listener only constrains the builder's type variables
+				}
+			})
+			.build()
+			.asMap();
 	
 	HttpClient getHttpClient() {
 		if (this.httpClient == null) {
@@ -61,10 +77,40 @@ public class DefaultUriValidator implements IUriValidator {
 	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
 		this.issueConsumer = issueConsumer;
 	}
-
+	
+	protected HttpRequest createHttpHeadRequest(String uriText) throws URISyntaxException {
+		URI uri = new URI(uriText);
+		
+		// we only need HTTP HEAD, no page content, just reachability
+		return HttpRequest.newBuilder()
+				.method("HEAD", HttpRequest.BodyPublishers.noBody())
+				.uri(uri)
+				// Some web sites / servers check the user agent header and expect certain common values, otherwise they answer with http status code 403.
+				// Hint: call curl -v https://your-domain.com to check, which user agent header is sent by curl (which is usually successful)
+				// and use the same use agent value here
+				.header("User-Agent", "curl/8.11.0")
+				.header("Accept", "*/*")
+				.timeout(Duration.ofMillis(200))
+				.build();
+	}
+	
+	protected void evaluateHttpResponse(String uriText, HttpResponse<Void> httpResponse, IFile file, Map<String, String> contextDetails, int lineNumber, int offset) {
+		int statusCode = httpResponse.statusCode();
+		
+		if (statusCode >= 400) {
+			issueConsumer.reportValidationResult(file,
+					IssueTypes.MARKDOWN_ISSUE,
+					IMarker.SEVERITY_ERROR,
+					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
+					lineNumber,
+					offset,
+					offset + uriText.length());
+		}
+	}
+	
 	@Override
 	public void checkUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset,
-			HttpClient defaultHttpClient) {
+			HttpClient httpClient) {
 		
 		if (!uriText.toLowerCase().startsWith("http://")
 			&& !uriText.toLowerCase().startsWith("https://")) {
@@ -77,24 +123,16 @@ public class DefaultUriValidator implements IUriValidator {
 					offset + uriText.length());
 			return;
 		}
-			
-		URI uri = null;
-		HttpRequest headRequest = null;
 		
+		HttpResponse<Void> response = uriResponseCache.get(uriText);
+		if (response != null) {
+			evaluateHttpResponse(uriText, response, file, contextDetails, lineNumber, offset);
+			return;
+		}
+		
+		HttpRequest headRequest = null;
 		try {
-			uri = new URI(uriText);
-			
-			// we only need HTTP HEAD, no page content, just reachability
-			headRequest = HttpRequest.newBuilder()
-					.method("HEAD", HttpRequest.BodyPublishers.noBody())
-					.uri(uri)
-					// Some web sites / servers check the user agent header and expect certain common values, otherwise they answer with http status code 403.
-					// Hint: call curl -v https://your-domain.com to check, which user agent header is sent by curl (which is usually successful)
-					// and use the same use agent value here
-					.header("User-Agent", "curl/8.11.0")
-					.header("Accept", "*/*")
-					.timeout(Duration.ofSeconds(2))
-					.build();
+			headRequest = createHttpHeadRequest(uriText);
 		} catch (URISyntaxException | IllegalArgumentException e) {
 			issueConsumer.reportValidationResult(file,
 					IssueTypes.MARKDOWN_ISSUE,
@@ -106,28 +144,15 @@ public class DefaultUriValidator implements IUriValidator {
 			return;
 		}
 		
-		int statusCode = -1;
-		String errorMessage = null;
 		try {
-			HttpResponse <Void> response = defaultHttpClient.send(headRequest, BodyHandlers.discarding());
-			statusCode = response.statusCode(); 
+			response = httpClient.send(headRequest, BodyHandlers.discarding());
+			uriResponseCache.put(uriText, response);
 		} catch (IOException | InterruptedException e) {
-			errorMessage = e.getMessage();
+			String errorMessage = e.getMessage();
 			if (errorMessage == null) {
 				errorMessage = e.getClass().getName();
 			}
-			statusCode = -404;
-		}
-		
-		if (statusCode >= 400) {
-			issueConsumer.reportValidationResult(file,
-					IssueTypes.MARKDOWN_ISSUE,
-					IMarker.SEVERITY_ERROR,
-					String.format("The referenced web address '%s' is not reachable (HTTP status code %s).", uriText, statusCode),
-					lineNumber,
-					offset,
-					offset + uriText.length());
-		} else if (statusCode == -404) {
+			
 			issueConsumer.reportValidationResult(file,
 					IssueTypes.MARKDOWN_ISSUE,
 					IMarker.SEVERITY_WARNING,
@@ -135,7 +160,10 @@ public class DefaultUriValidator implements IUriValidator {
 					lineNumber,
 					offset,
 					offset + uriText.length());
+			return;
 		}
+		
+		evaluateHttpResponse(uriText, response, file, contextDetails, lineNumber, offset);
 	}
 
 }

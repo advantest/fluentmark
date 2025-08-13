@@ -25,6 +25,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import net.certiv.fluentmark.core.FluentCore;
+import net.certiv.fluentmark.core.extensionpoints.DocumentPartitionersManager;
+import net.certiv.fluentmark.core.extensionpoints.TypedRegionValidatorsManager;
 import net.certiv.fluentmark.core.partitions.IFluentDocumentPartitioner;
 import net.certiv.fluentmark.core.util.FileUtils;
 
@@ -47,6 +49,23 @@ public class FileValidator {
 		this.validators = validators;
 	}
 	
+	public static FileValidator create(IValidationResultConsumer validationResultConsumer) {
+		return new FileValidator(
+				DocumentPartitionersManager.getInstance().getDocumentPartitioners(),
+				TypedRegionValidatorsManager.getInstance().getTypedRegionValidators(),
+				validationResultConsumer);
+	}
+	
+	public boolean hasApplicablePartitionValidatorsFor(IFile file) {
+		return !getApplicablePartitionValidators(file).isEmpty();
+	}
+	
+	private List<ITypedRegionValidator> getApplicablePartitionValidators(IFile file) {
+		return validators.stream()
+				.filter(validator -> validator.isValidatorFor(file))
+				.toList();
+	}
+	
 	public void performResourceValidation(IFile file, IProgressMonitor monitor) {
 		performResourceValidation(null, file, monitor);
 	}
@@ -65,10 +84,7 @@ public class FileValidator {
 			return;
 		}
 		
-		List<ITypedRegionValidator> responsibleValidators = validators.stream()
-			.filter(validator -> validator.isValidatorFor(file))
-			.toList();
-		
+		List<ITypedRegionValidator> responsibleValidators = getApplicablePartitionValidators(file);
 		if (responsibleValidators.isEmpty()) {
 			return;
 		}

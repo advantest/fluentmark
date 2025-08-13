@@ -44,6 +44,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
@@ -395,6 +396,30 @@ public final class FileUtils {
 		}
 		
 		return System.lineSeparator();
+	}
+	
+	public static boolean isInProjectRootFolder(IResource resource) {
+		if (resource == null || resource.getProject() == null) {
+			return false;
+		}
+		
+		IProject project = resource.getProject();
+		
+		return project.equals(resource.getParent());
+	}
+	
+	public static boolean hasProjectNature(IResource resource, String natureId) {
+		if (resource == null || resource.getProject() == null) {
+			return false;
+		}
+		
+		IProject project = resource.getProject();
+		try {
+			return project.hasNature(natureId);
+		} catch (CoreException e) {
+			FluentCore.log(IStatus.ERROR, "Could not read project nature for project: " + project.getName(), e);
+			return false;
+		}
 	}
 
 }

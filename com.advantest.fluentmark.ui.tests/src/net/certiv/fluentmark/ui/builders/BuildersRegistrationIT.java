@@ -36,8 +36,7 @@ public class BuildersRegistrationIT {
 	
 	@ParameterizedTest
 	@ValueSource(strings = {
-			IncrementalMarkdownValidationProjectBuilder.BUILDER_ID,
-			IncrementalPlantUmlValidationProjectBuilder.BUILDER_ID
+			MarkerCalculatingFileValidationBuilder.BUILDER_ID
 			})
 	public void allBuildersRegistered(String builderId) {
 		IExtension builderExtension = extensionRegistry.getExtension(ResourcesPlugin.PI_RESOURCES, ResourcesPlugin.PT_BUILDERS, builderId);

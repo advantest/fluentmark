@@ -15,35 +15,35 @@ import java.util.List;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.util.ExtensionsUtil;
-import net.certiv.fluentmark.core.validation.IAnchorResolver;
+import net.certiv.fluentmark.core.validation.visitor.IDocumentResolver;
 
-public class AnchorResolversManager {
+public class DocumentResolversManager {
 	
-	private static final String EXTENSION_POINT_ID_ANCHOR_RESOLVER = FluentCore.PLUGIN_ID + ".anchorResolver";
+	private static final String EXTENSION_POINT_ID_DOCUMENT_RESOLVER = FluentCore.PLUGIN_ID + ".documentResolver";
 	
-	private static AnchorResolversManager INSTANCE = null;
+	private static DocumentResolversManager INSTANCE = null;
 	
-	private final List<IAnchorResolver> resolvers = new ArrayList<>();
+	private final List<IDocumentResolver> resolvers = new ArrayList<>();
 	
-	private AnchorResolversManager() {
+	private DocumentResolversManager() {
 		this.init();
 	}
 	
 	private void init() {
 		resolvers.addAll(
 				ExtensionsUtil.createExecutableExtensionsFor(
-						EXTENSION_POINT_ID_ANCHOR_RESOLVER, 
-						IAnchorResolver.class));
+						EXTENSION_POINT_ID_DOCUMENT_RESOLVER, 
+						IDocumentResolver.class));
 	}
 	
-	public static AnchorResolversManager getInstance() {
+	public static DocumentResolversManager getInstance() {
 		if (INSTANCE == null) {
-			INSTANCE = new AnchorResolversManager();
+			INSTANCE = new DocumentResolversManager();
 		}
 		return INSTANCE;
 	}
 	
-	public List<IAnchorResolver> getAnchorResolvers() {
+	public List<IDocumentResolver> getDocumentResolvers() {
 		return Collections.unmodifiableList(resolvers);
 	}
 

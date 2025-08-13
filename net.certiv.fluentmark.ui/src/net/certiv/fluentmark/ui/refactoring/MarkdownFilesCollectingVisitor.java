@@ -22,7 +22,6 @@ import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.builders.MarkdownFileValidationVisitor;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
 public class MarkdownFilesCollectingVisitor implements IResourceVisitor {
@@ -37,9 +36,9 @@ public class MarkdownFilesCollectingVisitor implements IResourceVisitor {
 	
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
-		// look into projects and visit Markdown files in doc/doc_... folders
 		if (resource instanceof IContainer) {
-			return MarkdownFileValidationVisitor.shouldVisitMembers((IContainer) resource);
+			// TODO Re-use code from AbstractFileValidationVisitor#visit(IResource)?
+			return resource.isAccessible();
 		}
 		
 		// only work on *.md files

@@ -13,14 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 
+import net.certiv.fluentmark.core.util.ExtensionsUtil;
 import net.certiv.fluentmark.ui.FluentUI;
 
 public class ContentAssistProcessorsManager {
@@ -43,22 +38,10 @@ public class ContentAssistProcessorsManager {
 	}
 	
 	private void init() {
-		IExtensionPoint contentAssistProcessorExtensionPoint = Platform.getExtensionRegistry().getExtensionPoint(EXTENSION_POINT_ID_CONTENT_ASSIST_PROCESSOR);
-		IExtension[] contentAssistProcessorExtensions = contentAssistProcessorExtensionPoint.getExtensions();
-		for (IExtension contentAssistProcessorExtension: contentAssistProcessorExtensions) {
-			IConfigurationElement[] configElements = contentAssistProcessorExtension.getConfigurationElements();
-			
-			try {
-				for (IConfigurationElement configElement : configElements) {
-					Object obj = configElement.createExecutableExtension("class");
-					if (obj instanceof IContentAssistProcessor) {
-						additionalContentAssistProcessors.add((IContentAssistProcessor) obj);
-					}
-				}
-			} catch (CoreException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load IContentAssistProcessor from extension", e);
-			}
-		}
+		additionalContentAssistProcessors.addAll(
+				ExtensionsUtil.createExecutableExtensionsFor(
+						EXTENSION_POINT_ID_CONTENT_ASSIST_PROCESSOR,
+						IContentAssistProcessor.class));
 	}
 	
 	public List<IContentAssistProcessor> getAdditionalContentAssistProcessors() {

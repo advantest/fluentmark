@@ -5,6 +5,8 @@
    <extension-point id="partitionValidator" name="Validators based on typed regions (partitions)" schema="schema/partitionValidator.exsd"/>
    <extension-point id="uriValidator" name="URI validators" schema="schema/uriValidator.exsd"/>
    <extension-point id="anchorResolver" name="Anchor resolvers" schema="schema/anchorResolver.exsd"/>
+   <extension-point id="documentResolver" name="IDocument resolver" schema="schema/documentResolver.exsd"/>
+   <extension-point id="resourcesValidationFilter" name="Resources validation filter" schema="schema/resourcesValidationFilter.exsd"/>
    <extension
          point="net.certiv.fluentmark.core.partitioner">
       <partitioner
