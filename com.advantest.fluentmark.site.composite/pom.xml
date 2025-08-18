@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>net.certiv.fluentmark</groupId>
+		<artifactId>fluentmark</artifactId>
+		<version>1.5.4-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>com.advantest.fluentmark.site.composite</artifactId>
+	<packaging>eclipse-repository</packaging>
+
+	<name>FluentMark AE composite update site</name>
+	<description>FluentMark Advantest Edition composite update site</description>
+	
+	<build>
+		<plugins>
+		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					
+					<!-- copy latest p2 composite repository -->
+					<execution>
+						<id>copy-composite-p2-files</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/gh-pages</outputDirectory>
+							<resources>
+								<resource>
+									<directory>repository</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+							<overwrite>true</overwrite>
+							<encoding>UTF-8</encoding>
+						</configuration>
+					</execution>
+					
+					<!-- copy latest Fluentmark version p2 repository -->
+					<execution>
+						<id>copy-latest-p2-files</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/gh-pages/fluentmark</outputDirectory>
+							<resources>
+								<resource>
+									<directory>../net.certiv.fluentmark.site/target/repository</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+							<overwrite>true</overwrite>
+							<encoding>UTF-8</encoding>
+						</configuration>
+					</execution>
+					
+					<!-- copy README.md -->
+					<execution>
+						<id>copy-readme</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/gh-pages</outputDirectory>
+							<resources>
+								<resource>
+									<directory>..</directory>
+									<includes>
+										<include>README.md</include>
+									</includes>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+							<overwrite>true</overwrite>
+							<encoding>UTF-8</encoding>
+						</configuration>
+					</execution>
+					
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.5.1</version>
+				<inherited>false</inherited> <!-- only execute these in the parent -->
+				<configuration>
+					<executable>git</executable>
+				</configuration>
+				<executions>
+				
+					<!-- git clone GitHub pages branch -->
+					<execution>
+						<id>git-clone-gh-pages</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<arguments>
+								<argument>clone</argument>
+								<argument>-b</argument>
+								<argument>gh-pages</argument>
+								<argument>git@github.com:advantest/fluentmark.git</argument>
+								<argument>${basedir}/target/gh-pages</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					
+					<!-- git stage changes on GitHub pages / composite update site -->
+					<execution>
+						<id>git-add-gh-pages</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<arguments>
+								<argument>-C</argument>
+								<argument>${basedir}/target/gh-pages</argument>
+								<argument>add</argument>
+								<argument>--all</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					
+					<!-- git commit new GitHub pages / composite update site -->
+					<execution>
+						<id>git-commit-gh-pages</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<arguments>
+								<argument>-C</argument>
+								<argument>${basedir}/target/gh-pages</argument>
+								<argument>commit</argument>
+								<argument>-m</argument>
+								<argument>Add new Fluentmark AE version ${unqualifiedVersion}.${buildQualifier}</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					
+				</executions>
+			</plugin>
+			
+		</plugins>
+	</build>
+
+</project>
