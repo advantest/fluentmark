@@ -9,14 +9,18 @@
  */
 package net.certiv.fluentmark.core.validation.uri;
 
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.jobs.Job;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.extensionpoints.UriValidatorsManager;
@@ -26,7 +30,6 @@ import net.certiv.fluentmark.core.validation.IValidationResultReporter;
 public class LinkValidator implements IValidationResultReporter {
 
 	private DefaultUriValidator defaultUriValidator;
-	private IValidationResultConsumer issueConsumer;
 	
 	public LinkValidator() {
 		defaultUriValidator = DefaultUriValidator.getDefaultUriValidator();
@@ -34,8 +37,12 @@ public class LinkValidator implements IValidationResultReporter {
 	
 	@Override
 	public void setValidationResultConsumer(IValidationResultConsumer issueConsumer) {
-		this.issueConsumer = issueConsumer;
 		this.defaultUriValidator.setValidationResultConsumer(issueConsumer);
+		
+		List<IUriValidator> uriValidators = UriValidatorsManager.getInstance().getUriValidators();
+		for (IUriValidator uriValidator : uriValidators) {
+			uriValidator.setValidationResultConsumer(issueConsumer);
+		}
 	}
 	
 	public void checkHttpUri(String uriText, IFile file, Map<String, String> contextDetails, int lineNumber, int offset) throws CoreException {
@@ -48,6 +55,24 @@ public class LinkValidator implements IValidationResultReporter {
 		for (IUriValidator uriValidator : uriValidators) {
 			if (uriValidator.isResponsibleFor(uriText)) {
 				
+				asyncCheckHttpUri(uriValidator, defaultUriValidator.getHttpClient(), uriText, file,
+						contextDetails, lineNumber, offset);
+				
+				// do not run other validations if we found a responsible validator from extensions
+				return;
+			}
+		}
+		
+		asyncCheckHttpUri(defaultUriValidator, defaultUriValidator.getHttpClient(), uriText, file,
+				contextDetails, lineNumber, offset);
+	}
+	
+	private void asyncCheckHttpUri(IUriValidator uriValidator, HttpClient httpClient, String uriText, IFile file,
+			Map<String, String> contextDetails, int lineNumber, int offset) {
+		Job checkingJob = Job.create("Checking URI " + uriText, new ICoreRunnable() {
+
+			@Override
+			public void run(IProgressMonitor monitor) throws CoreException {
 				ISafeRunnable runnable = new ISafeRunnable() {
 					@Override
 					public void handleException(Throwable e) {
@@ -64,20 +89,21 @@ public class LinkValidator implements IValidationResultReporter {
 
 					@Override
 					public void run() throws Exception {
-						uriValidator.setValidationResultConsumer(issueConsumer);
-						uriValidator.checkUri(uriText, file, contextDetails, lineNumber, offset,
-								defaultUriValidator.getHttpClient());
+						if (monitor.isCanceled()) {
+							return;
+						}
+						
+						uriValidator.checkUri(uriText, file, contextDetails, lineNumber, offset, httpClient);
 					}
 				};
 				SafeRunner.run(runnable);
-
-				// do not run other validations if we found a responsible validator from
-				// extensions
-				return;
 			}
-		}
+			
+		});
 		
-		defaultUriValidator.checkUri(uriText, file, contextDetails, lineNumber, offset, defaultUriValidator.getHttpClient());
+		checkingJob.setUser(false);
+		checkingJob.setPriority(Job.DECORATE);
+		checkingJob.setRule(file);
+		checkingJob.schedule();
 	}
-	
 }
