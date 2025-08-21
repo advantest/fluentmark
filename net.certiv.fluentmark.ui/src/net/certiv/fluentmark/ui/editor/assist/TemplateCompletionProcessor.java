@@ -48,6 +48,10 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 	private static final Template[] NO_TEMPLATES = new Template[0];
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
+	private static final String TEMPLATE_NAME_SWREQ = "SWREQ:";
+	private static final String TEMPLATE_NAME_ARC42 = "ARC42:";
+	private static final String TEMPLATE_NAME_RR = "RR:";
+	
 	private static final Set<String> IN_LINE_TEMPLATE_NAMES = new HashSet<>();
 	static {
 		IN_LINE_TEMPLATE_NAMES.add("link");
@@ -56,9 +60,9 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 		
 		// work-around: add some template names from another plug-in
 		// (otherwise we would need another TemplateCompletionProcessor)
-		IN_LINE_TEMPLATE_NAMES.add("SWREQ");
-		IN_LINE_TEMPLATE_NAMES.add("ARC42");
-		IN_LINE_TEMPLATE_NAMES.add("RR");
+		IN_LINE_TEMPLATE_NAMES.add(TEMPLATE_NAME_SWREQ);
+		IN_LINE_TEMPLATE_NAMES.add(TEMPLATE_NAME_ARC42);
+		IN_LINE_TEMPLATE_NAMES.add(TEMPLATE_NAME_RR);
 	}
 
 	private final SourceTemplateContextType contextType;
@@ -205,6 +209,13 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 					// do not propose other snippets than section id for header lines
 					if (currentLine.startsWith("#")
 							&& !"header_id".equals(template.getName())) {
+						continue;
+					}
+					
+					// do not propose any code snippets if one of these three templates is already applied
+					if (currentLine.endsWith(TEMPLATE_NAME_SWREQ)
+							|| currentLine.endsWith(TEMPLATE_NAME_ARC42)
+							|| currentLine.endsWith(TEMPLATE_NAME_RR)) {
 						continue;
 					}
 				}
