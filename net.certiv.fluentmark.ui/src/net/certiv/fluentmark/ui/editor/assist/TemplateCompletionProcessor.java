@@ -132,6 +132,7 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		boolean inEmptyLine = false;
 		String currentLine;
+		String currentLineTextLeftFromCursor;
 		
 		IDocument document = viewer.getDocument();
 		try {
@@ -140,6 +141,7 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 			int lineLength = document.getLineLength(currentLineNumber);
 			
 			currentLine = lineLength > 0 ? document.get(lineOffset, lineLength) : "";
+			currentLineTextLeftFromCursor = lineLength > 0 ? document.get(lineOffset, offset - lineOffset) : "";
 			
 			if (currentLine.equals("\n") || currentLine.equals("\r\n")) {
 				inEmptyLine = true;
@@ -213,9 +215,9 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 					}
 					
 					// do not propose any code snippets if one of these three templates is already applied
-					if (currentLine.endsWith(TEMPLATE_NAME_SWREQ)
-							|| currentLine.endsWith(TEMPLATE_NAME_ARC42)
-							|| currentLine.endsWith(TEMPLATE_NAME_RR)) {
+					if (currentLineTextLeftFromCursor.endsWith(TEMPLATE_NAME_SWREQ)
+							|| currentLineTextLeftFromCursor.endsWith(TEMPLATE_NAME_ARC42)
+							|| currentLineTextLeftFromCursor.endsWith(TEMPLATE_NAME_RR)) {
 						continue;
 					}
 				}
