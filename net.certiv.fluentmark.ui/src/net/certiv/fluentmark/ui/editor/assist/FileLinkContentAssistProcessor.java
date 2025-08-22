@@ -83,6 +83,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			
 			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
 			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition
+					// we only make proposals if we're at the beginning of a line or we have a whitespace char left from cursor
+					&& (lineLeftFromCursor.length() == 0 || Character.isWhitespace(lineLeftFromCursor.charAt(lineLeftFromCursor.length() - 1)))
 					// we don't propose link/image creation if we're in an anchor definition like "# Heading {#}"
 					&& !lineLeftFromCursor.matches("#+\\s.*\\{#\\S*")) {
 				
