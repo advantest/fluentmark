@@ -7,29 +7,23 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.preferences;
 
-import org.eclipse.swt.graphics.RGB;
-
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.ui.texteditor.spelling.SpellingService;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Locale;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.osgi.framework.Bundle;
-
-import java.util.Locale;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import java.io.IOException;
 
 import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
@@ -43,17 +37,9 @@ import net.certiv.spellchecker.SpellCheckEngine;
  */
 public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
-	private static final String QUALIFIER_TEXT_EDITORS = "org.eclipse.ui.editors";
-	
 	// default colors
-	
-	// default foreground color: black
-	private static final RGB DEF_COLOR_FOREGROUND_DEFAULT = new RGB(0, 0, 0); // black
-	private static final RGB DEF_COLOR_BACKGROUND_DEFAULT = new RGB(255, 255, 255); // white
-	
 	private static final RGB DEF_COMMENT = new RGB(128, 0, 0);
 	private static final RGB DEF_HEADER = new RGB(0, 128, 0);
-	private static final RGB DEF_LINK = new RGB(106, 131, 199);
 
 	private static final RGB DEF_KEYWORD = new RGB(127, 0, 85);
 	private static final RGB DEF_SYMBOL = new RGB(96, 96, 128);
@@ -88,8 +74,8 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
+		IPreferenceStore combinedStore = FluentUI.getDefault().getCombinedPreferenceStore();
 
-		store.setDefault(EDITOR_TAB_WIDTH, 4);
 		store.setDefault(EDITOR_TAB_CHAR, false); // always use spaces
 		store.setDefault(EDITOR_FORMATTING_ENABLED, true);
 		store.setDefault(EDITOR_FORMATTING_COLUMN, 80);
@@ -136,18 +122,10 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		// colors
 
-		// Read text editors' foreground color from preferences in General -> Editors -> Text Editors -> Appearance color options: -> Foreground color 
-		String textEditorsForegroundColorText = Platform.getPreferencesService().getString(
-				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, null, null);
-		RGB textEditorsForegroundColor = StringConverter.asRGB(textEditorsForegroundColorText, DEF_COLOR_FOREGROUND_DEFAULT);
-		
-		String textEditorsBackgroundColorText = Platform.getPreferencesService().getString(
-				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, null, null);
-		RGB textEditorsBackgroundColor = StringConverter.asRGB(textEditorsBackgroundColorText, DEF_COLOR_BACKGROUND_DEFAULT);
-		
-		String textEditorsHyperlinkColorText = Platform.getPreferencesService().getString(
-				QUALIFIER_TEXT_EDITORS, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR, null, null);
-		RGB textEditorsHyperlinkColor = StringConverter.asRGB(textEditorsHyperlinkColorText, DEF_LINK);
+		// Read text editors' colors from preferences in General -> Editors -> Text Editors -> Appearance color options: -> Foreground / Background / Hyperlink color 
+		RGB textEditorsForegroundColor = PreferenceConverter.getColor(combinedStore, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND);
+		RGB textEditorsBackgroundColor = PreferenceConverter.getColor(combinedStore, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
+		RGB textEditorsHyperlinkColor = PreferenceConverter.getColor(combinedStore, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR);
 		
 		PreferenceConverter.setDefault(store, EDITOR_FOREGROUND_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_BACKGROUND_COLOR, textEditorsBackgroundColor);
@@ -159,7 +137,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_HEADER_COLOR, DEF_HEADER);
 		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, textEditorsHyperlinkColor);
-		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_LINK);
+		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_HEADER);
 		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, textEditorsForegroundColor);

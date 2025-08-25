@@ -488,6 +488,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				fEnableCheckbox.setSelection(true);
 			}
 		} else {
+			// we have the default color settings
+			
 			fSyntaxForegroundColorEditor.getButton().setEnabled(true);
 			fColorEditorLabel.setEnabled(true);
 			
@@ -787,7 +789,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
 				getPreferenceStore(),
 				EditorsUI.getPreferenceStore(),
-				PlatformUI.getPreferenceStore(),
+				//PlatformUI.getPreferenceStore(),
 				new PreferencesAdapter(createTemporaryCorePreferenceStore()),
 				generalTextStore
 		});

@@ -332,8 +332,9 @@ public class FluentEditor extends TextEditor
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(editorComposite);
 		editorComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
+		IPreferenceStore combinedStore = FluentUI.getDefault().getCombinedPreferenceStore();
 		viewer = new FluentSourceViewer(editorComposite, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles,
-				getPreferenceStore());
+				combinedStore);
 		if (isFoldingEnabled() && !getPreferenceStore().getBoolean(Prefs.EDITOR_SHOW_SEGMENTS)) {
 			viewer.prepareDelayedProjection();
 		}

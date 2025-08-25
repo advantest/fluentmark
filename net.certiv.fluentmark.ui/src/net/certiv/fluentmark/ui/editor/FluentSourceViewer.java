@@ -23,6 +23,7 @@ import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELE
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
@@ -47,6 +48,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -149,6 +151,10 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 	}
 
 	protected void initializeViewerColors() {
+		if (store == null || store.getString(PREFERENCE_COLOR_BACKGROUND) == null || store.getString(PREFERENCE_COLOR_BACKGROUND).isBlank()) {
+			FluentUI.log(IStatus.WARNING, "Preference store not available or incomplete. Cannot read text editors' default colors.");
+		}
+		
 		if (store != null) {
 
 			StyledText styledText = getTextWidget();
@@ -157,7 +163,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			// same implementation as in org.eclipse.ui.texteditor.AbstractTextEditor:initializeViewerColors(ISourceViewer)
 
 			// ----------- foreground color --------------------
-			color= store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)
+			color = store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)
 				? null
 				: createColor(store, PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
 			styledText.setForeground(color);
@@ -166,7 +172,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			fForegroundColor = color;
 
 			// ---------- background color ----------------------
-			color= store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)
+			color = store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)
 				? null
 				: createColor(store, PREFERENCE_COLOR_BACKGROUND, styledText.getDisplay());
 			styledText.setBackground(color);
@@ -175,7 +181,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			fBackgroundColor = color;
 
 			// ----------- selection foreground color --------------------
-			color= store.getBoolean(PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT)
+			color = store.getBoolean(PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT)
 				? null
 				: createColor(store, PREFERENCE_COLOR_SELECTION_FOREGROUND, styledText.getDisplay());
 			styledText.setSelectionForeground(color);
@@ -184,7 +190,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			fSelectionForegroundColor = color;
 
 			// ---------- selection background color ----------------------
-			color= store.getBoolean(PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT)
+			color = store.getBoolean(PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT)
 				? null
 				: createColor(store, PREFERENCE_COLOR_SELECTION_BACKGROUND, styledText.getDisplay());
 			styledText.setSelectionBackground(color);
@@ -193,7 +199,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			fSelectionBackgroundColor = color;
 		}
 	}
-
+	
 	/**
 	 * Creates a color from the information stored in the given preference delta. Returns
 	 * <code>null</code> if there is no such information available. TODO: move or fix store.getColor
@@ -256,7 +262,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			initializeViewerColors();
 		}
 	}
-
+	
 	/** Sets the preference delta on this viewer. */
 	public void setPreferenceStore(IPreferenceStore store) {
 		if (isConfigured && store != null) {

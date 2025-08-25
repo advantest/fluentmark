@@ -168,7 +168,7 @@ public class FluentSourceViewerInfoControl
 
 	protected void createViewer(int style, Composite composite) {
 		FluentUI mkUI = FluentUI.getDefault();
-		IPreferenceStore store = mkUI.getPreferenceStore();
+		IPreferenceStore store = mkUI.getCombinedPreferenceStore();
 		SourceViewerConfiguration viewerConfig = FluentSourceViewerConfiguration.createSimpleSourceViewerConfiguration(store);
 		viewer = new FluentSourceViewer(composite, null, null, false, style, store);
 		viewer.configure(viewerConfig);
