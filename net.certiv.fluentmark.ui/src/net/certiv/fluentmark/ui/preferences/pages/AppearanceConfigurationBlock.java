@@ -73,16 +73,45 @@ import net.certiv.fluentmark.ui.util.SwtUtil;
  */
 @SuppressWarnings("deprecation")
 class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
-
-	/**
-	 * Item in the highlighting color list.
-	 */
-	private static class HighlightingColorListItem {
-
+	
+	private static class ColorListItem {
+		
 		/** Display name */
 		private String fDisplayName;
 		/** Color preference key */
 		private String fColorKey;
+		
+		/**
+		 * Initialize the item with the given values.
+		 *
+		 * @param displayName the display name
+		 * @param colorKey the color preference key
+		 */
+		public ColorListItem(String displayName, String colorKey) {
+			fDisplayName = displayName;
+			fColorKey = colorKey;
+		}
+		
+		/**
+		 * @return the display name
+		 */
+		public String getDisplayName() {
+			return fDisplayName;
+		}
+		
+		/**
+		 * @return the color preference key
+		 */
+		public String getColorKey() {
+			return fColorKey;
+		}
+	}
+
+	/**
+	 * Item in the highlighting color list.
+	 */
+	private static class HighlightingColorListItem extends ColorListItem {
+
 		/** Bold preference key */
 		private String fBoldKey;
 		/** Italic preference key */
@@ -104,8 +133,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		 */
 		public HighlightingColorListItem(String displayName, String colorKey, String boldKey, String italicKey,
 				String strikethroughKey, String underlineKey) {
-			fDisplayName = displayName;
-			fColorKey = colorKey;
+			super(displayName, colorKey);
 			fBoldKey = boldKey;
 			fItalicKey = italicKey;
 			fStrikethroughKey = strikethroughKey;
@@ -138,20 +166,6 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		 */
 		public String getUnderlineKey() {
 			return fUnderlineKey;
-		}
-
-		/**
-		 * @return the color preference key
-		 */
-		public String getColorKey() {
-			return fColorKey;
-		}
-
-		/**
-		 * @return the display name
-		 */
-		public String getDisplayName() {
-			return fDisplayName;
 		}
 	}
 
@@ -193,7 +207,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		@Override
 		public String getText(Object element) {
 			if (element instanceof String) return (String) element;
-			return ((HighlightingColorListItem) element).getDisplayName();
+			return ((ColorListItem) element).getDisplayName();
 		}
 	}
 
@@ -301,6 +315,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Strings", Prefs.EDITOR_UML_STRING_COLOR }, //
 			
 			{ "Default Foreground Color", Prefs.EDITOR_FOREGROUND_COLOR }, // 29
+			{ "Default Background Color", Prefs.EDITOR_BACKGROUND_COLOR } //
 
 	};
 
@@ -311,7 +326,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private final String fMathCategory = "Math";
 	private final String fDotCategory = "DOT";
 	private final String fUmlCategory = "PlantUML";
-	private final String fDefaultCategory = "Default";
+	private final String fDefaultCategory = "Common";
 
 	private ColorSelector fSyntaxForegroundColorEditor;
 	private Label fColorEditorLabel;
@@ -322,7 +337,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private Button fUnderlineCheckBox;
 
 	/** Highlighting color list */
-	private final List<HighlightingColorListItem> fListModel = new ArrayList<>();
+	private final List<ColorListItem> fListModel = new ArrayList<>();
 	/** Highlighting color tree viewer */
 	private TreeViewer fTreeViewer;
 	/** The previewer. */
@@ -336,8 +351,12 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		fColorManager = FluentUI.getDefault().getColorMgr();
 		
 		for (String[] element : fSyntaxColorListModel)
-			fListModel.add(new HighlightingColorListItem(element[0], element[1], element[1] + BOLD, element[1] + ITALIC,
-					element[1] + STRIKETHROUGH, element[1] + UNDERLINE));
+			if (element[0].startsWith("Default")) {
+				fListModel.add(new ColorListItem(element[0], element[1]));
+			} else {
+				fListModel.add(new HighlightingColorListItem(element[0], element[1], element[1] + BOLD, element[1] + ITALIC,
+						element[1] + STRIKETHROUGH, element[1] + UNDERLINE));
+			}
 		
 		store.addKeys(createOverlayStoreKeys());
 	}
@@ -347,18 +366,25 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		ArrayList<OverlayKey> overlayKeys = new ArrayList<>();
 
 		for (int i = 0, n = fListModel.size(); i < n; i++) {
-			HighlightingColorListItem item = fListModel.get(i);
+			ColorListItem item = fListModel.get(i);
 			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, item.getColorKey()));
-			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getBoldKey()));
-			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getItalicKey()));
-			overlayKeys.add(
-					new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getStrikethroughKey()));
-			overlayKeys
-					.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getUnderlineKey()));
+			
+			if (item instanceof HighlightingColorListItem) {
+				HighlightingColorListItem highlightItem = (HighlightingColorListItem) item;
+				
+				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getBoldKey()));
+				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getItalicKey()));
+				overlayKeys.add(
+						new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getStrikethroughKey()));
+				overlayKeys
+						.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getUnderlineKey()));
+			}
+			
 
-			if (item instanceof SemanticHighlightingColorListItem)
+			if (item instanceof SemanticHighlightingColorListItem) {
 				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN,
 						((SemanticHighlightingColorListItem) item).getEnableKey()));
+			}
 		}
 
 		OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
@@ -410,7 +436,14 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	}
 
 	private void handleSyntaxColorListSelection() {
-		HighlightingColorListItem item = getHighlightingColorListItem();
+		ColorListItem item = getColorListItem();
+		
+		fBoldCheckBox.setVisible(true);
+		fItalicCheckBox.setVisible(true);
+		fStrikethroughCheckBox.setVisible(true);
+		fUnderlineCheckBox.setVisible(true);
+		fEnableCheckbox.setVisible(true);
+		
 		if (item == null) {
 			fEnableCheckbox.setEnabled(false);
 			fSyntaxForegroundColorEditor.getButton().setEnabled(false);
@@ -423,29 +456,51 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		}
 		RGB rgb = PreferenceConverter.getColor(getPreferenceStore(), item.getColorKey());
 		fSyntaxForegroundColorEditor.setColorValue(rgb);
-		fBoldCheckBox.setSelection(getPreferenceStore().getBoolean(item.getBoldKey()));
-		fItalicCheckBox.setSelection(getPreferenceStore().getBoolean(item.getItalicKey()));
-		fStrikethroughCheckBox.setSelection(getPreferenceStore().getBoolean(item.getStrikethroughKey()));
-		fUnderlineCheckBox.setSelection(getPreferenceStore().getBoolean(item.getUnderlineKey()));
-		if (item instanceof SemanticHighlightingColorListItem) {
-			fEnableCheckbox.setEnabled(true);
-			boolean enable = getPreferenceStore().getBoolean(((SemanticHighlightingColorListItem) item).getEnableKey());
-			fEnableCheckbox.setSelection(enable);
-			fSyntaxForegroundColorEditor.getButton().setEnabled(enable);
-			fColorEditorLabel.setEnabled(enable);
-			fBoldCheckBox.setEnabled(enable);
-			fItalicCheckBox.setEnabled(enable);
-			fStrikethroughCheckBox.setEnabled(enable);
-			fUnderlineCheckBox.setEnabled(enable);
+		
+		if (item instanceof HighlightingColorListItem) {
+			HighlightingColorListItem highlightItem = (HighlightingColorListItem) item;
+			
+			fBoldCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getBoldKey()));
+			fItalicCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getItalicKey()));
+			fStrikethroughCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getStrikethroughKey()));
+			fUnderlineCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getUnderlineKey()));
+			
+			if (highlightItem instanceof SemanticHighlightingColorListItem) {
+				fEnableCheckbox.setEnabled(true);
+				boolean enable = getPreferenceStore().getBoolean(((SemanticHighlightingColorListItem) highlightItem).getEnableKey());
+				fEnableCheckbox.setSelection(enable);
+				fSyntaxForegroundColorEditor.getButton().setEnabled(enable);
+				fColorEditorLabel.setEnabled(enable);
+				fBoldCheckBox.setEnabled(enable);
+				fItalicCheckBox.setEnabled(enable);
+				fStrikethroughCheckBox.setEnabled(enable);
+				fUnderlineCheckBox.setEnabled(enable);
+			} else {
+				fSyntaxForegroundColorEditor.getButton().setEnabled(true);
+				fColorEditorLabel.setEnabled(true);
+				fBoldCheckBox.setEnabled(true);
+				fItalicCheckBox.setEnabled(true);
+				fStrikethroughCheckBox.setEnabled(true);
+				fUnderlineCheckBox.setEnabled(true);
+				fEnableCheckbox.setEnabled(false);
+				fEnableCheckbox.setSelection(true);
+			}
 		} else {
 			fSyntaxForegroundColorEditor.getButton().setEnabled(true);
 			fColorEditorLabel.setEnabled(true);
-			fBoldCheckBox.setEnabled(true);
-			fItalicCheckBox.setEnabled(true);
-			fStrikethroughCheckBox.setEnabled(true);
-			fUnderlineCheckBox.setEnabled(true);
+			
+			fBoldCheckBox.setEnabled(false);
+			fItalicCheckBox.setEnabled(false);
+			fStrikethroughCheckBox.setEnabled(false);
+			fUnderlineCheckBox.setEnabled(false);
 			fEnableCheckbox.setEnabled(false);
 			fEnableCheckbox.setSelection(true);
+			
+			fBoldCheckBox.setVisible(false);
+			fItalicCheckBox.setVisible(false);
+			fStrikethroughCheckBox.setVisible(false);
+			fUnderlineCheckBox.setVisible(false);
+			fEnableCheckbox.setVisible(false);
 		}
 	}
 
@@ -513,7 +568,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		gd = new GridData(SWT.BEGINNING, SWT.FILL, false, true);
 		gd.heightHint = convertHeightInCharsToPixels(7);
 		int maxWidth = 0;
-		for (HighlightingColorListItem item : fListModel) {
+		for (ColorListItem item : fListModel) {
 			maxWidth = Math.max(maxWidth, convertWidthInCharsToPixels(item.getDisplayName().length()));
 		}
 		ScrollBar vBar = ((Scrollable) fTreeViewer.getControl()).getVerticalBar();
@@ -604,7 +659,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				HighlightingColorListItem item = getHighlightingColorListItem();
+				ColorListItem item = getColorListItem();
 				PreferenceConverter.setValue(getPreferenceStore(), item.getColorKey(),
 						fSyntaxForegroundColorEditor.getColorValue());
 			}
@@ -637,6 +692,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				getPreferenceStore().setValue(item.getItalicKey(), fItalicCheckBox.getSelection());
 			}
 		});
+		
 		fStrikethroughCheckBox.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -672,7 +728,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				HighlightingColorListItem item = getHighlightingColorListItem();
+				ColorListItem item = getColorListItem();
 				if (item instanceof SemanticHighlightingColorListItem) {
 					boolean enable = fEnableCheckbox.getSelection();
 					getPreferenceStore().setValue(((SemanticHighlightingColorListItem) item).getEnableKey(), enable);
@@ -783,14 +839,27 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	}
 
 	/**
+	 * Returns the current color list item.
+	 *
+	 * @return the current color list item
+	 */
+	private ColorListItem getColorListItem() {
+		IStructuredSelection selection = (IStructuredSelection) fTreeViewer.getSelection();
+		Object element = selection.getFirstElement();
+		if (element instanceof String) return null;
+		return (ColorListItem) element;
+	}
+	
+	/**
 	 * Returns the current highlighting color list item.
 	 *
 	 * @return the current highlighting color list item
 	 */
 	private HighlightingColorListItem getHighlightingColorListItem() {
-		IStructuredSelection selection = (IStructuredSelection) fTreeViewer.getSelection();
-		Object element = selection.getFirstElement();
-		if (element instanceof String) return null;
-		return (HighlightingColorListItem) element;
+		ColorListItem item = getColorListItem();
+		if (item instanceof HighlightingColorListItem) {
+			return (HighlightingColorListItem) item;
+		}
+		return null;
 	}
 }
