@@ -49,7 +49,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
@@ -782,8 +784,13 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private Control createPreviewer(Composite parent) {
 
 		IPreferenceStore generalTextStore = FluentUI.getDefault().getPreferenceStore();
-		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { getPreferenceStore(),
-				new PreferencesAdapter(createTemporaryCorePreferenceStore()), generalTextStore });
+		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
+				getPreferenceStore(),
+				EditorsUI.getPreferenceStore(),
+				PlatformUI.getPreferenceStore(),
+				new PreferencesAdapter(createTemporaryCorePreferenceStore()),
+				generalTextStore
+		});
 		fPreviewViewer = new FluentSourceViewer(parent, null, null, false, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER,
 				store);
 		FluentSimpleSourceViewerConfiguration configuration = new FluentSimpleSourceViewerConfiguration(fColorManager,
