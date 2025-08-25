@@ -7,8 +7,14 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.*;
-import static org.eclipse.ui.texteditor.AbstractTextEditor.*;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT;
 
 import java.util.ArrayList;
 
@@ -42,6 +48,9 @@ import net.certiv.fluentmark.ui.preferences.Prefs;
 
 /** Source viewer for the editor */
 public class FluentSourceViewer extends ProjectionViewer implements IPropertyChangeListener {
+	
+	// see org.eclipse.ui.texteditor.AbstractTextEditor
+	private static final String DISABLE_CSS = "org.eclipse.e4.ui.css.disabled"; //$NON-NLS-1$
 
 	/** Show outline operation id. */
 	public static final int SHOW_OUTLINE = 51;
@@ -85,6 +94,12 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 	@Override
 	public void configure(SourceViewerConfiguration configuration) {
 		StyledText textWidget = getTextWidget();
+		
+		// see org.eclipse.ui.texteditor.AbstractTextEditor:createPartControl(Composite)
+		// We're managing our appearance from our preferences. Disable CSS styling.
+		// The CSS engine does set the editor preferences on theme switches, so we
+		// will pick up changes.
+		getTextWidget().setData(DISABLE_CSS, Boolean.TRUE);
 
 		// Prevent access to colors disposed in unconfigure().
 		if (textWidget != null && !textWidget.isDisposed()) {
