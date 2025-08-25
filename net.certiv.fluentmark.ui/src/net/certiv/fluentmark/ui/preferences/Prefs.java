@@ -57,6 +57,8 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_DOT_PROGRAM = MD_ID + ".dotProgram";
 
 	String EDITOR_FOREGROUND_COLOR = MD_ID + ".foregroundColor";
+	String EDITOR_BACKGROUND_COLOR = MD_ID + ".backgroundColor";
+	
 	String EDITOR_FRONTMATTER_COLOR = MD_ID + ".frontMatterColor";
 	String EDITOR_COMMENT_VISIBLE_COLOR = MD_ID + ".visibleCommentColor";
 	String EDITOR_COMMENT_HIDDEN_COLOR = MD_ID + ".hiddenCommentColor";

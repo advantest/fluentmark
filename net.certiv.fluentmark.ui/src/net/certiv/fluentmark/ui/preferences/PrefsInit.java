@@ -146,23 +146,15 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, null, null);
 		RGB textEditorsBackgroundColor = StringConverter.asRGB(textEditorsBackgroundColorText, DEF_COLOR_BACKGROUND_DEFAULT);
 		
-		String textEditorsForegroundColorSystemDefaultText = Platform.getPreferencesService().getString(
-				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT, null, null);
-		boolean textEditorsForegroundColorSystemDefault = StringConverter.asBoolean(textEditorsForegroundColorSystemDefaultText, true);
-		
-		String textEditorsBackgroundColorSystemDefaultText = Platform.getPreferencesService().getString(
-				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, null, null);
-		boolean textEditorsBackgroundColorSystemDefault = StringConverter.asBoolean(textEditorsBackgroundColorSystemDefaultText, true);
-		
 		String textEditorsHyperlinkColorText = Platform.getPreferencesService().getString(
 				QUALIFIER_TEXT_EDITORS, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR, null, null);
 		RGB textEditorsHyperlinkColor = StringConverter.asRGB(textEditorsHyperlinkColorText, DEF_LINK);
 		
-		// TODO use default foreground and background colors as well as hyperlink color from text editors' preferences?
 		// TODO add background color settings in the FluentMark preferences UI?
 		// TODO add defaults to display bold, italic or striked through text
 		// TODO invert colors in dark mode?
 		PreferenceConverter.setDefault(store, EDITOR_FOREGROUND_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_BACKGROUND_COLOR, textEditorsBackgroundColor);
 
 		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_COMMENT_VISIBLE_COLOR, DEF_COMMENT);
@@ -170,7 +162,7 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		PreferenceConverter.setDefault(store, EDITOR_HEADER_COLOR, DEF_HEADER);
 		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, textEditorsForegroundColor);
-		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, DEF_LINK);
+		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, textEditorsHyperlinkColor);
 		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_LINK);
 		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, textEditorsForegroundColor);
