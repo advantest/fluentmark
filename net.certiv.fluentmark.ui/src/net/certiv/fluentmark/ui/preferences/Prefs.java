@@ -75,32 +75,25 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_CODE_COLOR = MD_ID + ".codeColor";
 	String EDITOR_CODEBLOCK_COLOR = MD_ID + ".codeblockColor";
 
-	String EDITOR_CODE_BG_COLOR = MD_ID + ".codeBackgroundColor";
-	String EDITOR_CODEBLOCK_BG_COLOR = MD_ID + ".codeblockBackgroundColor";
-
 	String EDITOR_HTML_KEYWORD_COLOR = MD_ID + ".htmlKeywordColor";
 	String EDITOR_HTML_SYMBOL_COLOR = MD_ID + ".htmlSymbolColor";
 	String EDITOR_HTML_STRING_COLOR = MD_ID + ".htmlStringColor";
-	String EDITOR_HTML_BG_COLOR = MD_ID + ".htmlBackgroundColor";
 
 	String EDITOR_MATH_KEYWORD_COLOR = MD_ID + ".mathKeywordColor";
 	String EDITOR_MATH_SYMBOL_COLOR = MD_ID + ".mathSymbolColor";
 	String EDITOR_MATH_COMMENT_COLOR = MD_ID + ".mathCommentColor";
-	String EDITOR_MATH_BG_COLOR = MD_ID + ".mathBackgroundColor";
 
 	String EDITOR_DOT_KEYWORD_COLOR = MD_ID + ".dotKeywordColor";
 	String EDITOR_DOT_ATTRIBS_COLOR = MD_ID + ".dotAttribsColor";
 	String EDITOR_DOT_SYMBOL_COLOR = MD_ID + ".dotSymbolColor";
 	String EDITOR_DOT_COMMENT_COLOR = MD_ID + ".dotCommentColor";
 	String EDITOR_DOT_STRING_COLOR = MD_ID + ".dotStringColor";
-	String EDITOR_DOT_BG_COLOR = MD_ID + ".dotBackgroundColor";
 
 	String EDITOR_UML_KEYWORD_COLOR = MD_ID + ".umlKeywordColor";
 	String EDITOR_UML_ATTRIBS_COLOR = MD_ID + ".umlAttribsColor";
 	String EDITOR_UML_SYMBOL_COLOR = MD_ID + ".umlSymbolColor";
 	String EDITOR_UML_COMMENT_COLOR = MD_ID + ".umlCommentColor";
 	String EDITOR_UML_STRING_COLOR = MD_ID + ".umlStringColor";
-	String EDITOR_UML_BG_COLOR = MD_ID + ".umlBackgroundColor";
 
 	String EDITOR_GITHUB_SYNTAX = MD_ID + ".github_Syntax";
 	String EDITOR_MULTIMARKDOWN_METADATA = MD_ID + ".multiMarkdown_Metadata";

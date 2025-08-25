@@ -60,7 +60,6 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 	private static final RGB DEF_STRING = new RGB(42, 0, 255);
 
 	private static final RGB DEF_CODE = new RGB(0, 0, 0);
-	private static final RGB DEF_CODE_BG = new RGB(244, 244, 244);
 	
 	private String getDefaultPandocCommand() {
 		if (FileUtils.isOsLinuxOrUnix()) {
@@ -150,9 +149,6 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 				QUALIFIER_TEXT_EDITORS, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR, null, null);
 		RGB textEditorsHyperlinkColor = StringConverter.asRGB(textEditorsHyperlinkColorText, DEF_LINK);
 		
-		// TODO add background color settings in the FluentMark preferences UI?
-		// TODO add defaults to display bold, italic or striked through text
-		// TODO invert colors in dark mode?
 		PreferenceConverter.setDefault(store, EDITOR_FOREGROUND_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_BACKGROUND_COLOR, textEditorsBackgroundColor);
 
@@ -171,7 +167,6 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_HTML_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_HTML_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_HTML_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_HTML_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_CODE_COLOR, DEF_CODE);
 		PreferenceConverter.setDefault(store, EDITOR_CODEBLOCK_COLOR, DEF_CODE);
@@ -181,17 +176,12 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_DOT_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_DOT_COMMENT_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_DOT_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_UML_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_UML_ATTRIBS_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_UML_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_UML_COMMENT_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_UML_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_UML_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
-
-		PreferenceConverter.setDefault(store, EDITOR_CODE_BG_COLOR, DEF_CODE_BG);
-		PreferenceConverter.setDefault(store, EDITOR_CODEBLOCK_BG_COLOR, DEF_CODE_BG);
 
 		PreferenceConverter.setDefault(store, EDITOR_MATH_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_MATH_SYMBOL_COLOR, DEF_SYMBOL);
