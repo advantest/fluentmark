@@ -36,7 +36,7 @@ public class ColorManager implements IColorManager, IColorManagerExtension {
 	public ColorManager(boolean autoDispose) {
 		this.autoDispose = autoDispose;
 		this.store = FluentUI.getDefault().getPreferenceStore();
-		this.defColor = getColor(Prefs.EDITOR_DEFAULT_COLOR);
+		this.defColor = getColor(Prefs.EDITOR_FOREGROUND_COLOR);
 	}
 
 	@Override

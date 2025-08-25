@@ -48,7 +48,7 @@ public class ScannerHtml extends AbstractBufferedRuleBasedScanner {
 	protected String[] getTokenProperties() {
 		if (tokenProperties == null) {
 			tokenProperties = new String[] { Prefs.EDITOR_HTML_KEYWORD_COLOR, Prefs.EDITOR_HTML_SYMBOL_COLOR,
-					Prefs.EDITOR_HTML_STRING_COLOR, Prefs.EDITOR_DEFAULT_COLOR };
+					Prefs.EDITOR_HTML_STRING_COLOR, Prefs.EDITOR_FOREGROUND_COLOR };
 		}
 		return tokenProperties;
 	}
@@ -58,7 +58,7 @@ public class ScannerHtml extends AbstractBufferedRuleBasedScanner {
 		IToken keywordToken = getToken(Prefs.EDITOR_HTML_KEYWORD_COLOR);
 		IToken symbolToken = getToken(Prefs.EDITOR_HTML_SYMBOL_COLOR);
 		IToken stringToken = getToken(Prefs.EDITOR_HTML_STRING_COLOR);
-		IToken defaultToken = getToken(Prefs.EDITOR_DEFAULT_COLOR);
+		IToken defaultToken = getToken(Prefs.EDITOR_FOREGROUND_COLOR);
 
 		WordRule wordRule = new WordRule(new HtmlWordDetector(), defaultToken, true);
 		for (String keyword : keywords) {

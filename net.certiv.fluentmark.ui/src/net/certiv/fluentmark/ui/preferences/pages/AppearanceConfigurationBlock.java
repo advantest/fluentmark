@@ -300,7 +300,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Comments", Prefs.EDITOR_UML_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_UML_STRING_COLOR }, //
 			
-			{ "Default Text Attributes", Prefs.EDITOR_DEFAULT_COLOR }, // 29
+			{ "Default Foreground Color", Prefs.EDITOR_FOREGROUND_COLOR }, // 29
 
 	};
 

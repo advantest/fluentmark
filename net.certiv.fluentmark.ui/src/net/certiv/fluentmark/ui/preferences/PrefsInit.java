@@ -162,19 +162,19 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		// TODO add background color settings in the FluentMark preferences UI?
 		// TODO add defaults to display bold, italic or striked through text
 		// TODO invert colors in dark mode?
-		PreferenceConverter.setDefault(store, EDITOR_DEFAULT_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_FOREGROUND_COLOR, textEditorsForegroundColor);
 
 		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_COMMENT_VISIBLE_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_COMMENT_HIDDEN_COLOR, DEF_COMMENT);
 
 		PreferenceConverter.setDefault(store, EDITOR_HEADER_COLOR, DEF_HEADER);
-		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, DEF_LINK);
 		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_LINK);
-		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
-		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
-		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, textEditorsForegroundColor);
 
 		PreferenceConverter.setDefault(store, EDITOR_HTML_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_HTML_SYMBOL_COLOR, DEF_SYMBOL);
