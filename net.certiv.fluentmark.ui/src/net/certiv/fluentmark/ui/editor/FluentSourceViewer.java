@@ -15,6 +15,10 @@ import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACK
 import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT;
 import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND;
 import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT;
 
 import java.util.ArrayList;
 
@@ -149,36 +153,42 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 
 			StyledText styledText = getTextWidget();
 			Color color = null;
+			
+			// same implementation as in org.eclipse.ui.texteditor.AbstractTextEditor:initializeViewerColors(ISourceViewer)
 
 			// ----------- foreground color --------------------
-			if (!store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)) {
-				color = createColor(store, PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
-				styledText.setForeground(color);
-			}
+			color= store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
+			styledText.setForeground(color);
+			
 			if (fForegroundColor != null) fForegroundColor.dispose();
 			fForegroundColor = color;
 
 			// ---------- background color ----------------------
-			if (!store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)) {
-				color = createColor(store, PREFERENCE_COLOR_BACKGROUND, styledText.getDisplay());
-				styledText.setBackground(color);
-			}
+			color= store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_BACKGROUND, styledText.getDisplay());
+			styledText.setBackground(color);
+			
 			if (fBackgroundColor != null) fBackgroundColor.dispose();
 			fBackgroundColor = color;
 
 			// ----------- selection foreground color --------------------
-			if (!store.getBoolean(EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR)) {
-				color = createColor(store, EDITOR_SELECTION_FOREGROUND_COLOR, styledText.getDisplay());
-				styledText.setSelectionForeground(color);
-			}
+			color= store.getBoolean(PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_SELECTION_FOREGROUND, styledText.getDisplay());
+			styledText.setSelectionForeground(color);
+			
 			if (fSelectionForegroundColor != null) fSelectionForegroundColor.dispose();
 			fSelectionForegroundColor = color;
 
 			// ---------- selection background color ----------------------
-			if (!store.getBoolean(EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR)) {
-				color = createColor(store, EDITOR_SELECTION_BACKGROUND_COLOR, styledText.getDisplay());
-				styledText.setSelectionBackground(color);
-			}
+			color= store.getBoolean(PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_SELECTION_BACKGROUND, styledText.getDisplay());
+			styledText.setSelectionBackground(color);
+				
 			if (fSelectionBackgroundColor != null) fSelectionBackgroundColor.dispose();
 			fSelectionBackgroundColor = color;
 		}
