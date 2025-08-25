@@ -43,7 +43,14 @@ import net.certiv.spellchecker.SpellCheckEngine;
  */
 public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
-	private static final RGB DEF_DEFAULT = new RGB(0, 0, 0);
+	private static final String QUALIFIER_TEXT_EDITORS = "org.eclipse.ui.editors";
+	
+	// default colors
+	
+	// default foreground color: black
+	private static final RGB DEF_COLOR_FOREGROUND_DEFAULT = new RGB(0, 0, 0); // black
+	private static final RGB DEF_COLOR_BACKGROUND_DEFAULT = new RGB(255, 255, 255); // white
+	
 	private static final RGB DEF_COMMENT = new RGB(128, 0, 0);
 	private static final RGB DEF_HEADER = new RGB(0, 128, 0);
 	private static final RGB DEF_LINK = new RGB(106, 131, 199);
@@ -131,9 +138,30 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		// colors
 
 		// Read text editors' foreground color from preferences in General -> Editors -> Text Editors -> Appearance color options: -> Foreground color 
-		String textEditorsForegroundColorText = Platform.getPreferencesService().getString("org.eclipse.ui.editors", AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, null, null);
-		RGB textEditorsForegroundColor = StringConverter.asRGB(textEditorsForegroundColorText, DEF_DEFAULT);
+		String textEditorsForegroundColorText = Platform.getPreferencesService().getString(
+				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, null, null);
+		RGB textEditorsForegroundColor = StringConverter.asRGB(textEditorsForegroundColorText, DEF_COLOR_FOREGROUND_DEFAULT);
 		
+		String textEditorsBackgroundColorText = Platform.getPreferencesService().getString(
+				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, null, null);
+		RGB textEditorsBackgroundColor = StringConverter.asRGB(textEditorsBackgroundColorText, DEF_COLOR_BACKGROUND_DEFAULT);
+		
+		String textEditorsForegroundColorSystemDefaultText = Platform.getPreferencesService().getString(
+				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT, null, null);
+		boolean textEditorsForegroundColorSystemDefault = StringConverter.asBoolean(textEditorsForegroundColorSystemDefaultText, true);
+		
+		String textEditorsBackgroundColorSystemDefaultText = Platform.getPreferencesService().getString(
+				QUALIFIER_TEXT_EDITORS, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, null, null);
+		boolean textEditorsBackgroundColorSystemDefault = StringConverter.asBoolean(textEditorsBackgroundColorSystemDefaultText, true);
+		
+		String textEditorsHyperlinkColorText = Platform.getPreferencesService().getString(
+				QUALIFIER_TEXT_EDITORS, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR, null, null);
+		RGB textEditorsHyperlinkColor = StringConverter.asRGB(textEditorsHyperlinkColorText, DEF_LINK);
+		
+		// TODO use default foreground and background colors as well as hyperlink color from text editors' preferences?
+		// TODO add background color settings in the FluentMark preferences UI?
+		// TODO add defaults to display bold, italic or striked through text
+		// TODO invert colors in dark mode?
 		PreferenceConverter.setDefault(store, EDITOR_DEFAULT_COLOR, textEditorsForegroundColor);
 
 		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEF_COMMENT);
@@ -141,17 +169,17 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_COMMENT_HIDDEN_COLOR, DEF_COMMENT);
 
 		PreferenceConverter.setDefault(store, EDITOR_HEADER_COLOR, DEF_HEADER);
-		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, DEF_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, DEF_LINK);
 		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_LINK);
-		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, DEF_DEFAULT);
-		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, DEF_DEFAULT);
-		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, DEF_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_HTML_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_HTML_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_HTML_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_HTML_BG_COLOR, DEF_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_HTML_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_CODE_COLOR, DEF_CODE);
 		PreferenceConverter.setDefault(store, EDITOR_CODEBLOCK_COLOR, DEF_CODE);
@@ -161,14 +189,14 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_DOT_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_DOT_COMMENT_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_DOT_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_BG_COLOR, DEF_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_DOT_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_UML_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_UML_ATTRIBS_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_UML_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_UML_COMMENT_COLOR, DEF_COMMENT);
 		PreferenceConverter.setDefault(store, EDITOR_UML_STRING_COLOR, DEF_STRING);
-		PreferenceConverter.setDefault(store, EDITOR_UML_BG_COLOR, DEF_DEFAULT);
+		PreferenceConverter.setDefault(store, EDITOR_UML_BG_COLOR, DEF_COLOR_FOREGROUND_DEFAULT);
 
 		PreferenceConverter.setDefault(store, EDITOR_CODE_BG_COLOR, DEF_CODE_BG);
 		PreferenceConverter.setDefault(store, EDITOR_CODEBLOCK_BG_COLOR, DEF_CODE_BG);
