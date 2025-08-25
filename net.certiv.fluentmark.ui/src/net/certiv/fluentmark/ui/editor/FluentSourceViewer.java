@@ -170,6 +170,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			
 			if (fForegroundColor != null) fForegroundColor.dispose();
 			fForegroundColor = color;
+			PreferenceConverter.setValue(FluentUI.getDefault().getPreferenceStore(), Prefs.EDITOR_FOREGROUND_COLOR, color != null ? color.getRGB() : styledText.getForeground().getRGB());
 
 			// ---------- background color ----------------------
 			color = store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)
@@ -179,6 +180,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			
 			if (fBackgroundColor != null) fBackgroundColor.dispose();
 			fBackgroundColor = color;
+			PreferenceConverter.setValue(FluentUI.getDefault().getPreferenceStore(), Prefs.EDITOR_BACKGROUND_COLOR, color != null ? color.getRGB() : styledText.getBackground().getRGB());
 
 			// ----------- selection foreground color --------------------
 			color = store.getBoolean(PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT)
