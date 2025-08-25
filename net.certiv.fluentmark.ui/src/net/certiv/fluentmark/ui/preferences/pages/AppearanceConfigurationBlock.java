@@ -491,7 +491,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			// we have the default color settings
 			
 			fSyntaxForegroundColorEditor.getButton().setEnabled(true);
-			fColorEditorLabel.setEnabled(true);
+			fColorEditorLabel.setEnabled(false);
 			
 			fBoldCheckBox.setEnabled(false);
 			fItalicCheckBox.setEnabled(false);
