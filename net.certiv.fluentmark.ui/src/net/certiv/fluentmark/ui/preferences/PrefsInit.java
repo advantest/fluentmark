@@ -76,6 +76,12 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
 		IPreferenceStore combinedStore = FluentUI.getDefault().getCombinedPreferenceStore();
 
+		int defaultTabWidth = combinedStore.getDefaultInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
+		if (defaultTabWidth <= 0) {
+			defaultTabWidth = 4;
+		}
+		
+		store.setDefault(EDITOR_TAB_WIDTH, defaultTabWidth);
 		store.setDefault(EDITOR_TAB_CHAR, false); // always use spaces
 		store.setDefault(EDITOR_FORMATTING_ENABLED, true);
 		store.setDefault(EDITOR_FORMATTING_COLUMN, 80);
