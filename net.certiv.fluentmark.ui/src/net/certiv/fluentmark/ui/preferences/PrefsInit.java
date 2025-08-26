@@ -39,15 +39,15 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 	// default colors
 	private static final RGB DEFAULT_COLOR_COMMENT = new RGB(63, 126, 95);
-	private static final RGB DEFAULT_COLOR_HIDDEN_COMMENT = new RGB(19, 138, 77);
+	private static final RGB DEFAULT_COLOR_HIDDEN_COMMENT = new RGB(113, 176, 145);
 	private static final RGB DEFAULT_COLOR_HEADER = new RGB(43, 64, 209);
 
-	private static final RGB DEFAULT_COLOR_KEYWORD = new RGB(127, 0, 85);
-	private static final RGB DEFAULT_COLOR_SYMBOL = new RGB(96, 96, 128);
-	private static final RGB DEFAULT_COLOR_STRING = new RGB(42, 0, 255);
-	private static final RGB DEFAULT_COLOR_ATTRIBUTE = new RGB(127, 0, 85);
+	private static final RGB DEFAULT_COLOR_KEYWORD = new RGB(151, 3, 3);
+	private static final RGB DEFAULT_COLOR_SYMBOL = new RGB(189, 125, 24);
+	private static final RGB DEFAULT_COLOR_STRING = new RGB(52, 70, 255);
+	private static final RGB DEFAULT_COLOR_ATTRIBUTE = new RGB(124, 73, 166);
 
-	private static final RGB DEFAULT_COLOR_CODE_SPAN = new RGB(201, 152, 138);
+	private static final RGB DEFAULT_COLOR_CODE_SPAN = new RGB(161, 121, 110);
 	private static final RGB DEFAULT_COLOR_CODE_BLOCK = new RGB(119, 118, 123);
 	
 	private String getDefaultPandocCommand() {
