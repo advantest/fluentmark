@@ -170,6 +170,10 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 		PreferenceConverter.setDefault(store, EDITOR_MATH_KEYWORD_COLOR, DEF_KEYWORD);
 		PreferenceConverter.setDefault(store, EDITOR_MATH_SYMBOL_COLOR, DEF_SYMBOL);
 		PreferenceConverter.setDefault(store, EDITOR_MATH_COMMENT_COLOR, DEF_COMMENT);
+		
+		store.setDefault(EDITOR_BOLD, true);
+		store.setDefault(EDITOR_ITALIC, true);
+		store.setDefault(EDITOR_STRIKEOUT, true);
 
 		store.setDefault(VIEW_UPDATE_DELAY, 1000);
 

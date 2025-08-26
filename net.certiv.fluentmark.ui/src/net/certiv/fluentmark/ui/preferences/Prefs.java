@@ -63,6 +63,7 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_COMMENT_VISIBLE_COLOR = MD_ID + ".visibleCommentColor";
 	String EDITOR_COMMENT_HIDDEN_COLOR = MD_ID + ".hiddenCommentColor";
 
+	// Markdown colors
 	String EDITOR_HEADER_COLOR = MD_ID + ".headerColor";
 	String EDITOR_LIST_COLOR = MD_ID + ".listColor";
 	String EDITOR_LINK_COLOR = MD_ID + ".linkColor";
@@ -71,6 +72,15 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_ITALIC_COLOR = MD_ID + ".italicColor";
 	String EDITOR_STRIKEOUT_COLOR = MD_ID + ".strikeoutColor";
 	String EDITOR_TASK_TAG_COLOR = MD_ID + ".taskTagColor";
+	
+	// Markdown: Do we want text marked as bold to be displayed as bold text? 
+	String EDITOR_BOLD = EDITOR_BOLD_COLOR + EDITOR_BOLD_SUFFIX;
+	
+	// Markdown: Do we want text marked as italic to be displayed as italic text?
+	String EDITOR_ITALIC = EDITOR_ITALIC_COLOR + EDITOR_ITALIC_SUFFIX;
+	
+	// Markdown: Do we want text marked as striked through to be displayed as striked through text?
+	String EDITOR_STRIKEOUT = EDITOR_STRIKEOUT_COLOR + EDITOR_STRIKETHROUGH_SUFFIX;
 
 	String EDITOR_CODE_COLOR = MD_ID + ".codeColor";
 	String EDITOR_CODEBLOCK_COLOR = MD_ID + ".codeblockColor";
