@@ -38,14 +38,17 @@ import net.certiv.spellchecker.SpellCheckEngine;
 public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 	// default colors
-	private static final RGB DEF_COMMENT = new RGB(128, 0, 0);
-	private static final RGB DEF_HEADER = new RGB(0, 128, 0);
+	private static final RGB DEFAULT_COLOR_COMMENT = new RGB(63, 126, 95);
+	private static final RGB DEFAULT_COLOR_HIDDEN_COMMENT = new RGB(19, 138, 77);
+	private static final RGB DEFAULT_COLOR_HEADER = new RGB(43, 64, 209);
 
-	private static final RGB DEF_KEYWORD = new RGB(127, 0, 85);
-	private static final RGB DEF_SYMBOL = new RGB(96, 96, 128);
-	private static final RGB DEF_STRING = new RGB(42, 0, 255);
+	private static final RGB DEFAULT_COLOR_KEYWORD = new RGB(127, 0, 85);
+	private static final RGB DEFAULT_COLOR_SYMBOL = new RGB(96, 96, 128);
+	private static final RGB DEFAULT_COLOR_STRING = new RGB(42, 0, 255);
+	private static final RGB DEFAULT_COLOR_ATTRIBUTE = new RGB(127, 0, 85);
 
-	private static final RGB DEF_CODE = new RGB(0, 0, 0);
+	private static final RGB DEFAULT_COLOR_CODE_SPAN = new RGB(201, 152, 138);
+	private static final RGB DEFAULT_COLOR_CODE_BLOCK = new RGB(119, 118, 123);
 	
 	private String getDefaultPandocCommand() {
 		if (FileUtils.isOsLinuxOrUnix()) {
@@ -126,55 +129,67 @@ public class PrefsInit extends AbstractPreferenceInitializer implements Prefs {
 
 		store.setDefault(EDITOR_PDF_OPEN, true);
 
-		// colors
+		// colors and formating
 
 		// Read text editors' colors from preferences in General -> Editors -> Text Editors -> Appearance color options: -> Foreground / Background / Hyperlink color 
 		RGB textEditorsForegroundColor = PreferenceConverter.getColor(combinedStore, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND);
 		RGB textEditorsBackgroundColor = PreferenceConverter.getColor(combinedStore, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
 		RGB textEditorsHyperlinkColor = PreferenceConverter.getColor(combinedStore, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR);
 		
+		// Save the colors from text editors' preferences, just to make them directly readable from this bundle's preferences store.
+		// They will be updated by the FluentSourceViewer as soon as the settings in text editors' preferences change.
 		PreferenceConverter.setDefault(store, EDITOR_FOREGROUND_COLOR, textEditorsForegroundColor);
 		PreferenceConverter.setDefault(store, EDITOR_BACKGROUND_COLOR, textEditorsBackgroundColor);
 
-		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEF_COMMENT);
-		PreferenceConverter.setDefault(store, EDITOR_COMMENT_VISIBLE_COLOR, DEF_COMMENT);
-		PreferenceConverter.setDefault(store, EDITOR_COMMENT_HIDDEN_COLOR, DEF_COMMENT);
-
-		PreferenceConverter.setDefault(store, EDITOR_HEADER_COLOR, DEF_HEADER);
-		PreferenceConverter.setDefault(store, EDITOR_LIST_COLOR, textEditorsForegroundColor);
-		PreferenceConverter.setDefault(store, EDITOR_LINK_COLOR, textEditorsHyperlinkColor);
-		PreferenceConverter.setDefault(store, EDITOR_HRULE_COLOR, DEF_HEADER);
-		PreferenceConverter.setDefault(store, EDITOR_BOLD_COLOR, textEditorsForegroundColor);
-		PreferenceConverter.setDefault(store, EDITOR_ITALIC_COLOR, textEditorsForegroundColor);
-		PreferenceConverter.setDefault(store, EDITOR_STRIKEOUT_COLOR, textEditorsForegroundColor);
-
-		PreferenceConverter.setDefault(store, EDITOR_HTML_KEYWORD_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_HTML_SYMBOL_COLOR, DEF_SYMBOL);
-		PreferenceConverter.setDefault(store, EDITOR_HTML_STRING_COLOR, DEF_STRING);
-
-		PreferenceConverter.setDefault(store, EDITOR_CODE_COLOR, DEF_CODE);
-		PreferenceConverter.setDefault(store, EDITOR_CODEBLOCK_COLOR, DEF_CODE);
-
-		PreferenceConverter.setDefault(store, EDITOR_DOT_KEYWORD_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_ATTRIBS_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_SYMBOL_COLOR, DEF_SYMBOL);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_COMMENT_COLOR, DEF_COMMENT);
-		PreferenceConverter.setDefault(store, EDITOR_DOT_STRING_COLOR, DEF_STRING);
-
-		PreferenceConverter.setDefault(store, EDITOR_UML_KEYWORD_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_UML_ATTRIBS_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_UML_SYMBOL_COLOR, DEF_SYMBOL);
-		PreferenceConverter.setDefault(store, EDITOR_UML_COMMENT_COLOR, DEF_COMMENT);
-		PreferenceConverter.setDefault(store, EDITOR_UML_STRING_COLOR, DEF_STRING);
-
-		PreferenceConverter.setDefault(store, EDITOR_MATH_KEYWORD_COLOR, DEF_KEYWORD);
-		PreferenceConverter.setDefault(store, EDITOR_MATH_SYMBOL_COLOR, DEF_SYMBOL);
-		PreferenceConverter.setDefault(store, EDITOR_MATH_COMMENT_COLOR, DEF_COMMENT);
 		
-		store.setDefault(EDITOR_BOLD, true);
-		store.setDefault(EDITOR_ITALIC, true);
-		store.setDefault(EDITOR_STRIKEOUT, true);
+		PreferenceConverter.setDefault(store, EDITOR_FRONTMATTER_COLOR, DEFAULT_COLOR_COMMENT);
+		PreferenceConverter.setDefault(store, EDITOR_COMMENT_VISIBLE_COLOR, DEFAULT_COLOR_COMMENT);
+		PreferenceConverter.setDefault(store, EDITOR_COMMENT_HIDDEN_COLOR, DEFAULT_COLOR_HIDDEN_COMMENT);
 
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_LINK_COLOR, textEditorsHyperlinkColor);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_HEADER_COLOR, DEFAULT_COLOR_HEADER);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_LIST_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR, DEFAULT_COLOR_HEADER);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_BOLD_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_ITALIC_COLOR, textEditorsForegroundColor);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_STRIKEOUT_COLOR, textEditorsForegroundColor);
+
+		PreferenceConverter.setDefault(store, EDITOR_HTML_KEYWORD_COLOR, DEFAULT_COLOR_KEYWORD);
+		PreferenceConverter.setDefault(store, EDITOR_HTML_SYMBOL_COLOR, DEFAULT_COLOR_SYMBOL);
+		PreferenceConverter.setDefault(store, EDITOR_HTML_STRING_COLOR, DEFAULT_COLOR_STRING);
+
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_CODE_SPAN_COLOR, DEFAULT_COLOR_CODE_SPAN);
+		PreferenceConverter.setDefault(store, EDITOR_MARKDOWN_CODE_BLOCK_COLOR, DEFAULT_COLOR_CODE_BLOCK);
+
+		PreferenceConverter.setDefault(store, EDITOR_DOT_KEYWORD_COLOR, DEFAULT_COLOR_KEYWORD);
+		PreferenceConverter.setDefault(store, EDITOR_DOT_ATTRIBS_COLOR, DEFAULT_COLOR_ATTRIBUTE);
+		PreferenceConverter.setDefault(store, EDITOR_DOT_SYMBOL_COLOR, DEFAULT_COLOR_SYMBOL);
+		PreferenceConverter.setDefault(store, EDITOR_DOT_COMMENT_COLOR, DEFAULT_COLOR_COMMENT);
+		PreferenceConverter.setDefault(store, EDITOR_DOT_STRING_COLOR, DEFAULT_COLOR_STRING);
+
+		PreferenceConverter.setDefault(store, EDITOR_UML_LINK_COLOR, textEditorsHyperlinkColor);
+		PreferenceConverter.setDefault(store, EDITOR_UML_KEYWORD_COLOR, DEFAULT_COLOR_KEYWORD);
+		PreferenceConverter.setDefault(store, EDITOR_UML_ATTRIBS_COLOR, DEFAULT_COLOR_ATTRIBUTE);
+		PreferenceConverter.setDefault(store, EDITOR_UML_SYMBOL_COLOR, DEFAULT_COLOR_SYMBOL);
+		PreferenceConverter.setDefault(store, EDITOR_UML_COMMENT_COLOR, DEFAULT_COLOR_COMMENT);
+		PreferenceConverter.setDefault(store, EDITOR_UML_STRING_COLOR, DEFAULT_COLOR_STRING);
+
+		PreferenceConverter.setDefault(store, EDITOR_MATH_KEYWORD_COLOR, DEFAULT_COLOR_KEYWORD);
+		PreferenceConverter.setDefault(store, EDITOR_MATH_SYMBOL_COLOR, DEFAULT_COLOR_SYMBOL);
+		PreferenceConverter.setDefault(store, EDITOR_MATH_COMMENT_COLOR, DEFAULT_COLOR_COMMENT);
+		
+		store.setDefault(EDITOR_MARKDOWN_HEADER_BOLD, true);
+		store.setDefault(EDITOR_MARKDOWN_TASK_TAG_BOLD, true);
+		store.setDefault(EDITOR_MARKDOWN_BOLD_BOLD, true);
+		store.setDefault(EDITOR_MARKDOWN_ITALIC_ITALIC, true);
+		store.setDefault(EDITOR_MARKDOWN_STRIKEOUT_STRIKEOUT, true);
+		store.setDefault(EDITOR_MARKDOWN_KEYWORD_BOLD, true);
+		store.setDefault(EDITOR_HTML_KEYWORD_BOLD, true);
+		store.setDefault(EDITOR_MATH_KEYWORD_BOLD, true);
+		store.setDefault(EDITOR_DOT_KEYWORD_BOLD, true);
+		store.setDefault(EDITOR_UML_KEYWORD_BOLD, true);
+
+		
 		store.setDefault(VIEW_UPDATE_DELAY, 1000);
 
 		// spelling

@@ -64,46 +64,56 @@ public interface Prefs extends PrefsSpelling {
 	String EDITOR_COMMENT_HIDDEN_COLOR = MD_ID + ".hiddenCommentColor";
 
 	// Markdown colors
-	String EDITOR_HEADER_COLOR = MD_ID + ".headerColor";
-	String EDITOR_LIST_COLOR = MD_ID + ".listColor";
-	String EDITOR_LINK_COLOR = MD_ID + ".linkColor";
-	String EDITOR_HRULE_COLOR = MD_ID + ".hruleColor";
-	String EDITOR_BOLD_COLOR = MD_ID + ".boldColor";
-	String EDITOR_ITALIC_COLOR = MD_ID + ".italicColor";
-	String EDITOR_STRIKEOUT_COLOR = MD_ID + ".strikeoutColor";
-	String EDITOR_TASK_TAG_COLOR = MD_ID + ".taskTagColor";
+	String EDITOR_MARKDOWN_HEADER_COLOR = MD_ID + ".headerColor";
+	String EDITOR_MARKDOWN_LIST_COLOR = MD_ID + ".listColor";
+	String EDITOR_MARKDOWN_LINK_COLOR = MD_ID + ".linkColor";
+	String EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR = MD_ID + ".hruleColor";
+	String EDITOR_MARKDOWN_BOLD_COLOR = MD_ID + ".boldColor";
+	String EDITOR_MARKDOWN_ITALIC_COLOR = MD_ID + ".italicColor";
+	String EDITOR_MARKDOWN_STRIKEOUT_COLOR = MD_ID + ".strikeoutColor";
+	String EDITOR_MARKDOWN_TASK_TAG_COLOR = MD_ID + ".taskTagColor";
+	
+	String EDITOR_MARKDOWN_HEADER_BOLD = EDITOR_MARKDOWN_HEADER_COLOR + EDITOR_BOLD_SUFFIX;
+	String EDITOR_MARKDOWN_KEYWORD_BOLD = EDITOR_MARKDOWN_HEADER_COLOR + EDITOR_BOLD_SUFFIX;
+	String EDITOR_MARKDOWN_TASK_TAG_BOLD = EDITOR_MARKDOWN_TASK_TAG_COLOR + EDITOR_BOLD_SUFFIX;
 	
 	// Markdown: Do we want text marked as bold to be displayed as bold text? 
-	String EDITOR_BOLD = EDITOR_BOLD_COLOR + EDITOR_BOLD_SUFFIX;
+	String EDITOR_MARKDOWN_BOLD_BOLD = EDITOR_MARKDOWN_BOLD_COLOR + EDITOR_BOLD_SUFFIX;
 	
 	// Markdown: Do we want text marked as italic to be displayed as italic text?
-	String EDITOR_ITALIC = EDITOR_ITALIC_COLOR + EDITOR_ITALIC_SUFFIX;
+	String EDITOR_MARKDOWN_ITALIC_ITALIC = EDITOR_MARKDOWN_ITALIC_COLOR + EDITOR_ITALIC_SUFFIX;
 	
 	// Markdown: Do we want text marked as striked through to be displayed as striked through text?
-	String EDITOR_STRIKEOUT = EDITOR_STRIKEOUT_COLOR + EDITOR_STRIKETHROUGH_SUFFIX;
+	String EDITOR_MARKDOWN_STRIKEOUT_STRIKEOUT = EDITOR_MARKDOWN_STRIKEOUT_COLOR + EDITOR_STRIKETHROUGH_SUFFIX;
+	
 
-	String EDITOR_CODE_COLOR = MD_ID + ".codeColor";
-	String EDITOR_CODEBLOCK_COLOR = MD_ID + ".codeblockColor";
+	String EDITOR_MARKDOWN_CODE_SPAN_COLOR = MD_ID + ".codespanColor";
+	String EDITOR_MARKDOWN_CODE_BLOCK_COLOR = MD_ID + ".codeblockColor";
 
 	String EDITOR_HTML_KEYWORD_COLOR = MD_ID + ".htmlKeywordColor";
 	String EDITOR_HTML_SYMBOL_COLOR = MD_ID + ".htmlSymbolColor";
 	String EDITOR_HTML_STRING_COLOR = MD_ID + ".htmlStringColor";
+	String EDITOR_HTML_KEYWORD_BOLD = EDITOR_HTML_KEYWORD_COLOR + EDITOR_BOLD_SUFFIX;
 
 	String EDITOR_MATH_KEYWORD_COLOR = MD_ID + ".mathKeywordColor";
 	String EDITOR_MATH_SYMBOL_COLOR = MD_ID + ".mathSymbolColor";
 	String EDITOR_MATH_COMMENT_COLOR = MD_ID + ".mathCommentColor";
+	String EDITOR_MATH_KEYWORD_BOLD = EDITOR_MATH_KEYWORD_COLOR + EDITOR_BOLD_SUFFIX;
 
 	String EDITOR_DOT_KEYWORD_COLOR = MD_ID + ".dotKeywordColor";
 	String EDITOR_DOT_ATTRIBS_COLOR = MD_ID + ".dotAttribsColor";
 	String EDITOR_DOT_SYMBOL_COLOR = MD_ID + ".dotSymbolColor";
 	String EDITOR_DOT_COMMENT_COLOR = MD_ID + ".dotCommentColor";
 	String EDITOR_DOT_STRING_COLOR = MD_ID + ".dotStringColor";
+	String EDITOR_DOT_KEYWORD_BOLD = EDITOR_DOT_KEYWORD_COLOR + EDITOR_BOLD_SUFFIX;
 
 	String EDITOR_UML_KEYWORD_COLOR = MD_ID + ".umlKeywordColor";
 	String EDITOR_UML_ATTRIBS_COLOR = MD_ID + ".umlAttribsColor";
 	String EDITOR_UML_SYMBOL_COLOR = MD_ID + ".umlSymbolColor";
 	String EDITOR_UML_COMMENT_COLOR = MD_ID + ".umlCommentColor";
 	String EDITOR_UML_STRING_COLOR = MD_ID + ".umlStringColor";
+	String EDITOR_UML_LINK_COLOR = MD_ID + ".umlLinkColor";
+	String EDITOR_UML_KEYWORD_BOLD = EDITOR_UML_KEYWORD_COLOR + EDITOR_BOLD_SUFFIX;
 
 	String EDITOR_GITHUB_SYNTAX = MD_ID + ".github_Syntax";
 	String EDITOR_MULTIMARKDOWN_METADATA = MD_ID + ".multiMarkdown_Metadata";

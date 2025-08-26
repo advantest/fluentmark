@@ -37,14 +37,14 @@ public class ScannerMarkup extends AbstractBufferedRuleBasedScanner {
 	protected String[] getTokenProperties() {
 		if (tokenProperties == null) {
 			tokenProperties = new String[] { //
-					Prefs.EDITOR_HEADER_COLOR, //
-					Prefs.EDITOR_LIST_COLOR, //
-					Prefs.EDITOR_LINK_COLOR, //
-					Prefs.EDITOR_HRULE_COLOR, //
-					Prefs.EDITOR_BOLD_COLOR, //
-					Prefs.EDITOR_ITALIC_COLOR, //
-					Prefs.EDITOR_STRIKEOUT_COLOR, //
-					Prefs.EDITOR_CODE_COLOR, //
+					Prefs.EDITOR_MARKDOWN_HEADER_COLOR, //
+					Prefs.EDITOR_MARKDOWN_LIST_COLOR, //
+					Prefs.EDITOR_MARKDOWN_LINK_COLOR, //
+					Prefs.EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR, //
+					Prefs.EDITOR_MARKDOWN_BOLD_COLOR, //
+					Prefs.EDITOR_MARKDOWN_ITALIC_COLOR, //
+					Prefs.EDITOR_MARKDOWN_STRIKEOUT_COLOR, //
+					Prefs.EDITOR_MARKDOWN_CODE_SPAN_COLOR, //
 			};
 		}
 		return tokenProperties;
@@ -52,14 +52,14 @@ public class ScannerMarkup extends AbstractBufferedRuleBasedScanner {
 
 	@Override
 	protected List<IRule> createRules() {
-		IToken header = getToken(Prefs.EDITOR_HEADER_COLOR);
-		IToken link = getToken(Prefs.EDITOR_LINK_COLOR);
-		IToken list = getToken(Prefs.EDITOR_LIST_COLOR);
-		IToken rule = getToken(Prefs.EDITOR_HRULE_COLOR);
-		IToken bold = getToken(Prefs.EDITOR_BOLD_COLOR);
-		IToken italic = getToken(Prefs.EDITOR_ITALIC_COLOR);
-		IToken strikeout = getToken(Prefs.EDITOR_STRIKEOUT_COLOR);
-		IToken code = getToken(Prefs.EDITOR_CODE_COLOR);
+		IToken header = getToken(Prefs.EDITOR_MARKDOWN_HEADER_COLOR);
+		IToken link = getToken(Prefs.EDITOR_MARKDOWN_LINK_COLOR);
+		IToken list = getToken(Prefs.EDITOR_MARKDOWN_LIST_COLOR);
+		IToken rule = getToken(Prefs.EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR);
+		IToken bold = getToken(Prefs.EDITOR_MARKDOWN_BOLD_COLOR);
+		IToken italic = getToken(Prefs.EDITOR_MARKDOWN_ITALIC_COLOR);
+		IToken strikeout = getToken(Prefs.EDITOR_MARKDOWN_STRIKEOUT_COLOR);
+		IToken code = getToken(Prefs.EDITOR_MARKDOWN_CODE_SPAN_COLOR);
 
 		List<IRule> rules = new ArrayList<IRule>();
 		rules.add(new HeaderUnderlineRule(header));

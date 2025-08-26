@@ -239,8 +239,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				if (fDotCategory.equals(entry)) return fListModel.subList(8, 13).toArray();
 				if (fMarkupCategory.equals(entry)) return fListModel.subList(13, 21).toArray();
 				if (fMathCategory.equals(entry)) return fListModel.subList(21, 24).toArray();
-				if (fUmlCategory.equals(entry)) return fListModel.subList(24, 29).toArray();
-				if (fDefaultCategory.equals(entry)) return fListModel.subList(29, fListModel.size()).toArray();
+				if (fUmlCategory.equals(entry)) return fListModel.subList(24, 30).toArray();
+				if (fDefaultCategory.equals(entry)) return fListModel.subList(30, fListModel.size()).toArray();
 			}
 			return new Object[0];
 		}
@@ -250,7 +250,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			if (element instanceof String) return null;
 			int index = fListModel.indexOf(element);
 
-			if (index >= 29) return fDefaultCategory;
+			if (index >= 30) return fDefaultCategory;
 			if (index >= 24) return fUmlCategory;
 			if (index >= 21) return fMathCategory;
 			if (index >= 13) return fMarkupCategory;
@@ -287,8 +287,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Symbols", Prefs.EDITOR_HTML_SYMBOL_COLOR }, //
 			{ "Strings", Prefs.EDITOR_HTML_STRING_COLOR }, //
 
-			{ "Code", Prefs.EDITOR_CODE_COLOR }, // 6
-			{ "Code Blocks", Prefs.EDITOR_CODEBLOCK_COLOR }, //
+			{ "Code", Prefs.EDITOR_MARKDOWN_CODE_SPAN_COLOR }, // 6
+			{ "Code Blocks", Prefs.EDITOR_MARKDOWN_CODE_BLOCK_COLOR }, //
 
 			{ "Keywords", Prefs.EDITOR_DOT_KEYWORD_COLOR }, // 8
 			{ "AttrMap", Prefs.EDITOR_DOT_ATTRIBS_COLOR }, //
@@ -296,14 +296,14 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Comments", Prefs.EDITOR_DOT_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_DOT_STRING_COLOR }, //
 
-			{ "Headers", Prefs.EDITOR_HEADER_COLOR }, // 13
-			{ "Lists", Prefs.EDITOR_LIST_COLOR }, //
-			{ "Links", Prefs.EDITOR_LINK_COLOR }, //
-			{ "Horz Rules", Prefs.EDITOR_HRULE_COLOR }, //
-			{ "Bold", Prefs.EDITOR_BOLD_COLOR }, //
-			{ "Italic", Prefs.EDITOR_ITALIC_COLOR }, //
-			{ "Strikeout", Prefs.EDITOR_STRIKEOUT_COLOR }, //
-			{ "Task Tags", Prefs.EDITOR_TASK_TAG_COLOR }, //
+			{ "Headers", Prefs.EDITOR_MARKDOWN_HEADER_COLOR }, // 13
+			{ "Lists", Prefs.EDITOR_MARKDOWN_LIST_COLOR }, //
+			{ "Links", Prefs.EDITOR_MARKDOWN_LINK_COLOR }, //
+			{ "Horz Rules", Prefs.EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR }, //
+			{ "Bold", Prefs.EDITOR_MARKDOWN_BOLD_COLOR }, //
+			{ "Italic", Prefs.EDITOR_MARKDOWN_ITALIC_COLOR }, //
+			{ "Strikeout", Prefs.EDITOR_MARKDOWN_STRIKEOUT_COLOR }, //
+			{ "Task Tags", Prefs.EDITOR_MARKDOWN_TASK_TAG_COLOR }, //
 
 			{ "Keywords", Prefs.EDITOR_MATH_KEYWORD_COLOR }, // 21
 			{ "Symbols", Prefs.EDITOR_MATH_SYMBOL_COLOR }, //
@@ -314,8 +314,9 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Symbols", Prefs.EDITOR_UML_SYMBOL_COLOR }, //
 			{ "Comments", Prefs.EDITOR_UML_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_UML_STRING_COLOR }, //
+			{ "Links", Prefs.EDITOR_UML_LINK_COLOR }, //
 			
-			{ "Default Foreground Color", Prefs.EDITOR_FOREGROUND_COLOR }, // 29
+			{ "Default Foreground Color", Prefs.EDITOR_FOREGROUND_COLOR }, // 30
 			{ "Default Background Color", Prefs.EDITOR_BACKGROUND_COLOR } //
 
 	};
