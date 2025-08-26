@@ -67,7 +67,7 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 		if (tokenProperties == null) {
 			tokenProperties = new String[] { Prefs.EDITOR_UML_KEYWORD_COLOR, Prefs.EDITOR_UML_ATTRIBS_COLOR,
 					Prefs.EDITOR_UML_COMMENT_COLOR, Prefs.EDITOR_UML_SYMBOL_COLOR, Prefs.EDITOR_UML_STRING_COLOR,
-					Prefs.EDITOR_DEFAULT_COLOR };
+					Prefs.EDITOR_UML_LINK_COLOR, Prefs.EDITOR_FOREGROUND_COLOR };
 		}
 		return tokenProperties;
 	}
@@ -79,7 +79,8 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 		IToken symbolToken = getToken(Prefs.EDITOR_UML_SYMBOL_COLOR);
 		IToken stringToken = getToken(Prefs.EDITOR_UML_STRING_COLOR);
 		IToken commentToken = getToken(Prefs.EDITOR_UML_COMMENT_COLOR);
-		IToken defaultToken = getToken(Prefs.EDITOR_DEFAULT_COLOR);
+		IToken linkToken = getToken(Prefs.EDITOR_UML_LINK_COLOR);
+		IToken defaultToken = getToken(Prefs.EDITOR_FOREGROUND_COLOR);
 
 		WordRule wordRule = new WordRule(new UmlWordDetector(), defaultToken, true);
 		for (String keyword : keywords) {
@@ -103,6 +104,7 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 		rules.add(new MultiLineRule("/'", "'/", commentToken, '\\', true));
 		rules.add(new SingleLineRule("'", null, commentToken, '\\', true));
 		rules.add(new SingleLineRule("\"", "\"", stringToken, '\\', true));
+		rules.add(new SingleLineRule("[[", "]]", linkToken, '\\', true));
 		rules.add(wordRule);
 		rules.add(typeRule);
 		rules.add(symbolRule);

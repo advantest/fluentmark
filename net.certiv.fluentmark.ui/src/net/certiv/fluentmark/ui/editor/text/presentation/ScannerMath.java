@@ -35,7 +35,7 @@ public class ScannerMath extends AbstractBufferedRuleBasedScanner {
 	protected String[] getTokenProperties() {
 		if (tokenProperties == null) {
 			tokenProperties = new String[] { Prefs.EDITOR_MATH_KEYWORD_COLOR, Prefs.EDITOR_MATH_SYMBOL_COLOR,
-					Prefs.EDITOR_MATH_COMMENT_COLOR, Prefs.EDITOR_DEFAULT_COLOR };
+					Prefs.EDITOR_MATH_COMMENT_COLOR };
 		}
 		return tokenProperties;
 	}
@@ -45,7 +45,6 @@ public class ScannerMath extends AbstractBufferedRuleBasedScanner {
 		IToken keywordToken = getToken(Prefs.EDITOR_MATH_KEYWORD_COLOR);
 		IToken symbolToken = getToken(Prefs.EDITOR_MATH_SYMBOL_COLOR);
 		IToken commentToken = getToken(Prefs.EDITOR_MATH_COMMENT_COLOR);
-		// IToken defaultToken = getToken(Prefs.EDITOR_DEFAULT_COLOR);
 
 		WordRule wordRule = new WordRule(new MathWordDetector(), keywordToken, true);
 		WordRule symbolRule = new WordRule(new MathSymbolDetector(), symbolToken, true);

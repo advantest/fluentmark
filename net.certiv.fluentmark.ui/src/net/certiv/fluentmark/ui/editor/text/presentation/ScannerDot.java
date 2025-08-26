@@ -67,7 +67,7 @@ public class ScannerDot extends AbstractBufferedRuleBasedScanner implements ISca
 		if (tokenProperties == null) {
 			tokenProperties = new String[] { Prefs.EDITOR_DOT_KEYWORD_COLOR, Prefs.EDITOR_DOT_ATTRIBS_COLOR,
 					Prefs.EDITOR_DOT_COMMENT_COLOR, Prefs.EDITOR_DOT_SYMBOL_COLOR, Prefs.EDITOR_DOT_STRING_COLOR,
-					Prefs.EDITOR_DEFAULT_COLOR };
+					Prefs.EDITOR_FOREGROUND_COLOR };
 		}
 		return tokenProperties;
 	}
@@ -79,7 +79,7 @@ public class ScannerDot extends AbstractBufferedRuleBasedScanner implements ISca
 		IToken symbolToken = getToken(Prefs.EDITOR_DOT_SYMBOL_COLOR);
 		IToken stringToken = getToken(Prefs.EDITOR_DOT_STRING_COLOR);
 		IToken commentToken = getToken(Prefs.EDITOR_DOT_COMMENT_COLOR);
-		IToken defaultToken = getToken(Prefs.EDITOR_DEFAULT_COLOR);
+		IToken defaultToken = getToken(Prefs.EDITOR_FOREGROUND_COLOR);
 
 		WordRule wordRule = new WordRule(new DotWordDetector(), defaultToken, true);
 		for (String keyword : keywords) {
