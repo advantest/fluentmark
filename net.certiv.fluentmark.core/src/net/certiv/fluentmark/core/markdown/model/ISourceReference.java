@@ -24,5 +24,10 @@ public interface ISourceReference {
 	 */
 	ISourceRange getSourceRange();
 
+	/**
+	 * Returns the content of this element with lines separated by EOLs. The content is not
+	 * terminated by an EOL if <code>noTerm</code> is true. Otherwise, the content is terminated by
+	 * an EOL.
+	 */
 	String getContent(boolean noTerm);
 }

@@ -104,6 +104,14 @@ public abstract class Parent extends Element implements IParent {
 			return isAncestor(parent);
 		}
 	}
+	
+	@Override
+	public String getContent(boolean noTerm) {
+		if (noTerm && content.length() > 0) {
+			return content.substring(0, content.length() - getLineDelim().length());
+		}
+		return content;
+	}
 
 	protected void setChanged() {
 		this.changed = true;
