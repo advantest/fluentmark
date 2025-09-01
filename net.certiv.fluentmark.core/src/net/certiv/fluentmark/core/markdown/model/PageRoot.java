@@ -119,6 +119,13 @@ public class PageRoot extends Parent {
 	 */
 	public void updateModel(IResource resource, String text) throws CoreException {
 //		long begTime = System.nanoTime();
+		
+		if (this.content != null && text != null
+				&& this.content.hashCode() == text.hashCode()) {
+			// nothing changed, just return
+			return;
+		}
+		
 		clearModel();
 		set(resource, text);
 		parse();
