@@ -107,11 +107,24 @@ public class Formatter {
 		}
 	}
 
+	private static boolean textsDiffer(String originalText, String formattedText) {
+		if (originalText != null && formattedText != null) {
+			return originalText.hashCode() != formattedText.hashCode();
+		} else if (originalText != null && formattedText == null) {
+			return true;
+		} else if (originalText == null && formattedText != null) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	private static void formatBlank(PagePart part, TextEdit edit) {
 		ISourceRange range = part.getSourceRange();
 		int eols = range.getEndLine() - range.getBeginLine() + 1;
 		String rep = Strings.dup(part.getLineDelim(), eols);
-		if (range.getOffset() + range.getLength() <= docLength) {
+		if (range.getOffset() + range.getLength() <= docLength
+				&& textsDiffer(part.getContent(), rep)) {
 			edit.addChild(new ReplaceEdit(range.getOffset(), range.getLength(), rep));
 		}
 	}
@@ -120,7 +133,13 @@ public class Formatter {
 		TableModel table = new TableModel();
 		table.load(part);
 		ISourceRange range = part.getSourceRange();
-		edit.addChild(new ReplaceEdit(range.getOffset(), range.getLength(), table.build()));
+		
+		String formattedTable = table.build();
+		String oldTable = part.getContent();
+		
+		if (textsDiffer(oldTable, formattedTable)) {
+			edit.addChild(new ReplaceEdit(range.getOffset(), range.getLength(), formattedTable));
+		}
 	}
 
 	private static void formatText(PagePart part, TextEdit edit, int cols) {
@@ -129,10 +148,12 @@ public class Formatter {
 		int len = range.getLength() - part.getLineDelim().length();
 		if (len <= 0) return;
 
-		String content = part.getContent(true);
-		content = TextFormatter.wrap(content, cols, part.getLineDelim());
-
-		edit.addChild(new ReplaceEdit(offset, len, content));
+		String oldContent = part.getContent(true);
+		String newContent = TextFormatter.wrap(oldContent, cols, part.getLineDelim());
+		
+		if (textsDiffer(oldContent, newContent)) {
+			edit.addChild(new ReplaceEdit(offset, len, newContent));
+		}
 	}
 
 	private static void formatList(PagePart part, TextEdit edit, int cols, int tabWidth) {
@@ -147,13 +168,17 @@ public class Formatter {
 		int len = range.getLength() - part.getLineDelim().length();
 		if (len <= 0) return;
 
+		int itemOffsetInContent = offset - part.getSourceRange().getOffset();
+		String oldListItem = part.getContent().substring(itemOffsetInContent, itemOffsetInContent + len);
 		String listItem = part.getSublistContent(mark);
 		int indent = net.certiv.fluentmark.core.util.Indent.measureIndentInTabs(listItem, tabWidth);
 		int markWidth = listMarkWidth(listItem);
-		listItem = TextFormatter.wrap(listItem, cols, part.getLineDelim(), tabWidth * indent,
+		String formattedListItem = TextFormatter.wrap(listItem, cols, part.getLineDelim(), tabWidth * indent,
 				(tabWidth * indent) + markWidth);
 
-		edit.addChild(new ReplaceEdit(offset, len, listItem));
+		if (textsDiffer(oldListItem, formattedListItem)) {
+			edit.addChild(new ReplaceEdit(offset, len, formattedListItem));
+		}
 	}
 
 	private static int listMarkWidth(String item) {
