@@ -103,27 +103,27 @@ public class Lines {
 	}
 
 	public int getOffset(int idx) {
-		return lineList.get(idx).offset;
+		return getLine(idx).offset;
 	}
 
 	public String getText(int idx) {
-		return lineList.get(idx).text;
+		return getLine(idx).text;
 	}
 
 	public int getTextLength(int idx) {
-		return lineList.get(idx).length;
+		return getLine(idx).length;
 	}
 
 	public Type getKind(int idx) {
-		return lineList.get(idx).kind;
+		return getLine(idx).kind;
 	}
 
 	public Type getOriginalKind(int idx) {
-		return lineList.get(idx).nKind;
+		return getLine(idx).nKind;
 	}
 
 	public void setKind(int idx, Type kind) {
-		Line line = lineList.get(idx);
+		Line line = getLine(idx);
 		line.kind = kind;
 		if (line.nKind == Type.UNDEFINED) {
 			line.nKind = kind; // preserve the original kind
@@ -131,16 +131,16 @@ public class Lines {
 	}
 
 	public PagePart getPagePart(int idx) {
-		return lineList.get(idx).part;
+		return getLine(idx).part;
 	}
 
 	public void setPagePart(int idx, PagePart part) {
-		lineList.get(idx).part = part;
+		getLine(idx).part = part;
 	}
 
 	public Type identifyKind(int idx) {
-		Line curr = lineList.get(idx);
-		Line next = lineList.size() > idx + 1 ? lineList.get(idx + 1) : null;
+		Line curr = getLine(idx);
+		Line next = lineList.size() > idx + 1 ? getLine(idx + 1) : null;
 
 		String curTxt = curr.text;
 		String nxtTxt = next != null ? next.text : "";
@@ -206,7 +206,7 @@ public class Lines {
 	public int nextMatching(int mark, Type kind, String exact) {
 		for (int idx = mark + 1; idx < length(); idx++) {
 			boolean ok = kind != null ? kind == identifyKind(idx) : true;
-			ok = ok && (exact != null) ? lineList.get(idx).text.startsWith(exact) : ok;
+			ok = ok && (exact != null) ? getLine(idx).text.startsWith(exact) : ok;
 			if (ok) return idx;
 		}
 		return length() - 1;
@@ -215,7 +215,7 @@ public class Lines {
 	public int nextContaining(int mark, String containedText) {
 		for (int idx = mark; idx < length(); idx++) {
 			boolean found = (containedText != null)
-					&& lineList.get(idx).text.contains(containedText); 
+					&& getLine(idx).text.contains(containedText); 
 			if (found) {
 				return idx;
 			}
