@@ -590,9 +590,25 @@ public class FluentEditor extends TextEditor
 	}
 
 	public FluentEditor ensureLastLineBlank() {
-		String lineSeparator = getPreferredLineSeparator();
 		IDocument doc = getDocument();
 		String text = doc.get();
+		
+		String lineSeparator = getPreferredLineSeparator();
+		
+		// try re-using the same line delimiter as it is already used in the document
+		if (doc.getNumberOfLines() > 0) {
+			String firstLineDelimiter;
+			try {
+				firstLineDelimiter = doc.getLineDelimiter(0);
+			} catch (BadLocationException e) {
+				firstLineDelimiter = null;
+			}
+			
+			if (firstLineDelimiter != null) {
+				lineSeparator = firstLineDelimiter;
+			}
+		}
+		
 		if (!text.endsWith(lineSeparator)) {
 			doc.set(text + lineSeparator);
 		}
