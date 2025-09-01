@@ -29,7 +29,7 @@ public class ModelUpdater implements IDocumentChangedListener {
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		modelUpdateJob.trigger(this.pageRoot, this.resource, event.getDocument().get());
+		modelUpdateJob.trigger(this.pageRoot, this.resource, event.getDocument());
 	}
 
 }

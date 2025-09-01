@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.IDocument;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,10 @@ public class UpdateJob extends Job {
 	public UpdateJob(String name) {
 		super(name);
 	}
-
-	public void trigger(PageRoot root, IResource res, String text) {
+	
+	public void trigger(PageRoot root, IResource res, IDocument document) {
 		synchronized (queue) {
-			queue.add(new Task(root, res, text));
+			queue.add(new Task(root, res, document));
 			schedule(DELAY);
 		}
 	}
@@ -46,7 +47,7 @@ public class UpdateJob extends Job {
 		}
 
 		try {
-			task.root.updateModel(task.res, task.text);
+			task.root.updateModel(task.res, task.document.get());
 		} catch (CoreException e) {
 			return e.getStatus();
 		}
@@ -57,12 +58,12 @@ public class UpdateJob extends Job {
 	private class Task {
 		PageRoot root;
 		IResource res;
-		String text;
+		IDocument document;
 
-		Task(PageRoot root, IResource res, String text) {
+		Task(PageRoot root, IResource res, IDocument document) {
 			this.root = root;
 			this.res = res;
-			this.text = text;
+			this.document = document;
 		}
 	}
 
