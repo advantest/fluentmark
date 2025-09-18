@@ -11,11 +11,9 @@ package net.certiv.fluentmark.ui.refactoring;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -32,7 +30,6 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -40,7 +37,6 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -52,36 +48,21 @@ import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.FlexmarkUtil;
 
 
-public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
+public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactoring {
 	
-	private final static String MSG_ADAPT_LINKS = "Replace *.svg links with *.puml links in Markdown files";
+	private final static String MSG_ADAPT_LINKS = "Replace *.svg references (images) with *.puml references (images) in Markdown files";
 	private final static String MSG_AND_DELETE_SVGS = " and remove obsolete *.svg files";
-	
-	private final Set<IResource> rootResources = new HashSet<>();
-	private IDocument markdownFileDocument;
-	private ITextSelection textSelection;
-	private final MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 	
 	private boolean deleteObsoleteSvgFiles = true;
 	
 	public ReplaceSvgWithPlantUmlRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
-		this.rootResources.add(markdownFile);
-		this.markdownFileDocument = document;
-		this.textSelection = textSelection;
+		super(markdownFile, document, textSelection);
 	}
 	
 	public ReplaceSvgWithPlantUmlRefactoring(List<IResource> rootResources) {
-		this.rootResources.addAll(rootResources);
+		super(rootResources);
 	}
 	
-	public boolean hasTextSelection() {
-		return textSelection != null;
-	}
-	
-	public Set<IResource> getRootResources() {
-		return this.rootResources;
-	}
-
 	@Override
 	public String getName() {
 		return MSG_ADAPT_LINKS + MSG_AND_DELETE_SVGS;
@@ -89,20 +70,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends Refactoring {
 	
 	public void setDeleteSvgFiles(boolean deleteObsoleteSvgFiles) {
 		this.deleteObsoleteSvgFiles = deleteObsoleteSvgFiles;
-	}
-
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
-		
-		for (IResource rootResource: rootResources) {
-			if (rootResource == null || !rootResource.exists() || !rootResource.isAccessible()) {
-				return RefactoringStatus.createFatalErrorStatus("Refactoring not applicable to the given resource."
-						+ " The following resource is not accessible. Resource: " + rootResource);
-			}
-		}
-		
-		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
 
 	@Override

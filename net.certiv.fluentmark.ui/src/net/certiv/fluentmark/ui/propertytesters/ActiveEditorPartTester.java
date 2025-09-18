@@ -25,7 +25,8 @@ public class ActiveEditorPartTester extends PropertyTester {
 	
 	private static final String ACTIVE_EDITOR_PART = "activeEditorPart";
 	private static final String IS_ACTIVE_FLUENT_EDITOR = "isActiveFluentEditor";
-	private static final String IS_MARKDOWN_IMAGE_TEXT_SELECTION = "isMarkdownSvgImageTextSelection";
+	private static final String IS_MARKDOWN_SVG_IMAGE_TEXT_SELECTION = "isMarkdownSvgImageTextSelection";
+	private static final String IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION = "isMarkdownPlantUmlImageTextSelection";
 
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
@@ -47,7 +48,8 @@ public class ActiveEditorPartTester extends PropertyTester {
 		} else if (IS_ACTIVE_FLUENT_EDITOR.equals(property)) {
 			IEditorPart activeEditorPart = EditorUtils.getActiveEditorPart();
 			return (activeEditorPart instanceof FluentEditor);
-		} else if (IS_MARKDOWN_IMAGE_TEXT_SELECTION.equals(property)) {
+		} else if (IS_MARKDOWN_SVG_IMAGE_TEXT_SELECTION.equals(property)
+				|| IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION.equals(property)) {
 			ISelection selection = EditorUtils.getCurrentSelection();
 			if (selection instanceof ITextSelection) {
 				ITextSelection textSelection = (ITextSelection) selection;
@@ -60,7 +62,16 @@ public class ActiveEditorPartTester extends PropertyTester {
 					Image imageNodesInSelection = FlexmarkUtil.findMarkdownImageForTextSelection(document, textSelection);
 					if (imageNodesInSelection != null) {
 						String lowerCaseUrl = imageNodesInSelection.getUrl().toString().toLowerCase();
-						return (!lowerCaseUrl.startsWith("http") && lowerCaseUrl.endsWith(".svg"));
+						
+						if (lowerCaseUrl.startsWith("http")) {
+							return false;
+						}
+						
+						if (IS_MARKDOWN_SVG_IMAGE_TEXT_SELECTION.equals(property)) {
+							return lowerCaseUrl.endsWith(".svg");
+						} else if (IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION.equals(property)) {
+							return lowerCaseUrl.endsWith(".puml");
+						}
 					}
 				}
 			}
