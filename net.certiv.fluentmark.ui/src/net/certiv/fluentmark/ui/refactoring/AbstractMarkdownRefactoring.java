@@ -190,7 +190,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 	private void createAndCollectEditsAndDeletionsForImagesInMarkdownFile(IFile markdownFile, Document markdownAst, TextChange markdownFileChange,
 			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
 		
-		ReversiblePeekingIterator<Node> iterator = markdownAst.getChildIterator();
+		ReversiblePeekingIterator<Node> iterator = markdownAst.getDescendants().iterator();
 		while (iterator.hasNext()) {
 			Node astNode = iterator.next();
 			
