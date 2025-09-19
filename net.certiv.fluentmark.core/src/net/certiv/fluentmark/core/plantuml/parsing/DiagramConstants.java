@@ -7,7 +7,7 @@
  * 
  * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
  */
-package net.certiv.fluentmark.core.markdown.partitions;
+package net.certiv.fluentmark.core.plantuml.parsing;
 
 public interface DiagramConstants {
 	

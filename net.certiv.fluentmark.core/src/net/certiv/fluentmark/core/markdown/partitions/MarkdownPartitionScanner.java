@@ -25,6 +25,7 @@ import net.certiv.fluentmark.core.markdown.scanner.rules.HtmlCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.IndentedCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.MatchRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.PumlFileInclusionRule;
+import net.certiv.fluentmark.core.plantuml.parsing.DiagramConstants;
 
 public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 
