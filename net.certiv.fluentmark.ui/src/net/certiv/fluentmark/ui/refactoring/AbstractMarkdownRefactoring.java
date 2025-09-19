@@ -173,7 +173,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 		
 		IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 		
-		TextEdit replacementEdit = createMarkdownImageReplacementEdit(imageNode, resolvedImageFilePath);
+		TextEdit replacementEdit = createMarkdownImageReplacementEdit(markdownFile, imageNode, resolvedImageFilePath);
 		if (replacementEdit != null) {
 			rootEditOnMarkdownFile.addChild(replacementEdit);
 			
@@ -204,7 +204,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 		}
 	}
 	
-	protected abstract TextEdit createMarkdownImageReplacementEdit(Image imageNode, IPath resolvedImageFilePath);
+	protected abstract TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath);
 	
 	protected abstract boolean getDeleteReferencedImageFiles();
 	

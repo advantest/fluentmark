@@ -351,6 +351,8 @@ public final class FileUtils {
 	}
 	
 	public static List<IFile> findFilesForLocation(IPath fileLocation) {
+		// TODO better use resolveToWorkspaceFile instead of this method?
+		
 		if (fileLocation == null) {
 			return Collections.emptyList();
 		}

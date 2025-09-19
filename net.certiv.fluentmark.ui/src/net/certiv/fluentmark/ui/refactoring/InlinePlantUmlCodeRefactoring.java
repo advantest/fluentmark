@@ -1,6 +1,5 @@
 package net.certiv.fluentmark.ui.refactoring;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -10,26 +9,17 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextChange;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import com.vladsch.flexmark.ast.Image;
-import com.vladsch.flexmark.util.sequence.BasedSequence;
 
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.util.FlexmarkUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	
@@ -102,7 +92,8 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 		return "Replace .puml file reference in \"" + markdownFile.getLocation().toString() + "\" with PlantUML code block";
 	}
 	
-	protected TextEdit createMarkdownImageReplacementEdit(Image imageNode, IPath resolvedImageFilePath) {
+	@Override
+	protected TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath) {
 		// abort if we have not a PlantUML file target path
 		if (resolvedImageFilePath == null
 				|| resolvedImageFilePath.getFileExtension() == null
@@ -117,12 +108,24 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 		
 		String pumlFileContents = FileUtils.readFileContents(imageFile);
 		
-		// ensure, there is only one diagram in the PlantUML file
+		if (PlantUmlParsingTools.getNumberOfDiagrams(pumlFileContents) != 1) {
+			return null;
+		}
 		
+		// Add edit operation: replace Markdown image statement with a PlantUML code block
+		String lineSeparator = FileUtils.getPreferredLineSeparatorFor(markdownFile);
+		int startOffset = imageNode.getStartOffset();
+		int imageStatementLength = imageNode.getEndOffset() - startOffset;
 		
-		// TODO Finish this implementation
+		String replacementText = pumlFileContents;
+		if (useFencedCodeBlocks) {
+			replacementText = "```plantuml" + lineSeparator + pumlFileContents + lineSeparator + "```";
+		}
 		
-		return null;
+		// add empty line before and after the block
+		replacementText = lineSeparator + lineSeparator + replacementText + lineSeparator + lineSeparator;
+		
+		return new ReplaceEdit(startOffset, imageStatementLength, replacementText);
 	}
 	
 }

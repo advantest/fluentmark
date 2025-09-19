@@ -91,7 +91,8 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactori
 		return "Replace .svg with .puml in \"" + markdownFile.getLocation().toString() + "\"";
 	}
 	
-	protected TextEdit createMarkdownImageReplacementEdit(Image imageNode, IPath resolvedImageFilePath) {
+	@Override
+	protected TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath) {
 		// abort if we have not an SVG file target path
 		if (resolvedImageFilePath == null
 				|| resolvedImageFilePath.getFileExtension() == null
@@ -119,7 +120,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactori
 		
 		// Add edit operation: replace .svg with .puml file in given Markdown image
 		int startOffset = urlSequence.getStartOffset() + path.toLowerCase().indexOf("." + FileUtils.FILE_EXTENSION_SVG) + 1;
-		return new ReplaceEdit(startOffset, 3, FileUtils.FILE_EXTENSION_PLANTUML);
+		return new ReplaceEdit(startOffset, FileUtils.FILE_EXTENSION_SVG.length(), FileUtils.FILE_EXTENSION_PLANTUML);
 	}
 	
 }
