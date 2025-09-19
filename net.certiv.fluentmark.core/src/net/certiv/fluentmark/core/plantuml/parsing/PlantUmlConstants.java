@@ -9,7 +9,7 @@
  */
 package net.certiv.fluentmark.core.plantuml.parsing;
 
-public interface DiagramConstants {
+public interface PlantUmlConstants {
 	
 	String UML_START = "@startuml";
 	String UML_END   = "@enduml";
