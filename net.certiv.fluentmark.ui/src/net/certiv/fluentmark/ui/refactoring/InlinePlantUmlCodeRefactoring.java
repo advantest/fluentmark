@@ -1,5 +1,6 @@
 package net.certiv.fluentmark.ui.refactoring;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -31,14 +32,6 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	private boolean deleteObsoletePlantUmlFiles = true;
 	private boolean useFencedCodeBlocks = true;
 	
-	/*
-	 * Questions to clarify:
-	 * - use current text selection or a set of directories, projects, and Markdown /PlantUML files as starting point?
-	 * - current puml reference only or all uses of referenced puml file?
-	 * - also delete no longer referenced puml files?
-	 * - plain PlantUML code blocks or fenced PlantUML code blocks?
-	 */
-	
 	public InlinePlantUmlCodeRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		super(markdownFile, document, textSelection);
 	}
@@ -69,19 +62,30 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
 		
+		RefactoringStatus status = new RefactoringStatus(); // ok status -> go to preview page, no error page
+		
+		// TODO Create a warning if some puml file content is in-lined more than once? Check resolved paths?
+		
 		for (IResource rootResource: rootResources) {
 			if (deleteObsoletePlantUmlFiles && !(rootResource instanceof IProject)) {
 				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
 				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
-					return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders"
+					String message = "There might be Markdown files in other folders"
 							+ " of your documentation that point to *.puml files that you are going to delete."
-							+ " Avoid that by selecting your selected resource's (" + rootResource.getFullPath() + ") parent project or documentation folder "
-							+ parentDocFolder.getFullPath().toString());
+							+ " Avoid that by selecting your selected resource's parent project ("
+							+ rootResource.getProject().getName() + ") or documentation folder";
+					
+					boolean containsMessage = Arrays.stream(status.getEntries())
+							.anyMatch(entry -> message.equals(entry.getMessage()));
+					
+					if (!containsMessage) {
+						status.addWarning(message);
+					}
 				}
 			}
 		}
 		
-		return new RefactoringStatus(); // ok status -> go to preview page, no error page
+		return status;
 	}
 	
 	@Override
@@ -91,7 +95,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	
 	@Override
 	protected String getSingleMarkdownFileChangeName(IFile markdownFile) {
-		return "Replace .puml file reference in \"" + markdownFile.getLocation().toString() + "\" with PlantUML code block";
+		return "Replace .puml file reference in \"" + markdownFile.getFullPath().toString() + "\" with PlantUML code block";
 	}
 	
 	@Override
@@ -120,7 +124,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 		int imageStatementLength = imageNode.getEndOffset() - startOffset;
 		
 		// TODO somehow also add the image label to the in-lined PlantUML code?
-		// TODO Create a warning if some puml file content is in-lined more than once?
+		// TODO Somehow run through all Markdown files in parent project and find all references to the puml file to be removed?
 		
 		StringBuilder replacementTextBuilder = new StringBuilder();
 		replacementTextBuilder.repeat(lineSeparator, getNumberOfPreceedingLineSeparatorsToAdd(imageNode));
