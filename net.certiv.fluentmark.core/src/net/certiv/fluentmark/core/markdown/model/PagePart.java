@@ -10,6 +10,7 @@ package net.certiv.fluentmark.core.markdown.model;
 import java.util.Set;
 
 import net.certiv.fluentmark.core.markdown.model.Lines.Line;
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FloorKeyMap;
 import net.certiv.fluentmark.core.util.Strings;
 
@@ -109,7 +110,7 @@ public class PagePart extends Parent {
 			meta = Strings.trimLeadingPunctuation(meta).trim();
 			if (meta.isEmpty()) meta = CodeBlockConstants.PLAIN;
 
-		} else if (meta.startsWith("@start")) {
+		} else if (meta.startsWith(PlantUmlParsingTools.PREFIX_START)) {
 			meta = CodeBlockConstants.CODE_BLOCK_UML;
 		}
 		return meta;

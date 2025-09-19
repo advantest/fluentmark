@@ -10,6 +10,7 @@ package net.certiv.fluentmark.core.markdown.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FloorKeyMap;
 import net.certiv.fluentmark.core.util.Indent;
 
@@ -189,8 +190,8 @@ public class Lines {
 		if (curTxt.startsWith("~~~")) return Type.CODE_BLOCK;
 		if (curTxt.matches("    .*")) return Type.CODE_BLOCK_INDENTED;
 
-		if (priorblank && curTxt.startsWith("@start")) return Type.CODE_BLOCK;
-		if (nxtblank && curTxt.startsWith("@end")) return Type.CODE_BLOCK;
+		if (priorblank && curTxt.startsWith(PlantUmlParsingTools.PREFIX_START)) return Type.CODE_BLOCK;
+		if (nxtblank && curTxt.startsWith(PlantUmlParsingTools.PREFIX_END)) return Type.CODE_BLOCK;
 
 		return Type.TEXT;
 	}
