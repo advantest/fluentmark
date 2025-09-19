@@ -88,7 +88,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactori
 	
 	@Override
 	protected String getSingleMarkdownFileChangeName(IFile markdownFile) {
-		return "Replace .svg with .puml in \"" + markdownFile.getLocation().toString() + "\"";
+		return "Replace .svg with .puml in \"" + markdownFile.getFullPath().toString() + "\"";
 	}
 	
 	@Override
