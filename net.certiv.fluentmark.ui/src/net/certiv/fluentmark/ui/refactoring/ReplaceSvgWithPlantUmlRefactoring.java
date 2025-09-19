@@ -97,53 +97,9 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactori
 		ArrayList<Change> fileDeletions = new ArrayList<>();
 		
 		if (textSelection != null && rootResources.size() == 1 && markdownFileDocument != null) {
-			IFile markdownFile = (IFile) rootResources.iterator().next();
-			Image imageNode = FlexmarkUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
-			
-			if (imageNode != null) {
-				TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownFileDocument);
-				MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
-				markdownFileChange.setEdit(rootEditOnMarkdownFile);
-				
-				createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
-						markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
-			}
+			createEditsAndDeletionsForSingleMarkdownImage(fileModifications, fileDeletions, monitor);
 		} else {
-			Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
-			
-			for (IResource rootResource: rootResources) {
-				MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
-				markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
-				rootResource.accept(markdownFilesCollector);
-				addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
-			}
-			
-			SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
-			
-			// go through all markdown files in the given resource selection
-			for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
-				IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
-				
-				// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
-				
-				// prepare root change, but only add it to file modification edits if we find at least one text edit
-				TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownDocument);
-				MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
-				markdownFileChange.setEdit(rootEditOnMarkdownFile);
-				
-				// read file contents
-				String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-				subMonitor.worked(1);
-				
-				// parse markdown code
-				Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
-				subMonitor.worked(5);
-				
-				// go through all image links and create text edits
-				createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
-						fileModifications, fileDeletions);
-				subMonitor.worked(4);
-			}
+			createEditsAndDeletionsForResourcesSet(fileModifications, fileDeletions, monitor);
 		}
 		
 		ArrayList<Change> allChanges = new ArrayList<>(fileModifications.size() + fileDeletions.size());
@@ -154,6 +110,62 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactori
 		return change;
 	}
 	
+	private void createEditsAndDeletionsForSingleMarkdownImage(ArrayList<Change> fileModifications,
+			ArrayList<Change> fileDeletions, IProgressMonitor monitor) {
+		
+		IFile markdownFile = (IFile) rootResources.iterator().next();
+		Image imageNode = FlexmarkUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
+		
+		if (imageNode != null) {
+			TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownFileDocument);
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			
+			createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
+					markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
+		}
+	}
+
+	private void createEditsAndDeletionsForResourcesSet(ArrayList<Change> fileModifications,
+			ArrayList<Change> fileDeletions, IProgressMonitor monitor) throws CoreException {
+		
+		Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
+		
+		for (IResource rootResource: rootResources) {
+			MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
+			markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
+			rootResource.accept(markdownFilesCollector);
+			addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
+		}
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
+		
+		// go through all markdown files in the given resource selection
+		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
+			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+			
+			// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+			
+			// prepare root change, but only add it to file modification edits if we find at least one text edit
+			TextChange markdownFileChange = createMarkdownFileChange(markdownFile, markdownDocument);
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			
+			// read file contents
+			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+			subMonitor.worked(1);
+			
+			// parse markdown code
+			Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
+			subMonitor.worked(5);
+			
+			// go through all image links and create text edits
+			createAndCollectEditsAndDeletions(markdownFile, markdownFileChange, rootEditOnMarkdownFile, markdownAst,
+					fileModifications, fileDeletions);
+			subMonitor.worked(4);
+		}
+	}
+
 	private void createAndCollectEditsAndDeletionsForImage(IFile markdownFile, Image imageNode, TextChange markdownFileChange,
 			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
 		
