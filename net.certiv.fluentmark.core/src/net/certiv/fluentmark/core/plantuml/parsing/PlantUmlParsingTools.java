@@ -11,20 +11,17 @@ package net.certiv.fluentmark.core.plantuml.parsing;
 
 public class PlantUmlParsingTools {
 	
-	public static final String PREFIX_START = "@start";
-	public static final String PREFIX_END = "@end";
-	
 	public static int getNumberOfDiagrams(String plantUmlCode) {
 		if (plantUmlCode == null || plantUmlCode.isBlank()) {
 			return 0;
 		}
 		
 		int numberOfDiagrams = 0;
-		int indexOfStart = plantUmlCode.indexOf(PREFIX_END);
+		int indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_END);
 		
 		while (indexOfStart >= 0 && indexOfStart + 1 < plantUmlCode.length()) {
 			numberOfDiagrams++;
-			indexOfStart = plantUmlCode.indexOf(PREFIX_START, indexOfStart + 1);
+			indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_START, indexOfStart + 1);
 		}
 		
 		return numberOfDiagrams;

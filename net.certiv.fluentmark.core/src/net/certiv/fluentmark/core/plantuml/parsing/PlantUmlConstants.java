@@ -5,12 +5,12 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.plantuml.parsing;
 
 public interface PlantUmlConstants {
-	
+
 	String UML_START = "@startuml";
 	String UML_END   = "@enduml";
 	String UML_START_SALT = "@startsalt";
@@ -26,11 +26,11 @@ public interface PlantUmlConstants {
 	String UML_START_WBS = "@startwbs";
 	String UML_END_WBS   = "@endwbs";
 	
-	String DOT_START = "@startdot";
-	String DOT_END   = "@enddot";
-	
 	String[] UML_START_STATEMENTS = {
 			UML_START, UML_START_SALT, UML_START_YAML, UML_START_JSON,
 			UML_START_MINDMAP, UML_START_GANTT, UML_START_WBS };
+	
+	String PREFIX_START = "@start";
+	String PREFIX_END = "@end";
 
 }

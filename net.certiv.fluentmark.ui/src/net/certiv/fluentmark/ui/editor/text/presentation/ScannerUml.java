@@ -18,6 +18,7 @@ import org.eclipse.jface.text.rules.WordRule;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.certiv.fluentmark.core.dot.DotConstants;
 import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
 import net.certiv.fluentmark.core.markdown.scanner.rules.UmlSymbolDetector;
 import net.certiv.fluentmark.core.markdown.scanner.rules.UmlWordDetector;
@@ -36,8 +37,8 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 			"queue", "archimate", };
 
 	private static final String[] keywords = { 
+			DotConstants.DOT_START, DotConstants.DOT_END,
 			PlantUmlConstants.UML_START, PlantUmlConstants.UML_END,
-			PlantUmlConstants.DOT_START, PlantUmlConstants.DOT_END,
 			PlantUmlConstants.UML_START_SALT, PlantUmlConstants.UML_END_SALT,
 			PlantUmlConstants.UML_START_YAML, PlantUmlConstants.UML_END_YAML, 
 			PlantUmlConstants.UML_START_JSON, PlantUmlConstants.UML_END_JSON, 
