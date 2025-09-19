@@ -1,5 +1,6 @@
 package net.certiv.fluentmark.ui.refactoring;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -7,14 +8,28 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
+import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
+
+import com.vladsch.flexmark.ast.Image;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.util.FlexmarkUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	
@@ -49,6 +64,11 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 		this.deleteObsoletePlantUmlFiles = deleteObsoletePlantUmlFiles;
 	}
 	
+	@Override
+	protected boolean getDeleteReferencedImageFiles() {
+		return deleteObsoletePlantUmlFiles;
+	}
+	
 	public void setUseFencedCodeBlocks(boolean useFencedCodeBlocks) {
 		this.useFencedCodeBlocks = useFencedCodeBlocks;
 	}
@@ -71,11 +91,38 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 		
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
-
+	
 	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		// TODO Auto-generated method stub
+	protected String getOverallChangeName(boolean alsoDeleteReferencedFiles) {
+		return MSG_INLINE_CODE + (alsoDeleteReferencedFiles ? MSG_AND_DELETE_PUMLS : "");
+	}
+	
+	@Override
+	protected String getSingleMarkdownFileChangeName(IFile markdownFile) {
+		return "Replace .puml file reference in \"" + markdownFile.getLocation().toString() + "\" with PlantUML code block";
+	}
+	
+	protected TextEdit createMarkdownImageReplacementEdit(Image imageNode, IPath resolvedImageFilePath) {
+		// abort if we have not a PlantUML file target path
+		if (resolvedImageFilePath == null
+				|| resolvedImageFilePath.getFileExtension() == null
+				|| !FileUtils.FILE_EXTENSION_PLANTUML.equals(resolvedImageFilePath.getFileExtension().toLowerCase())) {
+			return null;
+		}
+		
+		IFile imageFile = FileUtils.resolveToWorkspaceFile(resolvedImageFilePath);
+		if (imageFile == null || !imageFile.isAccessible()) {
+			return null;
+		}
+		
+		String pumlFileContents = FileUtils.readFileContents(imageFile);
+		
+		// ensure, there is only one diagram in the PlantUML file
+		
+		
+		// TODO Finish this implementation
+		
 		return null;
 	}
-
+	
 }
