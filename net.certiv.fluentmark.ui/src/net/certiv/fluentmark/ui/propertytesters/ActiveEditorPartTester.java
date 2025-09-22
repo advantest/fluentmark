@@ -19,7 +19,7 @@ import com.vladsch.flexmark.ast.Image;
 
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
-import net.certiv.fluentmark.ui.util.FlexmarkUtil;
+import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 public class ActiveEditorPartTester extends PropertyTester {
 	
@@ -59,7 +59,7 @@ public class ActiveEditorPartTester extends PropertyTester {
 					
 					IDocument document = activeFluentEditor.getDocument();
 					
-					Image imageNodesInSelection = FlexmarkUtil.findMarkdownImageForTextSelection(document, textSelection);
+					Image imageNodesInSelection = FlexmarkUiUtil.findMarkdownImageForTextSelection(document, textSelection);
 					if (imageNodesInSelection != null) {
 						String lowerCaseUrl = imageNodesInSelection.getUrl().toString().toLowerCase();
 						

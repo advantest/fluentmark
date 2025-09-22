@@ -23,7 +23,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
@@ -33,6 +32,7 @@ import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.util.FlexmarkUtil;
 
 public class Converter {
 
@@ -46,7 +46,6 @@ public class Converter {
 	private final UmlGen umlGen;
 	private final BlockEmitter emitter;
 	private final PumlIncludeStatementConverter pumlInclusionConverter;
-	private final MarkdownParserAndHtmlRenderer flexmarkHtmlRenderer = new MarkdownParserAndHtmlRenderer();
 
 	public Converter(IConfigurationProvider configProvider) {
 		this.configurationProvider = configProvider;
@@ -80,12 +79,12 @@ public class Converter {
 				case FLEXMARK:
 					String markdownSourceCode = document.get();
 					
-					Document parsedMarkdownDocument = this.flexmarkHtmlRenderer.parseMarkdown(markdownSourceCode);
+					Document parsedMarkdownDocument = FlexmarkUtil.parseMarkdown(markdownSourceCode);
 					
 					// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
 					parsedMarkdownDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, filePath.toString());
 					
-					return flexmarkHtmlRenderer.renderHtml(parsedMarkdownDocument);
+					return FlexmarkUtil.renderHtml(parsedMarkdownDocument);
 				case PANDOC:
 					ITypedRegion[] typedRegions = MarkdownPartitioner.get().computePartitioning(document);
 					
