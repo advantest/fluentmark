@@ -39,7 +39,7 @@ import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FlexmarkUtil;
 
-public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
+public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageRefactoring {
 	
 	private final static String MSG_INLINE_CODE = "Replace *.puml references (images) with in-lined PlantUML code blocks in Markdown files";
 	private final static String MSG_AND_DELETE_PUMLS = " and remove the no longer referenced *.puml files";

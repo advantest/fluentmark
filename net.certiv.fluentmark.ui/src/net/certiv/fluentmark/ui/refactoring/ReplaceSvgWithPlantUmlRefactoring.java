@@ -33,7 +33,7 @@ import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.FluentUI;
 
 
-public class ReplaceSvgWithPlantUmlRefactoring extends AbstractMarkdownRefactoring {
+public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownImageRefactoring {
 	
 	private final static String MSG_ADAPT_LINKS = "Replace *.svg references (images) with *.puml references (images) in Markdown files";
 	private final static String MSG_AND_DELETE_SVGS = " and remove obsolete *.svg files";

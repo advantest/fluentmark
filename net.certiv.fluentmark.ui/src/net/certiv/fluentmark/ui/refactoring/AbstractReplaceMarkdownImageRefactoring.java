@@ -46,19 +46,19 @@ import net.certiv.fluentmark.core.util.FlexmarkUtil;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
-public abstract class AbstractMarkdownRefactoring extends Refactoring {
+public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactoring {
 	
 	protected final Set<IResource> rootResources = new HashSet<>();
 	protected IDocument markdownFileDocument;
 	protected ITextSelection textSelection;
 	
-	public AbstractMarkdownRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
+	public AbstractReplaceMarkdownImageRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		this.rootResources.add(markdownFile);
 		this.markdownFileDocument = document;
 		this.textSelection = textSelection;
 	}
 	
-	public AbstractMarkdownRefactoring(List<IResource> rootResources) {
+	public AbstractReplaceMarkdownImageRefactoring(List<IResource> rootResources) {
 		this.rootResources.addAll(rootResources);
 	}
 	
