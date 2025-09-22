@@ -234,7 +234,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 		}
 	}
 	
-	private Map<IFile, IDocument> collectMarkdownFilesInRootResources(IProgressMonitor monitor) throws CoreException {
+	protected Map<IFile, IDocument> collectMarkdownFilesInRootResources(IProgressMonitor monitor) throws CoreException {
 		Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
 		
 		for (IResource rootResource: rootResources) {
@@ -255,7 +255,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 		markdownFilesCollection.putAll(missingFilesSubset);
 	}
 	
-	private String getMarkdownFileContents(IFile markdownFile, IDocument markdownDocument) {
+	protected String getMarkdownFileContents(IFile markdownFile, IDocument markdownDocument) {
 		if (markdownDocument == null) {
 			return FileUtils.readFileContents(markdownFile);
 		} else {

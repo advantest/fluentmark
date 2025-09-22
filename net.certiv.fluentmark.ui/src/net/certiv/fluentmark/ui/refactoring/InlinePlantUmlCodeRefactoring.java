@@ -10,7 +10,11 @@
 package net.certiv.fluentmark.ui.refactoring;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -20,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -32,6 +37,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.util.FlexmarkUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	
@@ -68,12 +74,10 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 	}
 
 	@Override
-	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
+	public RefactoringStatus checkFinalConditions(IProgressMonitor monitor)
 			throws CoreException, OperationCanceledException {
 		
 		RefactoringStatus status = new RefactoringStatus(); // ok status -> go to preview page, no error page
-		
-		// TODO Create a warning if some puml file content is in-lined more than once? Check resolved paths?
 		
 		for (IResource rootResource: rootResources) {
 			if (deleteObsoletePlantUmlFiles && !(rootResource instanceof IProject)) {
@@ -94,7 +98,70 @@ public class InlinePlantUmlCodeRefactoring extends AbstractMarkdownRefactoring {
 			}
 		}
 		
+		checkDuplicationsInInlinedCode(monitor, status);
+		
 		return status;
+	}
+	
+	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
+		
+		Map<IFile, IDocument> collectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
+		
+		// go through all markdown files in the given resource selection
+		Map<String, Integer> resolvedPathCounts = new HashMap<>();
+		Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
+		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
+			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+			
+			// read file contents
+			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+			subMonitor.worked(1);
+			
+			// parse markdown code
+			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
+			subMonitor.worked(5);
+			
+			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+				.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
+				.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
+				.filter(path -> path != null)
+				.map(path -> path.toString())
+				.forEach(path -> {
+					Integer count = resolvedPathCounts.get(path);
+					if (count == null) {
+						resolvedPathCounts.put(path, 1);
+					} else {
+						resolvedPathCounts.put(path, count + 1);
+					}
+					
+					Set<IFile> files = resolvedPathToReferencingFileMap.get(path);
+					if (files == null) {
+						files = new HashSet<>();
+						resolvedPathToReferencingFileMap.put(path, files);
+					}
+					files.add(markdownFile);
+			});
+			
+			subMonitor.worked(4);
+		}
+		
+		resolvedPathCounts.keySet().stream()
+			.filter(path -> resolvedPathCounts.get(path) > 1)
+			.forEach(path -> {
+				Set<IFile> referencingFiles = resolvedPathToReferencingFileMap.get(path);
+				String message = String.format("There are multiple references to %s. In-lining its content would duplicate code. ", path);
+				
+				if (referencingFiles.size() > 3) {
+					message += referencingFiles.size() + " are referencing that PlantUML file.";
+				} else {
+					List<String> fileNames = referencingFiles.stream().map(file -> file.getName()).toList();
+					message += "Referencing files: " + String.join(", ", fileNames);
+				}
+				
+				status.addWarning(message);
+			});
 	}
 	
 	@Override
