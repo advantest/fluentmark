@@ -37,23 +37,20 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.util.FlexmarkUtil;
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.util.FlexmarkUtil;
+import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 public abstract class AbstractMarkdownRefactoring extends Refactoring {
 	
 	protected final Set<IResource> rootResources = new HashSet<>();
 	protected IDocument markdownFileDocument;
 	protected ITextSelection textSelection;
-	protected final MarkdownParserAndHtmlRenderer markdownParser = new MarkdownParserAndHtmlRenderer();
 	
 	public AbstractMarkdownRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		this.rootResources.add(markdownFile);
@@ -114,7 +111,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 			ArrayList<Change> fileDeletions, IProgressMonitor monitor) {
 		
 		IFile markdownFile = (IFile) rootResources.iterator().next();
-		Image imageNode = FlexmarkUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
+		Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 		
 		if (imageNode != null) {
 			TextChange markdownFileChange = createEmptyMarkdownFileChange(markdownFile, markdownFileDocument, getSingleMarkdownFileChangeName(markdownFile));
@@ -149,7 +146,7 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 			subMonitor.worked(1);
 			
 			// parse markdown code
-			Document markdownAst = markdownParser.parseMarkdown(markdownFileContents);
+			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
 			subMonitor.worked(5);
 			
 			// go through all Markdown images and create text edits
@@ -199,18 +196,9 @@ public abstract class AbstractMarkdownRefactoring extends Refactoring {
 	private void createAndCollectEditsAndDeletionsForImagesInMarkdownFile(IFile markdownFile, Document markdownAst, TextChange markdownFileChange,
 			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
 		
-		ReversiblePeekingIterator<Node> iterator = markdownAst.getDescendants().iterator();
-		while (iterator.hasNext()) {
-			Node astNode = iterator.next();
-			
-			if (!(astNode instanceof Image)) {
-				continue;
-			}
-			
-			Image imageNode = (Image) astNode;
-			createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
-					markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
-		}
+		FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+			.forEach(image -> createAndCollectEditsAndDeletionsForImage(markdownFile, image,
+				markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions));
 	}
 	
 	protected abstract TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath);
