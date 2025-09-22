@@ -9,8 +9,10 @@
  */
 package net.certiv.fluentmark.core.util;
 
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
-import java.util.stream.Stream.Builder;
+import java.util.stream.StreamSupport;
 
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.util.ast.Document;
@@ -34,15 +36,8 @@ public class FlexmarkUtil {
 	}
 	
 	public static Stream<Node> getStreamOfDescendants(Document markdownAst) {
-		Builder<Node> streamBuilder = Stream.builder();
-		
 		ReversiblePeekingIterator<Node> iterator = markdownAst.getDescendants().iterator();
-		while (iterator.hasNext()) {
-			Node astNode = iterator.next();
-			streamBuilder.accept(astNode);
-		}
-		
-		return streamBuilder.build();
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
 	}
 
 	@SuppressWarnings("unchecked")
