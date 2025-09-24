@@ -9,6 +9,7 @@
  */
 package net.certiv.fluentmark.ui.refactoring;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FlexmarkUtil;
+import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageRefactoring {
 	
@@ -104,64 +106,138 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	}
 	
 	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
+		// TODO check only selected Markdown files or all Markdown files in selected resources' projects?
+		// Remark: in-lining one puml file or only puml files in selected resources would demand to check if other Markdown files reference some of these puml files.
+		// TODO add check box for in-lining the same puml file(s) in other Markdown files, too?
+		// TODO Select pumls instead of Markdown files to in-line them in all Markdown files?
 		
-		Map<IFile, IDocument> collectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
-		
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
-		
-		// go through all markdown files in the given resource selection
-		Map<String, Integer> resolvedPathCounts = new HashMap<>();
-		Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
-		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
-			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+		if (hasTextSelection()) {
+			IFile markdownFile = (IFile) rootResources.iterator().next();
+			Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
+			if (imageNode == null) {
+				status.addError("Could not find a Markdown image for the given text selection.");
+				return;
+			}
 			
-			// parse markdown code
-			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
+			String urlOrPath = imageNode.getUrl().toString();
 			
+			if (urlOrPath.toLowerCase().startsWith("http")
+					|| !urlOrPath.toLowerCase().endsWith(".puml")) {
+				status.addError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
+				return;
+			}
+			
+			IPath pumlFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+			
+			if (pumlFilePath == null) {
+				status.addError(String.format("Cannot resolve file path %s.", urlOrPath));
+				return;
+			}
+			
+			String foundPumlFilePath = pumlFilePath.toString();
+			
+			Document markdownAst = imageNode.getDocument();
+			
+			List<Integer> resolvedPathCount = new ArrayList<>(1);
 			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-				.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
-				.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
-				.filter(path -> path != null)
-				.map(path -> path.toString())
-				.forEach(path -> {
-					Integer count = resolvedPathCounts.get(path);
-					if (count == null) {
-						resolvedPathCounts.put(path, 1);
-					} else {
-						resolvedPathCounts.put(path, count + 1);
-					}
-					
-					Set<IFile> files = resolvedPathToReferencingFileMap.get(path);
-					if (files == null) {
-						files = new HashSet<>();
-						resolvedPathToReferencingFileMap.put(path, files);
-					}
-					files.add(markdownFile);
-			});
+					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
+					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
+					.filter(path -> path != null)
+					.map(path -> path.toString())
+					.filter(path -> path.equals(foundPumlFilePath))
+					.forEach(path -> {
+						if (resolvedPathCount.size() == 0) {
+							resolvedPathCount.addFirst(1);
+						} else {
+							resolvedPathCount.set(0, resolvedPathCount.getFirst() + 1);
+						}
+					});
+			if (resolvedPathCount.getFirst() > 1) {
+				String message = String.format("There are %s references to %s in %s. In-lining its content would duplicate code. ", resolvedPathCount.getFirst(), urlOrPath, markdownFile.getName());
+				status.addWarning(message);
+			}
 			
-			subMonitor.worked(4);
-		}
-		
-		resolvedPathCounts.keySet().stream()
-			.filter(path -> resolvedPathCounts.get(path) > 1)
-			.forEach(path -> {
-				Set<IFile> referencingFiles = resolvedPathToReferencingFileMap.get(path);
-				String message = String.format("There are multiple references to %s. In-lining its content would duplicate code. ", path);
+			if (!imageNode.getText().isBlank()) {
+				status.addWarning(String.format("The selected Markdown image statement uses a label (caption) \"%s\" that would be lost by in-lining the referenced PlantUML code.", imageNode.getText()));
+			}
+		} else {
+			boolean wouldLooseCaptions = false;
+			Map<IFile, IDocument> collectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
+			
+			SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
+			
+			// go through all markdown files in the given resource selection
+			Map<String, Integer> resolvedPathCounts = new HashMap<>();
+			Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
+			
+			for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
+				IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
 				
-				if (referencingFiles.size() > 3) {
-					message += referencingFiles.size() + " are referencing that PlantUML file.";
-				} else {
-					List<String> fileNames = referencingFiles.stream().map(file -> file.getName()).toList();
-					message += "Referencing files: " + String.join(", ", fileNames);
+				// read file contents
+				String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+				subMonitor.worked(1);
+				
+				// parse markdown code
+				Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
+				subMonitor.worked(5);
+				
+				List<Image> nonHttpImages = FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
+					.toList();
+				
+				nonHttpImages.stream()
+					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
+					.filter(path -> path != null)
+					.map(path -> path.toString())
+					.forEach(path -> {
+						Integer count = resolvedPathCounts.get(path);
+						if (count == null) {
+							resolvedPathCounts.put(path, 1);
+						} else {
+							resolvedPathCounts.put(path, count + 1);
+						}
+						
+						Set<IFile> files = resolvedPathToReferencingFileMap.get(path);
+						if (files == null) {
+							files = new HashSet<>();
+							resolvedPathToReferencingFileMap.put(path, files);
+						}
+						files.add(markdownFile);
+				});
+				
+				// also check if we would loose a caption from the Markdown image statement; create only one warning if there is at least one such case
+				if (!wouldLooseCaptions) {
+					for (Image image: nonHttpImages) {
+						if (!image.getText().isBlank()) {
+							wouldLooseCaptions = true;
+						}
+					}
 				}
 				
-				status.addWarning(message);
-			});
+				subMonitor.worked(4);
+			}
+			
+			resolvedPathCounts.keySet().stream()
+				.filter(path -> resolvedPathCounts.get(path) > 1)
+				.forEach(path -> {
+					Set<IFile> referencingFiles = resolvedPathToReferencingFileMap.get(path);
+					String message = String.format("There are multiple references to %s. In-lining its content would duplicate code. ", path);
+					
+					if (referencingFiles.size() > 3) {
+						message += referencingFiles.size() + " are referencing that PlantUML file.";
+					} else {
+						List<String> fileNames = referencingFiles.stream().map(file -> file.getName()).toList();
+						message += "Referencing files: " + String.join(", ", fileNames);
+					}
+					
+					status.addWarning(message);
+				});
+			
+			if (wouldLooseCaptions) {
+				status.addWarning("At least one Markdown image statement uses a label (caption) that would be lost by in-lining the referenced PlantUML code.");
+			}
+		}
 	}
 	
 	@Override
