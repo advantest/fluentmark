@@ -9,6 +9,11 @@
  */
 package net.certiv.fluentmark.core.plantuml.parsing;
 
+import net.certiv.fluentmark.core.util.FlexmarkUtil;
+
+/**
+ * @see FlexmarkUtil
+ */
 public class PlantUmlParsingTools {
 	
 	public static int getNumberOfDiagrams(String plantUmlCode) {

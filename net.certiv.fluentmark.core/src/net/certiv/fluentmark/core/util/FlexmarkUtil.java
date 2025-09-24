@@ -19,6 +19,11 @@ import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
+
+/**
+ * @see PlantUmlParsingTools
+ */
 public class FlexmarkUtil {
 	
 	private static final MarkdownParserAndHtmlRenderer markdownParserHtmlRenderer = new MarkdownParserAndHtmlRenderer();
