@@ -17,7 +17,7 @@ public class PlantUmlParsingTools {
 		}
 		
 		int numberOfDiagrams = 0;
-		int indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_END);
+		int indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_START);
 		
 		while (indexOfStart >= 0 && indexOfStart + 1 < plantUmlCode.length()) {
 			numberOfDiagrams++;
