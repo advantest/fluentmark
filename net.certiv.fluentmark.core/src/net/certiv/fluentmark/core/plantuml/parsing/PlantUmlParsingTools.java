@@ -23,10 +23,18 @@ public class PlantUmlParsingTools {
 		
 		int numberOfDiagrams = 0;
 		int indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_START);
+		int indexOfEnd = -1;
 		
 		while (indexOfStart >= 0 && indexOfStart + 1 < plantUmlCode.length()) {
-			numberOfDiagrams++;
-			indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_START, indexOfStart + 1);
+			indexOfEnd = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_END, indexOfStart + PlantUmlConstants.PREFIX_START.length());
+			if (indexOfEnd >= 0) {
+				numberOfDiagrams++;
+				
+				indexOfStart = plantUmlCode.indexOf(PlantUmlConstants.PREFIX_START, indexOfEnd + PlantUmlConstants.PREFIX_END.length());
+			} else {
+				break;
+			}
+			
 		}
 		
 		return numberOfDiagrams;
