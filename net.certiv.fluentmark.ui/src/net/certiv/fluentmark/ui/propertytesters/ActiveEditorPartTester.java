@@ -17,6 +17,7 @@ import org.eclipse.ui.IEditorPart;
 
 import com.vladsch.flexmark.ast.Image;
 
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
@@ -27,6 +28,7 @@ public class ActiveEditorPartTester extends PropertyTester {
 	private static final String IS_ACTIVE_FLUENT_EDITOR = "isActiveFluentEditor";
 	private static final String IS_MARKDOWN_SVG_IMAGE_TEXT_SELECTION = "isMarkdownSvgImageTextSelection";
 	private static final String IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION = "isMarkdownPlantUmlImageTextSelection";
+	private static final String IS_MARKDOWN_PUML_CODE_BLOCK_TEXT_SELECTION = "isMarkdownPlantUmlCodeBlockTextSelection";
 
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
@@ -49,15 +51,14 @@ public class ActiveEditorPartTester extends PropertyTester {
 			IEditorPart activeEditorPart = EditorUtils.getActiveEditorPart();
 			return (activeEditorPart instanceof FluentEditor);
 		} else if (IS_MARKDOWN_SVG_IMAGE_TEXT_SELECTION.equals(property)
-				|| IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION.equals(property)) {
+				|| IS_MARKDOWN_PUML_IMAGE_TEXT_SELECTION.equals(property)
+				|| IS_MARKDOWN_PUML_CODE_BLOCK_TEXT_SELECTION.equals(property)) {
 			ISelection selection = EditorUtils.getCurrentSelection();
 			if (selection instanceof ITextSelection) {
 				ITextSelection textSelection = (ITextSelection) selection;
 				
 				if (textSelection.getStartLine() == textSelection.getEndLine()) {
-					FluentEditor activeFluentEditor = EditorUtils.getActiveFluentEditor();
-					
-					IDocument document = activeFluentEditor.getDocument();
+					IDocument document = getActiveEditorsDocument();
 					
 					Image imageNodesInSelection = FlexmarkUiUtil.findMarkdownImageForTextSelection(document, textSelection);
 					if (imageNodesInSelection != null) {
@@ -73,6 +74,14 @@ public class ActiveEditorPartTester extends PropertyTester {
 							return lowerCaseUrl.endsWith(".puml");
 						}
 					}
+				} else if (IS_MARKDOWN_PUML_CODE_BLOCK_TEXT_SELECTION.equals(property)
+						&& textSelection.getEndLine() - textSelection.getStartLine() > 1) {
+					
+					IDocument document = getActiveEditorsDocument();
+					String selectedLines = FlexmarkUiUtil.getLinesForTextSelection(document, textSelection);
+					int numDiagrams = PlantUmlParsingTools.getNumberOfDiagrams(selectedLines);
+					
+					return (numDiagrams == 1);
 				}
 			}
 		}
@@ -80,4 +89,11 @@ public class ActiveEditorPartTester extends PropertyTester {
 		return false;
 	}
 	
+	private IDocument getActiveEditorsDocument() {
+		FluentEditor activeFluentEditor = EditorUtils.getActiveFluentEditor();
+		if (activeFluentEditor != null) {
+			return activeFluentEditor.getDocument();
+		}
+		return null;
+	}
 }
