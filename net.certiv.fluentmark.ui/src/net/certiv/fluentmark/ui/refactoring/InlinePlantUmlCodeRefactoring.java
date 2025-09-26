@@ -116,7 +116,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 			
 			if (imageNode == null) {
-				status.addError("Could not find a Markdown image for the given text selection.");
+				status.addFatalError("Could not find a Markdown image for the given text selection.");
 				return;
 			}
 			
@@ -124,14 +124,14 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			
 			if (urlOrPath.toLowerCase().startsWith("http")
 					|| !urlOrPath.toLowerCase().endsWith(".puml")) {
-				status.addError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
+				status.addFatalError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
 				return;
 			}
 			
 			IPath pumlFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 			
 			if (pumlFilePath == null) {
-				status.addError(String.format("Cannot resolve file path %s.", urlOrPath));
+				status.addFatalError(String.format("Cannot resolve file path %s.", urlOrPath));
 				return;
 			}
 			
@@ -155,7 +155,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 					});
 			if (resolvedPathCount.getFirst() > 1) {
 				String message = String.format("There are %s references to %s in %s. In-lining its content would duplicate code. ", resolvedPathCount.getFirst(), urlOrPath, markdownFile.getName());
-				status.addWarning(message);
+				status.addError(message);
 			}
 			
 			if (!imageNode.getText().isBlank()) {
@@ -231,7 +231,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 						message += "Referencing files: " + String.join(", ", fileNames);
 					}
 					
-					status.addWarning(message);
+					status.addError(message);
 				});
 			
 			if (wouldLooseCaptions) {
