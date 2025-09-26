@@ -158,9 +158,8 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 			}
 			
 			int length = endOffset - startOffset;
-			// TODO is a project-relative path enough? What about files in other projects?
-			IPath markdownFilePath = this.markdownFile.getProjectRelativePath();
-			IPath pumlFilePath = this.pumlFileToCreate.getProjectRelativePath();
+			IPath markdownFilePath = this.markdownFile.getFullPath();
+			IPath pumlFilePath = this.pumlFileToCreate.getFullPath();
 			IPath relativePumlFilePath = pumlFilePath.makeRelativeTo(markdownFilePath.removeLastSegments(1));
 			String replacementText = String.format("![](%s)", relativePumlFilePath.toString());
 			
