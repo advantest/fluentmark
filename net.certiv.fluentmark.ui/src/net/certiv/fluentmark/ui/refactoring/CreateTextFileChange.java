@@ -67,9 +67,8 @@ public class CreateTextFileChange extends ResourceChange {
 		
 		file.create(this.fileContents.getBytes(), IResource.KEEP_HISTORY, subMonitor.newChild(8));
 		file.setCharset(StandardCharsets.UTF_8.name(), subMonitor.newChild(2));
-		
-		return null;
-		//return new UndoCreateResourceChange(desc);
+		UndoCreateTextFileChange undoChange = new UndoCreateTextFileChange(file);
+		return undoChange;
 	}
 	
 }
