@@ -9,6 +9,8 @@
  */
 package net.certiv.fluentmark.ui.propertytesters;
 
+import java.util.List;
+
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -17,6 +19,7 @@ import org.eclipse.ui.IEditorPart;
 
 import com.vladsch.flexmark.ast.Image;
 
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlConstants;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
@@ -81,11 +84,45 @@ public class ActiveEditorPartTester extends PropertyTester {
 					String selectedLines = FlexmarkUiUtil.getLinesForTextSelection(document, textSelection);
 					int numDiagrams = PlantUmlParsingTools.getNumberOfDiagrams(selectedLines);
 					
-					return (numDiagrams == 1);
+					if (numDiagrams != 1) {
+						return false;
+					}
+					
+					return exactlyOnePlantUmlCodeBlockSelected(selectedLines);
+					// TODO also ensure, the selection is not in a code block?
 				}
 			}
 		}
 
+		return false;
+	}
+	
+	private boolean exactlyOnePlantUmlCodeBlockSelected(String selectedLines) {
+		List<String> selectionLines = selectedLines.lines().toList();
+		
+		if (selectionLines.size() < 2) {
+			return false;
+		}
+		
+		String firstLine = selectionLines.getFirst();
+		String lastLine = selectionLines.getLast();
+		
+		if (firstLine.startsWith(PlantUmlConstants.PREFIX_START)) {
+			return lastLine.startsWith(PlantUmlConstants.PREFIX_END);
+		}
+		
+		if ((firstLine.startsWith("```") && lastLine.startsWith("```"))
+				|| (firstLine.startsWith("~~~") && lastLine.startsWith("~~~")) ) {
+			if (selectionLines.size() < 4) {
+				return false;
+			}
+			
+			String secondLine = selectionLines.get(1);
+			String prevToLastLine = selectionLines.get(selectionLines.size() - 2);
+			
+			return (secondLine.startsWith(PlantUmlConstants.PREFIX_START)
+					&& prevToLastLine.startsWith(PlantUmlConstants.PREFIX_END));
+		}
 		return false;
 	}
 	
