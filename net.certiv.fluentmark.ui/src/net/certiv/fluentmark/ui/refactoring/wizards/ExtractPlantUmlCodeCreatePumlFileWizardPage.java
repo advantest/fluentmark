@@ -13,11 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -38,6 +40,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownComposite;
 
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.refactoring.ExtractPlantUmlDiagramFileRefactoring;
 
 public class ExtractPlantUmlCodeCreatePumlFileWizardPage extends UserInputWizardPage {
@@ -83,9 +86,15 @@ public class ExtractPlantUmlCodeCreatePumlFileWizardPage extends UserInputWizard
 				.getDecoratingWorkbenchLabelProvider());
 		directorySelectionTreeViewer.setComparator(new ViewerComparator());
 		directorySelectionTreeViewer.setUseHashlookup(true);
+		
+		directorySelectionTreeViewer.setInput(ResourcesPlugin.getWorkspace());
+		setSelectedContainer(refactoring.getSuggestedParentForNewPlantUmlFile());
+		directorySelectionTreeViewer.getTree().setFocus();
+		
 		directorySelectionTreeViewer.addSelectionChangedListener(event -> {
 			IStructuredSelection selection = event.getStructuredSelection();
 			selectedContainer = (IContainer) selection.getFirstElement();
+			validateInputAndUpdateRefactoring();
 		});
 		
 		directorySelectionTreeViewer.addDoubleClickListener(event -> {
@@ -110,27 +119,25 @@ public class ExtractPlantUmlCodeCreatePumlFileWizardPage extends UserInputWizard
 		
 		fileNameTextField = new Text(composite, SWT.BORDER);
 		fileNameTextField.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		
+		fileNameTextField.setText("diagram.puml");
+		
 		fileNameTextField.addListener(SWT.Modify, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				// TODO Auto-generated method stub
+				validateInputAndUpdateRefactoring();
 			}
 		});
 		fileNameTextField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				// TODO set resource extension if missing
+				addFileExtensionInTextFieldIfMissing();
 			}
 		});
-		fileNameTextField.setText("diagram.puml");
-		
-		// TODO select the current Markdown file's parent project instead?
-		directorySelectionTreeViewer.setInput(ResourcesPlugin.getWorkspace());
-		setSelectedContainer(refactoring.getSuggestedParentForNewPlantUmlFile());
-		
-		directorySelectionTreeViewer.getTree().setFocus();
 		
 		setControl(composite);
+		
+		validateInputAndUpdateRefactoring();
 	}
 	
 	private void setSelectedContainer(IContainer container) {
@@ -145,6 +152,44 @@ public class ExtractPlantUmlCodeCreatePumlFileWizardPage extends UserInputWizard
 		}
 		directorySelectionTreeViewer.setExpandedElements(itemsToExpand.toArray());
 		directorySelectionTreeViewer.setSelection(new StructuredSelection(container), true);
+	}
+	
+	private void addFileExtensionInTextFieldIfMissing() {
+		String fileName = fileNameTextField.getText().trim();
+		if (!fileName.isBlank()) {
+			fileNameTextField.setText(getFileNameWithExtension(fileName));
+		}
+	}
+	
+	private String getFileNameWithExtension(String fileName) {
+		if (fileName == null || fileName.isBlank()) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (fileName.toLowerCase().endsWith(FileUtils.FILE_EXTENSION_PLANTUML)) {
+			return fileName;
+		}
+		
+		return fileName + "." + FileUtils.FILE_EXTENSION_PLANTUML;
+	}
+	
+	private void validateInputAndUpdateRefactoring() {
+		if (this.selectedContainer == null || this.fileNameTextField.getText().isBlank()) {
+			this.setPageComplete(false);
+			return;
+		}
+		
+		String fileName = getFileNameWithExtension(fileNameTextField.getText().trim());
+		IFile pumlFile = this.selectedContainer.getFile(Path.fromPortableString(fileName));
+		if (pumlFile.exists()) {
+			this.setPageComplete(false);
+			this.setErrorMessage(String.format("The file %s already exists.", fileName));
+			return;
+		}
+		
+		this.setPageComplete(true);
+		this.setErrorMessage(null);
+		this.refactoring.setPlantUmlFileToCreate(pumlFile);
 	}
 	
 	private static class ParentDirectoryTreeContentProvider implements ITreeContentProvider {

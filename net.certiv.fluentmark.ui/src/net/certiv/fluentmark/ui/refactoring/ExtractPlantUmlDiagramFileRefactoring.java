@@ -9,18 +9,30 @@
  */
 package net.certiv.fluentmark.ui.refactoring;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 
@@ -29,11 +41,20 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 	protected final IFile markdownFile;
 	protected final IDocument markdownFileDocument;
 	protected final ITextSelection textSelection;
+	private IFile pumlFileToCreate = null;
 	
 	public ExtractPlantUmlDiagramFileRefactoring(IFile markdownFile, IDocument markdownFileDocument, ITextSelection textSelection) {
+		if (markdownFile == null || markdownFileDocument == null || textSelection == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		this.markdownFile = markdownFile;
 		this.markdownFileDocument = markdownFileDocument;
 		this.textSelection = textSelection;
+	}
+	
+	public void setPlantUmlFileToCreate(IFile pumlFile) {
+		this.pumlFileToCreate = pumlFile;
 	}
 
 	@Override
@@ -47,27 +68,99 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 		
 		RefactoringStatus status = new RefactoringStatus();
 		
-		if (this.textSelection == null
-				|| this.textSelection.isEmpty()
+		if (this.textSelection.isEmpty()
 				|| this.textSelection.getEndLine() - this.textSelection.getStartLine() < 1
 				|| PlantUmlParsingTools.getNumberOfDiagrams(FlexmarkUiUtil.getLinesForTextSelection(this.markdownFileDocument, this.textSelection)) != 1) {
-			status.addError("Text selection is empty or does not contain exactly one PlantUML diagram.");
+			status.addFatalError("Text selection is empty or does not contain exactly one PlantUML diagram.");
 			return status;
 		}
 		
 		return status;
 	}
 	
+	private String findRenderedPlantUmlCodeInTextSelection() {
+		String selectedCodeBlock = FlexmarkUiUtil.getLinesForTextSelection(markdownFileDocument, textSelection);
+		return MarkdownParsingTools.getPlantUmlCodeFromMarkdownCodeBlock(selectedCodeBlock);
+	}
+	
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		RefactoringStatus status = new RefactoringStatus();
+		
+		if (this.pumlFileToCreate == null || this.pumlFileToCreate.exists()) {
+			status.addFatalError("Cannot create PlantUML file " + this.pumlFileToCreate);
+		}
+		
+		if (!this.markdownFile.isAccessible()) {
+			status.addFatalError("Cannot modify Markdown file " + this.markdownFile);
+		}
+		
+		if (findRenderedPlantUmlCodeInTextSelection() == null) {
+			status.addFatalError("There is no rendered PlantUML diagram in the selected text.");
+		}
+		
+		// TODO Check if the same diagram appears more than once in the open Markdown file or its parent project?
+		return status;
 	}
 
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		// TODO Auto-generated method stub
+		ArrayList<Change> changes = new ArrayList<>(2);
+		
+		String pumlCode = findRenderedPlantUmlCodeInTextSelection();
+		
+		if (pumlCode == null) {
+			
+		}
+		
+		if (pumlCode != null) {
+			TextChange markdownFileChange = new DocumentChange("Replace PlantUML code block with file reference", markdownFileDocument);
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			
+			TextEdit replacementEdit = createCodeBlockReplacementEdit();
+			if (replacementEdit != null) {
+				rootEditOnMarkdownFile.addChild(replacementEdit);
+				
+				changes.add(markdownFileChange);
+				
+				// TODO add file creation change
+				// TODO Implement a CreateTextFileChange class, see e.g. org.eclipse.jdt.internal.corext.refactoring.nls.changes.CreateTextFileChange
+			}
+		}
+		
+		CompositeChange change = new CompositeChange(
+				"Extract PlantUML code block to " + this.pumlFileToCreate.getName(),
+				changes.toArray(new Change[changes.size()]));
+		return change;
+	}
+	
+	private TextEdit createCodeBlockReplacementEdit() {
+		try {
+			int startLine = textSelection.getStartLine();
+			int endLine = textSelection.getEndLine();
+			int startOffset = markdownFileDocument.getLineOffset(startLine);
+			int endOffset = markdownFileDocument.getLineOffset(endLine) + markdownFileDocument.getLineLength(endLine);
+			
+			// keep the line break at the end of the code block
+			String codeBlockLastLineDelimiter = markdownFileDocument.getLineDelimiter(endLine);
+			if (codeBlockLastLineDelimiter != null) {
+				endOffset -= codeBlockLastLineDelimiter.length();
+			}
+			
+			int length = endOffset - startOffset;
+			IPath markdownFilePath = this.markdownFile.getProjectRelativePath();
+			IPath pumlFilePath = this.pumlFileToCreate.getProjectRelativePath();
+			IPath relativePumlFilePath = pumlFilePath.makeRelativeTo(markdownFilePath.removeLastSegments(1));
+			String replacementText = String.format("![](%s)", relativePumlFilePath.toString());
+			
+			return new ReplaceEdit(startOffset, length, replacementText);
+		} catch (Exception e) {
+			FluentUI.log(IStatus.ERROR, "Could not create Markdown file modification.", e);
+		}
+		
 		return null;
 	}
 	

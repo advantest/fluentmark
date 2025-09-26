@@ -53,12 +53,20 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 	protected ITextSelection textSelection;
 	
 	public AbstractReplaceMarkdownImageRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
+		if (markdownFile == null || document == null || textSelection == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		this.rootResources.add(markdownFile);
 		this.markdownFileDocument = document;
 		this.textSelection = textSelection;
 	}
 	
 	public AbstractReplaceMarkdownImageRefactoring(List<IResource> rootResources) {
+		if (rootResources == null || rootResources.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
+		
 		this.rootResources.addAll(rootResources);
 	}
 	
