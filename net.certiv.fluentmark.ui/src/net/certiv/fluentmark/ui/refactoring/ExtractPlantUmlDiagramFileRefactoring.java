@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -89,16 +90,24 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 		
 		RefactoringStatus status = new RefactoringStatus();
 		
-		if (this.pumlFileToCreate == null || this.pumlFileToCreate.exists()) {
+		if (this.pumlFileToCreate == null) {
 			status.addFatalError("Cannot create PlantUML file " + this.pumlFileToCreate);
+			return status;
+		}
+		
+		if (this.pumlFileToCreate.exists()) {
+			status.addFatalError("PlantUML file " + this.pumlFileToCreate + " already exists.");
+			return status;
 		}
 		
 		if (!this.markdownFile.isAccessible()) {
 			status.addFatalError("Cannot modify Markdown file " + this.markdownFile);
+			return status;
 		}
 		
 		if (findRenderedPlantUmlCodeInTextSelection() == null) {
 			status.addFatalError("There is no rendered PlantUML diagram in the selected text.");
+			return status;
 		}
 		
 		// TODO Check if the same diagram appears more than once in the open Markdown file or its parent project?
@@ -111,10 +120,6 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 		
 		String pumlCode = findRenderedPlantUmlCodeInTextSelection();
 		
-		if (pumlCode == null) {
-			
-		}
-		
 		if (pumlCode != null) {
 			TextChange markdownFileChange = new DocumentChange("Replace PlantUML code block with file reference", markdownFileDocument);
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
@@ -124,10 +129,12 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 			if (replacementEdit != null) {
 				rootEditOnMarkdownFile.addChild(replacementEdit);
 				
-				changes.add(markdownFileChange);
+				CreateTextFileChange createPumlFileChange = createNewTextFileChange(pumlCode);
 				
-				// TODO add file creation change
-				// TODO Implement a CreateTextFileChange class, see e.g. org.eclipse.jdt.internal.corext.refactoring.nls.changes.CreateTextFileChange
+				if (createPumlFileChange != null) {
+					changes.add(markdownFileChange);
+					changes.add(createPumlFileChange);
+				}
 			}
 		}
 		
@@ -151,6 +158,7 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 			}
 			
 			int length = endOffset - startOffset;
+			// TODO is a project-relative path enough? What about files in other projects?
 			IPath markdownFilePath = this.markdownFile.getProjectRelativePath();
 			IPath pumlFilePath = this.pumlFileToCreate.getProjectRelativePath();
 			IPath relativePumlFilePath = pumlFilePath.makeRelativeTo(markdownFilePath.removeLastSegments(1));
@@ -162,6 +170,12 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 		}
 		
 		return null;
+	}
+	
+	private CreateTextFileChange createNewTextFileChange(String fileContents) {
+		Assert.isNotNull(fileContents);
+		
+		return new CreateTextFileChange(this.pumlFileToCreate, fileContents);
 	}
 	
 	public IContainer getSuggestedParentForNewPlantUmlFile() {
