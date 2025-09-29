@@ -17,6 +17,7 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
 
+import net.certiv.fluentmark.core.dot.DotConstants;
 import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
 import net.certiv.fluentmark.core.markdown.scanner.rules.CodeSpanRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.DotCodeRule;
@@ -25,6 +26,7 @@ import net.certiv.fluentmark.core.markdown.scanner.rules.HtmlCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.IndentedCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.MatchRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.PumlFileInclusionRule;
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlConstants;
 
 public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
 
@@ -73,14 +75,14 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START, DiagramConstants.UML_END, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.DOT_START, DiagramConstants.DOT_END, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_SALT, DiagramConstants.UML_END_SALT, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_YAML, DiagramConstants.UML_END_YAML, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_JSON, DiagramConstants.UML_END_JSON, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_MINDMAP, DiagramConstants.UML_END_MINDMAP, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_GANTT, DiagramConstants.UML_END_GANTT, umlblock, '\\', false));
-		rules.add(new MultiLineRule(DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS, umlblock, '\\', false));
+		rules.add(new MultiLineRule(DotConstants.DOT_START, DotConstants.DOT_END, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START, PlantUmlConstants.UML_END, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_SALT, PlantUmlConstants.UML_END_SALT, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_YAML, PlantUmlConstants.UML_END_YAML, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_JSON, PlantUmlConstants.UML_END_JSON, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_MINDMAP, PlantUmlConstants.UML_END_MINDMAP, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_GANTT, PlantUmlConstants.UML_END_GANTT, umlblock, '\\', false));
+		rules.add(new MultiLineRule(PlantUmlConstants.UML_START_WBS, PlantUmlConstants.UML_END_WBS, umlblock, '\\', false));
 		rules.add(new MultiLineRule("~~~", "~~~", codeblock, '\\', false));
 		rules.add(new MultiLineRule("```", "```", codeblock, '\\', false));
 		rules.add(new CodeSpanRule(codespan));

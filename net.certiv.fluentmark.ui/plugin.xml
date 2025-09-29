@@ -536,6 +536,65 @@
                   id="net.certiv.fluentmark.ui.markdown.refactoring.menu"
                   label="Refactoring">
                <command
+                     commandId="net.certiv.fluentmark.ui.refactoring.inlinePumlCode"
+                     icon="icons/obj16/fluentmark_doc.png"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <or>
+                        <iterate
+                              ifEmpty="false"
+                              operator="and">
+                           <adapt
+                                 type="org.eclipse.core.resources.IResource">
+                           </adapt>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isAccessible">
+                           </test>
+                        </iterate>
+                        <iterate>
+                           <and>
+                              <instanceof
+                                    value="org.eclipse.jface.text.ITextSelection">
+                              </instanceof>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isActiveFluentEditor">
+                              </test>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isMarkdownPlantUmlImageTextSelection">
+                              </test>
+                           </and>
+                        </iterate>
+                     </or>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
+                     icon="icons/obj16/fluentmark_doc.png"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <iterate>
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.jface.text.ITextSelection">
+                           </instanceof>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isActiveFluentEditor">
+                           </test>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isMarkdownPlantUmlCodeBlockTextSelection">
+                           </test>
+                        </and>
+                     </iterate>
+                  </visibleWhen>
+               </command>
+               <command
                      commandId="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
                      icon="icons/obj16/fluentmark_doc.png"
                      style="push">
@@ -691,6 +750,16 @@
             defaultHandler="net.certiv.fluentmark.ui.handlers.ReplaceSvgImagesWithPlantUmlImagesHandler"
             id="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
             name="Replace SVG images with PlantUML images (*.puml files)">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.InlinePlantUmlCodeHandler"
+            id="net.certiv.fluentmark.ui.refactoring.inlinePumlCode"
+            name="Inline PlantUML code from referenced *.puml file(s)">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ExtractPlantUmlCodeHandler"
+            id="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
+            name="Extract PlantUML code to a *.puml file">
       </command>
    </extension>
 
@@ -948,7 +1017,7 @@
             class="net.certiv.fluentmark.ui.propertytesters.ActiveEditorPartTester"
             id="net.certiv.fluentmark.ui.activeEditorPartTester"
             namespace="net.certiv.fluentmark.ui"
-            properties="activeEditorPart,isActiveFluentEditor,isMarkdownSvgImageTextSelection"
+            properties="activeEditorPart,isActiveFluentEditor,isMarkdownSvgImageTextSelection,isMarkdownPlantUmlImageTextSelection,isMarkdownPlantUmlCodeBlockTextSelection"
             type="java.lang.Object">
       </propertyTester>
    </extension>

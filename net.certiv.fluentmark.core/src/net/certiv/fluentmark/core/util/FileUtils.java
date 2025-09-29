@@ -275,6 +275,20 @@ public final class FileUtils {
 		return false;
 	}
 	
+	public static String getFileExtension(String path) {
+		if (path == null) {
+			return null;
+		}
+		
+		int index = path.lastIndexOf('.');
+		
+		if (index < 0) {
+			return null;
+		}
+		
+		return path.substring(index);
+	}
+	
 	public static boolean isMarkdownFile(IFile file) {
 		return file != null
 				&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension());
@@ -337,6 +351,8 @@ public final class FileUtils {
 	}
 	
 	public static List<IFile> findFilesForLocation(IPath fileLocation) {
+		// TODO better use resolveToWorkspaceFile instead of this method?
+		
 		if (fileLocation == null) {
 			return Collections.emptyList();
 		}

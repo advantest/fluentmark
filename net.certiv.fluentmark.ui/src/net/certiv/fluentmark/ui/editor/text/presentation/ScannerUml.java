@@ -18,11 +18,12 @@ import org.eclipse.jface.text.rules.WordRule;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.partitions.DiagramConstants;
+import net.certiv.fluentmark.core.dot.DotConstants;
 import net.certiv.fluentmark.core.markdown.scanner.IScannerExt;
 import net.certiv.fluentmark.core.markdown.scanner.rules.UmlSymbolDetector;
 import net.certiv.fluentmark.core.markdown.scanner.rules.UmlWordDetector;
 import net.certiv.fluentmark.core.markdown.scanner.rules.WhitespaceDetector;
+import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlConstants;
 import net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
@@ -36,14 +37,14 @@ public class ScannerUml extends AbstractBufferedRuleBasedScanner implements ISca
 			"queue", "archimate", };
 
 	private static final String[] keywords = { 
-			DiagramConstants.UML_START, DiagramConstants.UML_END,
-			DiagramConstants.DOT_START, DiagramConstants.DOT_END,
-			DiagramConstants.UML_START_SALT, DiagramConstants.UML_END_SALT,
-			DiagramConstants.UML_START_YAML, DiagramConstants.UML_END_YAML, 
-			DiagramConstants.UML_START_JSON, DiagramConstants.UML_END_JSON, 
-			DiagramConstants.UML_START_MINDMAP, DiagramConstants.UML_END_MINDMAP, 
-			DiagramConstants.UML_START_GANTT, DiagramConstants.UML_END_GANTT,
-			DiagramConstants.UML_START_WBS, DiagramConstants.UML_END_WBS,
+			DotConstants.DOT_START, DotConstants.DOT_END,
+			PlantUmlConstants.UML_START, PlantUmlConstants.UML_END,
+			PlantUmlConstants.UML_START_SALT, PlantUmlConstants.UML_END_SALT,
+			PlantUmlConstants.UML_START_YAML, PlantUmlConstants.UML_END_YAML, 
+			PlantUmlConstants.UML_START_JSON, PlantUmlConstants.UML_END_JSON, 
+			PlantUmlConstants.UML_START_MINDMAP, PlantUmlConstants.UML_END_MINDMAP, 
+			PlantUmlConstants.UML_START_GANTT, PlantUmlConstants.UML_END_GANTT,
+			PlantUmlConstants.UML_START_WBS, PlantUmlConstants.UML_END_WBS,
 			"as", "also", "autonumber", "caption", "title", "newpage", "box", "alt", "else", "opt", "loop", "par",
 			"break", "critical", "note", "rnote", "hnote", "legend", "group", "left", "right", "of", "on", "link",
 			"over", "end", "activate", "deactivate", "destroy", "create", "footbox", "hide", "show", "skinparam",

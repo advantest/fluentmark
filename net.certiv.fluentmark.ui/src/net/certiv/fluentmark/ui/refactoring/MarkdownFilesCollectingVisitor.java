@@ -28,7 +28,7 @@ public class MarkdownFilesCollectingVisitor implements IResourceVisitor {
 	
 	protected SubMonitor monitor;
 	
-	private Map<IFile, IDocument> filesDocumentsMap = new HashMap<>();;
+	private Map<IFile, IDocument> filesDocumentsMap = new HashMap<>();
 
 	public void setMonitor(SubMonitor monitor) {
 		this.monitor = monitor;
