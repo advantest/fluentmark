@@ -74,6 +74,11 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	public void setUseFencedCodeBlocks(boolean useFencedCodeBlocks) {
 		this.useFencedCodeBlocks = useFencedCodeBlocks;
 	}
+	
+	@Override
+	protected String getImageFileExtensionToReplace() {
+		return FileUtils.FILE_EXTENSION_PLANTUML;
+	}
 
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor monitor)
@@ -106,6 +111,12 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	}
 	
 	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
+		// TODO Replace all occurrences of a puml file in Markdown files with in-lined code blocks (search in parent project / whole workspace)
+	    // TODO Always delete puml files
+	    // TODO Always use fenced code blocks (recommended style)
+	    // TODO Start from selected puml files to search for Markdown files pointing to the puml files
+		
+		
 		// TODO check only selected Markdown files or all Markdown files in selected resources' projects?
 		// Remark: in-lining one puml file or only puml files in selected resources would demand to check if other Markdown files reference some of these puml files.
 		// TODO add check box for in-lining the same puml file(s) in other Markdown files, too?
@@ -342,4 +353,5 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		
 		return numLinesToAdd;
 	}
+
 }

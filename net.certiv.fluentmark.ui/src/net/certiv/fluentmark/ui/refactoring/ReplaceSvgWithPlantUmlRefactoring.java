@@ -61,6 +61,11 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownIm
 	protected boolean getDeleteReferencedImageFiles() {
 		return deleteObsoleteSvgFiles;
 	}
+	
+	@Override
+	protected String getImageFileExtensionToReplace() {
+		return FileUtils.FILE_EXTENSION_SVG;
+	}
 
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
