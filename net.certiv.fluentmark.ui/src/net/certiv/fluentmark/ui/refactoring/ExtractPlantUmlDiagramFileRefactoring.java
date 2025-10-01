@@ -31,8 +31,9 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import com.vladsch.flexmark.util.ast.Block;
+
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
-import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
@@ -67,21 +68,12 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
 		
-		RefactoringStatus status = new RefactoringStatus();
-		
-		if (this.textSelection.isEmpty()
-				|| this.textSelection.getEndLine() - this.textSelection.getStartLine() < 1
-				|| PlantUmlParsingTools.getNumberOfDiagrams(FlexmarkUiUtil.getLinesForTextSelection(this.markdownFileDocument, this.textSelection)) != 1) {
-			status.addFatalError("Text selection is empty or does not contain exactly one PlantUML diagram.");
-			return status;
-		}
-		
-		return status;
+		return new RefactoringStatus();
 	}
 	
 	private String findRenderedPlantUmlCodeInTextSelection() {
-		String selectedCodeBlock = FlexmarkUiUtil.getLinesForTextSelection(markdownFileDocument, textSelection);
-		return MarkdownParsingTools.getPlantUmlCodeFromMarkdownCodeBlock(selectedCodeBlock);
+		Block codeBlock = FlexmarkUiUtil.findPlantUmlCodeBlockForTextSelection(markdownFileDocument, textSelection);
+		return MarkdownParsingTools.getPlantUmlCodeFromMarkdownCodeBlock(codeBlock);
 	}
 	
 	@Override
@@ -118,18 +110,19 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		ArrayList<Change> changes = new ArrayList<>(2);
 		
-		String pumlCode = findRenderedPlantUmlCodeInTextSelection();
+		Block codeBlock = FlexmarkUiUtil.findPlantUmlCodeBlockForTextSelection(markdownFileDocument, textSelection);
 		
-		if (pumlCode != null) {
+		if (codeBlock != null) {
 			TextChange markdownFileChange = new DocumentChange("Replace PlantUML code block with file reference", markdownFileDocument);
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
 			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
-			TextEdit replacementEdit = createCodeBlockReplacementEdit();
+			TextEdit replacementEdit = createCodeBlockReplacementEdit(codeBlock);
 			if (replacementEdit != null) {
 				rootEditOnMarkdownFile.addChild(replacementEdit);
 				
-				CreateTextFileChange createPumlFileChange = createNewTextFileChange(pumlCode);
+				String pumlLines = MarkdownParsingTools.getPlantUmlCodeFromMarkdownCodeBlock(codeBlock);
+				CreateTextFileChange createPumlFileChange = createNewTextFileChange(pumlLines);
 				
 				if (createPumlFileChange != null) {
 					changes.add(markdownFileChange);
@@ -144,20 +137,18 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 		return change;
 	}
 	
-	private TextEdit createCodeBlockReplacementEdit() {
+	private TextEdit createCodeBlockReplacementEdit(Block pumlCodeBlock) {
 		try {
-			int startLine = textSelection.getStartLine();
-			int endLine = textSelection.getEndLine();
-			int startOffset = markdownFileDocument.getLineOffset(startLine);
-			int endOffset = markdownFileDocument.getLineOffset(endLine) + markdownFileDocument.getLineLength(endLine);
+			int startOffset = pumlCodeBlock.getStartOffset();
+			int length = pumlCodeBlock.getEndOffset() - startOffset;
 			
 			// keep the line break at the end of the code block
+			int endLine = pumlCodeBlock.getEndLineNumber();
 			String codeBlockLastLineDelimiter = markdownFileDocument.getLineDelimiter(endLine);
 			if (codeBlockLastLineDelimiter != null) {
-				endOffset -= codeBlockLastLineDelimiter.length();
+				length -= codeBlockLastLineDelimiter.length();
 			}
 			
-			int length = endOffset - startOffset;
 			IPath markdownFilePath = this.markdownFile.getFullPath();
 			IPath pumlFilePath = this.pumlFileToCreate.getFullPath();
 			IPath relativePumlFilePath = pumlFilePath.makeRelativeTo(markdownFilePath.removeLastSegments(1));

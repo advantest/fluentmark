@@ -9,16 +9,16 @@
  */
 package net.certiv.fluentmark.ui.util;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 
 import com.vladsch.flexmark.ast.Image;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
+import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.ast.Document;
 
 import net.certiv.fluentmark.core.util.FlexmarkUtil;
-import net.certiv.fluentmark.ui.FluentUI;
 
 public class FlexmarkUiUtil {
 	
@@ -54,26 +54,25 @@ public class FlexmarkUiUtil {
 			.orElse(null);
 	}
 	
-	public static String getLinesForTextSelection(IDocument document, ITextSelection textSelection) {
-		if (document == null || textSelection == null || textSelection.isEmpty()) {
+	public static Block findPlantUmlCodeBlockForTextSelection(IDocument document, ITextSelection textSelection) {
+		if (document == null || textSelection == null) {
 			return null;
 		}
 		
-		try {
-			int startOffset = textSelection.getOffset();
-			int endOffset = textSelection.getOffset() + textSelection.getLength() - 1;
-			
-			int startLine = document.getLineOfOffset(startOffset);
-			int endLine = document.getLineOfOffset(endOffset);
-			
-			startOffset = document.getLineOffset(startLine);
-			endOffset = document.getLineOffset(endLine);
-			endOffset += document.getLineLength(endLine);
-			
-			return document.get(startOffset, endOffset - startOffset);
-		} catch (BadLocationException e) {
-			FluentUI.log(IStatus.WARNING, "Could not determine lines for given text selection.", e);
+		return findPlantUmlCodeBlockForTextSelection(parseMarkdownAst(document), textSelection);
+	}
+	
+	public static Block findPlantUmlCodeBlockForTextSelection(Document markdownAst, ITextSelection textSelection) {
+		if (markdownAst == null || textSelection == null) {
 			return null;
 		}
+		
+		return FlexmarkUtil.getStreamOfDescendants(markdownAst)
+			.filter(node -> textSelection.getStartLine() >= node.getStartLineNumber() && textSelection.getEndLine() <= node.getEndLineNumber())
+			.filter(node -> node instanceof PlantUmlBlockNode || node instanceof PlantUmlFencedCodeBlockNode)
+			.map(node -> (Block) node)
+			.findFirst()
+			.orElse(null);
 	}
+	
 }

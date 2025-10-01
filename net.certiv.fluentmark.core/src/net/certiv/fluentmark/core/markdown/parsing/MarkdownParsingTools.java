@@ -22,9 +22,6 @@ import java.util.stream.Stream;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.vladsch.flexmark.util.ast.Block;
-import com.vladsch.flexmark.util.ast.Document;
-
-import net.certiv.fluentmark.core.util.FlexmarkUtil;
 
 
 public class MarkdownParsingTools {
@@ -168,22 +165,13 @@ public class MarkdownParsingTools {
 		return matches.stream();
 	}
 	
-	public static String getPlantUmlCodeFromMarkdownCodeBlock(String markdownCodeBlock) {
-		Document markdownAst = FlexmarkUtil.parseMarkdown(markdownCodeBlock);
-		List<Block> foundCodeBlocks = FlexmarkUtil.getStreamOf(markdownAst, Block.class)
-			.filter(block -> block instanceof PlantUmlFencedCodeBlockNode || block instanceof PlantUmlBlockNode)
-			.toList();
-		
-		if (foundCodeBlocks.size() == 1) {
-			Block codeBlock = foundCodeBlocks.getFirst();
-			if (codeBlock instanceof PlantUmlBlockNode) {
-				return codeBlock.getChars().toString();
-			} else {
-				PlantUmlFencedCodeBlockNode fencedCodeBlock = (PlantUmlFencedCodeBlockNode) codeBlock;
-				return fencedCodeBlock.getContentChars().toString();
-			}
+	public static String getPlantUmlCodeFromMarkdownCodeBlock(Block codeBlock) {
+		if (codeBlock instanceof PlantUmlFencedCodeBlockNode) {
+			PlantUmlFencedCodeBlockNode fencedCodeBlock = (PlantUmlFencedCodeBlockNode) codeBlock;
+			return fencedCodeBlock.getContentChars().toString();
+		} else if (codeBlock instanceof PlantUmlBlockNode) {
+			return codeBlock.getChars().toString();
 		}
-		
 		return null;
 	}
 }
