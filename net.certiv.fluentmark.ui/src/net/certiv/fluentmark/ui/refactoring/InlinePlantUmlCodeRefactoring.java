@@ -39,6 +39,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FlexmarkUtil;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageRefactoring {
@@ -275,7 +276,15 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			return null;
 		}
 		
-		String pumlFileContents = FileUtils.readFileContents(imageFile);
+		// Check if the file is already open in some text editor.
+		// If so, use the potentially modified, unsaved document instead of its saved version.
+		String pumlFileContents = null;
+		IDocument document = EditorUtils.findDocumentFromDirtyTextEditorFor(imageFile);
+		if (document != null) {
+			pumlFileContents = document.get();
+		} else {
+			pumlFileContents = FileUtils.readFileContents(imageFile);
+		}
 		
 		if (PlantUmlParsingTools.getNumberOfDiagrams(pumlFileContents) != 1) {
 			return null;

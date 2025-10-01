@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -78,14 +76,7 @@ public class FilesCollectingVisitor implements IResourceVisitor {
 		} else if (collectPlantUmlFiles && FileUtils.isPumlFile(file)) {
 			// Check if the file is already open in some text editor.
 			// If so, use the potentially modified, unsaved document instead of its saved version.
-			ITextEditor plantUmlEditor = EditorUtils.findDirtyEditorFor(ITextEditor.class, file);
-			IDocument document = null;
-			if (plantUmlEditor != null) {
-				IDocumentProvider docProvider = plantUmlEditor.getDocumentProvider();
-				if (docProvider != null) {
-					document = docProvider.getDocument(file);
-				}
-			}
+			IDocument document = EditorUtils.findDocumentFromDirtyTextEditorFor(file);
 			plantUmlFilesDocumentsMap.put(file, document);
 		} else if (collectSvgFiles && FileUtils.isSvgFile(file)) {
 			svgFilesDocumentsMap.put(file, null);
