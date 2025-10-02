@@ -76,19 +76,12 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			IFile markdownFile = (IFile) rootResources.iterator().next();
 			Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 			
-			if (imageNode == null) {
-				status.addFatalError("Could not find a Markdown image for the given text selection.");
-				return status;
-			}
-			
-			String urlOrPath = imageNode.getUrl().toString();
-			
-			if (urlOrPath.toLowerCase().startsWith("http")
-					|| !urlOrPath.toLowerCase().endsWith(".puml")) {
+			if (!isChangeApplicableTo(imageNode)) {
 				status.addFatalError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
 				return status;
 			}
 			
+			String urlOrPath = imageNode.getUrl().toString();
 			IPath pumlFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 			
 			if (pumlFilePath == null) {
@@ -103,7 +96,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			// TODO not only check current file, but all Markdown files in current project
 			List<Integer> resolvedPathCount = new ArrayList<>(1);
 			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
+					.filter(image -> isChangeApplicableTo(image))
 					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
 					.filter(path -> path != null)
 					.map(path -> path.toString())
@@ -145,11 +138,11 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 				Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
 				subMonitor.worked(5);
 				
-				List<Image> nonHttpImages = FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
+				List<Image> pumlImages = FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+					.filter(image -> isChangeApplicableTo(image))
 					.toList();
 				
-				nonHttpImages.stream()
+				pumlImages.stream()
 					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
 					.filter(path -> path != null)
 					.map(path -> path.toString())
@@ -171,7 +164,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 				
 				// also check if we would loose a caption from the Markdown image statement; create only one warning if there is at least one such case
 				if (!wouldLooseCaptions) {
-					for (Image image: nonHttpImages) {
+					for (Image image: pumlImages) {
 						if (!image.getText().isBlank()) {
 							wouldLooseCaptions = true;
 						}

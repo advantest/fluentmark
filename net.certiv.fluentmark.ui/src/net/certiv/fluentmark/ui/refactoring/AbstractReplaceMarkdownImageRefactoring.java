@@ -260,7 +260,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 		}
 	}
 	
-	private boolean isChangeApplicableTo(Image imageNode) {
+	protected boolean isChangeApplicableTo(Image imageNode) {
 		if (imageNode == null || imageNode.getUrl() == null) {
 			return false;
 		}
