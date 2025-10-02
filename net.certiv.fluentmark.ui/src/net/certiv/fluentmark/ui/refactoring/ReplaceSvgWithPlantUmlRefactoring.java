@@ -38,8 +38,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownIm
 	private final static String MSG_ADAPT_LINKS = "Replace *.svg references (images) with *.puml references (images) in Markdown files";
 	private final static String MSG_AND_DELETE_SVGS = " and remove obsolete *.svg files";
 	
-	private boolean deleteObsoleteSvgFiles = true;
-	
 	public ReplaceSvgWithPlantUmlRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		super(markdownFile, document, textSelection);
 	}
@@ -53,15 +51,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownIm
 		return MSG_ADAPT_LINKS + MSG_AND_DELETE_SVGS;
 	}
 	
-	public void setDeleteSvgFiles(boolean deleteObsoleteSvgFiles) {
-		this.deleteObsoleteSvgFiles = deleteObsoleteSvgFiles;
-	}
-	
-	@Override
-	protected boolean getDeleteReferencedImageFiles() {
-		return deleteObsoleteSvgFiles;
-	}
-	
 	@Override
 	protected String getImageFileExtensionToReplace() {
 		return FileUtils.FILE_EXTENSION_SVG;
@@ -72,7 +61,7 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownIm
 			throws CoreException, OperationCanceledException {
 		
 		for (IResource rootResource: rootResources) {
-			if (deleteObsoleteSvgFiles && !(rootResource instanceof IProject)) {
+			if (!(rootResource instanceof IProject)) {
 				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
 				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
 					return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders"

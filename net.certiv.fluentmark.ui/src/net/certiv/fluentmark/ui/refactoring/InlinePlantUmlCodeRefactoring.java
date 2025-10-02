@@ -47,9 +47,6 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	private final static String MSG_INLINE_CODE = "Replace *.puml references (images) with in-lined PlantUML code blocks in Markdown files";
 	private final static String MSG_AND_DELETE_PUMLS = " and remove the no longer referenced *.puml files";
 	
-	private boolean deleteObsoletePlantUmlFiles = true;
-	private boolean useFencedCodeBlocks = true;
-	
 	public InlinePlantUmlCodeRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		super(markdownFile, document, textSelection);
 	}
@@ -61,19 +58,6 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	@Override
 	public String getName() {
 		return MSG_INLINE_CODE + MSG_AND_DELETE_PUMLS;
-	}
-	
-	public void setDeletePumlFiles(boolean deleteObsoletePlantUmlFiles) {
-		this.deleteObsoletePlantUmlFiles = deleteObsoletePlantUmlFiles;
-	}
-	
-	@Override
-	protected boolean getDeleteReferencedImageFiles() {
-		return deleteObsoletePlantUmlFiles;
-	}
-	
-	public void setUseFencedCodeBlocks(boolean useFencedCodeBlocks) {
-		this.useFencedCodeBlocks = useFencedCodeBlocks;
 	}
 	
 	@Override
@@ -88,7 +72,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		RefactoringStatus status = new RefactoringStatus(); // ok status -> go to preview page, no error page
 		
 		for (IResource rootResource: rootResources) {
-			if (deleteObsoletePlantUmlFiles && !(rootResource instanceof IProject)) {
+			if (!(rootResource instanceof IProject)) {
 				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
 				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
 					String message = "There might be Markdown files in other folders"
@@ -112,16 +96,9 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	}
 	
 	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
-		// TODO Replace all occurrences of a puml file in Markdown files with in-lined code blocks (search in parent project / whole workspace)
-	    // TODO Always delete puml files
-	    // TODO Always use fenced code blocks (recommended style)
-	    // TODO Start from selected puml files to search for Markdown files pointing to the puml files
-		
-		
-		// TODO check only selected Markdown files or all Markdown files in selected resources' projects?
-		// Remark: in-lining one puml file or only puml files in selected resources would demand to check if other Markdown files reference some of these puml files.
-		// TODO add check box for in-lining the same puml file(s) in other Markdown files, too?
-		// TODO Select pumls instead of Markdown files to in-line them in all Markdown files?
+		// TODO Check occurrences in the whole workspace instead of the parent projects of the selected resources?
+		// TODO Start from selected puml files to search for Markdown files pointing to the puml files
+		// TODO update checking pre-conditions
 		
 		if (hasTextSelection()) {
 			IFile markdownFile = (IFile) rootResources.iterator().next();
@@ -296,19 +273,14 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		int imageStatementLength = imageNode.getEndOffset() - startOffset;
 		
 		// TODO somehow also add the image label to the in-lined PlantUML code?
-		// TODO Somehow run through all Markdown files in parent project and find all references to the puml file to be removed?
 		
 		StringBuilder replacementTextBuilder = new StringBuilder();
 		replacementTextBuilder.repeat(lineSeparator, getNumberOfPreceedingLineSeparatorsToAdd(imageNode));
-		if (useFencedCodeBlocks) {
-			replacementTextBuilder.append("```plantuml");
-			replacementTextBuilder.append(lineSeparator);
-		}
+		replacementTextBuilder.append("```plantuml");
+		replacementTextBuilder.append(lineSeparator);
 		replacementTextBuilder.append(pumlFileContents.trim());
-		if (useFencedCodeBlocks) {
-			replacementTextBuilder.append(lineSeparator);
-			replacementTextBuilder.append("```");
-		}
+		replacementTextBuilder.append(lineSeparator);
+		replacementTextBuilder.append("```");
 		replacementTextBuilder.repeat(lineSeparator, getNumberOfSuccedingLineSeparatorsToAdd(imageNode));
 		
 		String replacementText = replacementTextBuilder.toString();

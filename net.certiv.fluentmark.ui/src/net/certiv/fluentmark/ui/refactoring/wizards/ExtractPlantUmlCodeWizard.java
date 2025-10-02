@@ -12,7 +12,6 @@ package net.certiv.fluentmark.ui.refactoring.wizards;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
 import net.certiv.fluentmark.ui.refactoring.ExtractPlantUmlDiagramFileRefactoring;
-import net.certiv.fluentmark.ui.refactoring.InlinePlantUmlCodeRefactoring;
 
 public class ExtractPlantUmlCodeWizard extends RefactoringWizard {
 

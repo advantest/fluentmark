@@ -300,13 +300,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 	
 	protected abstract TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath);
 	
-	protected abstract boolean getDeleteReferencedImageFiles();
-	
 	private void addDeleteChange(List<Change> fileDeletions, IPath resolvedImageFilePath) {
-		if (!getDeleteReferencedImageFiles()) {
-			return;
-		}
-		
 		List<IFile> imageFilesToDelete = FileUtils.findExistingFilesForLocation(resolvedImageFilePath);
 		
 		if (imageFilesToDelete.isEmpty()) {
