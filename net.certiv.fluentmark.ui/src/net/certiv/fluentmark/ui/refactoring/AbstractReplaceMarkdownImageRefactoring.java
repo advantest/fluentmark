@@ -16,10 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -147,17 +149,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
 			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
-			
-			// parse markdown code
-			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
-			
-			// go through all Markdown images that correspond to previously collected image path, and create text edits
-			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-				.filter(image -> isChangeApplicableTo(image))
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
 				.forEach(image -> {
 					String path = image.getUrl().toString();
 					IPath currentResolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(path, markdownFile);
@@ -170,7 +162,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 								fileModifications, fileDeletions);
 					}
 				});
-			subMonitor.worked(4);
+			subMonitor.worked(10);
 		}
 	}
 	
@@ -194,17 +186,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
 			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
-			
-			// parse markdown code
-			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
-			
-			// go through all Markdown images, collect referenced image files' paths, and create text edits
-			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-				.filter(image -> isChangeApplicableTo(image))
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
 				.forEach(image -> {
 					String urlOrPath = image.getUrl().toString();
 					IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
@@ -217,7 +199,7 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 								fileModifications, fileDeletions);
 					}
 				});
-			subMonitor.worked(4);
+			subMonitor.worked(10);
 		}
 		
 		// go through all remaining Markdown files (not in selection) and replace reference to collected target images, too
@@ -233,20 +215,9 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
 			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
-			
-			// parse markdown code
-			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
-			
-			// go through all Markdown images that correspond to previously collected image paths, and create text edits
-			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-				.filter(image -> isChangeApplicableTo(image))
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
 				.forEach(image -> {
-					String urlOrPath = image.getUrl().toString();
-					IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+					IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile);
 					
 					// only change references to previously collected image files' paths
 					if (resolvedImageFilePath != null
@@ -256,8 +227,33 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 								fileModifications, fileDeletions);
 					}
 				});
-			subMonitor.worked(4);
+			subMonitor.worked(10);
 		}
+	}
+	
+	protected Stream<Image> streamOfMarkdownImagesInGivenFile(IFile markdownFile, IDocument markdownDocument) {
+		Assert.isNotNull(markdownFile);
+		
+		// read file contents
+		String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+		
+		// parse markdown code
+		Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
+		
+		return FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+			.filter(image -> isChangeApplicableTo(image));
+	}
+	
+	protected Stream<IPath> streamOfResolvedPathsFromMarkdownImagesInGivenFile(IFile markdownFile, IDocument markdownDocument) {
+		return streamOfResolvedPathsFromMarkdownImagesInGivenFile(
+				streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument),
+				markdownFile);
+	}
+	
+	protected Stream<IPath> streamOfResolvedPathsFromMarkdownImagesInGivenFile(Stream<Image> imageStream, IFile markdownFile) {
+		return imageStream
+				.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
+				.filter(path -> path != null);
 	}
 	
 	protected boolean isChangeApplicableTo(Image imageNode) {
