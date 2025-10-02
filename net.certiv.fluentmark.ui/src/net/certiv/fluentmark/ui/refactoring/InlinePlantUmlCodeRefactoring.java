@@ -10,7 +10,6 @@
 package net.certiv.fluentmark.ui.refactoring;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -69,26 +66,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 	public RefactoringStatus checkFinalConditions(IProgressMonitor monitor)
 			throws CoreException, OperationCanceledException {
 		
-		RefactoringStatus status = new RefactoringStatus(); // ok status -> go to preview page, no error page
-		
-		for (IResource rootResource: rootResources) {
-			if (!(rootResource instanceof IProject)) {
-				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
-				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
-					String message = "There might be Markdown files in other folders"
-							+ " of your documentation that point to *.puml files that you are going to delete."
-							+ " Avoid that by selecting your selected resource's parent project ("
-							+ rootResource.getProject().getName() + ") or documentation folder";
-					
-					boolean containsMessage = Arrays.stream(status.getEntries())
-							.anyMatch(entry -> message.equals(entry.getMessage()));
-					
-					if (!containsMessage) {
-						status.addWarning(message);
-					}
-				}
-			}
-		}
+		RefactoringStatus status = new RefactoringStatus();
 		
 		checkDuplicationsInInlinedCode(monitor, status);
 		

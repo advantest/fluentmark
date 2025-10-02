@@ -12,8 +12,6 @@ package net.certiv.fluentmark.ui.refactoring;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -59,18 +57,6 @@ public class ReplaceSvgWithPlantUmlRefactoring extends AbstractReplaceMarkdownIm
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
-		
-		for (IResource rootResource: rootResources) {
-			if (!(rootResource instanceof IProject)) {
-				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
-				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
-					return RefactoringStatus.createWarningStatus("There might be Markdown files in other folders"
-							+ " of your documentation that point to *.svg files that you are going to delete."
-							+ " Avoid that by selecting your selected resource's (" + rootResource.getFullPath() + ") parent project or documentation folder "
-							+ parentDocFolder.getFullPath().toString());
-				}
-			}
-		}
 		
 		return new RefactoringStatus(); // ok status -> go to preview page, no error page
 	}
