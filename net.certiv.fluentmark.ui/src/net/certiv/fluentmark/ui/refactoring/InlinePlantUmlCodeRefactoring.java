@@ -68,12 +68,6 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		
 		RefactoringStatus status = new RefactoringStatus();
 		
-		checkDuplicationsInInlinedCode(monitor, status);
-		
-		return status;
-	}
-	
-	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
 		// TODO Check occurrences in the whole workspace instead of the parent projects of the selected resources?
 		// TODO Start from selected puml files to search for Markdown files pointing to the puml files
 		// TODO update checking pre-conditions
@@ -84,7 +78,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			
 			if (imageNode == null) {
 				status.addFatalError("Could not find a Markdown image for the given text selection.");
-				return;
+				return status;
 			}
 			
 			String urlOrPath = imageNode.getUrl().toString();
@@ -92,20 +86,21 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			if (urlOrPath.toLowerCase().startsWith("http")
 					|| !urlOrPath.toLowerCase().endsWith(".puml")) {
 				status.addFatalError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
-				return;
+				return status;
 			}
 			
 			IPath pumlFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 			
 			if (pumlFilePath == null) {
 				status.addFatalError(String.format("Cannot resolve file path %s.", urlOrPath));
-				return;
+				return status;
 			}
 			
 			String foundPumlFilePath = pumlFilePath.toString();
 			
 			Document markdownAst = imageNode.getDocument();
 			
+			// TODO not only check current file, but all Markdown files in current project
 			List<Integer> resolvedPathCount = new ArrayList<>(1);
 			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
 					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
@@ -134,6 +129,7 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			
 			SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
 			
+			// TODO not only go through files in selected resources, but all files in selected resources' parent projects
 			// go through all markdown files in the given resource selection
 			Map<String, Integer> resolvedPathCounts = new HashMap<>();
 			Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
@@ -205,6 +201,8 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 				status.addWarning("At least one Markdown image statement uses a label (caption) that would be lost by in-lining the referenced PlantUML code.");
 			}
 		}
+		
+		return status;
 	}
 	
 	@Override
