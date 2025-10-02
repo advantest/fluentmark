@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.validation.visitor.IDocumentResolver;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class MarkdownDocumentResolver implements IDocumentResolver {
 
@@ -27,12 +28,7 @@ public class MarkdownDocumentResolver implements IDocumentResolver {
 		// Check if the file is already open in a FluentMark editor.
 		// If so, validate the potentially modified, unsaved document instead of its saved version.
 		// Otherwise the marker placements in the open editor may be incorrect.
-		FluentEditor openDirtyEditor = FluentEditor.findDirtyEditorFor(file);
-		if (openDirtyEditor != null) {
-			return openDirtyEditor.getDocument();
-		}
-		
-		return null;
+		return EditorUtils.findDocumentFromDirtyFluentEditorFor(file);
 	}
 
 }

@@ -49,8 +49,16 @@ public class EditorUtils {
 	
 	private static final JavaCodeMemberResolver javaMemberResolver = new JavaCodeMemberResolver();
 	
+	public static IDocument findDocumentFromDirtyFluentEditorFor(IFile file) {
+		return findDocumentFromDirtyTextEditorFor(FluentEditor.class, file);
+	}
+	
 	public static IDocument findDocumentFromDirtyTextEditorFor(IFile file) {
-		ITextEditor dirtyTextEditor = findDirtyEditorFor(ITextEditor.class, file);
+		return findDocumentFromDirtyTextEditorFor(ITextEditor.class, file);
+	}
+	
+	private static IDocument findDocumentFromDirtyTextEditorFor(Class<? extends ITextEditor> editorType, IFile file) {
+		ITextEditor dirtyTextEditor = findDirtyEditorFor(editorType, file);
 		if (dirtyTextEditor != null) {
 			IDocumentProvider docProvider = dirtyTextEditor.getDocumentProvider();
 			if (docProvider != null) {

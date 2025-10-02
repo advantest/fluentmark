@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
 
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
 
 public class FilesCollectingVisitor implements IResourceVisitor {
@@ -65,19 +64,12 @@ public class FilesCollectingVisitor implements IResourceVisitor {
 		if (collectMarkdownFiles && FileUtils.isMarkdownFile(file)) {
 			// Check if the file is already open in a FluentMark editor.
 			// If so, use the potentially modified, unsaved document instead of its saved version.
-			FluentEditor openDirtyEditor = FluentEditor.findDirtyEditorFor(file);
-			if (openDirtyEditor != null) {
-				markdownFilesDocumentsMap.put(file, openDirtyEditor.getDocument());
-			} else {
-				markdownFilesDocumentsMap.put(file, null);
-			}
-			
+			markdownFilesDocumentsMap.put(file, EditorUtils.findDocumentFromDirtyFluentEditorFor(file));
 			this.monitor.worked(1);
 		} else if (collectPlantUmlFiles && FileUtils.isPumlFile(file)) {
 			// Check if the file is already open in some text editor.
 			// If so, use the potentially modified, unsaved document instead of its saved version.
-			IDocument document = EditorUtils.findDocumentFromDirtyTextEditorFor(file);
-			plantUmlFilesDocumentsMap.put(file, document);
+			plantUmlFilesDocumentsMap.put(file, EditorUtils.findDocumentFromDirtyTextEditorFor(file));
 		} else if (collectSvgFiles && FileUtils.isSvgFile(file)) {
 			svgFilesDocumentsMap.put(file, null);
 		}
