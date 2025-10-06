@@ -111,7 +111,6 @@ import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
-import net.certiv.fluentmark.ui.util.EditorUtils;
 
 /**
  * Text editor with markdown support.
@@ -148,10 +147,6 @@ public class FluentEditor extends TextEditor
 
 	public FluentEditor() {
 		super();
-	}
-	
-	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
-		return EditorUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.

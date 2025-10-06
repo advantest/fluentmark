@@ -9,8 +9,6 @@
  */
 package net.certiv.fluentmark.ui.refactoring;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,13 +16,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -38,16 +35,13 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.FlexmarkUtil;
+import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
 
 public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageRefactoring {
 	
 	private final static String MSG_INLINE_CODE = "Replace *.puml references (images) with in-lined PlantUML code blocks in Markdown files";
 	private final static String MSG_AND_DELETE_PUMLS = " and remove the no longer referenced *.puml files";
-	
-	private boolean deleteObsoletePlantUmlFiles = true;
-	private boolean useFencedCodeBlocks = true;
 	
 	public InlinePlantUmlCodeRefactoring(IFile markdownFile, IDocument document, ITextSelection textSelection) {
 		super(markdownFile, document, textSelection);
@@ -62,100 +56,60 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		return MSG_INLINE_CODE + MSG_AND_DELETE_PUMLS;
 	}
 	
-	public void setDeletePumlFiles(boolean deleteObsoletePlantUmlFiles) {
-		this.deleteObsoletePlantUmlFiles = deleteObsoletePlantUmlFiles;
-	}
-	
 	@Override
-	protected boolean getDeleteReferencedImageFiles() {
-		return deleteObsoletePlantUmlFiles;
-	}
-	
-	public void setUseFencedCodeBlocks(boolean useFencedCodeBlocks) {
-		this.useFencedCodeBlocks = useFencedCodeBlocks;
+	protected String getImageFileExtensionToReplace() {
+		return FileUtils.FILE_EXTENSION_PLANTUML;
 	}
 
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor monitor)
 			throws CoreException, OperationCanceledException {
 		
-		RefactoringStatus status = new RefactoringStatus(); // ok status -> go to preview page, no error page
+		RefactoringStatus status = new RefactoringStatus();
 		
-		for (IResource rootResource: rootResources) {
-			if (deleteObsoletePlantUmlFiles && !(rootResource instanceof IProject)) {
-				IFolder parentDocFolder = FileUtils.getParentDocFolder(rootResource);
-				if (parentDocFolder != null && !rootResource.equals(parentDocFolder)) {
-					String message = "There might be Markdown files in other folders"
-							+ " of your documentation that point to *.puml files that you are going to delete."
-							+ " Avoid that by selecting your selected resource's parent project ("
-							+ rootResource.getProject().getName() + ") or documentation folder";
-					
-					boolean containsMessage = Arrays.stream(status.getEntries())
-							.anyMatch(entry -> message.equals(entry.getMessage()));
-					
-					if (!containsMessage) {
-						status.addWarning(message);
-					}
-				}
-			}
-		}
+		// TODO Check occurrences in the whole workspace instead of the parent projects of the selected resources?
+		// TODO Start from selected puml files to search for Markdown files pointing to the puml files
 		
-		checkDuplicationsInInlinedCode(monitor, status);
+		Map<IFile, IDocument> allMarkdownFilesFromSelectedProjects = collectMarkdownFilesInSelectedRootResourcesProjects(SubMonitor.convert(monitor));
+		Set<String> resolvedImagePathsToReplace = new HashSet<>();
 		
-		return status;
-	}
-	
-	private void checkDuplicationsInInlinedCode(IProgressMonitor monitor, RefactoringStatus status) throws CoreException {
-		// TODO check only selected Markdown files or all Markdown files in selected resources' projects?
-		// Remark: in-lining one puml file or only puml files in selected resources would demand to check if other Markdown files reference some of these puml files.
-		// TODO add check box for in-lining the same puml file(s) in other Markdown files, too?
-		// TODO Select pumls instead of Markdown files to in-line them in all Markdown files?
+		Map<String, Integer> resolvedPathCounters = new HashMap<>();
+		Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", allMarkdownFilesFromSelectedProjects.size() * 10);
 		
 		if (hasTextSelection()) {
 			IFile markdownFile = (IFile) rootResources.iterator().next();
 			Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 			
-			if (imageNode == null) {
-				status.addFatalError("Could not find a Markdown image for the given text selection.");
-				return;
+			if (!isChangeApplicableTo(imageNode)) {
+				status.addFatalError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
+				return status;
 			}
 			
 			String urlOrPath = imageNode.getUrl().toString();
-			
-			if (urlOrPath.toLowerCase().startsWith("http")
-					|| !urlOrPath.toLowerCase().endsWith(".puml")) {
-				status.addFatalError("Selected Markdown image does not reference a local PlantUML file (*.puml). Only PlantUML files can be in-lined.");
-				return;
-			}
-			
 			IPath pumlFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 			
 			if (pumlFilePath == null) {
 				status.addFatalError(String.format("Cannot resolve file path %s.", urlOrPath));
-				return;
+				return status;
 			}
 			
 			String foundPumlFilePath = pumlFilePath.toString();
+			resolvedImagePathsToReplace.add(foundPumlFilePath);
 			
-			Document markdownAst = imageNode.getDocument();
-			
-			List<Integer> resolvedPathCount = new ArrayList<>(1);
-			FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
-					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
-					.filter(path -> path != null)
+			for (IFile currentMarkdownFile : allMarkdownFilesFromSelectedProjects.keySet()) {
+				IDocument markdownDocument = allMarkdownFilesFromSelectedProjects.get(currentMarkdownFile);
+				
+				streamOfResolvedPathsFromMarkdownImagesInGivenFile(currentMarkdownFile, markdownDocument)
 					.map(path -> path.toString())
-					.filter(path -> path.equals(foundPumlFilePath))
+					.filter(path -> resolvedImagePathsToReplace.contains(path))
 					.forEach(path -> {
-						if (resolvedPathCount.size() == 0) {
-							resolvedPathCount.addFirst(1);
-						} else {
-							resolvedPathCount.set(0, resolvedPathCount.getFirst() + 1);
-						}
-					});
-			if (resolvedPathCount.getFirst() > 1) {
-				String message = String.format("There are %s references to %s in %s. In-lining its content would duplicate code. ", resolvedPathCount.getFirst(), urlOrPath, markdownFile.getName());
-				status.addError(message);
+						incrementResolvedPathCounter(resolvedPathCounters, path);
+						rememberReferencingFile(path, currentMarkdownFile, resolvedPathToReferencingFileMap);
+				});
+				
+				subMonitor.worked(10);
 			}
 			
 			if (!imageNode.getText().isBlank()) {
@@ -163,80 +117,105 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			}
 		} else {
 			boolean wouldLooseCaptions = false;
-			Map<IFile, IDocument> collectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
 			
-			SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
+			Map<IFile, IDocument> selectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
 			
-			// go through all markdown files in the given resource selection
-			Map<String, Integer> resolvedPathCounts = new HashMap<>();
-			Map<String, Set<IFile>> resolvedPathToReferencingFileMap = new HashMap<>();
-			
-			for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
-				IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
+			// check Markdown files from selected resources first and collect all references to puml files
+			for (IFile markdownFile : selectedMarkdownFiles.keySet()) {
+				IDocument markdownDocument = selectedMarkdownFiles.get(markdownFile);
 				
-				// read file contents
-				String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-				subMonitor.worked(1);
+				List<Image> pumlImages = streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument).toList();
 				
-				// parse markdown code
-				Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-				subMonitor.worked(5);
-				
-				List<Image> nonHttpImages = FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-					.filter(image -> !image.getUrl().toString().toLowerCase().startsWith("http"))
-					.toList();
-				
-				nonHttpImages.stream()
-					.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
-					.filter(path -> path != null)
+				streamOfResolvedPathsFromMarkdownImagesInGivenFile(pumlImages.stream(), markdownFile)
 					.map(path -> path.toString())
 					.forEach(path -> {
-						Integer count = resolvedPathCounts.get(path);
-						if (count == null) {
-							resolvedPathCounts.put(path, 1);
-						} else {
-							resolvedPathCounts.put(path, count + 1);
-						}
+						resolvedImagePathsToReplace.add(path);
 						
-						Set<IFile> files = resolvedPathToReferencingFileMap.get(path);
-						if (files == null) {
-							files = new HashSet<>();
-							resolvedPathToReferencingFileMap.put(path, files);
-						}
-						files.add(markdownFile);
+						incrementResolvedPathCounter(resolvedPathCounters, path);
+						rememberReferencingFile(path, markdownFile, resolvedPathToReferencingFileMap);
 				});
 				
 				// also check if we would loose a caption from the Markdown image statement; create only one warning if there is at least one such case
-				if (!wouldLooseCaptions) {
-					for (Image image: nonHttpImages) {
-						if (!image.getText().isBlank()) {
-							wouldLooseCaptions = true;
-						}
+				for (Image image: pumlImages) {
+					if (!wouldLooseCaptions && !image.getText().isBlank()) {
+						wouldLooseCaptions = true;
+						break;
 					}
 				}
 				
-				subMonitor.worked(4);
+				subMonitor.worked(10);
 			}
 			
-			resolvedPathCounts.keySet().stream()
-				.filter(path -> resolvedPathCounts.get(path) > 1)
-				.forEach(path -> {
-					Set<IFile> referencingFiles = resolvedPathToReferencingFileMap.get(path);
-					String message = String.format("There are multiple references to %s. In-lining its content would duplicate code. ", path);
-					
-					if (referencingFiles.size() > 3) {
-						message += referencingFiles.size() + " are referencing that PlantUML file.";
-					} else {
-						List<String> fileNames = referencingFiles.stream().map(file -> file.getName()).toList();
-						message += "Referencing files: " + String.join(", ", fileNames);
-					}
-					
-					status.addError(message);
+			// then check all remaining Markdown files for references to the same puml files to count references
+			for (IFile markdownFile : allMarkdownFilesFromSelectedProjects.keySet()) {
+				if (selectedMarkdownFiles.containsKey(markdownFile)) {
+					continue;
+				}
+				
+				IDocument markdownDocument = allMarkdownFilesFromSelectedProjects.get(markdownFile);
+				
+				streamOfResolvedPathsFromMarkdownImagesInGivenFile(markdownFile, markdownDocument)
+					.map(path -> path.toString())
+					.filter(path -> resolvedImagePathsToReplace.contains(path))
+					.forEach(path -> {
+						incrementResolvedPathCounter(resolvedPathCounters, path);
+						rememberReferencingFile(path, markdownFile, resolvedPathToReferencingFileMap);
 				});
+				
+				subMonitor.worked(10);
+			}
 			
 			if (wouldLooseCaptions) {
 				status.addWarning("At least one Markdown image statement uses a label (caption) that would be lost by in-lining the referenced PlantUML code.");
 			}
+		}
+		
+		resolvedPathCounters.keySet().stream()
+			.filter(path -> resolvedPathCounters.get(path) > 1)
+			.forEach(path -> {
+				Set<IFile> referencingFiles = resolvedPathToReferencingFileMap.get(path);
+				int numReferencingFiles = referencingFiles.size();
+				int numReferences = resolvedPathCounters.get(path);
+				IFile targetFile = FileUtils.resolveToWorkspaceFile(new Path(path));
+				
+				String shortPath = path;
+				if (targetFile != null) {
+					IPath fullPath = targetFile.getFullPath();
+					if (fullPath != null) {
+						shortPath = fullPath.toOSString();
+					}
+				}
+				
+				String message = String.format("There are %s references in %s file(s) to %s. In-lining its content would duplicate code.", numReferences, numReferencingFiles, shortPath);
+				
+				if (numReferencingFiles <= 3) {
+					List<String> fileNames = referencingFiles.stream().map(file -> file.getName()).toList();
+					message += " Referencing files: " + String.join(", ", fileNames);
+				}
+				
+				status.addError(message);
+			});
+		
+		return status;
+	}
+
+	private void rememberReferencingFile(String resolvedPath, IFile markdownFile,
+			Map<String, Set<IFile>> resolvedPathToReferencingFileMap) {
+		
+		Set<IFile> files = resolvedPathToReferencingFileMap.get(resolvedPath);
+		if (files == null) {
+			files = new HashSet<>();
+			resolvedPathToReferencingFileMap.put(resolvedPath, files);
+		}
+		files.add(markdownFile);
+	}
+
+	private void incrementResolvedPathCounter(Map<String, Integer> resolvedPathCounters, String resolvedPath) {
+		Integer count = resolvedPathCounters.get(resolvedPath);
+		if (count == null) {
+			resolvedPathCounters.put(resolvedPath, 1);
+		} else {
+			resolvedPathCounters.put(resolvedPath, count + 1);
 		}
 	}
 	
@@ -264,7 +243,15 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 			return null;
 		}
 		
-		String pumlFileContents = FileUtils.readFileContents(imageFile);
+		// Check if the file is already open in some text editor.
+		// If so, use the potentially modified, unsaved document instead of its saved version.
+		String pumlFileContents = null;
+		IDocument document = EditorUtils.findDocumentFromDirtyTextEditorFor(imageFile);
+		if (document != null) {
+			pumlFileContents = document.get();
+		} else {
+			pumlFileContents = FileUtils.readFileContents(imageFile);
+		}
 		
 		if (PlantUmlParsingTools.getNumberOfDiagrams(pumlFileContents) != 1) {
 			return null;
@@ -276,19 +263,14 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		int imageStatementLength = imageNode.getEndOffset() - startOffset;
 		
 		// TODO somehow also add the image label to the in-lined PlantUML code?
-		// TODO Somehow run through all Markdown files in parent project and find all references to the puml file to be removed?
 		
 		StringBuilder replacementTextBuilder = new StringBuilder();
 		replacementTextBuilder.repeat(lineSeparator, getNumberOfPreceedingLineSeparatorsToAdd(imageNode));
-		if (useFencedCodeBlocks) {
-			replacementTextBuilder.append("```plantuml");
-			replacementTextBuilder.append(lineSeparator);
-		}
+		replacementTextBuilder.append("```plantuml");
+		replacementTextBuilder.append(lineSeparator);
 		replacementTextBuilder.append(pumlFileContents.trim());
-		if (useFencedCodeBlocks) {
-			replacementTextBuilder.append(lineSeparator);
-			replacementTextBuilder.append("```");
-		}
+		replacementTextBuilder.append(lineSeparator);
+		replacementTextBuilder.append("```");
 		replacementTextBuilder.repeat(lineSeparator, getNumberOfSuccedingLineSeparatorsToAdd(imageNode));
 		
 		String replacementText = replacementTextBuilder.toString();
@@ -342,4 +324,5 @@ public class InlinePlantUmlCodeRefactoring extends AbstractReplaceMarkdownImageR
 		
 		return numLinesToAdd;
 	}
+
 }

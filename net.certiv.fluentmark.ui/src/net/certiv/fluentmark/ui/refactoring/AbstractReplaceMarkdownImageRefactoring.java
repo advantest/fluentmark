@@ -16,9 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -39,7 +42,6 @@ import org.eclipse.text.edits.TextEdit;
 
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.FlexmarkUtil;
@@ -96,6 +98,8 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 	
 	protected abstract String getSingleMarkdownFileChangeName(IFile markdownFile);
 	
+	protected abstract String getImageFileExtensionToReplace();
+	
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		ArrayList<Change> fileModifications = new ArrayList<>();
@@ -116,52 +120,151 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 	}
 	
 	private void createEditsAndDeletionsForSingleMarkdownImage(ArrayList<Change> fileModifications,
-			ArrayList<Change> fileDeletions, IProgressMonitor monitor) {
-		
-		IFile markdownFile = (IFile) rootResources.iterator().next();
-		Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
-		
-		if (imageNode != null) {
-			TextChange markdownFileChange = createEmptyMarkdownFileChange(markdownFile, markdownFileDocument, getSingleMarkdownFileChangeName(markdownFile));
-			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
-			markdownFileChange.setEdit(rootEditOnMarkdownFile);
-			
-			createAndCollectEditsAndDeletionsForImage(markdownFile, imageNode,
-					markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
-		}
-	}
-	
-	private void createEditsAndDeletionsForResourcesSet(ArrayList<Change> fileModifications,
 			ArrayList<Change> fileDeletions, IProgressMonitor monitor) throws CoreException {
 		
-		Map<IFile, IDocument> collectedMarkdownFiles = collectMarkdownFilesInRootResources(monitor);
+		IFile selectedMarkdownFile = (IFile) rootResources.iterator().next();
+		Image imageNode = FlexmarkUiUtil.findMarkdownImageForTextSelection(markdownFileDocument, textSelection);
 		
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", collectedMarkdownFiles.size() * 10);
+		if (!isChangeApplicableTo(imageNode)) {
+			return;
+		}
 		
-		// go through all markdown files in the given resource selection
-		for (IFile markdownFile : collectedMarkdownFiles.keySet()) {
-			IDocument markdownDocument = collectedMarkdownFiles.get(markdownFile);
-			
-			// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+		String urlOrPath = imageNode.getUrl().toString();
+		IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, selectedMarkdownFile);
+		
+		if (resolvedImageFilePath == null) {
+			return;
+		}
+		
+		// Go through all Markdown files in same project and adapt references to selected image file
+		Map<IFile, IDocument> allMarkdownFilesFromSelectedProjects = collectMarkdownFilesInSelectedRootResourcesProjects(SubMonitor.convert(monitor));
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", allMarkdownFilesFromSelectedProjects.size() * 10);
+		
+		for (IFile markdownFile : allMarkdownFilesFromSelectedProjects.keySet()) {
+			IDocument markdownDocument = allMarkdownFilesFromSelectedProjects.get(markdownFile);
 			
 			// prepare root change, but only add it to file modification edits if we find at least one text edit
 			TextChange markdownFileChange = createEmptyMarkdownFileChange(markdownFile, markdownDocument, getSingleMarkdownFileChangeName(markdownFile));
 			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
 			markdownFileChange.setEdit(rootEditOnMarkdownFile);
 			
-			// read file contents
-			String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
-			subMonitor.worked(1);
-			
-			// parse markdown code
-			Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
-			subMonitor.worked(5);
-			
-			// go through all Markdown images and create text edits
-			createAndCollectEditsAndDeletionsForImagesInMarkdownFile(markdownFile, markdownAst,
-					markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions);
-			subMonitor.worked(4);
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
+				.forEach(image -> {
+					String path = image.getUrl().toString();
+					IPath currentResolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(path, markdownFile);
+					
+					// only change references to previously collected image files' paths
+					if (currentResolvedImageFilePath != null
+							&& resolvedImageFilePath.equals(currentResolvedImageFilePath)) {
+						
+						createAndCollectEditsAndDeletionsForImage(markdownFile, image, currentResolvedImageFilePath, markdownFileChange, rootEditOnMarkdownFile,
+								fileModifications, fileDeletions);
+					}
+				});
+			subMonitor.worked(10);
 		}
+	}
+	
+	private void createEditsAndDeletionsForResourcesSet(ArrayList<Change> fileModifications,
+			ArrayList<Change> fileDeletions, IProgressMonitor monitor) throws CoreException {
+		
+		Map<IFile, IDocument> selectedMarkdownFiles = collectMarkdownFilesInRootResources(SubMonitor.convert(monitor));
+		Map<IFile, IDocument> allMarkdownFilesFromSelectedProjects = collectMarkdownFilesInSelectedRootResourcesProjects(SubMonitor.convert(monitor));
+		Set<String> resolvedImagePathsToReplace = new HashSet<>();
+		
+		// Concerning edit operations and refactoring see https://www.eclipse.org/articles/Article-LTK/ltk.html
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Analyzing Markdown files", allMarkdownFilesFromSelectedProjects.size() * 10);
+		
+		// go through all markdown files in the given resource selection
+		for (IFile markdownFile : selectedMarkdownFiles.keySet()) {
+			IDocument markdownDocument = selectedMarkdownFiles.get(markdownFile);
+			
+			// prepare root change, but only add it to file modification edits if we find at least one text edit
+			TextChange markdownFileChange = createEmptyMarkdownFileChange(markdownFile, markdownDocument, getSingleMarkdownFileChangeName(markdownFile));
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
+				.forEach(image -> {
+					String urlOrPath = image.getUrl().toString();
+					IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
+					
+					// remember referenced image files in order to replace references to these files in not selected Markdown files
+					if (resolvedImageFilePath != null) {
+						resolvedImagePathsToReplace.add(resolvedImageFilePath.toString());
+						
+						createAndCollectEditsAndDeletionsForImage(markdownFile, image, resolvedImageFilePath, markdownFileChange, rootEditOnMarkdownFile,
+								fileModifications, fileDeletions);
+					}
+				});
+			subMonitor.worked(10);
+		}
+		
+		// go through all remaining Markdown files (not in selection) and replace reference to collected target images, too
+		for (IFile markdownFile : allMarkdownFilesFromSelectedProjects.keySet()) {
+			if (selectedMarkdownFiles.containsKey(markdownFile)) {
+				continue;
+			}
+			
+			IDocument markdownDocument = allMarkdownFilesFromSelectedProjects.get(markdownFile);
+			
+			// prepare root change, but only add it to file modification edits if we find at least one text edit
+			TextChange markdownFileChange = createEmptyMarkdownFileChange(markdownFile, markdownDocument, getSingleMarkdownFileChangeName(markdownFile));
+			MultiTextEdit rootEditOnMarkdownFile = new MultiTextEdit();
+			markdownFileChange.setEdit(rootEditOnMarkdownFile);
+			
+			streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument)
+				.forEach(image -> {
+					IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile);
+					
+					// only change references to previously collected image files' paths
+					if (resolvedImageFilePath != null
+							&& resolvedImagePathsToReplace.contains(resolvedImageFilePath.toString())) {
+						
+						createAndCollectEditsAndDeletionsForImage(markdownFile, image, resolvedImageFilePath, markdownFileChange, rootEditOnMarkdownFile,
+								fileModifications, fileDeletions);
+					}
+				});
+			subMonitor.worked(10);
+		}
+	}
+	
+	protected Stream<Image> streamOfMarkdownImagesInGivenFile(IFile markdownFile, IDocument markdownDocument) {
+		Assert.isNotNull(markdownFile);
+		
+		// read file contents
+		String markdownFileContents = getMarkdownFileContents(markdownFile, markdownDocument);
+		
+		// parse markdown code
+		Document markdownAst = FlexmarkUtil.parseMarkdown(markdownFileContents);
+		
+		return FlexmarkUtil.getStreamOf(markdownAst, Image.class)
+			.filter(image -> isChangeApplicableTo(image));
+	}
+	
+	protected Stream<IPath> streamOfResolvedPathsFromMarkdownImagesInGivenFile(IFile markdownFile, IDocument markdownDocument) {
+		return streamOfResolvedPathsFromMarkdownImagesInGivenFile(
+				streamOfMarkdownImagesInGivenFile(markdownFile, markdownDocument),
+				markdownFile);
+	}
+	
+	protected Stream<IPath> streamOfResolvedPathsFromMarkdownImagesInGivenFile(Stream<Image> imageStream, IFile markdownFile) {
+		return imageStream
+				.map(image -> FileUtils.resolveToAbsoluteResourcePath(image.getUrl().toString(), markdownFile))
+				.filter(path -> path != null);
+	}
+	
+	protected boolean isChangeApplicableTo(Image imageNode) {
+		if (imageNode == null || imageNode.getUrl() == null) {
+			return false;
+		}
+		
+		String lowerCasePathOrUrl = imageNode.getUrl().toString().toLowerCase();
+		
+		return !lowerCasePathOrUrl.startsWith("http")
+				&& lowerCasePathOrUrl.endsWith("." + getImageFileExtensionToReplace().toLowerCase());
 	}
 
 	private TextChange createEmptyMarkdownFileChange(IFile markdownFile, IDocument markdownDocument, String changeName) {
@@ -174,18 +277,8 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 		return fileChange;
 	}
 	
-	private void createAndCollectEditsAndDeletionsForImage(IFile markdownFile, Image imageNode, TextChange markdownFileChange,
+	private void createAndCollectEditsAndDeletionsForImage(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath, TextChange markdownFileChange,
 			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
-		
-		BasedSequence urlSequence = imageNode.getUrl();
-		String urlOrPath = urlSequence.toString();
-		
-		// check only references to files
-		if (urlOrPath.toLowerCase().startsWith("http")) {
-			return;
-		}
-		
-		IPath resolvedImageFilePath = FileUtils.resolveToAbsoluteResourcePath(urlOrPath, markdownFile);
 		
 		TextEdit replacementEdit = createMarkdownImageReplacementEdit(markdownFile, imageNode, resolvedImageFilePath);
 		if (replacementEdit != null) {
@@ -201,23 +294,9 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 		}
 	}
 	
-	private void createAndCollectEditsAndDeletionsForImagesInMarkdownFile(IFile markdownFile, Document markdownAst, TextChange markdownFileChange,
-			MultiTextEdit rootEditOnMarkdownFile, ArrayList<Change> fileModifications, ArrayList<Change> fileDeletions) {
-		
-		FlexmarkUtil.getStreamOf(markdownAst, Image.class)
-			.forEach(image -> createAndCollectEditsAndDeletionsForImage(markdownFile, image,
-				markdownFileChange, rootEditOnMarkdownFile, fileModifications, fileDeletions));
-	}
-	
 	protected abstract TextEdit createMarkdownImageReplacementEdit(IFile markdownFile, Image imageNode, IPath resolvedImageFilePath);
 	
-	protected abstract boolean getDeleteReferencedImageFiles();
-	
 	private void addDeleteChange(List<Change> fileDeletions, IPath resolvedImageFilePath) {
-		if (!getDeleteReferencedImageFiles()) {
-			return;
-		}
-		
 		List<IFile> imageFilesToDelete = FileUtils.findExistingFilesForLocation(resolvedImageFilePath);
 		
 		if (imageFilesToDelete.isEmpty()) {
@@ -242,12 +321,43 @@ public abstract class AbstractReplaceMarkdownImageRefactoring extends Refactorin
 		}
 	}
 	
+	private Set<IProject> collectParentProjectsFromSelection() {
+		Set<IProject> parentProjects = new HashSet<>();
+		for (IResource rootResource: rootResources) {
+			IProject project = rootResource.getProject();
+			if (project != null) {
+				parentProjects.add(project);
+			}
+		}
+		return parentProjects;
+	}
+	
+	protected Map<IFile, IDocument> collectMarkdownFilesInSelectedRootResourcesProjects(IProgressMonitor monitor) throws CoreException {
+		Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
+		
+		Set<IProject> parentProjects = collectParentProjectsFromSelection();
+		
+		parentProjects.stream()
+			.filter(project -> project.isAccessible())
+			.forEach(project -> {
+				FilesCollectingVisitor markdownFilesCollector = new FilesCollectingVisitor(SubMonitor.convert(monitor), true, false, false);
+				try {
+					project.accept(markdownFilesCollector);
+				} catch (CoreException e) {
+					FluentUI.log(IStatus.ERROR, "An error occurred while collecting Markdown files in project " + project.getName(), e);
+				}
+				addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
+			});
+			
+		
+		return collectedMarkdownFiles;
+	}
+	
 	protected Map<IFile, IDocument> collectMarkdownFilesInRootResources(IProgressMonitor monitor) throws CoreException {
 		Map<IFile, IDocument> collectedMarkdownFiles = new HashMap<IFile, IDocument>();
 		
 		for (IResource rootResource: rootResources) {
-			MarkdownFilesCollectingVisitor markdownFilesCollector = new MarkdownFilesCollectingVisitor();
-			markdownFilesCollector.setMonitor(SubMonitor.convert(monitor));
+			FilesCollectingVisitor markdownFilesCollector = new FilesCollectingVisitor(SubMonitor.convert(monitor), true, false, false);
 			rootResource.accept(markdownFilesCollector);
 			addMissingFiles(collectedMarkdownFiles, markdownFilesCollector.getCollectedMarkdownFiles());
 		}

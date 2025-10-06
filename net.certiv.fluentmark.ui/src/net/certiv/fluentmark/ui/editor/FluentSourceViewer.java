@@ -143,6 +143,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 				textWidget.setFont(JFaceResources.getFont(Prefs.EDITOR_TEXT_FONT));
 			}
 		}
+		// TODO replace this.store with the store from the given configuration?
 		if (store != null) {
 			this.store.addPropertyChangeListener(this);
 			initializeViewerColors();

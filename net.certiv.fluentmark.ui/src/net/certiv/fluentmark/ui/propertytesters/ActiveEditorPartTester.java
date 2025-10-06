@@ -9,8 +9,6 @@
  */
 package net.certiv.fluentmark.ui.propertytesters;
 
-import java.util.List;
-
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -18,9 +16,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
 import com.vladsch.flexmark.ast.Image;
+import com.vladsch.flexmark.util.ast.Block;
 
-import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlConstants;
-import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.util.FlexmarkUiUtil;
@@ -60,7 +57,11 @@ public class ActiveEditorPartTester extends PropertyTester {
 			if (selection instanceof ITextSelection) {
 				ITextSelection textSelection = (ITextSelection) selection;
 				
-				if (textSelection.getStartLine() == textSelection.getEndLine()) {
+				if (IS_MARKDOWN_PUML_CODE_BLOCK_TEXT_SELECTION.equals(property)) {
+					IDocument document = getActiveEditorsDocument();
+					Block codeBlock = FlexmarkUiUtil.findPlantUmlCodeBlockForTextSelection(document, textSelection);
+					return codeBlock != null;
+				} else if (textSelection.getStartLine() == textSelection.getEndLine()) {
 					IDocument document = getActiveEditorsDocument();
 					
 					Image imageNodesInSelection = FlexmarkUiUtil.findMarkdownImageForTextSelection(document, textSelection);
@@ -77,52 +78,10 @@ public class ActiveEditorPartTester extends PropertyTester {
 							return lowerCaseUrl.endsWith(".puml");
 						}
 					}
-				} else if (IS_MARKDOWN_PUML_CODE_BLOCK_TEXT_SELECTION.equals(property)
-						&& textSelection.getEndLine() - textSelection.getStartLine() > 1) {
-					
-					IDocument document = getActiveEditorsDocument();
-					String selectedLines = FlexmarkUiUtil.getLinesForTextSelection(document, textSelection);
-					int numDiagrams = PlantUmlParsingTools.getNumberOfDiagrams(selectedLines);
-					
-					if (numDiagrams != 1) {
-						return false;
-					}
-					
-					return exactlyOnePlantUmlCodeBlockSelected(selectedLines);
-					// TODO also ensure, the selection is not in a code block?
 				}
 			}
 		}
 
-		return false;
-	}
-	
-	private boolean exactlyOnePlantUmlCodeBlockSelected(String selectedLines) {
-		List<String> selectionLines = selectedLines.lines().toList();
-		
-		if (selectionLines.size() < 2) {
-			return false;
-		}
-		
-		String firstLine = selectionLines.getFirst();
-		String lastLine = selectionLines.getLast();
-		
-		if (firstLine.startsWith(PlantUmlConstants.PREFIX_START)) {
-			return lastLine.startsWith(PlantUmlConstants.PREFIX_END);
-		}
-		
-		if ((firstLine.startsWith("```") && lastLine.startsWith("```"))
-				|| (firstLine.startsWith("~~~") && lastLine.startsWith("~~~")) ) {
-			if (selectionLines.size() < 4) {
-				return false;
-			}
-			
-			String secondLine = selectionLines.get(1);
-			String prevToLastLine = selectionLines.get(selectionLines.size() - 2);
-			
-			return (secondLine.startsWith(PlantUmlConstants.PREFIX_START)
-					&& prevToLastLine.startsWith(PlantUmlConstants.PREFIX_END));
-		}
 		return false;
 	}
 	
