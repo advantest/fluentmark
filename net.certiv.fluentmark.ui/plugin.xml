@@ -1107,4 +1107,19 @@
          </run>
       </builder>
    </extension>
+   <extension
+         point="org.eclipse.ltk.ui.refactoring.changePreviewViewers">
+      <changePreviewViewer
+            class="net.certiv.fluentmark.ui.refactoring.wizards.CreateTextFileChangePreview"
+            id="net.certiv.fluentmark.ui.refactoring.createTextFileChangePreview">
+         <enablement>
+            <with
+                  variable="change ">
+               <instanceof
+                     value="net.certiv.fluentmark.ui.refactoring.CreateTextFileChange">
+               </instanceof>
+            </with>
+         </enablement>
+      </changePreviewViewer>
+   </extension>
 </plugin>

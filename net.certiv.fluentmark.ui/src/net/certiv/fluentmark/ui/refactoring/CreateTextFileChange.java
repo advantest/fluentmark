@@ -40,13 +40,13 @@ public class CreateTextFileChange extends ResourceChange {
 	}
 	
 	@Override
-	protected IFile getModifiedResource() {
+	public IFile getModifiedResource() {
 		return this.file;
 	}
 	
 	@Override
 	public String getName() {
-		return "Create text file " + this.file.getProjectRelativePath().toOSString();
+		return "Create file " + this.file.getProjectRelativePath().toOSString();
 	}
 	
 	@Override
@@ -71,4 +71,7 @@ public class CreateTextFileChange extends ResourceChange {
 		return undoChange;
 	}
 	
+	public String getPreview() {
+		return this.fileContents;
+	}
 }
