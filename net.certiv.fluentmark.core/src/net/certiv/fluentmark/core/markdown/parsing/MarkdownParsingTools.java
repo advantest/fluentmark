@@ -277,9 +277,11 @@ public class MarkdownParsingTools {
 			
 			for (String capturingGroupName : capturingGroupNames) {
 				String subMatchText = textMatcher.group(capturingGroupName);
-				int subMatchStartIndex = textMatcher.start(capturingGroupName);
-				int subMatchEndIndex = textMatcher.end(capturingGroupName);
-				match.addSubMatch(capturingGroupName, new RegexMatch(subMatchText, subMatchStartIndex, subMatchEndIndex));
+				if (subMatchText != null) {
+					int subMatchStartIndex = textMatcher.start(capturingGroupName);
+					int subMatchEndIndex = textMatcher.end(capturingGroupName);
+					match.addSubMatch(capturingGroupName, new RegexMatch(subMatchText, subMatchStartIndex, subMatchEndIndex));
+				}
 			}
 			
 			matches.add(match);
