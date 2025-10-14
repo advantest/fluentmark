@@ -159,22 +159,68 @@ public class MarkdownParsingTools {
 		return findMatches(markdownCode, LINK_REF_DEF_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
+	/**
+	 * Detects a <a href="https://spec.commonmark.org/0.31.2/#link-reference-definition">link reference definition</a> of the form <code>[label]: target</code>
+	 * with the given link reference definition name (link label),
+	 * does not capture the title in definitions like <code>[label]: target "title"</code>,
+	 * excludes footnote definitions like <code>[^label]: Some text</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @param linkReferenceDefinitionName the link reference definition's link label, i.e. the part in square brackets
+	 * @return the detected regular expression match for the requested link reference definition if it can be found
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 */
 	public static Optional<RegexMatch> findLinkReferenceDefinition(String markdownCode, String linkReferenceDefinitionName) {
 		if (linkReferenceDefinitionName == null || linkReferenceDefinitionName.isBlank()) {
 			throw new IllegalArgumentException();
 		}
 		
-		return findLinkReferenceDefinitions(markdownCode)
-			.filter(match -> {
-				RegexMatch labelMatch = match.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
-				return labelMatch != null && labelMatch.matchedText.equals(linkReferenceDefinitionName);
-			})
-			.findFirst();
+		return findLinkReferenceDefinition(findLinkReferenceDefinitions(markdownCode), linkReferenceDefinitionName);
+	}
+	
+	/**
+	 * Finds a <a href="https://spec.commonmark.org/0.31.2/#link-reference-definition">link reference definition</a> of the form <code>[label]: target</code>
+	 * with the given link reference definition name (link label) in the given list of link reference definition matches,
+	 * does not capture the title in definitions like <code>[label]: target "title"</code>,
+	 * excludes footnote definitions like <code>[^label]: Some text</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @param linkReferenceDefinitionName the link reference definition's link label, i.e. the part in square brackets
+	 * @return the detected regular expression match for the requested link reference definition if it can be found
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 */
+	public static Optional<RegexMatch> findLinkReferenceDefinition(List<RegexMatch> linkReferenceDefinitions, String linkReferenceDefinitionName) {
+		if (linkReferenceDefinitions == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		return findLinkReferenceDefinition(linkReferenceDefinitions.stream(), linkReferenceDefinitionName);
+	}
+	
+	private static Optional<RegexMatch> findLinkReferenceDefinition(Stream<RegexMatch> linkReferenceDefinitionsStream, String linkReferenceDefinitionName) {
+		if (linkReferenceDefinitionName == null || linkReferenceDefinitionName.isBlank()) {
+			throw new IllegalArgumentException();
+		}
+		
+		return linkReferenceDefinitionsStream
+				.filter(match -> {
+					RegexMatch labelMatch = match.subMatches.get(MarkdownParsingTools.CAPTURING_GROUP_LABEL);
+					return labelMatch != null && labelMatch.matchedText.equals(linkReferenceDefinitionName);
+				})
+				.findFirst();
 	}
 	
 	/**
 	 * Detects full reference links of the form <code>[label][target]</code>
-	 * and collapsed reference links of the form <code>[target][]</code>.
+	 * and collapsed reference links of the form <code>[label][]</code>.
 	 * Does not cover shortcut reference links of the form <code>[target]</code>.
 	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
 	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
