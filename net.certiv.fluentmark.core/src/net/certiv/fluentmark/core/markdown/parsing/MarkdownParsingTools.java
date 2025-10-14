@@ -99,10 +99,40 @@ public class MarkdownParsingTools {
 				.collect(Collectors.toSet());
 	}
 	
+	/**
+	 * Detects Markdown links of the form <code>[label](target)</code>
+	 * (so called <a href="https://spec.commonmark.org/0.31.2/#inline-link">inline links</a>)
+	 * and Markdown images of the form <code>![label](target)</code>
+	 * in the given Markdown source code.
+	 * Does not capture reference links like <code>[key]</code>, <code>[key][]</code>, or <code>[label][key]</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @return the detected regular expression matches for links and images
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 * @see {@link #findFullAndCollapsedReferenceLinks(String)}
+	 * @see {@link #findShortcutReferenceLinks(String)}
+	 */
 	public static Stream<RegexMatch> findLinksAndImages(String markdownCode) {
 		return findMatches(markdownCode, LINK_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
+	/**
+	 * Detects <a href="https://spec.commonmark.org/0.31.2/#link-reference-definition">link reference definitions</a> of the form <code>[label]: target</code>,
+	 * does not capture the title in definitions like <code>[label]: target "title"</code>,
+	 * excludes footnote definitions like <code>[^label]: Some text</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @return the detected regular expression matches for link reference definitions
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 */
 	public static Stream<RegexMatch> findLinkReferenceDefinitions(String markdownCode) {
 		return findMatches(markdownCode, LINK_REF_DEF_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
@@ -120,10 +150,37 @@ public class MarkdownParsingTools {
 			.findFirst();
 	}
 	
+	/**
+	 * Detects full reference links of the form <code>[label][target]</code>
+	 * and collapsed reference links of the form <code>[target][]</code>.
+	 * Does not cover shortcut reference links of the form <code>[target]</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @return the detected regular expression matches for full and collapsed reference links
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 * @see {@link #findShortcutReferenceLinks(String)}
+	 */
 	public static Stream<RegexMatch> findFullAndCollapsedReferenceLinks(String markdownCode) {
 		return findMatches(markdownCode, REF_LINK_FULL_PATTERN, CAPTURING_GROUP_LABEL, CAPTURING_GROUP_TARGET);
 	}
 	
+	/**
+	 * Detects shortcut reference links of the form <code>[target]</code>.
+	 * Does not cover full reference links of the form <code>[label][target]</code>
+	 * and collapsed reference links of the form <code>[target][]</code>.
+	 * The <em>target</em> matches are captured in sub-group matches with the capturing group name
+	 * {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @return the detected regular expression matches for shortcut reference links
+	 * 
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 * @see {@link #findFullAndCollapsedReferenceLinks(String)}
+	 */
 	public static Stream<RegexMatch> findShortcutReferenceLinks(String markdownCode) {
 		return findMatches(markdownCode, REF_LINK_SHORT_PATTERN, CAPTURING_GROUP_TARGET);
 	}
