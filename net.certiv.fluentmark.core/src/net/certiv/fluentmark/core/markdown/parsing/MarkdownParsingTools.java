@@ -121,6 +121,28 @@ public class MarkdownParsingTools {
 	}
 	
 	/**
+	 * Detects Markdown links of the form <code>[label](target)</code>
+	 * (so called <a href="https://spec.commonmark.org/0.31.2/#inline-link">inline links</a>)
+	 * in the given Markdown source code.
+	 * Does not capture reference links like <code>[key]</code>, <code>[key][]</code>, or <code>[label][key]</code>.
+	 * The <em>label</em> and <em>target</em> matches are captured in sub-group matches with the capturing group names
+	 * {@link #CAPTURING_GROUP_LABEL} and {@link #CAPTURING_GROUP_TARGET}.
+	 * 
+	 * @param markdownCode Markdown source code
+	 * @return the detected regular expression matches for inline links
+	 * 
+	 * @see {@link #CAPTURING_GROUP_LABEL}
+	 * @see {@link #CAPTURING_GROUP_TARGET}
+	 * @see {@link #findFullAndCollapsedReferenceLinks(String)}
+	 * @see {@link #findShortcutReferenceLinks(String)}
+	 * @see {@link #findLinksAndImages(String)}
+	 */
+	public static Stream<RegexMatch> findInlineLinks(String markdownCode) {
+		return findLinksAndImages(markdownCode)
+				.filter(match -> !match.matchedText.startsWith("!"));
+	}
+	
+	/**
 	 * Detects <a href="https://spec.commonmark.org/0.31.2/#link-reference-definition">link reference definitions</a> of the form <code>[label]: target</code>,
 	 * does not capture the title in definitions like <code>[label]: target "title"</code>,
 	 * excludes footnote definitions like <code>[^label]: Some text</code>.
