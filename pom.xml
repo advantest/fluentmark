@@ -51,7 +51,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>3.6.2</version>
 				<executions>
 					<execution>
 						<id>enforce-versions</id>
@@ -66,6 +66,14 @@
 								<requireJavaVersion>
 									<version>${java.version}</version>
 								</requireJavaVersion>
+								<!-- <dependencyConvergence/> -->
+								<bannedDependencies>
+									<excludes>
+										<!-- We do not allow Maven dependencies to the PlantUML library.
+										     We want to use its EPL-licensed version through an Eclipse plugin dependency instead. -->
+										<exclude>net.sourceforge.plantuml:plantuml</exclude>
+									</excludes>
+								</bannedDependencies>
 							</rules>
 						</configuration>
 					</execution>
