@@ -61,7 +61,6 @@ Export-Package: com.advantest,
  net.certiv.fluentmark.core.validation,
  net.certiv.fluentmark.core.validation.uri,
  net.certiv.fluentmark.core.validation.visitor,
- net.sourceforge.plantuml,
  org.antlr.v4.runtime,
  org.apache.commons.lang3
 Bundle-Activator: net.certiv.fluentmark.core.FluentCore
@@ -77,7 +76,6 @@ Bundle-ClassPath: .,
  lib/pegdown-1.6.0.jar,
  lib/ST4-4.0.8.jar,
  lib/txtmark-0.13.jar,
- lib/plantuml-1.2024.5.jar,
  lib/asm-5.2.jar,
  lib/asm-analysis-5.2.jar,
  lib/asm-tree-5.2.jar,
@@ -113,7 +111,8 @@ Require-Bundle: com.google.guava;bundle-version="30.1.0",
  org.eclipse.core.resources;bundle-version="3.15.100",
  org.eclipse.core.filesystem;bundle-version="1.10.200",
  org.eclipse.core.filebuffers;bundle-version="3.8.400",
- org.eclipse.jface.text;bundle-version="3.18.100"
+ org.eclipse.jface.text;bundle-version="3.18.100",
+ net.sourceforge.plantuml.library;bundle-version="1.2025.9";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: net.certiv.fluentmark.core
 Bundle-ActivationPolicy: lazy

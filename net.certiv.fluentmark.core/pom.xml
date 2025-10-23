@@ -99,6 +99,14 @@
 			<groupId>com.advantest.markdown</groupId>
 			<artifactId>markdown-core</artifactId>
 			<version>${markdown-core-version}</version>
+			<exclusions>
+				<!-- We exclude the PlantUML library dependency in order to replace it with
+					 an EPL-licensed version coming from an Eclipse plug-in. -->
+				<exclusion>
+					<groupId>net.sourceforge.plantuml</groupId>
+					<artifactId>plantuml</artifactId>
+				</exclusion>
+			</exclusions> 
 		</dependency>
 
 	</dependencies>
