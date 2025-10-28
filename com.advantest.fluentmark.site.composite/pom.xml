@@ -55,7 +55,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/target/gh-pages/fluentmark/${releaseVersion}</outputDirectory>
+							<outputDirectory>${basedir}/target/gh-pages/fluentmark/${unqualifiedVersion}</outputDirectory>
 							<resources>
 								<resource>
 									<directory>../net.certiv.fluentmark.site/target/repository</directory>
