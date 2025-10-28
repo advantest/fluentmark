@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>fluentmark</artifactId>
-		<version>1.6.0-SNAPSHOT</version>
+		<version>${releaseVersion}${qualifier}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -47,7 +47,7 @@
 						</configuration>
 					</execution>
 					
-					<!-- copy latest Fluentmark version p2 repository -->
+					<!-- copy latest Fluentmark release version p2 repository -->
 					<execution>
 						<id>copy-latest-p2-files</id>
 						<phase>package</phase>
@@ -55,7 +55,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/target/gh-pages/fluentmark</outputDirectory>
+							<outputDirectory>${basedir}/target/gh-pages/fluentmark/${releaseVersion}</outputDirectory>
 							<resources>
 								<resource>
 									<directory>../net.certiv.fluentmark.site/target/repository</directory>

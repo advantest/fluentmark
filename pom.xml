@@ -6,7 +6,7 @@
 
 	<groupId>net.certiv.fluentmark</groupId>
 	<artifactId>fluentmark</artifactId>
-	<version>1.6.0-SNAPSHOT</version>
+	<version>${releaseVersion}${qualifier}</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
@@ -22,6 +22,9 @@
 	</prerequisites>
 
 	<properties>
+		<releaseVersion>1.6.0</releaseVersion>
+		<qualifier>-SNAPSHOT</qualifier>
+		
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- Beware of mixing usage of tycho >= 2.7.x and older versions with the same Maven repo.

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>net.certiv.fluentmark</groupId>
 		<artifactId>fluentmark</artifactId>
-		<version>1.6.0-SNAPSHOT</version>
+		<version>${releaseVersion}${qualifier}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
