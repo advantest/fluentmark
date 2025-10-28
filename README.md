@@ -7,7 +7,7 @@
 
 A full-featured Markdown editing environment for Eclipse IDE.
 FluentMark was originally developed by [Certiv Analytics](https://www.certiv.net/index.html) / [Gerald Rosenberg](https://github.com/grosenberg) and
-was modified for [Advantest Europe GmbH](https://www.advantest.com/) to better satisfy company-specific needs.
+was modified for [Advantest Europe GmbH](https://www.advantest.com/en/) to better satisfy company-specific needs.
 
 This work is forked from [https://github.com/grosenberg/Fluentmark](https://github.com/grosenberg/Fluentmark).
 
@@ -54,7 +54,7 @@ Install the latest version from our Eclipse update site (p2 repository): [https:
 (In Eclipse, select the menu Help -> Install New Software...,
 then paste the update site URL into the text field and press enter, select the features to be installed and press the Finish button.)
 
-Requires Eclipse 2023-12 or newer & JDK 21+.
+Requires Eclipse 2025-03 or newer & JDK 21+.
 
 
 Preferences ---
@@ -98,7 +98,6 @@ character immediately left and _must_ be followed immediately by a non-digit.
 
 Math blocks are delimited using double `$` (*i.e.*, `$$`) marks at the left margin. The open delimiter 
 must follow a blank line and the close delimiter must lead a blank line.
-
 
 ### Table Editor
 
