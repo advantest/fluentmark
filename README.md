@@ -50,10 +50,12 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 
 ## Installation & Use
 
+Install the latest version from our Eclipse update site (p2 repository): [https://advantest.github.io/fluentmark/](https://advantest.github.io/fluentmark/).
+(In Eclipse, select the menu Help -> Install New Software...,
+then paste the update site URL into the text field and press enter, select the features to be installed and press the Finish button.)
+
 Requires Eclipse 2023-12 or newer & JDK 21+.
 
-Build from sources and install from local update site in `net.certiv.fluentmark.site/target/repository`
-or install from Advantest's private update site for R&D department.
 
 Preferences ---
 - `Window`&rarr;`FluentMark`
