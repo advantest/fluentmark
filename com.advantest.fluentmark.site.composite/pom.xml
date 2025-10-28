@@ -115,7 +115,7 @@
 								<argument>clone</argument>
 								<argument>-b</argument>
 								<argument>gh-pages</argument>
-								<argument>git@github.com:advantest/fluentmark.git</argument>
+								<argument>https://github.com/advantest/fluentmark.git</argument>
 								<argument>${basedir}/target/gh-pages</argument>
 							</arguments>
 						</configuration>
