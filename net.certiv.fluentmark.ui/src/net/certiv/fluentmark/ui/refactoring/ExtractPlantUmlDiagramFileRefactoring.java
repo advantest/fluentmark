@@ -142,13 +142,6 @@ public class ExtractPlantUmlDiagramFileRefactoring extends Refactoring {
 			int startOffset = pumlCodeBlock.getStartOffset();
 			int length = pumlCodeBlock.getEndOffset() - startOffset;
 			
-			// keep the line break at the end of the code block
-			int endLine = pumlCodeBlock.getEndLineNumber();
-			String codeBlockLastLineDelimiter = markdownFileDocument.getLineDelimiter(endLine);
-			if (codeBlockLastLineDelimiter != null) {
-				length -= codeBlockLastLineDelimiter.length();
-			}
-			
 			IPath markdownFilePath = this.markdownFile.getFullPath();
 			IPath pumlFilePath = this.pumlFileToCreate.getFullPath();
 			IPath relativePumlFilePath = pumlFilePath.makeRelativeTo(markdownFilePath.removeLastSegments(1));
