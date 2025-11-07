@@ -104,16 +104,6 @@
 			<unit id="org.eclipse.pde.junit.runtime" version="3.8.100.v20240130-1723"/>
 		</location>
 		<location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-			<repository location="https://hallvard.github.io/plantuml/"/>
-			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.32.202405281552"/>
-			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.32.202405281552"/>
-			<unit id="net.sourceforge.plantuml.lib.elk.feature.feature.group" version="0.7.1"/>
-			<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2024.5.202405281552"/>
-			<unit id="net.sourceforge.plantuml.lib.jlatexmath.feature.feature.group" version="1.0.7"/>
-			<unit id="net.sourceforge.plantuml.ecore.feature.source.feature.group" version="1.1.32.202405281552"/>
-			<unit id="net.sourceforge.plantuml.feature.source.feature.group" version="1.1.32.202405281552"/>
-		</location>
-		<location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 			<repository location="https://www.certiv.net/updates/net.certiv.spellchecker.site/"/>
 			<unit id="net.certiv.spellchecker.feature.feature.group" version="4.3.2.20240221-0236"/>
 		</location>
