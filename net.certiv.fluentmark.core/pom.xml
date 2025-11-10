@@ -18,7 +18,7 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.9-20251110-1053</markdown-core-version>
+		<markdown-core-version>1.0.10-20251110-1607</markdown-core-version>
 		<sass-version>1.85.1</sass-version>
 	</properties>
 	
