@@ -59,7 +59,7 @@ Copyright (c) 2022-2024.
       <import plugin="org.eclipse.jdt.ui" version="3.24.0" match="greaterOrEqual"/>
       <import plugin="net.certiv.spellchecker" version="4.3.2" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.core" version="3.31.0" match="greaterOrEqual"/>
-      <import feature="net.sourceforge.plantuml.library.feature" version="1.2025.9.202510220828" match="greaterOrEqual"/>
+      <import feature="net.sourceforge.plantuml.library.feature" version="1.2025.10.202511041744"/>
    </requires>
 
    <plugin
