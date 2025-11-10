@@ -5,19 +5,28 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package com.advantest.fluentmark.tests.text.rules;
 
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
-public class CharacterScannerMock implements ICharacterScanner {
+/**
+ * @deprecated Use {@link CharacterScannerDelegate} instead. Using a mock is too error-prone.
+ */
+@Deprecated
+public class CharacterScannerMock implements IObservableCharacterScanner {
+	
+	public static final int UNDEFINED= -1;
 	
 	private final String text;
 	private final String[] textLines;
-	private int currentCharIndex = -1;
-	private int currentColumnIndex = -1;
+	private int currentCharIndex = UNDEFINED;
+	private int currentColumnIndex = UNDEFINED;
 	private int currentLineIndex = 0;
+	private final IDocument document;
 	
 	
 	private static final char[][] LEGAL_LINE_DELIMITERS = { { '\n' }, {'\r'}, {'\r', '\n'}  };
@@ -25,6 +34,7 @@ public class CharacterScannerMock implements ICharacterScanner {
 	public CharacterScannerMock(String text) {
 		this.text = text;
 		this.textLines = text.split("[\n|\r\n|\r]");
+		this.document = new Document(text);
 	}
 	
 	@Override
@@ -34,6 +44,9 @@ public class CharacterScannerMock implements ICharacterScanner {
 
 	@Override
 	public int getColumn() {
+		if (currentColumnIndex == UNDEFINED) {
+			return 0;
+		}
 		return currentColumnIndex;
 	}
 
@@ -75,6 +88,52 @@ public class CharacterScannerMock implements ICharacterScanner {
 			return "";
 		}
 		return this.text.substring(0, this.currentCharIndex + 1);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("index: ");
+		builder.append(currentCharIndex);
+		builder.append(", column: ");
+		builder.append(currentColumnIndex);
+		builder.append(", current char: ");
+		Character currentChar = currentCharIndex >= 0 && currentCharIndex < text.length() ? text.charAt(currentCharIndex) : null;
+		if (currentChar == null) {
+			builder.append(currentChar);
+		} else {
+			builder.append("'");
+			builder.append(currentChar);
+			builder.append("'");
+		}
+		
+		builder.append(", consumed:");
+		String consumedText = getConsumedText();
+		if (consumedText != null) {
+			builder.append("\n\"");
+			builder.append(consumedText);
+			builder.append("\"");
+		} else {
+			builder.append(" ");
+			builder.append(consumedText);
+		}
+		return builder.toString();
+	}
+
+	@Override
+	public IDocument getDocument() {
+		return this.document;
+	}
+
+	@Override
+	public int getOffset() {
+		return currentCharIndex;
+	}
+
+	@Override
+	public int getRangeEnd() {
+		return text.length();
 	}
 
 }

@@ -26,9 +26,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange;
-import org.eclipse.ltk.internal.core.refactoring.BasicElementLabels;
-import org.eclipse.ltk.internal.core.refactoring.Messages;
-import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
 import org.eclipse.ltk.internal.core.refactoring.resource.UndoDeleteResourceChange;
 import org.eclipse.ltk.internal.core.refactoring.resource.undostates.FileUndoState;
 
@@ -73,11 +70,11 @@ public class DeleteFileChange extends DeleteResourceChange {
 	
 	@Override
 	public Change perform(IProgressMonitor pm) throws CoreException {
-		SubMonitor subMonitor= SubMonitor.convert(pm, RefactoringCoreMessages.DeleteResourceChange_deleting, 10);
+		SubMonitor subMonitor= SubMonitor.convert(pm, "Deleting file " + filePath, 10);
 
 		IFile file = getModifiedFile();
 		if (file == null || !file.exists()) {
-			String message= Messages.format(RefactoringCoreMessages.DeleteResourceChange_error_resource_not_exists, BasicElementLabels.getPathLabel(filePath.makeRelative(), false));
+			String message = "Delete file: " + filePath;
 			throw new CoreException(new Status(IStatus.ERROR, FluentUI.PLUGIN_ID, message));
 		}
 
@@ -101,6 +98,7 @@ public class DeleteFileChange extends DeleteResourceChange {
 		return new UndoDeleteResourceChange(desc);
 	}
 	
+	// taken from org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange
 	private static void saveFileIfNeeded(IFile file, IProgressMonitor pm) throws CoreException {
 		ITextFileBuffer buffer= FileBuffers.getTextFileBufferManager().getTextFileBuffer(file.getFullPath(), LocationKind.IFILE);
 		SubMonitor subMonitor= SubMonitor.convert(pm, 2);

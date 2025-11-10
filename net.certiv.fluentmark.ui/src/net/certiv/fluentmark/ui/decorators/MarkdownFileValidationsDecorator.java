@@ -9,19 +9,17 @@
  */
 package net.certiv.fluentmark.ui.decorators;
 
+import java.util.Optional;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ResourceLocator;
-
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 
-import org.eclipse.core.resources.IProject;
-
 import net.certiv.fluentmark.ui.FluentUI;
-import net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester;
-
-import java.util.Optional;
+import net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder;
 
 
 public class MarkdownFileValidationsDecorator implements ILightweightLabelDecorator {
@@ -58,7 +56,7 @@ public class MarkdownFileValidationsDecorator implements ILightweightLabelDecora
 		}
 		
 		IProject project = (IProject) element;
-		if (MarkdownValidationsBuilderEnabledTester.hasBuilder(project)) {
+		if (MarkerCalculatingFileValidationBuilder.hasBuilder(project)) {
 			OVERLAY_ICON.ifPresent(img -> decoration.addOverlay(img, IDecoration.TOP_LEFT));
 		}
 	}

@@ -22,10 +22,10 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import net.certiv.fluentmark.core.markdown.CodeBlockConstants;
-import net.certiv.fluentmark.core.markdown.ISourceRange;
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.model.ISourceRange;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.dialog.graphs.DotDialog;
 import net.certiv.fluentmark.ui.dialog.tables.TableDialog;

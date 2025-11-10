@@ -7,8 +7,20 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.preferences.pages;
 
-import org.eclipse.jface.resource.JFaceResources;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.preference.ColorSelector;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -20,27 +32,14 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-
-import org.eclipse.core.runtime.Preferences;
-
-import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.jface.preference.ColorSelector;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -50,23 +49,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.core.util.FluentPartitioningTools;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentSimpleSourceViewerConfiguration;
 import net.certiv.fluentmark.ui.editor.FluentSourceViewer;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
-import net.certiv.fluentmark.ui.editor.text.MarkdownPartioningTools;
 import net.certiv.fluentmark.ui.preferences.AbstractConfigurationBlock;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore;
 import net.certiv.fluentmark.ui.preferences.OverlayPreferenceStore.OverlayKey;
@@ -81,16 +74,45 @@ import net.certiv.fluentmark.ui.util.SwtUtil;
  */
 @SuppressWarnings("deprecation")
 class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
-
-	/**
-	 * Item in the highlighting color list.
-	 */
-	private static class HighlightingColorListItem {
-
+	
+	private static class ColorListItem {
+		
 		/** Display name */
 		private String fDisplayName;
 		/** Color preference key */
 		private String fColorKey;
+		
+		/**
+		 * Initialize the item with the given values.
+		 *
+		 * @param displayName the display name
+		 * @param colorKey the color preference key
+		 */
+		public ColorListItem(String displayName, String colorKey) {
+			fDisplayName = displayName;
+			fColorKey = colorKey;
+		}
+		
+		/**
+		 * @return the display name
+		 */
+		public String getDisplayName() {
+			return fDisplayName;
+		}
+		
+		/**
+		 * @return the color preference key
+		 */
+		public String getColorKey() {
+			return fColorKey;
+		}
+	}
+
+	/**
+	 * Item in the highlighting color list.
+	 */
+	private static class HighlightingColorListItem extends ColorListItem {
+
 		/** Bold preference key */
 		private String fBoldKey;
 		/** Italic preference key */
@@ -112,8 +134,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		 */
 		public HighlightingColorListItem(String displayName, String colorKey, String boldKey, String italicKey,
 				String strikethroughKey, String underlineKey) {
-			fDisplayName = displayName;
-			fColorKey = colorKey;
+			super(displayName, colorKey);
 			fBoldKey = boldKey;
 			fItalicKey = italicKey;
 			fStrikethroughKey = strikethroughKey;
@@ -146,20 +167,6 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		 */
 		public String getUnderlineKey() {
 			return fUnderlineKey;
-		}
-
-		/**
-		 * @return the color preference key
-		 */
-		public String getColorKey() {
-			return fColorKey;
-		}
-
-		/**
-		 * @return the display name
-		 */
-		public String getDisplayName() {
-			return fDisplayName;
 		}
 	}
 
@@ -201,7 +208,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		@Override
 		public String getText(Object element) {
 			if (element instanceof String) return (String) element;
-			return ((HighlightingColorListItem) element).getDisplayName();
+			return ((ColorListItem) element).getDisplayName();
 		}
 	}
 
@@ -213,7 +220,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		@Override
 		public Object[] getElements(Object inputElement) {
 			return new String[] { fMarkupCategory, fCodeCategory, fCommentsCategory, fMathCategory, fHtmlCategory,
-					fDotCategory, fUmlCategory };
+					fDotCategory, fUmlCategory, fDefaultCategory };
 		}
 
 		@Override
@@ -232,7 +239,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				if (fDotCategory.equals(entry)) return fListModel.subList(8, 13).toArray();
 				if (fMarkupCategory.equals(entry)) return fListModel.subList(13, 21).toArray();
 				if (fMathCategory.equals(entry)) return fListModel.subList(21, 24).toArray();
-				if (fUmlCategory.equals(entry)) return fListModel.subList(24, fListModel.size()).toArray();
+				if (fUmlCategory.equals(entry)) return fListModel.subList(24, 30).toArray();
+				if (fDefaultCategory.equals(entry)) return fListModel.subList(30, fListModel.size()).toArray();
 			}
 			return new Object[0];
 		}
@@ -242,6 +250,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			if (element instanceof String) return null;
 			int index = fListModel.indexOf(element);
 
+			if (index >= 30) return fDefaultCategory;
 			if (index >= 24) return fUmlCategory;
 			if (index >= 21) return fMathCategory;
 			if (index >= 13) return fMarkupCategory;
@@ -263,7 +272,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private static final String STRIKETHROUGH = Prefs.EDITOR_STRIKETHROUGH_SUFFIX;
 	private static final String UNDERLINE = Prefs.EDITOR_UNDERLINE_SUFFIX;
 
-	private static final String LINK_MSG = "Default colors and font can be configured on the "
+	private static final String LINK_MSG = "Default colors and fonts can be configured on the "
 			+ "<a href=\"org.eclipse.ui.preferencePages.GeneralTextEditor\">'Text Editors'</a> "
 			+ "and on the <a href=\"org.eclipse.ui.preferencePages.ColorsAndFonts\">'Colors "
 			+ "and Fonts'</a> preference page.";
@@ -278,8 +287,8 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Symbols", Prefs.EDITOR_HTML_SYMBOL_COLOR }, //
 			{ "Strings", Prefs.EDITOR_HTML_STRING_COLOR }, //
 
-			{ "Code", Prefs.EDITOR_CODE_COLOR }, // 6
-			{ "Code Blocks", Prefs.EDITOR_CODEBLOCK_COLOR }, //
+			{ "Code", Prefs.EDITOR_MARKDOWN_CODE_SPAN_COLOR }, // 6
+			{ "Code Blocks", Prefs.EDITOR_MARKDOWN_CODE_BLOCK_COLOR }, //
 
 			{ "Keywords", Prefs.EDITOR_DOT_KEYWORD_COLOR }, // 8
 			{ "AttrMap", Prefs.EDITOR_DOT_ATTRIBS_COLOR }, //
@@ -287,14 +296,14 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Comments", Prefs.EDITOR_DOT_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_DOT_STRING_COLOR }, //
 
-			{ "Headers", Prefs.EDITOR_HEADER_COLOR }, // 13
-			{ "Lists", Prefs.EDITOR_LIST_COLOR }, //
-			{ "Links", Prefs.EDITOR_LINK_COLOR }, //
-			{ "Horz Rules", Prefs.EDITOR_HRULE_COLOR }, //
-			{ "Bold", Prefs.EDITOR_BOLD_COLOR }, //
-			{ "Italic", Prefs.EDITOR_ITALIC_COLOR }, //
-			{ "Strikeout", Prefs.EDITOR_STRIKEOUT_COLOR }, //
-			{ "Task Tags", Prefs.EDITOR_TASK_TAG_COLOR }, //
+			{ "Headers", Prefs.EDITOR_MARKDOWN_HEADER_COLOR }, // 13
+			{ "Lists", Prefs.EDITOR_MARKDOWN_LIST_COLOR }, //
+			{ "Links", Prefs.EDITOR_MARKDOWN_LINK_COLOR }, //
+			{ "Horz Rules", Prefs.EDITOR_MARKDOWN_HORIZONTAL_RULE_COLOR }, //
+			{ "Bold", Prefs.EDITOR_MARKDOWN_BOLD_COLOR }, //
+			{ "Italic", Prefs.EDITOR_MARKDOWN_ITALIC_COLOR }, //
+			{ "Strikeout", Prefs.EDITOR_MARKDOWN_STRIKEOUT_COLOR }, //
+			{ "Task Tags", Prefs.EDITOR_MARKDOWN_TASK_TAG_COLOR }, //
 
 			{ "Keywords", Prefs.EDITOR_MATH_KEYWORD_COLOR }, // 21
 			{ "Symbols", Prefs.EDITOR_MATH_SYMBOL_COLOR }, //
@@ -305,16 +314,21 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 			{ "Symbols", Prefs.EDITOR_UML_SYMBOL_COLOR }, //
 			{ "Comments", Prefs.EDITOR_UML_COMMENT_COLOR }, //
 			{ "Strings", Prefs.EDITOR_UML_STRING_COLOR }, //
+			{ "Links", Prefs.EDITOR_UML_LINK_COLOR }, //
+			
+			{ "Default Foreground Color", Prefs.EDITOR_FOREGROUND_COLOR }, // 30
+			{ "Default Background Color", Prefs.EDITOR_BACKGROUND_COLOR } //
 
 	};
 
 	private final String fMarkupCategory = "Markup";
 	private final String fCodeCategory = "Code & Code Blocks";
 	private final String fCommentsCategory = "Comments";
-	private final String fHtmlCategory = "Html";
+	private final String fHtmlCategory = "HTML";
 	private final String fMathCategory = "Math";
-	private final String fDotCategory = "Dot";
-	private final String fUmlCategory = "Uml";
+	private final String fDotCategory = "DOT";
+	private final String fUmlCategory = "PlantUML";
+	private final String fDefaultCategory = "Common";
 
 	private ColorSelector fSyntaxForegroundColorEditor;
 	private Label fColorEditorLabel;
@@ -325,7 +339,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private Button fUnderlineCheckBox;
 
 	/** Highlighting color list */
-	private final List<HighlightingColorListItem> fListModel = new ArrayList<>();
+	private final List<ColorListItem> fListModel = new ArrayList<>();
 	/** Highlighting color tree viewer */
 	private TreeViewer fTreeViewer;
 	/** The previewer. */
@@ -337,11 +351,15 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		super(store);
 
 		fColorManager = FluentUI.getDefault().getColorMgr();
-
+		
 		for (String[] element : fSyntaxColorListModel)
-			fListModel.add(new HighlightingColorListItem(element[0], element[1], element[1] + BOLD, element[1] + ITALIC,
-					element[1] + STRIKETHROUGH, element[1] + UNDERLINE));
-
+			if (element[0].startsWith("Default")) {
+				fListModel.add(new ColorListItem(element[0], element[1]));
+			} else {
+				fListModel.add(new HighlightingColorListItem(element[0], element[1], element[1] + BOLD, element[1] + ITALIC,
+						element[1] + STRIKETHROUGH, element[1] + UNDERLINE));
+			}
+		
 		store.addKeys(createOverlayStoreKeys());
 	}
 
@@ -350,18 +368,25 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		ArrayList<OverlayKey> overlayKeys = new ArrayList<>();
 
 		for (int i = 0, n = fListModel.size(); i < n; i++) {
-			HighlightingColorListItem item = fListModel.get(i);
+			ColorListItem item = fListModel.get(i);
 			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, item.getColorKey()));
-			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getBoldKey()));
-			overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getItalicKey()));
-			overlayKeys.add(
-					new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getStrikethroughKey()));
-			overlayKeys
-					.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, item.getUnderlineKey()));
+			
+			if (item instanceof HighlightingColorListItem) {
+				HighlightingColorListItem highlightItem = (HighlightingColorListItem) item;
+				
+				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getBoldKey()));
+				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getItalicKey()));
+				overlayKeys.add(
+						new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getStrikethroughKey()));
+				overlayKeys
+						.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, highlightItem.getUnderlineKey()));
+			}
+			
 
-			if (item instanceof SemanticHighlightingColorListItem)
+			if (item instanceof SemanticHighlightingColorListItem) {
 				overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN,
 						((SemanticHighlightingColorListItem) item).getEnableKey()));
+			}
 		}
 
 		OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
@@ -413,7 +438,14 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	}
 
 	private void handleSyntaxColorListSelection() {
-		HighlightingColorListItem item = getHighlightingColorListItem();
+		ColorListItem item = getColorListItem();
+		
+		fBoldCheckBox.setVisible(true);
+		fItalicCheckBox.setVisible(true);
+		fStrikethroughCheckBox.setVisible(true);
+		fUnderlineCheckBox.setVisible(true);
+		fEnableCheckbox.setVisible(true);
+		
 		if (item == null) {
 			fEnableCheckbox.setEnabled(false);
 			fSyntaxForegroundColorEditor.getButton().setEnabled(false);
@@ -426,29 +458,53 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		}
 		RGB rgb = PreferenceConverter.getColor(getPreferenceStore(), item.getColorKey());
 		fSyntaxForegroundColorEditor.setColorValue(rgb);
-		fBoldCheckBox.setSelection(getPreferenceStore().getBoolean(item.getBoldKey()));
-		fItalicCheckBox.setSelection(getPreferenceStore().getBoolean(item.getItalicKey()));
-		fStrikethroughCheckBox.setSelection(getPreferenceStore().getBoolean(item.getStrikethroughKey()));
-		fUnderlineCheckBox.setSelection(getPreferenceStore().getBoolean(item.getUnderlineKey()));
-		if (item instanceof SemanticHighlightingColorListItem) {
-			fEnableCheckbox.setEnabled(true);
-			boolean enable = getPreferenceStore().getBoolean(((SemanticHighlightingColorListItem) item).getEnableKey());
-			fEnableCheckbox.setSelection(enable);
-			fSyntaxForegroundColorEditor.getButton().setEnabled(enable);
-			fColorEditorLabel.setEnabled(enable);
-			fBoldCheckBox.setEnabled(enable);
-			fItalicCheckBox.setEnabled(enable);
-			fStrikethroughCheckBox.setEnabled(enable);
-			fUnderlineCheckBox.setEnabled(enable);
+		
+		if (item instanceof HighlightingColorListItem) {
+			HighlightingColorListItem highlightItem = (HighlightingColorListItem) item;
+			
+			fBoldCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getBoldKey()));
+			fItalicCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getItalicKey()));
+			fStrikethroughCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getStrikethroughKey()));
+			fUnderlineCheckBox.setSelection(getPreferenceStore().getBoolean(highlightItem.getUnderlineKey()));
+			
+			if (highlightItem instanceof SemanticHighlightingColorListItem) {
+				fEnableCheckbox.setEnabled(true);
+				boolean enable = getPreferenceStore().getBoolean(((SemanticHighlightingColorListItem) highlightItem).getEnableKey());
+				fEnableCheckbox.setSelection(enable);
+				fSyntaxForegroundColorEditor.getButton().setEnabled(enable);
+				fColorEditorLabel.setEnabled(enable);
+				fBoldCheckBox.setEnabled(enable);
+				fItalicCheckBox.setEnabled(enable);
+				fStrikethroughCheckBox.setEnabled(enable);
+				fUnderlineCheckBox.setEnabled(enable);
+			} else {
+				fSyntaxForegroundColorEditor.getButton().setEnabled(true);
+				fColorEditorLabel.setEnabled(true);
+				fBoldCheckBox.setEnabled(true);
+				fItalicCheckBox.setEnabled(true);
+				fStrikethroughCheckBox.setEnabled(true);
+				fUnderlineCheckBox.setEnabled(true);
+				fEnableCheckbox.setEnabled(false);
+				fEnableCheckbox.setSelection(true);
+			}
 		} else {
-			fSyntaxForegroundColorEditor.getButton().setEnabled(true);
-			fColorEditorLabel.setEnabled(true);
-			fBoldCheckBox.setEnabled(true);
-			fItalicCheckBox.setEnabled(true);
-			fStrikethroughCheckBox.setEnabled(true);
-			fUnderlineCheckBox.setEnabled(true);
+			// we have the default color settings
+			
+			fSyntaxForegroundColorEditor.getButton().setEnabled(false);
+			fColorEditorLabel.setEnabled(false);
+			
+			fBoldCheckBox.setEnabled(false);
+			fItalicCheckBox.setEnabled(false);
+			fStrikethroughCheckBox.setEnabled(false);
+			fUnderlineCheckBox.setEnabled(false);
 			fEnableCheckbox.setEnabled(false);
 			fEnableCheckbox.setSelection(true);
+			
+			fBoldCheckBox.setVisible(false);
+			fItalicCheckBox.setVisible(false);
+			fStrikethroughCheckBox.setVisible(false);
+			fUnderlineCheckBox.setVisible(false);
+			fEnableCheckbox.setVisible(false);
 		}
 	}
 
@@ -516,7 +572,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 		gd = new GridData(SWT.BEGINNING, SWT.FILL, false, true);
 		gd.heightHint = convertHeightInCharsToPixels(7);
 		int maxWidth = 0;
-		for (HighlightingColorListItem item : fListModel) {
+		for (ColorListItem item : fListModel) {
 			maxWidth = Math.max(maxWidth, convertWidthInCharsToPixels(item.getDisplayName().length()));
 		}
 		ScrollBar vBar = ((Scrollable) fTreeViewer.getControl()).getVerticalBar();
@@ -607,7 +663,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				HighlightingColorListItem item = getHighlightingColorListItem();
+				ColorListItem item = getColorListItem();
 				PreferenceConverter.setValue(getPreferenceStore(), item.getColorKey(),
 						fSyntaxForegroundColorEditor.getColorValue());
 			}
@@ -640,6 +696,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 				getPreferenceStore().setValue(item.getItalicKey(), fItalicCheckBox.getSelection());
 			}
 		});
+		
 		fStrikethroughCheckBox.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -675,7 +732,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				HighlightingColorListItem item = getHighlightingColorListItem();
+				ColorListItem item = getColorListItem();
 				if (item instanceof SemanticHighlightingColorListItem) {
 					boolean enable = fEnableCheckbox.getSelection();
 					getPreferenceStore().setValue(((SemanticHighlightingColorListItem) item).getEnableKey(), enable);
@@ -729,12 +786,17 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	private Control createPreviewer(Composite parent) {
 
 		IPreferenceStore generalTextStore = FluentUI.getDefault().getPreferenceStore();
-		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { getPreferenceStore(),
-				new PreferencesAdapter(createTemporaryCorePreferenceStore()), generalTextStore });
+		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
+				getPreferenceStore(),
+				EditorsUI.getPreferenceStore(),
+				//PlatformUI.getPreferenceStore(),
+				new PreferencesAdapter(createTemporaryCorePreferenceStore()),
+				generalTextStore
+		});
 		fPreviewViewer = new FluentSourceViewer(parent, null, null, false, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER,
 				store);
 		FluentSimpleSourceViewerConfiguration configuration = new FluentSimpleSourceViewerConfiguration(fColorManager,
-				store, null, MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING, false);
+				store, null, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, false);
 		fPreviewViewer.configure(configuration);
 		Font font = JFaceResources.getFont(Prefs.EDITOR_TEXT_FONT);
 		fPreviewViewer.getTextWidget().setFont(font);
@@ -749,10 +811,7 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 
 		String content = loadPreviewContentFromFile("ColorsPreview.md"); //$NON-NLS-1$
 		IDocument document = new Document(content);
-		FluentPartitioningTools.setupDocumentPartitioner(
-				document,
-				MarkdownPartioningTools.getTools().createDocumentPartitioner(),
-				MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING);
+		MarkdownPartitioner.get().setupDocumentPartitioner(document);
 		fPreviewViewer.setDocument(document);
 
 		return fPreviewViewer.getControl();
@@ -789,14 +848,27 @@ class AppearanceConfigurationBlock extends AbstractConfigurationBlock {
 	}
 
 	/**
+	 * Returns the current color list item.
+	 *
+	 * @return the current color list item
+	 */
+	private ColorListItem getColorListItem() {
+		IStructuredSelection selection = (IStructuredSelection) fTreeViewer.getSelection();
+		Object element = selection.getFirstElement();
+		if (element instanceof String) return null;
+		return (ColorListItem) element;
+	}
+	
+	/**
 	 * Returns the current highlighting color list item.
 	 *
 	 * @return the current highlighting color list item
 	 */
 	private HighlightingColorListItem getHighlightingColorListItem() {
-		IStructuredSelection selection = (IStructuredSelection) fTreeViewer.getSelection();
-		Object element = selection.getFirstElement();
-		if (element instanceof String) return null;
-		return (HighlightingColorListItem) element;
+		ColorListItem item = getColorListItem();
+		if (item instanceof HighlightingColorListItem) {
+			return (HighlightingColorListItem) item;
+		}
+		return null;
 	}
 }

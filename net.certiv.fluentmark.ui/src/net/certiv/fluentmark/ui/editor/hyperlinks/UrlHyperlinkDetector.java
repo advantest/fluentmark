@@ -7,8 +7,8 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.URLHyperlinkDetector;
 
+import net.certiv.fluentmark.core.util.DocumentUtils;
 import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.ui.util.DocumentUtils;
 
 public class UrlHyperlinkDetector extends URLHyperlinkDetector {
 

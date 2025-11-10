@@ -13,8 +13,8 @@ import org.eclipse.core.resources.IResource;
 
 import org.eclipse.jface.text.DocumentEvent;
 
-import net.certiv.fluentmark.core.markdown.PageRoot;
-import net.certiv.fluentmark.core.markdown.UpdateJob;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.UpdateJob;
 
 public class ModelUpdater implements IDocumentChangedListener {
 	
@@ -29,7 +29,7 @@ public class ModelUpdater implements IDocumentChangedListener {
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		modelUpdateJob.trigger(this.pageRoot, this.resource, event.getDocument().get());
+		modelUpdateJob.trigger(this.pageRoot, this.resource, event.getDocument());
 	}
 
 }

@@ -7,12 +7,9 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor.assist;
 
-import org.eclipse.jface.viewers.StyledString;
-
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-
-import org.eclipse.ui.texteditor.ITextEditor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.eclipse.jface.text.BadLocationException;
@@ -32,16 +29,16 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.dot.Attr;
 import net.certiv.fluentmark.core.dot.AttrMap;
 import net.certiv.fluentmark.core.dot.ContextVisitor;
 import net.certiv.fluentmark.core.dot.DotRecord;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 
 public class DotCompletionProcessor implements IContentAssistProcessor {
@@ -211,7 +208,7 @@ public class DotCompletionProcessor implements IContentAssistProcessor {
 	private List<String> getSuggestions(ITextViewer viewer, int offset, String prefix) throws BadLocationException {
 		IDocument doc = viewer.getDocument();
 		ITypedRegion region = doc.getPartition(offset);
-		if (region == null || !region.getType().equals(MarkdownPartitions.DOTBLOCK)) return Collections.emptyList();
+		if (region == null || !region.getType().equals(MarkdownPartitioner.DOTBLOCK)) return Collections.emptyList();
 
 		DotRecord record = editor.getParseRecord(region);
 		if (record == null) return Collections.emptyList();

@@ -33,7 +33,7 @@ import java.awt.Desktop;
 import java.io.File;
 
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
-import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.handlers.dialog.PdfDialog;

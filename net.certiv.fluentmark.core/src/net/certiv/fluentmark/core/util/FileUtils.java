@@ -33,14 +33,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
@@ -271,24 +275,38 @@ public final class FileUtils {
 		return false;
 	}
 	
+	public static String getFileExtension(String path) {
+		if (path == null) {
+			return null;
+		}
+		
+		int index = path.lastIndexOf('.');
+		
+		if (index < 0) {
+			return null;
+		}
+		
+		return path.substring(index);
+	}
+	
 	public static boolean isMarkdownFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_MARKDOWN.equals(file.getFileExtension());
+				&& FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isPumlFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_PLANTUML.equals(file.getFileExtension());
+				&& FILE_EXTENSION_PLANTUML.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isSvgFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_SVG.equals(file.getFileExtension());
+				&& FILE_EXTENSION_SVG.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isJavaFile(IFile file) {
 		return file != null
-				&& FILE_EXTENSION_JAVA.equals(file.getFileExtension());
+				&& FILE_EXTENSION_JAVA.equalsIgnoreCase(file.getFileExtension());
 	}
 	
 	public static boolean isAccessibleMarkdownFile(IFile file) {
@@ -301,6 +319,20 @@ public final class FileUtils {
 	
 	public static boolean isAccessibleSvgFile(IFile file) {
 		return isSvgFile(file) && file.isAccessible();
+	}
+	
+	public static IFile resolveToWorkspaceFile(IPath absolutePath) {
+		return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+	}
+	
+	public static IFileStore resolveToNonWorkspaceFile(IPath absolutePath) {
+		return EFS.getLocalFileSystem().getStore(absolutePath);
+	}
+	
+	public static boolean isExistingFile(IFileStore fileOutsideWorkspace) {
+		return fileOutsideWorkspace != null
+				&& fileOutsideWorkspace.fetchInfo().exists()
+				&& !fileOutsideWorkspace.fetchInfo().isDirectory();
 	}
 	
 	public static IPath resolveToAbsoluteResourcePath(String targetFilePath, IFile currentMarkdownFile) {
@@ -319,6 +351,8 @@ public final class FileUtils {
 	}
 	
 	public static List<IFile> findFilesForLocation(IPath fileLocation) {
+		// TODO better use resolveToWorkspaceFile instead of this method?
+		
 		if (fileLocation == null) {
 			return Collections.emptyList();
 		}
@@ -363,6 +397,45 @@ public final class FileUtils {
 	
 	public static boolean isOsMacOs() {
 		return operatingSystem.equals(OperatingSystem.MacOs);
+	}
+	
+	public static String getPreferredLineSeparatorFor(IFile file) {
+		if (file != null) {
+			IProject project = file.getProject();
+			if (project != null) {
+				try {
+					return project.getDefaultLineSeparator();
+				} catch (CoreException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		return System.lineSeparator();
+	}
+	
+	public static boolean isInProjectRootFolder(IResource resource) {
+		if (resource == null || resource.getProject() == null) {
+			return false;
+		}
+		
+		IProject project = resource.getProject();
+		
+		return project.equals(resource.getParent());
+	}
+	
+	public static boolean hasProjectNature(IResource resource, String natureId) {
+		if (resource == null || resource.getProject() == null) {
+			return false;
+		}
+		
+		IProject project = resource.getProject();
+		try {
+			return project.hasNature(natureId);
+		} catch (CoreException e) {
+			FluentCore.log(IStatus.ERROR, "Could not read project nature for project: " + project.getName(), e);
+			return false;
+		}
 	}
 
 }

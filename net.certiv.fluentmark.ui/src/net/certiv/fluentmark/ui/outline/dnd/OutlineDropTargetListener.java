@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.List;
 
-import net.certiv.fluentmark.core.markdown.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;

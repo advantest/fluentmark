@@ -5,16 +5,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.certiv.fluentmark</groupId>
-	<artifactId>Fluentmark</artifactId>
-	<version>1.5.4-SNAPSHOT</version>
+	<artifactId>fluentmark</artifactId>
+	<version>${releaseVersion}${qualifier}</version>
 	<packaging>pom</packaging>
 
 	<name>FluentMark parent</name>
 	<description>FluentMark parent</description>
 
 	<organization>
-		<name>Certiv Analytics</name>
-		<url>http://www.certiv.net/</url>
+		<name>Advantest Europe GmbH</name>
+		<url>https://www.advantest.com/en/</url>
 	</organization>
 
 	<prerequisites>
@@ -22,6 +22,9 @@
 	</prerequisites>
 
 	<properties>
+		<releaseVersion>1.6.0</releaseVersion>
+		<qualifier>-SNAPSHOT</qualifier>
+		
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- Beware of mixing usage of tycho >= 2.7.x and older versions with the same Maven repo.
@@ -31,6 +34,7 @@
 		<tycho.version>4.0.8</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>21</java.version>
+		<jacoco.version>0.8.14</jacoco.version>
 	</properties>
 
 	<modules>
@@ -42,6 +46,8 @@
 		<module>com.advantest.fluentmark.tests</module>
 		<module>com.advantest.fluentmark.core.tests</module>
 		<module>com.advantest.fluentmark.ui.tests</module>
+		<module>com.advantest.fluentmark.reports.aggregator</module>
+		<module>com.advantest.fluentmark.site.composite</module>
 	</modules>
 
 	<build>
@@ -50,7 +56,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>3.6.2</version>
 				<executions>
 					<execution>
 						<id>enforce-versions</id>
@@ -65,6 +71,14 @@
 								<requireJavaVersion>
 									<version>${java.version}</version>
 								</requireJavaVersion>
+								<!-- <dependencyConvergence/> -->
+								<bannedDependencies>
+									<excludes>
+										<!-- We do not allow Maven dependencies to the PlantUML library.
+										     We want to use its EPL-licensed version through an Eclipse plugin dependency instead. -->
+										<exclude>net.sourceforge.plantuml:plantuml</exclude>
+									</excludes>
+								</bannedDependencies>
 							</rules>
 						</configuration>
 					</execution>
@@ -92,9 +106,12 @@
 					<compilerArgs>
 						<arg>-warn:-raw,unchecked</arg>
 					</compilerArgs>
-					<!-- use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
-				         for more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
-					<useJdk>BREE</useJdk>
+					<!-- Use the JRE defined by Bundle-RequiredExecutionEnvironment in MANIFEST.MF,
+						 requires a toolchain for, e.g. JavaSE-21.
+						 For more details see https://tycho.eclipseprojects.io/doc/latest/tycho-compiler-plugin/compile-mojo.html#useJDK -->
+					<!-- temporarily switch that off
+					<useJDK>BREE</useJDK>
+					 -->
 				</configuration>
 			</plugin>
 			
@@ -123,7 +140,6 @@
 				<configuration>
 					<showEclipseLog>true</showEclipseLog>
 					<useUIHarness>false</useUIHarness>
-					<showEclipseLog>true</showEclipseLog>
 					<failIfNoTests>true</failIfNoTests>
 					<includes>
 						<include>**/*Test.java</include>
@@ -143,6 +159,10 @@
 							<artifactId>eclipse-435</artifactId>
 							<version>${project.version}</version>
 						</artifact>
+						<!-- the following seems not to help building the product
+						<includeAllPlatforms>true</includeAllPlatforms>
+						<includeAllEnvironments>true</includeAllEnvironments>
+						-->
 					</target>
 					<pomDependencies>consider</pomDependencies>
 					<environments>
@@ -192,6 +212,9 @@
 				<os>
 					<family>mac</family>
 				</os>
+				<property>
+					<name>!code-coverage</name>
+				</property>
 			</activation>
 			<build>
 				<plugins>
@@ -201,6 +224,103 @@
 						<version>${tycho.version}</version>
 						<configuration>
 							<argLine>-XstartOnFirstThread</argLine>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>platform-mac-with-code-coverage</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+				<property>
+					<name>code-coverage</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<id>jacoco-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+								<configuration>
+									<!-- Sets the VM argument line used when unit tests are run. -->
+									<propertyName>surefireArgLine</propertyName>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-surefire-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<configuration>
+							<!-- Re-use the argument line from jacoco plugin configuration -->
+							<argLine>${surefireArgLine} -XstartOnFirstThread</argLine>
+							<showEclipseLog>true</showEclipseLog>
+							<useUIHarness>false</useUIHarness>
+							<failIfNoTests>true</failIfNoTests>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>code-coverage</id>
+			<activation>
+				<os>
+					<family>!mac</family>
+				</os>
+				<property>
+					<name>code-coverage</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<id>jacoco-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+								<configuration>
+									<!-- Sets the VM argument line used when unit tests are run. -->
+									<propertyName>surefireArgLine</propertyName>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-surefire-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<configuration>
+							<!-- Re-use the argument line from jacoco plugin configuration -->
+							<argLine>${surefireArgLine}</argLine>
+							<showEclipseLog>true</showEclipseLog>
+							<useUIHarness>false</useUIHarness>
+							<failIfNoTests>true</failIfNoTests>
+							<includes>
+								<include>**/*Test.java</include>
+								<include>**/*IT.java</include>
+							</includes>
 						</configuration>
 					</plugin>
 				</plugins>

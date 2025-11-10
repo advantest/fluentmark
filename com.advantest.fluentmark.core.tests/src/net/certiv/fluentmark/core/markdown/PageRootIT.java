@@ -28,6 +28,12 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import net.certiv.fluentmark.core.TestFileUtil;
+import net.certiv.fluentmark.core.markdown.model.CodeBlockConstants;
+import net.certiv.fluentmark.core.markdown.model.IOffsetProvider;
+import net.certiv.fluentmark.core.markdown.model.IParent;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.Type;
 
 
 public class PageRootIT {

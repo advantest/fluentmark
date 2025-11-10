@@ -8,6 +8,7 @@ package net.certiv.fluentmark.ui.editor;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,9 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -90,12 +89,15 @@ import net.certiv.fluentmark.core.convert.Converter;
 import net.certiv.fluentmark.core.convert.HtmlGen;
 import net.certiv.fluentmark.core.convert.Kind;
 import net.certiv.fluentmark.core.dot.DotRecord;
-import net.certiv.fluentmark.core.markdown.IOffsetProvider;
-import net.certiv.fluentmark.core.markdown.ISourceRange;
-import net.certiv.fluentmark.core.markdown.ISourceReference;
-import net.certiv.fluentmark.core.markdown.MarkdownPartitions;
-import net.certiv.fluentmark.core.markdown.PagePart;
-import net.certiv.fluentmark.core.markdown.PageRoot;
+import net.certiv.fluentmark.core.markdown.model.IOffsetProvider;
+import net.certiv.fluentmark.core.markdown.model.ISourceRange;
+import net.certiv.fluentmark.core.markdown.model.ISourceReference;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
+import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
+import net.certiv.fluentmark.core.util.FileUtils;
 import net.certiv.fluentmark.core.util.LRUCache;
 import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
@@ -109,7 +111,6 @@ import net.certiv.fluentmark.ui.outline.FluentOutlinePage;
 import net.certiv.fluentmark.ui.outline.operations.AbstractDocumentCommand;
 import net.certiv.fluentmark.ui.outline.operations.CommandManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
-import net.certiv.fluentmark.ui.util.EditorUtils;
 
 /**
  * Text editor with markdown support.
@@ -146,10 +147,6 @@ public class FluentEditor extends TextEditor
 
 	public FluentEditor() {
 		super();
-	}
-	
-	public static FluentEditor findDirtyEditorFor(IFile markdownFile) {
-		return EditorUtils.findDirtyEditorFor(FluentEditor.class, markdownFile);
 	}
 	
 	// Updates the DslOutline pageModel selection and this editor's range indicator.
@@ -244,16 +241,31 @@ public class FluentEditor extends TextEditor
 
 	@Override
 	protected void doSetInput(IEditorInput input) throws CoreException {
-		if (getDocument() != null) getDocument().removeDocumentListener(docListener);
+		if (getDocument() != null) {
+			getDocument().removeDocumentListener(docListener);
+		}
 		setPreferenceStore(getPrefsStore());
 		super.doSetInput(input);
 		IDocument doc = getDocumentProvider().getDocument(input);
 
+		String lineSeparator = getPreferredLineSeparator();
+
 		// check and correct line endings
 		String text = doc.get();
 		int hash = text.hashCode();
-		text = Strings.normalize(text);
-		if (hash != text.hashCode()) doc.set(text);
+		text = Strings.normalize(text, lineSeparator);
+		if (hash != text.hashCode()) {
+			// ask the user if she wants to change the line endings
+			boolean windowsLineEndings = lineSeparator.equals("\r\n");
+			IFile file = getEditorInputFile();
+			String fileName = (file != null ? file.getName() : "the file to be opened");
+			boolean confirmed = MessageDialog.openQuestion(this.getSite().getShell(), "Adapt line endings?",
+					"The line endings in " + fileName + " do not comply with the project / Eclipse settings or with the OS defaults."
+					+ " Would you like the line endings to be adapted to " + (windowsLineEndings ? "Windows (CRLF)" : "Linux (LF)") + " line endings?");
+			if (confirmed) {
+				doc.set(text);
+			}
+		}
 
 		connectPartitioningToElement(input, doc);
 
@@ -281,7 +293,7 @@ public class FluentEditor extends TextEditor
 	private void connectPartitioningToElement(IEditorInput input, IDocument document) {
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 extension = (IDocumentExtension3) document;
-			if (extension.getDocumentPartitioner(MarkdownPartitions.FLUENT_MARKDOWN_PARTITIONING) == null) {
+			if (extension.getDocumentPartitioner(MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING) == null) {
 				FluentDocumentSetupParticipant participant = new FluentDocumentSetupParticipant();
 				participant.setup(document);
 			}
@@ -315,8 +327,9 @@ public class FluentEditor extends TextEditor
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(editorComposite);
 		editorComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
+		IPreferenceStore combinedStore = FluentUI.getDefault().getCombinedPreferenceStore();
 		viewer = new FluentSourceViewer(editorComposite, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles,
-				getPreferenceStore());
+				combinedStore);
 		if (isFoldingEnabled() && !getPreferenceStore().getBoolean(Prefs.EDITOR_SHOW_SEGMENTS)) {
 			viewer.prepareDelayedProjection();
 		}
@@ -553,7 +566,10 @@ public class FluentEditor extends TextEditor
 	
 	public IFile getEditorInputFile() {
 		IEditorInput input = getEditorInput();
-		return input.getAdapter(IFile.class);
+		if (input != null) {
+			return input.getAdapter(IFile.class);
+		}
+		return null;
 	}
 
 	public IDocument getDocument() {
@@ -561,12 +577,35 @@ public class FluentEditor extends TextEditor
 		IDocumentProvider provider = getDocumentProvider();
 		return provider == null ? null : provider.getDocument(input);
 	}
+	
+	public String getPreferredLineSeparator() {
+		// read Eclipse project's settings for preferred line endings and use that line endings (may be different from OS line endings)
+		IFile editorInputFile = getEditorInputFile();
+		return FileUtils.getPreferredLineSeparatorFor(editorInputFile);
+	}
 
 	public FluentEditor ensureLastLineBlank() {
 		IDocument doc = getDocument();
 		String text = doc.get();
-		if (!text.endsWith(Strings.EOL)) {
-			doc.set(text + Strings.EOL);
+		
+		String lineSeparator = getPreferredLineSeparator();
+		
+		// try re-using the same line delimiter as it is already used in the document
+		if (doc.getNumberOfLines() > 0) {
+			String firstLineDelimiter;
+			try {
+				firstLineDelimiter = doc.getLineDelimiter(0);
+			} catch (BadLocationException e) {
+				firstLineDelimiter = null;
+			}
+			
+			if (firstLineDelimiter != null) {
+				lineSeparator = firstLineDelimiter;
+			}
+		}
+		
+		if (!text.endsWith(lineSeparator)) {
+			doc.set(text + lineSeparator);
 		}
 		return this;
 	}
@@ -587,16 +626,7 @@ public class FluentEditor extends TextEditor
 			return lineDelimiter;
 		}
 		
-		// workspace preference
-		IScopeContext[] scopeContext = new IScopeContext[] { InstanceScope.INSTANCE };
-		lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR,
-				Strings.EOL, scopeContext);
-		
-		if (lineDelimiter != null) {
-			return lineDelimiter;
-		}
-		
-		return System.lineSeparator();
+		return getPreferredLineSeparator();
 	}
 
 	public PageRoot getPageModel() {
@@ -1015,6 +1045,8 @@ public class FluentEditor extends TextEditor
 		if (document != null) {
 			String documentContent = document.get();
 			
+			// TODO use MarkdownParsingTools instead of using this code
+			
 			String anchorRegex = "^#{1,6}[ \\t].*[ \\t]\\{#" + anchorInOpenFile + "\\}";
 			Pattern anchorPattern = Pattern.compile(anchorRegex, Pattern.MULTILINE);
 			Matcher headerAndAnchorMathcer = anchorPattern.matcher(documentContent);
@@ -1022,6 +1054,26 @@ public class FluentEditor extends TextEditor
 				int startIndex = headerAndAnchorMathcer.start();
 				int endIndex = headerAndAnchorMathcer.end();
 				selectAndReveal(startIndex, endIndex - startIndex);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean gotoLinkReferenceDefinition(String linkReferenceDefinitionName) {
+		if (linkReferenceDefinitionName == null || linkReferenceDefinitionName.isBlank()) {
+			return false;
+		}
+		
+		IDocument document = this.getDocument();
+		if (document != null) {
+			String documentContent = document.get();
+			
+			Optional<RegexMatch> linkRefDefMatch = MarkdownParsingTools.findLinkReferenceDefinition(documentContent, linkReferenceDefinitionName);
+			
+			if (linkRefDefMatch.isPresent()) {
+				selectAndReveal(linkRefDefMatch.get().startIndex, linkRefDefMatch.get().matchedText.length());
 				return true;
 			}
 		}

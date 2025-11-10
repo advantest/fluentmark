@@ -2,7 +2,7 @@
 <feature
       id="net.certiv.fluentmark.feature"
       label="FluentMark Editor"
-      version="1.5.4.qualifier"
+      version="1.6.0.qualifier"
       provider-name="Certiv Analytics">
 
    <description>
@@ -59,14 +59,15 @@ Copyright (c) 2022-2024.
       <import plugin="org.eclipse.jdt.ui" version="3.24.0" match="greaterOrEqual"/>
       <import plugin="net.certiv.spellchecker" version="4.3.2" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.core" version="3.31.0" match="greaterOrEqual"/>
+      <import feature="net.sourceforge.plantuml.library.feature" version="1.2025.10.202511041744"/>
    </requires>
 
    <plugin
          id="net.certiv.fluentmark.core"
-         version="1.5.4.qualifier"/>
+         version="1.6.0.qualifier"/>
 
    <plugin
          id="net.certiv.fluentmark.ui"
-         version="1.5.4.qualifier"/>
+         version="1.6.0.qualifier"/>
 
 </feature>

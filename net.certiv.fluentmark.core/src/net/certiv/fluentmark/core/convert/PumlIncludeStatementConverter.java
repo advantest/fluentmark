@@ -13,10 +13,10 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import net.certiv.fluentmark.core.markdown.model.Lines;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.certiv.fluentmark.core.markdown.Lines;
 
 public class PumlIncludeStatementConverter {
 	

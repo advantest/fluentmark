@@ -7,12 +7,23 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.editor;
 
-import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.*;
-import static org.eclipse.ui.texteditor.AbstractTextEditor.*;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_COLOR;
+import static org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND;
+import static org.eclipse.ui.texteditor.AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT;
 
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
@@ -37,11 +48,15 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.editor.text.SmartBackspaceManager;
 import net.certiv.fluentmark.ui.preferences.Prefs;
 
 /** Source viewer for the editor */
 public class FluentSourceViewer extends ProjectionViewer implements IPropertyChangeListener {
+	
+	// see org.eclipse.ui.texteditor.AbstractTextEditor
+	private static final String DISABLE_CSS = "org.eclipse.e4.ui.css.disabled"; //$NON-NLS-1$
 
 	/** Show outline operation id. */
 	public static final int SHOW_OUTLINE = 51;
@@ -85,6 +100,12 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 	@Override
 	public void configure(SourceViewerConfiguration configuration) {
 		StyledText textWidget = getTextWidget();
+		
+		// see org.eclipse.ui.texteditor.AbstractTextEditor:createPartControl(Composite)
+		// We're managing our appearance from our preferences. Disable CSS styling.
+		// The CSS engine does set the editor preferences on theme switches, so we
+		// will pick up changes.
+		getTextWidget().setData(DISABLE_CSS, Boolean.TRUE);
 
 		// Prevent access to colors disposed in unconfigure().
 		if (textWidget != null && !textWidget.isDisposed()) {
@@ -122,6 +143,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 				textWidget.setFont(JFaceResources.getFont(Prefs.EDITOR_TEXT_FONT));
 			}
 		}
+		// TODO replace this.store with the store from the given configuration?
 		if (store != null) {
 			this.store.addPropertyChangeListener(this);
 			initializeViewerColors();
@@ -130,45 +152,57 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 	}
 
 	protected void initializeViewerColors() {
+		if (store == null || store.getString(PREFERENCE_COLOR_BACKGROUND) == null || store.getString(PREFERENCE_COLOR_BACKGROUND).isBlank()) {
+			FluentUI.log(IStatus.WARNING, "Preference store not available or incomplete. Cannot read text editors' default colors.");
+		}
+		
 		if (store != null) {
 
 			StyledText styledText = getTextWidget();
 			Color color = null;
+			
+			// same implementation as in org.eclipse.ui.texteditor.AbstractTextEditor:initializeViewerColors(ISourceViewer)
 
 			// ----------- foreground color --------------------
-			if (!store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)) {
-				color = createColor(store, PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
-				styledText.setForeground(color);
-			}
+			color = store.getBoolean(PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
+			styledText.setForeground(color);
+			
 			if (fForegroundColor != null) fForegroundColor.dispose();
 			fForegroundColor = color;
+			PreferenceConverter.setValue(FluentUI.getDefault().getPreferenceStore(), Prefs.EDITOR_FOREGROUND_COLOR, color != null ? color.getRGB() : styledText.getForeground().getRGB());
 
 			// ---------- background color ----------------------
-			if (!store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)) {
-				color = createColor(store, PREFERENCE_COLOR_BACKGROUND, styledText.getDisplay());
-				styledText.setBackground(color);
-			}
+			color = store.getBoolean(PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_BACKGROUND, styledText.getDisplay());
+			styledText.setBackground(color);
+			
 			if (fBackgroundColor != null) fBackgroundColor.dispose();
 			fBackgroundColor = color;
+			PreferenceConverter.setValue(FluentUI.getDefault().getPreferenceStore(), Prefs.EDITOR_BACKGROUND_COLOR, color != null ? color.getRGB() : styledText.getBackground().getRGB());
 
 			// ----------- selection foreground color --------------------
-			if (!store.getBoolean(EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR)) {
-				color = createColor(store, EDITOR_SELECTION_FOREGROUND_COLOR, styledText.getDisplay());
-				styledText.setSelectionForeground(color);
-			}
+			color = store.getBoolean(PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_SELECTION_FOREGROUND, styledText.getDisplay());
+			styledText.setSelectionForeground(color);
+			
 			if (fSelectionForegroundColor != null) fSelectionForegroundColor.dispose();
 			fSelectionForegroundColor = color;
 
 			// ---------- selection background color ----------------------
-			if (!store.getBoolean(EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR)) {
-				color = createColor(store, EDITOR_SELECTION_BACKGROUND_COLOR, styledText.getDisplay());
-				styledText.setSelectionBackground(color);
-			}
+			color = store.getBoolean(PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT)
+				? null
+				: createColor(store, PREFERENCE_COLOR_SELECTION_BACKGROUND, styledText.getDisplay());
+			styledText.setSelectionBackground(color);
+				
 			if (fSelectionBackgroundColor != null) fSelectionBackgroundColor.dispose();
 			fSelectionBackgroundColor = color;
 		}
 	}
-
+	
 	/**
 	 * Creates a color from the information stored in the given preference delta. Returns
 	 * <code>null</code> if there is no such information available. TODO: move or fix store.getColor
@@ -231,7 +265,7 @@ public class FluentSourceViewer extends ProjectionViewer implements IPropertyCha
 			initializeViewerColors();
 		}
 	}
-
+	
 	/** Sets the preference delta on this viewer. */
 	public void setPreferenceStore(IPreferenceStore store) {
 		if (isConfigured && store != null) {

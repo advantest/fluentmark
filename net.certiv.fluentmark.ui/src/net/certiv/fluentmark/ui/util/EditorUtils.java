@@ -19,6 +19,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
@@ -31,6 +33,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 
@@ -46,6 +49,24 @@ public class EditorUtils {
 	
 	private static final JavaCodeMemberResolver javaMemberResolver = new JavaCodeMemberResolver();
 	
+	public static IDocument findDocumentFromDirtyFluentEditorFor(IFile file) {
+		return findDocumentFromDirtyTextEditorFor(FluentEditor.class, file);
+	}
+	
+	public static IDocument findDocumentFromDirtyTextEditorFor(IFile file) {
+		return findDocumentFromDirtyTextEditorFor(ITextEditor.class, file);
+	}
+	
+	private static IDocument findDocumentFromDirtyTextEditorFor(Class<? extends ITextEditor> editorType, IFile file) {
+		ITextEditor dirtyTextEditor = findDirtyEditorFor(editorType, file);
+		if (dirtyTextEditor != null) {
+			IDocumentProvider docProvider = dirtyTextEditor.getDocumentProvider();
+			if (docProvider != null) {
+				return docProvider.getDocument(dirtyTextEditor.getEditorInput());
+			}
+		}
+		return null;
+	}
 	
 	public static <T extends IEditorPart> T findDirtyEditorFor(Class<T> editorType, IFile file) {
 		if (file == null) {

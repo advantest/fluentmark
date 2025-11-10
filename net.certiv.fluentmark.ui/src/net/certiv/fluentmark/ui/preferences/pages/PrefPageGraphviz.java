@@ -30,7 +30,7 @@ public class PrefPageGraphviz extends BaseFieldEditorPreferencePage implements P
 	private BooleanFieldEditor plantUmlEnabledEditor;
 	private BooleanFieldEditor dotEnabledEditor;
 	
-	private final List<FieldEditor> editors = new ArrayList<>(2);
+	private final List<FieldEditor> editors = new ArrayList<>(3);
 	
 	public PrefPageGraphviz() {
 		super(GRID);

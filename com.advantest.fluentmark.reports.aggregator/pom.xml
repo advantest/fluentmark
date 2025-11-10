@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+		<groupId>net.certiv.fluentmark</groupId>
+		<artifactId>fluentmark</artifactId>
+		<version>${releaseVersion}${qualifier}</version>
+		<relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>com.advantest.fluentmark.reports.aggregator</artifactId>
+  <packaging>pom</packaging>
+  
+  <name>FluentMark analysis reports aggregated from all sub-projects</name>
+
+  <dependencies>
+		<dependency>
+			<groupId>net.certiv.fluentmark</groupId>
+			<artifactId>net.certiv.fluentmark.core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.certiv.fluentmark</groupId>
+			<artifactId>net.certiv.fluentmark.ui</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.certiv.fluentmark</groupId>
+			<artifactId>com.advantest.fluentmark.core.tests</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.certiv.fluentmark</groupId>
+			<artifactId>com.advantest.fluentmark.ui.tests</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+  <build>
+	<plugins>
+
+		<plugin>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>${jacoco.version}</version>
+			<executions>
+				<execution>
+					<id>jacoco-aggregate-reports</id>
+					<phase>verify</phase>
+					<goals>
+						<goal>report-aggregate</goal>
+					</goals>
+					<!--
+					<configuration>
+						<dataFileIncludes>
+							<dataFileInclude>**/jacoco.exec</dataFileInclude>
+						</dataFileIncludes>
+						<outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+					</configuration>
+					-->
+				</execution>
+			</executions>
+		</plugin>
+		
+	</plugins>
+  </build>
+  
+</project>

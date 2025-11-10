@@ -38,13 +38,21 @@ public class FilePathCompletionProposalWithDialog implements ICompletionProposal
 	private final ITextEditor editor;
 	private final int offset;
 	private final int replacementLength;
+	private final FileLinkCreationType creationType;
 	
-	private String proposedPath;
+	private String replacementText;
 	
-	public FilePathCompletionProposalWithDialog(ITextEditor editor, int offset, int replacementLength) {
+	public enum FileLinkCreationType {
+		PATH_ONLY,
+		FILE_LINK,
+		IMAGE
+	}
+	
+	public FilePathCompletionProposalWithDialog(ITextEditor editor, int offset, int replacementLength, FileLinkCreationType creationType) {
 		this.editor = editor;
 		this.offset = offset;
 		this.replacementLength = replacementLength;
+		this.creationType = creationType;
 	}
 
 	@Override
@@ -90,8 +98,19 @@ public class FilePathCompletionProposalWithDialog implements ICompletionProposal
 		
 		String pathText = relativePathToTargetFile.toString();
 		
+		switch (creationType) {
+			case PATH_ONLY -> replacementText = pathText;
+			case FILE_LINK -> replacementText =  "[](" + pathText + ")";
+			case IMAGE     -> replacementText = "![](" + pathText + ")";
+		
+			default -> {
+				replacementText = pathText;
+				FluentUI.log(IStatus.ERROR, "Unexpected value: " + creationType);
+			}
+		}
+		
 		try {
-			document.replace(offset, replacementLength, pathText);
+			document.replace(offset, replacementLength, replacementText);
 		} catch (BadLocationException e) {
 			FluentUI.log(IStatus.ERROR, "Could not insert proposed path into document.", e);
 		}
@@ -99,11 +118,25 @@ public class FilePathCompletionProposalWithDialog implements ICompletionProposal
 
 	@Override
 	public Point getSelection(IDocument document) {
-		if (proposedPath == null) {
+		if (replacementText == null) {
 			return null;
 		}
 		
-		return new Point(offset + proposedPath.length() - 1, 0);
+		switch (creationType) {
+			case PATH_ONLY:
+				// place cursor after inserted path
+				return new Point(offset + replacementText.length(), 0);
+			case FILE_LINK:
+				// place cursor in the square brackets: [here](...)
+				return new Point(offset + 1, 0);
+			case IMAGE:
+				// place cursor in the square brackets: ![here](...)
+				return new Point(offset + 2, 0);
+		
+			default:
+				FluentUI.log(IStatus.ERROR, "Unexpected value: " + creationType);
+				return null;
+		}
 	}
 
 	@Override
@@ -113,7 +146,19 @@ public class FilePathCompletionProposalWithDialog implements ICompletionProposal
 
 	@Override
 	public String getDisplayString() {
-		return "Select file...";
+		String displayString;
+		switch (creationType) {
+			case PATH_ONLY -> displayString = "Select file...";
+			case FILE_LINK -> displayString = "Create file link...";
+			case IMAGE     -> displayString = "Create image...";
+		
+			default -> {
+				displayString = "Select file...";
+				FluentUI.log(IStatus.ERROR, "Unexpected value: " + creationType);
+			}
+		}
+		
+		return displayString;
 	}
 
 	@Override

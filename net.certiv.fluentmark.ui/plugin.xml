@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-   <extension-point id="validator.uri" name="URI Validator" schema="schema/net.certiv.fluentmark.ui.uriValidator.exsd"/>
-   <extension-point id="marker.calculators" name="Marker calculator based on typed regions" schema="schema/net.certiv.fluentmark.ui.markerCalculator.exsd"/>
-   <extension-point id="marker.builders" name="Marker calculation builder" schema="schema/net.certiv.fluentmark.ui.markerCalculationBuilder.exsd"/>
    <extension-point id="content.assist.processor" name="Addtional content assist processor for Fluent Editor" schema="schema/net.certiv.fluentmark.ui.contentAssistProcessor.exsd"/>
    <extension
          point="org.eclipse.core.expressions.definitions">
@@ -539,6 +536,65 @@
                   id="net.certiv.fluentmark.ui.markdown.refactoring.menu"
                   label="Refactoring">
                <command
+                     commandId="net.certiv.fluentmark.ui.refactoring.inlinePumlCode"
+                     icon="icons/obj16/fluentmark_doc.png"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <or>
+                        <iterate
+                              ifEmpty="false"
+                              operator="and">
+                           <adapt
+                                 type="org.eclipse.core.resources.IResource">
+                           </adapt>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isAccessible">
+                           </test>
+                        </iterate>
+                        <iterate>
+                           <and>
+                              <instanceof
+                                    value="org.eclipse.jface.text.ITextSelection">
+                              </instanceof>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isActiveFluentEditor">
+                              </test>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="net.certiv.fluentmark.ui.isMarkdownPlantUmlImageTextSelection">
+                              </test>
+                           </and>
+                        </iterate>
+                     </or>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
+                     icon="icons/obj16/fluentmark_doc.png"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <iterate>
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.jface.text.ITextSelection">
+                           </instanceof>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isActiveFluentEditor">
+                           </test>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="net.certiv.fluentmark.ui.isMarkdownPlantUmlCodeBlockTextSelection">
+                           </test>
+                        </and>
+                     </iterate>
+                  </visibleWhen>
+               </command>
+               <command
                      commandId="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
                      icon="icons/obj16/fluentmark_doc.png"
                      style="push">
@@ -694,6 +750,16 @@
             defaultHandler="net.certiv.fluentmark.ui.handlers.ReplaceSvgImagesWithPlantUmlImagesHandler"
             id="net.certiv.fluentmark.ui.refactoring.replaceSvgWithPuml"
             name="Replace SVG images with PlantUML images (*.puml files)">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.InlinePlantUmlCodeHandler"
+            id="net.certiv.fluentmark.ui.refactoring.inlinePumlCode"
+            name="Inline PlantUML code from referenced *.puml file(s)">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.ExtractPlantUmlCodeHandler"
+            id="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
+            name="Extract PlantUML code to a *.puml file">
       </command>
    </extension>
 
@@ -932,30 +998,6 @@
       </wizard>
    </extension>
    <extension
-         id="builders.markdown"
-         name="Markdown file validator"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="false"
-            hasNature="false">
-         <run
-               class="net.certiv.fluentmark.ui.builders.IncrementalMarkdownValidationProjectBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
-         id="builders.plantuml"
-         name="PlantUML file and code blocks in Markdown files validator"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="false"
-            hasNature="false">
-         <run
-               class="net.certiv.fluentmark.ui.builders.IncrementalPlantUmlValidationProjectBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="net.certiv.fluentmark.ui.propertytesters.MarkdownValidationsBuilderEnabledTester"
@@ -975,7 +1017,7 @@
             class="net.certiv.fluentmark.ui.propertytesters.ActiveEditorPartTester"
             id="net.certiv.fluentmark.ui.activeEditorPartTester"
             namespace="net.certiv.fluentmark.ui"
-            properties="activeEditorPart,isActiveFluentEditor,isMarkdownSvgImageTextSelection"
+            properties="activeEditorPart,isActiveFluentEditor,isMarkdownSvgImageTextSelection,isMarkdownPlantUmlImageTextSelection,isMarkdownPlantUmlCodeBlockTextSelection"
             type="java.lang.Object">
       </propertyTester>
    </extension>
@@ -999,21 +1041,6 @@
             description body text
          </description>
       </decorator>
-   </extension>
-   <extension
-         point="net.certiv.fluentmark.ui.marker.calculators">
-      <calculator
-            class="net.certiv.fluentmark.ui.validation.MarkdownLinkValidator"
-            id="net.certiv.fluentmark.ui.validator.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.markdown">
-      </calculator>
-      <calculator
-            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerCreator"
-            id="net.certiv.fluentmark.ui.markers.tasks.plantuml">
-      </calculator>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
@@ -1043,5 +1070,56 @@
          </context>
       </target>
    </extension>
-   
+   <extension
+         point="net.certiv.fluentmark.core.anchorResolver">
+      <resolver
+            class="net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver"
+            id="net.certiv.fluentmark.ui.resolver.java">
+      </resolver>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.core.partitionValidator">
+      <validator
+            class="net.certiv.fluentmark.ui.markers.MarkdownTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.markdown">
+      </validator>
+      <validator
+            class="net.certiv.fluentmark.ui.markers.PlantUmlTaskMarkerFinder"
+            id="net.certiv.fluentmark.ui.validation.tasks.plantuml">
+      </validator>
+   </extension>
+   <extension
+         point="net.certiv.fluentmark.core.documentResolver">
+      <resolver
+            class="net.certiv.fluentmark.ui.editor.MarkdownDocumentResolver"
+            id="net.certiv.fluentmark.ui.document.resolver.markdown">
+      </resolver>
+   </extension>
+   <extension
+         id="builder"
+         name="Fluentmark file validation for Markdown, PlantUML,..."
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="false">
+         <run
+               class="net.certiv.fluentmark.ui.builders.MarkerCalculatingFileValidationBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ltk.ui.refactoring.changePreviewViewers">
+      <changePreviewViewer
+            class="net.certiv.fluentmark.ui.refactoring.wizards.CreateTextFileChangePreview"
+            id="net.certiv.fluentmark.ui.refactoring.createTextFileChangePreview">
+         <enablement>
+            <with
+                  variable="change ">
+               <instanceof
+                     value="net.certiv.fluentmark.ui.refactoring.CreateTextFileChange">
+               </instanceof>
+            </with>
+         </enablement>
+      </changePreviewViewer>
+   </extension>
 </plugin>

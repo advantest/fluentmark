@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2025 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.validation;
 
@@ -24,9 +24,28 @@ import org.eclipse.jdt.core.Signature;
 
 import java.util.ArrayList;
 
+import net.certiv.fluentmark.core.validation.IAnchorResolver;
 import net.certiv.fluentmark.ui.Log;
 
-public class JavaCodeMemberResolver {
+public class JavaCodeMemberResolver implements IAnchorResolver {
+	
+	private static final String[] FILE_EXTENSIONS = { "java" };
+	
+	@Override
+	public String[] getSupportedFileExtensions() {
+		return FILE_EXTENSIONS;
+	}
+	
+	@Override
+	public boolean doesAnchorTargetExist(IFile fileToCheck, String anchor) {
+		IMember anchorTarget = resolveAnchor(fileToCheck, anchor);
+		return (anchorTarget != null && anchorTarget.exists());
+	}
+	
+	@Override
+	public IMember resolveAnchor(IFile fileWithAnchorTarget, String anchor) {
+		return findJavaMember(fileWithAnchorTarget, anchor);
+	}
 	
 	public ICompilationUnit findJavaCompilationUnitFor(IFile javaFile) {
 		IJavaElement element = JavaCore.create(javaFile);
