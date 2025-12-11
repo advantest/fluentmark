@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark AE Core Tests
 Bundle-SymbolicName: com.advantest.fluentmark.core.tests
-Bundle-Version: 1.6.0.qualifier
+Bundle-Version: 1.6.1.qualifier
 Bundle-Vendor: Advantest Europe
-Fragment-Host: net.certiv.fluentmark.core;bundle-version="1.6.0"
+Fragment-Host: net.certiv.fluentmark.core;bundle-version="1.6.1"
 Require-Bundle: javax.annotation;bundle-version="1.3.5",
  junit-jupiter-api;bundle-version="5.10.1",
  junit-jupiter-params;bundle-version="5.10.1",
