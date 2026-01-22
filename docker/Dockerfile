@@ -3,11 +3,14 @@
 FROM maven:3.9-eclipse-temurin-21
 #FROM eclipse-temurin:21-jdk
 
-# Install pandoc besides other useful tools
+# Install pandoc and libgtk libs (for SWT) besides other required tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
         pandoc \
+        libgtk-3-0 libgdk-pixbuf2.0-0 libcairo2 libpango-1.0-0 libx11-6 libxext6 \
+        libxrender1 libxrandr2 libxtst6 libxi6 libxinerama1 libatk1.0-0 libasound2t64 \
+        libnss3 xvfb \
         fonts-noto-cjk \
         libgd3 \
         && \
