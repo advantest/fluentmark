@@ -29,8 +29,8 @@ jobs:
     steps:
     - name: Set up settings.xml for Maven and GitHub packages access
       run: |
-        mkdir -p $HOME/.m2
-        cat > $HOME/.m2/settings.xml <<EOF
+        mkdir -p /root/.m2
+        cat > /root/.m2/settings.xml <<EOF
         <settings>
           <servers>
             <server>
@@ -47,11 +47,11 @@ jobs:
         </settings>
         EOF
 
-    - name: Check user and working dir
-      run: whoami; pwd
+#    - name: Check user and working dir
+#      run: whoami; pwd
 
-#    - name: Check if settings.xml exists
-#      run: find ~/.m2/ -type f -name "settings.xml"
+    - name: Check if settings.xml exists
+      run: find /root/.m2/ -type f -name "settings.xml"
 
 #    - name: Check token in settings.xml is expanded
 #      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
@@ -72,7 +72,7 @@ jobs:
 
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
-      run: mvn -X -B clean verify --file pom.xml -U -Dcode-coverage
+      run: mvn -B clean verify --file pom.xml -U -Dcode-coverage
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
