@@ -1,0 +1,41 @@
+name: Build and push Docker image
+on:
+  workflow_dispatch:
+    inputs:
+      GRAPHVIZ_VERSION:
+        description: 'Graphviz version'
+        required: false
+        default: '11.0.0'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+        GRAPHVIZ_VERSION: ${{ github.event.inputs.GRAPHVIZ_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:graphviz-${{ github.event.inputs.GRAPHVIZ_VERSION }}
+            ghcr.io/${{ github.repository }}:graphviz-${{ github.event.inputs.GRAPHVIZ_VERSION }}-build-${{ github.run_number }}
+          build-args: |
+            GRAPHVIZ_VERSION=${{ github.event.inputs.GRAPHVIZ_VERSION }}
