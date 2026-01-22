@@ -47,6 +47,9 @@ jobs:
         </settings>
         EOF
 
+    - name: Check user and working dir
+      run: whoami; pwd
+
 #    - name: Check if settings.xml exists
 #      run: find ~/.m2/ -type f -name "settings.xml"
 
