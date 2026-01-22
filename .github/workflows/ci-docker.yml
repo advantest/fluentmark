@@ -14,14 +14,11 @@ permissions:
   contents: read
   packages: read
 
-env:
-  GRAPHVIZ_VERSION: '11.0.0'
-
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}:graphviz-${{ env.GRAPHVIZ_VERSION }}
+      image: ghcr.io/${{ github.repository }}:graphviz-11.0.0
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
