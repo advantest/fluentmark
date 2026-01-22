@@ -23,9 +23,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-    - name: Check out
-      uses: actions/checkout@v4
-
     - name: Set up settings.xml for Maven and GitHub packages access
       run: |
         mkdir -p $HOME/.m2
@@ -47,6 +44,9 @@ jobs:
 
     - name: Check if settings.xml exists
       run: find ~/.m2/ -type f -name "settings.xml"
+
+    - name: Check out
+      uses: actions/checkout@v4
 
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
