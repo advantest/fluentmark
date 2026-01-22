@@ -44,9 +44,16 @@ jobs:
             </server>
           </servers>
         </settings>
+        EOF
 
     - name: Check if settings.xml exists
       run: find ~/.m2/ -type f -name "settings.xml"
+
+    - name: Check token in settings.xml is expanded
+      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
+
+    - name: Check token in settings.xml is expanded
+      run: grep -q "<password></password>" ~/.m2/settings.xml && echo "empty token found (bad)" || echo "token not empty (good)"
 
     - name: Check out
       uses: actions/checkout@v4
