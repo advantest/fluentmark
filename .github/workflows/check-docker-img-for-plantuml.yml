@@ -26,4 +26,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        run: java -version; dot -V
+        run: java -version; mvn -v; dot -V; pandoc -v
