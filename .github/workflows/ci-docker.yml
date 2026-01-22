@@ -59,6 +59,11 @@ jobs:
     - name: Check username in settings.xml is expanded
       run: grep "<username>" ~/.m2/settings.xml
 
+    - name: Quick auth test against GitHub Packages
+      run: |
+        status=$(curl -s -o /dev/null -w "%{http_code}" -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom")
+        echo "maven.pkg.github.com status: $status"
+
     - name: Check out
       uses: actions/checkout@v4
 
