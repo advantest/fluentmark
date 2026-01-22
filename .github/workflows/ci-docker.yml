@@ -18,6 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
       image: ghcr.io/${{ github.repository }}:graphviz-11.0.0
@@ -34,12 +35,12 @@ jobs:
           <servers>
             <server>
               <id>github-packages-flexmark</id>
-              <username>__token__</username>
+              <username>${GITHUB_ACTOR}</username>
               <password>${GITHUB_TOKEN}</password>
             </server>
             <server>
               <id>github-packages-markdown-core</id>
-              <username>__token__</username>
+              <username>${GITHUB_ACTOR}</username>
               <password>${GITHUB_TOKEN}</password>
             </server>
           </servers>
@@ -54,6 +55,9 @@ jobs:
 
     - name: Check token in settings.xml is expanded
       run: grep -q "<password></password>" ~/.m2/settings.xml && echo "empty token found (bad)" || echo "token not empty (good)"
+
+    - name: Check username in settings.xml is expanded
+      run: grep "<username>" ~/.m2/settings.xml
 
     - name: Check out
       uses: actions/checkout@v4
