@@ -1,11 +1,13 @@
 # based on https://github.com/plantuml/plantuml-server/blob/master/Dockerfile.tomcat
 
-#FROM ubuntu:22.04
-FROM eclipse-temurin:21-jdk
+FROM maven:3.9-eclipse-temurin-21
+#FROM eclipse-temurin:21-jdk
 
+# Install pandoc besides other useful tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
+        pandoc \
         fonts-noto-cjk \
         libgd3 \
         && \
