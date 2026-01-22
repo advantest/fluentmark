@@ -45,6 +45,9 @@ jobs:
           </servers>
         </settings>
 
+    - name: Check if settings.xml exists
+      run: find ~/.m2/ -type f -name "settings.xml"
+
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
       run: mvn -B clean verify --file pom.xml -U -Dcode-coverage
