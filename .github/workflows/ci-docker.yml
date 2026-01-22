@@ -61,8 +61,8 @@ jobs:
 
     - name: Quick auth test against GitHub Packages
       run: |
-        status=$(curl -s -o /dev/null -w "%{http_code}" -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom")
-        echo "maven.pkg.github.com status: $status"
+        curl -v -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -I -L \
+        "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom"
 
     - name: Check out
       uses: actions/checkout@v4
