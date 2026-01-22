@@ -17,11 +17,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
       image: ghcr.io/${{ github.repository }}:graphviz-11.0.0
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
     - name: Set up settings.xml for Maven and GitHub packages access
       run: |
@@ -32,12 +35,12 @@ jobs:
             <server>
               <id>github-packages-flexmark</id>
               <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
+              <password>${GITHUB_TOKEN}</password>
             </server>
             <server>
               <id>github-packages-markdown-core</id>
               <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
+              <password>${GITHUB_TOKEN}</password>
             </server>
           </servers>
         </settings>
