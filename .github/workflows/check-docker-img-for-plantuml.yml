@@ -1,0 +1,29 @@
+name: Check Docker image for PlantUML
+on:
+  workflow_dispatch:
+    inputs:
+      GRAPHVIZ_VERSION:
+        description: 'Graphviz version'
+        required: false
+        default: '11.0.0'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+        image: ghcr.io/${{ github.repository }}:graphviz-${{ github.event.inputs.GRAPHVIZ_VERSION }}
+        credentials:
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+            GRAPHVIZ_VERSION: ${{ github.event.inputs.GRAPHVIZ_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run
+        run: java -version; dot -V
