@@ -47,29 +47,29 @@ jobs:
         </settings>
         EOF
 
-    - name: Check if settings.xml exists
-      run: find ~/.m2/ -type f -name "settings.xml"
+#    - name: Check if settings.xml exists
+#      run: find ~/.m2/ -type f -name "settings.xml"
 
-    - name: Check token in settings.xml is expanded
-      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
+#    - name: Check token in settings.xml is expanded
+#      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
 
-    - name: Check token in settings.xml is expanded
-      run: grep -q "<password></password>" ~/.m2/settings.xml && echo "empty token found (bad)" || echo "token not empty (good)"
+#    - name: Check token in settings.xml is expanded
+#      run: grep -q "<password></password>" ~/.m2/settings.xml && echo "empty token found (bad)" || echo "token not empty (good)"
 
-    - name: Check username in settings.xml is expanded
-      run: grep "<username>" ~/.m2/settings.xml
+#    - name: Check username in settings.xml is expanded
+#      run: grep "<username>" ~/.m2/settings.xml
 
-    - name: Quick auth test against GitHub Packages
-      run: |
-        curl -v -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -I -L \
-        "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom"
+#    - name: Quick auth test against GitHub Packages
+#      run: |
+#        curl -v -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -I -L \
+#        "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom"
 
     - name: Check out
       uses: actions/checkout@v4
 
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
-      run: mvn -B clean verify --file pom.xml -U -Dcode-coverage
+      run: mvn -X -B clean verify --file pom.xml -U -Dcode-coverage
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
