@@ -17,6 +17,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # save some values in variables in order to use them within the Docker container
     env:
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,28 +53,12 @@ jobs:
         git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
         git config --global user.name ${GITHUB_ACTOR}
 
-#    - name: Check if settings.xml exists
-#      run: find /root/.m2/ -type f -name "settings.xml"
-
-#    - name: Check token in settings.xml is expanded
-#      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
-
-#    - name: Check token in settings.xml is expanded
-#      run: grep -q "<password></password>" ~/.m2/settings.xml && echo "empty token found (bad)" || echo "token not empty (good)"
-
-#    - name: Check username in settings.xml is expanded
-#      run: grep "<username>" ~/.m2/settings.xml
-
-#    - name: Quick auth test against GitHub Packages
-#      run: |
-#        curl -v -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -I -L \
-#        "https://maven.pkg.github.com/advantest/markdown-core/com/advantest/markdown/markdown-core/1.0.10-20251110-1607/markdown-core-1.0.10-20251110-1607.pom"
-
     - name: Check out
       uses: actions/checkout@v4
 
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
+      # xvfb-run is used to start a virtual X server (virtual screen) for UI tests
       run: xvfb-run -s "-screen 0 1920x1080x24" mvn -B clean verify --file pom.xml -U -Dcode-coverage
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive

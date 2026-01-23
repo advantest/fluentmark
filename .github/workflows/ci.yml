@@ -1,13 +1,16 @@
 name: Java CI with Maven/Tycho
 
+# Obsolete CI/CD workflow, is replaced by ci-docker.yml
+
 on:
-  push:
-    branches-ignore:
-    - main
-    - master
-  pull_request:
-    branches:
-    - develop
+#  push:
+#    branches-ignore:
+#    - main
+#    - master
+#  pull_request:
+#    branches:
+#    - develop
+  workflow_dispatch:
 
 jobs:
   build:
