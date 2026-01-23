@@ -47,11 +47,13 @@ jobs:
         </settings>
         EOF
 
-#    - name: Check user and working dir
-#      run: whoami; pwd
+    - name: Set up user details for git commits
+      run: |
+        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git config --global user.name ${GITHUB_ACTOR}
 
-    - name: Check if settings.xml exists
-      run: find /root/.m2/ -type f -name "settings.xml"
+#    - name: Check if settings.xml exists
+#      run: find /root/.m2/ -type f -name "settings.xml"
 
 #    - name: Check token in settings.xml is expanded
 #      run: grep -q GITHUB_TOKEN ~/.m2/settings.xml && echo "literal token expression found (bad)" || echo "no literal expression — expanded"
