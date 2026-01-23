@@ -143,7 +143,7 @@ public class TemplateCompletionProcessor extends org.eclipse.jface.text.template
 			currentLine = lineLength > 0 ? document.get(lineOffset, lineLength) : "";
 			currentLineTextLeftFromCursor = lineLength > 0 ? document.get(lineOffset, offset - lineOffset) : "";
 			
-			if (currentLine.equals("\n") || currentLine.equals("\r\n")) {
+			if (currentLine.equals("\n") || currentLine.equals("\r\n") || currentLine.length() == 0) {
 				inEmptyLine = true;
 			}
 		} catch (BadLocationException ex) {
