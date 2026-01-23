@@ -1,7 +1,7 @@
 <!-- see https://shields.io/badges -->
 
 ![GitHub License](https://img.shields.io/github/license/advantest/fluentmark)
-[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/advantest/fluentmark/actions/workflows/ci.yml)
+[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci-docker.yml/badge.svg?branch=develop)](https://github.com/advantest/fluentmark/actions/workflows/ci-docker.yml)
 
 # FluentMark Advantest Edition (AE)
 
