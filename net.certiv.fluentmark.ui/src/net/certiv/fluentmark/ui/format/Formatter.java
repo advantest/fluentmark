@@ -79,6 +79,10 @@ public class Formatter {
 			undoMgr.endCompoundChange();
 		} catch (Exception ex) {
 			Log.error("Bad location error occurred during formatting", ex);
+		} finally {
+			if (sel != null) {
+				editor.setCursorOffset(sel.getOffset());
+			}
 		}
 	}
 
