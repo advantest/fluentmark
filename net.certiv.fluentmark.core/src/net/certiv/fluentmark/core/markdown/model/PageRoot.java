@@ -193,7 +193,7 @@ public class PageRoot extends Parent {
 
 	/** Return the page part of the line at the given line index */
 	public PagePart getPagePart(int idx) {
-		return lines.getPagePart(idx);
+		return parts.get(idx);
 	}
 
 	/** Returns the part that follows the given part, or null */

@@ -7,6 +7,7 @@
  ******************************************************************************/
 package net.certiv.fluentmark.core.markdown.model;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 
 import java.util.ArrayList;
@@ -29,6 +30,22 @@ public abstract class Parent extends Element implements IParent {
 	public Parent(String lineDelim) {
 		super();
 		this.lineDelim = lineDelim;
+	}
+	
+	public boolean setLineDelimiter(String lineDelimiter) {
+		Assert.isLegal(lineDelimiter != null && !lineDelimiter.isEmpty());
+		
+		if (lineDelimiter.equals(this.lineDelim)) {
+			return false; // no change
+		}
+		
+		this.lineDelim = lineDelimiter;
+		
+		for (IParent child: this.children) {
+			child.setLineDelimiter(this.lineDelim);
+		}
+		
+		return true;
 	}
 
 	@Override
