@@ -94,7 +94,7 @@ public class Formatter {
 		PagePart end = model.partAtOffset(endOffset);
 
 		for (int idx = beg.getPartIdx(); idx <= end.getPartIdx(); idx++) {
-			selected.add(model.getPagePart(idx));
+			selected.add(model.getPageParts().get(idx));
 		}
 		return selected;
 	}
