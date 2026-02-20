@@ -140,7 +140,6 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitioner.MATHBLOCK);
 		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitioner.HTMLBLOCK);
 		buildLineRepairer(reconciler, markup, MarkdownPartitioner.CODESPAN);
-		buildLineRepairer(reconciler, markup, MarkdownPartitioner.PLANTUML_INCLUDE);
 		buildLineRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
@@ -274,7 +273,6 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
 		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.DOTBLOCK);
-		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {

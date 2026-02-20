@@ -62,8 +62,7 @@ public class MarkdownLinkValidator implements ITypedRegionValidator {
 
 	@Override
 	public boolean isValidatorFor(ITypedRegion region, IFile file) {
-		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType())
-				|| MarkdownPartitioner.PLANTUML_INCLUDE.equals(region.getType());
+		return IDocument.DEFAULT_CONTENT_TYPE.equals(region.getType());
 	}
 	
 	@Override

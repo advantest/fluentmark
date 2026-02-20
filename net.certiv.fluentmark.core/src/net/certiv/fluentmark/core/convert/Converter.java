@@ -28,6 +28,8 @@ import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
 
+import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
+import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.core.util.Cmd;
 import net.certiv.fluentmark.core.util.Cmd.CmdResult;
@@ -211,17 +213,17 @@ public class Converter {
 						text = translatePumlCodeToHtmlFigure(text);
 					}
 					break;
-				case MarkdownPartitioner.PLANTUML_INCLUDE:
-					if (configurationProvider.isPlantUMLEnabled()) {
-						text = translatePumlIncludeLineToHtml(text, filePath);
-					}
-					break;
 				case MarkdownPartitioner.COMMENT:
 					if (!text.isEmpty()
 							&& text.startsWith("<!---")
 							&& text.endsWith("--->")) {
 						// hide "hidden comment" (remove / ignore it)
 						continue;
+					}
+					break;
+				case IDocument.DEFAULT_CONTENT_TYPE:
+					if (configurationProvider.isPlantUMLEnabled()) {
+						text = findAndTranslatePlantUmlImagesToHtml(text, filePath);
 					}
 					break;
 				default:
@@ -243,63 +245,94 @@ public class Converter {
 		return createHtmlFigure(pumlDiagram);
 	}
 	
-	private String translatePumlIncludeLineToHtml(String markdownCodeWithPumlIncludeStatement, IPath currentMarkdownFilePath) {
-		String figureCaption = pumlInclusionConverter.readCaptionFrom(markdownCodeWithPumlIncludeStatement);
-		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(markdownCodeWithPumlIncludeStatement);
-        String remainingLine = pumlInclusionConverter.getRemainderOfThePumlIncludeLine(markdownCodeWithPumlIncludeStatement);
-        
-        IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
-        File pumlFile = absolutePumlFilePath.toFile();
-        
-        if (!pumlFile.exists()) {
-        	String message =  "<span style=\"color:red\">PlantUML file \"%s\" does not exist.</span>";
-    		message = String.format(message, HtmlEscapers.htmlEscaper().escape(pumlFile.getAbsolutePath()));
-    		return message;
-        }
-        
-        Path tempDirPath;
+	private String findAndTranslatePlantUmlImagesToHtml(String markdownCode, IPath currentMarkdownFilePath) {
+		List<RegexMatch> images = MarkdownParsingTools.findLinksAndImages(markdownCode)
+				// we collect only images, i.e. everything of the form ![label](path/to/file.extension)
+				.filter(match -> match.matchedText.startsWith("!"))
+				.toList();
+		
+		StringBuilder stringBuilder = new StringBuilder();
+		int index = 0;
+		for (RegexMatch imageMatch: images) {
+			// append every text preceding our match (the image statement)
+			stringBuilder.append(markdownCode.substring(index, imageMatch.startIndex));
+			
+			String filaPath = pumlInclusionConverter.readPumlFilePathText(imageMatch.matchedText);
+			if (filaPath.endsWith("." + FileUtils.FILE_EXTENSION_PLANTUML)) {
+				// we found an image pointing to a PlantUML file, let's render the image
+				stringBuilder.append(translatePlantUmlImageStatementToHtml(imageMatch.matchedText, currentMarkdownFilePath));
+			} else {
+				// it must be an ordinary Markdown image => just add the image statement
+				stringBuilder.append(imageMatch.matchedText);
+			}
+			
+			// move the index to the end of our match
+			index = imageMatch.endIndex;
+		}
+		
+		// eventually, add the remainder of the text
+		if (index < markdownCode.length()) {
+			stringBuilder.append(markdownCode.substring(index));
+		}
+		
+		return stringBuilder.toString();
+	}
+	
+	private String translatePlantUmlImageStatementToHtml(String pumlIncludeStatement, IPath currentMarkdownFilePath) {
+		String figureCaption = pumlInclusionConverter.readCaptionFrom(pumlIncludeStatement);
+		IPath relativePumlFilePath = pumlInclusionConverter.readPumlFilePath(pumlIncludeStatement);
+		IPath absolutePumlFilePath = pumlInclusionConverter.toAbsolutePumlFilePath(currentMarkdownFilePath, relativePumlFilePath);
+		File pumlFile = absolutePumlFilePath.toFile();
+		
+		if (!pumlFile.exists()) {
+			String message = "<span style=\"color:red\">PlantUML file \"%s\" does not exist.</span>";
+			message = String.format(message, HtmlEscapers.htmlEscaper().escape(pumlFile.getAbsolutePath()));
+			return message;
+		}
+		
+		Path tempDirPath;
 		try {
 			tempDirPath = Files.createTempDirectory("puml2svg-");
 		} catch (IOException e) {
 			throw new RuntimeException("Could not create temporary directory for generating SVG file.", e);
 		}
-        File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
-        String svgDiagram = "";
-        
-        if (svgFile != null && svgFile.exists()) {
-        	String svgFileContent = FileUtils.readTextFromFile(svgFile);
-        	svgDiagram = removeSvgMetaInfos(svgFileContent);
-        	
-        	boolean fileDeleted = svgFile.delete();
-        	if (fileDeleted) {
-        		tempDirPath.toFile().delete();
-        	}
-        }
-        
-        String htmlFigure = createHtmlFigure(svgDiagram, figureCaption);
-        
-        if (htmlFigure != null) {
-        	return htmlFigure + remainingLine;
-        }
-        
-        return markdownCodeWithPumlIncludeStatement;
+		File svgFile = umlGen.uml2svg(pumlFile, tempDirPath.toFile());
+		
+		String svgDiagram = "";
+		if (svgFile != null && svgFile.exists()) {
+			String svgFileContent = FileUtils.readTextFromFile(svgFile);
+			svgDiagram = removeSvgMetaInfos(svgFileContent);
+
+			boolean fileDeleted = svgFile.delete();
+			if (fileDeleted) {
+				tempDirPath.toFile().delete();
+			}
+		}
+		
+		String htmlFigure = createHtmlFigure(svgDiagram, figureCaption);
+		
+		if (htmlFigure != null) {
+			return htmlFigure;
+		}
+
+		return pumlIncludeStatement;
 	}
 	
 	private String convertDot2Svg(String dotCode) {
 		String svgDiagram = "";
-        if (dotCode != null) {
-        	svgDiagram = dotGen.runDot(dotCode);
-        }
-        return svgDiagram;
+		if (dotCode != null) {
+			svgDiagram = dotGen.runDot(dotCode);
+		}
+		return svgDiagram;
 	}
 	
 	private String convertPlantUml2Svg(String plantUmlCode) {
 		String svgDiagram = "";
-        if (plantUmlCode != null) {
-        	svgDiagram = umlGen.uml2svg(plantUmlCode);
-        	svgDiagram = removeSvgMetaInfos(svgDiagram);
-        }
-        return svgDiagram;
+		if (plantUmlCode != null) {
+			svgDiagram = umlGen.uml2svg(plantUmlCode);
+			svgDiagram = removeSvgMetaInfos(svgDiagram);
+		}
+		return svgDiagram;
 	}
 	
 	private String removeSvgMetaInfos(String svgSources) {
@@ -310,15 +343,15 @@ public class Converter {
 		}
 		
 		// remove meta-infos since we're only interested in the SVG tag contents
-    	// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
-    	if (svgSources.startsWith("<?xml ")) {
-    		int indexOfEndTag = svgSources.indexOf("?>");
-    		if (indexOfEndTag >= 0) {
-    			svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
-    		}
-    	}
-    	
-    	return svgDiagram;
+		// meta-infos example: <?xml version="1.0" encoding="us-ascii" standalone="no"?>
+		if (svgSources.startsWith("<?xml ")) {
+			int indexOfEndTag = svgSources.indexOf("?>");
+			if (indexOfEndTag >= 0) {
+				svgDiagram = svgDiagram.substring(indexOfEndTag + 2);
+			}
+		}
+
+		return svgDiagram;
 	}
 	
 	private String createHtmlFigure(String svgCode, String figureCaption) {
@@ -328,15 +361,15 @@ public class Converter {
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
-        
-        if (figureText != null) {
-        	figureText = figureText.replace("%image%", svgCode);
-        	figureText = figureText.replace("%caption%", figureCaption);
-        	
-        	return figureText;
-        }
-        
-        return null;
+
+		if (figureText != null) {
+			figureText = figureText.replace("%image%", svgCode);
+			figureText = figureText.replace("%caption%", figureCaption);
+
+			return figureText;
+		}
+
+		return null;
 	}
 	
 	private String createHtmlFigure(String svgCode) {
@@ -346,14 +379,14 @@ public class Converter {
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
-        
-        if (figureText != null) {
-        	figureText = figureText.replace("%image%", svgCode);
-        	
-        	return figureText;
-        }
-        
-        return null;
+
+		if (figureText != null) {
+			figureText = figureText.replace("%image%", svgCode);
+
+			return figureText;
+		}
+
+		return null;
 	}
 
 	private String filter(String text, Pattern beg, Pattern end) {
