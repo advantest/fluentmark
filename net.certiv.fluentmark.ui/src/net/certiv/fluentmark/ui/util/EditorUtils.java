@@ -11,6 +11,7 @@ package net.certiv.fluentmark.ui.util;
 
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -26,6 +27,7 @@ import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
+import net.certiv.fluentmark.ui.views.FluentPreview;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -33,9 +35,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -310,6 +314,32 @@ public class EditorUtils {
 			Log.error(String.format("Could not open URL %s in web browser", url), e );
 		}
 		
+		return null;
+	}
+	
+	public static FluentPreview showFluentPreview(boolean activateView, IWorkbenchPage activePage) {
+		try {
+			IViewPart mdView;
+			if (activateView) {
+				mdView = activePage.showView(FluentPreview.ID);
+			} else {
+				mdView = activePage.showView(FluentPreview.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+			}
+			FluentPreview preview = (FluentPreview) mdView;
+			
+			if (activateView) {
+				activePage.activate(preview);
+			}
+			
+			return preview;
+		} catch (PartInitException e) {
+			String title = "Exception while opening Markdown Preview";
+			String message = title + " (" + FluentPreview.ID + ")";
+			Log.error(message, e);
+
+			Shell shell = Display.getDefault().getActiveShell();
+			MessageDialog.openError(shell, title , message);
+		}
 		return null;
 	}
 	

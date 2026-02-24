@@ -9,11 +9,11 @@
  */
 package net.certiv.fluentmark.ui.handlers;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -21,24 +21,16 @@ import net.certiv.fluentmark.ui.editor.FluentEditor;
 import net.certiv.fluentmark.ui.util.EditorUtils;
 import net.certiv.fluentmark.ui.views.FluentPreview;
 
-public class JumpToElementInPreviewHandler extends OpenMdViewHandler {
+public class JumpToElementInPreviewHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// open the preview first
-		super.execute(event);
-		
 		IWorkbenchPage activePage = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
-		IViewPart fluentPreview = activePage.findView(FluentPreview.ID);
 		
-		if (!(fluentPreview instanceof FluentPreview)) {
-			return null;
-		}
-		
-		FluentPreview preview = (FluentPreview) fluentPreview;
-		
+		FluentPreview fluentPreview = EditorUtils.showFluentPreview(false, activePage);
 		FluentEditor editor = EditorUtils.getActiveFluentEditor();
-		if (editor == null || editor.getSelectionProvider() == null) {
+		
+		if (fluentPreview == null || editor == null || editor.getSelectionProvider() == null) {
 			return null;
 		}
 		
@@ -52,7 +44,7 @@ public class JumpToElementInPreviewHandler extends OpenMdViewHandler {
 		int offset = textSelection.getOffset();
 		int length = textSelection.getLength();
 		
-		preview.scrollToElement(offset, length);
+		fluentPreview.scrollToElement(offset, length);
 		
 		return null;
 	}
