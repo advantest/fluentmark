@@ -369,7 +369,13 @@
                   commandId="net.certiv.fluentmark.openView"
                   icon="icons/obj16/fluentmark_doc.png"
                   style="push"
-                  tooltip="Open FluentMark Viewer">
+                  tooltip="Open FluentMark View">
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+                  icon="icons/etool16/goto_preview.png"
+                  style="push"
+                  tooltip="Show Element in FluentMark View">
                <visibleWhen>
                   <reference
                         definitionId="net.certiv.fluentmark.editorVisible">
@@ -439,6 +445,17 @@
                icon="icons/obj16/fluentmark_doc.png"
                id="net.certiv.fluentmark.ui.markdown.menu"
                label="Markdown">
+            <command
+                  commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+                  icon="icons/etool16/goto_preview.png"
+                  style="push"
+                  tooltip="Show Element in FluentMark View">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
             <command
                   commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
                   icon="icons/obj16/fluentmark_doc.png"
@@ -764,7 +781,7 @@
       <command
             defaultHandler="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
             id="net.certiv.fluentmark.ui.navigation.to.preview"
-            name="Jump to rendered element in preview">
+            name="Go to rendered element in preview">
       </command>
    </extension>
 
@@ -1005,7 +1022,7 @@
             commandId="net.certiv.fluentmark.ui.navigation.to.preview"
             contextId="net.certiv.fluentmark.ui.editorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="F5">
+            sequence="M1+F5">
       </key>
    </extension>
    <extension
