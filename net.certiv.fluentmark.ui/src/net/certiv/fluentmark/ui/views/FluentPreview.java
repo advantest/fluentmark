@@ -22,6 +22,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
 
 import net.certiv.fluentmark.core.convert.IConfigurationProvider;
@@ -59,6 +60,8 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		browser.setRedraw(true);
 		browser.setJavascriptEnabled(true);
 		browser.setText(NO_CONTENT_TEXT);
+		
+		new JumpToSourceBrowserFunction(browser, "jumpToSource");
 
 		latestActiveEditor = this.getActiveFluentEditor();
 		currentEditorInput = this.getActiveEditorInput();
@@ -69,6 +72,28 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		
 		getPreferenceStore().addPropertyChangeListener(this);
 		getActivePage().addPartListener(this);
+	}
+	
+	private class JumpToSourceBrowserFunction extends BrowserFunction {
+
+		public JumpToSourceBrowserFunction(Browser browser, String name) {
+			super(browser, name);
+		}
+
+		@Override
+		public Object function(Object[] arguments) {
+			super.function(arguments);
+			
+			if (arguments.length == 2) {
+				// we have to use double according to the function's javadoc (due to JavaScript -> Java type conversion)
+				double sourceOffset = (Double) arguments[0];
+				double sourceLength = (Double) arguments[1];
+
+				revealInEditor((int) sourceOffset, (int) sourceLength);
+			}
+			return null;
+		}
+	
 	}
 
 	// -------------------------------------------------------------------------
@@ -188,6 +213,13 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	public void scrollToElement(int sourceOffset, int sourceLength) {
 		if (this.viewjob != null) {
 			this.viewjob.scrollToElement(sourceOffset, sourceLength);
+		}
+	}
+	
+	public void revealInEditor(int sourceOffset, int sourceLength) {
+		FluentEditor editor = getActiveFluentEditor();
+		if (editor != null) {
+			editor.selectAndReveal(sourceOffset, sourceLength);
 		}
 	}
 
