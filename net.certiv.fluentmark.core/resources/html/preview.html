@@ -39,6 +39,10 @@
 					transform: none;
 				}
 			}
+			/* Used to highlight a single element when displaying an element in source code and showing it in the rendered preview */
+			.is-highlighted {
+			  outline: 2px solid #42b983;
+			}
 		</style>
 
 %highlight%
@@ -341,9 +345,8 @@
 							element.scrollIntoView({behavior: 'smooth', block: 'center'});
 
 							// highlight the element
-							const outlineBefore = element.style.outline;
-							element.style.outline = "2px solid #42b983";
-							setTimeout(() => element.style.outline = outlineBefore, 2000);
+							element.classList.add('is-highlighted');
+							setTimeout(() => element.classList.remove('is-highlighted'), 2000);
 						}
 					},
 					updateImages: function() {
