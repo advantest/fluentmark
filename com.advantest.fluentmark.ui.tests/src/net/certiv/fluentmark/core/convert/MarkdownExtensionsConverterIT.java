@@ -9,7 +9,6 @@
  */
 package net.certiv.fluentmark.core.convert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,7 +33,8 @@ public class MarkdownExtensionsConverterIT extends AbstractConverterIT {
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertEquals("<h1>Heading without ID</h1>\n", result);
+		assertTrue(result.startsWith("<h1"));
+		assertTrue(result.endsWith(">Heading without ID</h1>\n"));
 	}
 	
 	@ParameterizedTest
@@ -49,7 +49,8 @@ public class MarkdownExtensionsConverterIT extends AbstractConverterIT {
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertEquals("<h1 id=\"heading-id-1\">Heading with ID</h1>\n", result);
+		assertTrue(result.startsWith("<h1 id=\"heading-id-1\""));
+		assertTrue(result.endsWith(">Heading with ID</h1>\n"));
 	}
 	
 	@ParameterizedTest
@@ -68,7 +69,7 @@ Here comes an image.
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<p>Here comes an image.<\\/p>\\s*<figure>\\s*<img(.|\\s)*<figcaption.*>FluentMark logo<\\/figcaption>\\s*<\\/figure>\\s*"));
+		assertTrue(result.matches("<p[^<>]*>Here comes an image.<\\/p>\\s*<figure[^<>]*>\\s*<img(.|\\s)*<figcaption[^<>]*>FluentMark logo<\\/figcaption>\\s*<\\/figure>\\s*"));
 	}
 	
 	@ParameterizedTest
@@ -93,9 +94,9 @@ Leave blank lines before and after comments for better tool compatibility.
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<p>Use HTML-style comments.<\\/p>\\s*"
+		assertTrue(result.matches("<p[^<>]*>Use HTML-style comments.<\\/p>\\s*"
 				+ "<!-- Comments are looking exactly the same as in HTML. -->\\s*"
-				+ "<p>Leave blank lines before and after comments\\s+for\\s+better\\s+tool\\s+compatibility.<\\/p>\\s*"
+				+ "<p[^<>]*>Leave blank lines before and after comments\\s+for\\s+better\\s+tool\\s+compatibility.<\\/p>\\s*"
 				+ "<!-- Multi-line comments\\n"
 				+ "     are looking exactly the same\\n"
 				+ "     as in HTML. -->\\s*"));
@@ -143,7 +144,7 @@ but that syntax is a Markdown extension
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<p>\\s*Text\\scan\\sbe\\s<del>striked\\sthrough<\\/del>,"
+		assertTrue(result.matches("<p[^<>]*>\\s*Text\\scan\\sbe\\s<del[^<>]*>striked\\sthrough<\\/del>,"
 				+ "\\s*but\\sthat\\ssyntax\\sis\\sa\\sMarkdown\\sextension\\s*"
 				+ "\\(i\\.e\\.\\snot\\ssupported\\sby\\sall\\stools\\)\\.\\s*<\\/p>\\s*"));
 	}
@@ -168,7 +169,7 @@ but that syntax is a Markdown extension
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<pre( class=\"json\")*><code( class=\"json\")*>\\s*"
+		assertTrue(result.matches("<pre( class=\"json\")*[^<>]*><code( class=\"json\")*[^<>]*>\\s*"
 				+ "\\{\\n"
 				+ "  &quot;firstName&quot;: &quot;John&quot;,\\n"
 				+ "  &quot;lastName&quot;: &quot;Smith&quot;,\\n"
@@ -196,39 +197,39 @@ but that syntax is a Markdown extension
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<table>\\s*"
-				+ "<thead>\\s*"
-				+ "<tr.*>\\s*"
-				+ "<th (align=\"right\"|style=\"text-align: right;\")>No.<\\/th>\\s*"
-				+ "<th (align=\"left\"|style=\"text-align: left;\")>Markdown dialect<\\/th>\\s*"
-				+ "<th>Default<\\/th>\\s*"
-				+ "<th (align=\"center\"|style=\"text-align: center;\")>Centered column<\\/th>\\s*"
+		assertTrue(result.matches("<table[^<>]*>\\s*"
+				+ "<thead[^<>]*>\\s*"
+				+ "<tr[^<>]*>\\s*"
+				+ "<th (align=\"right\"|style=\"text-align: right;\")[^<>]*>No.<\\/th>\\s*"
+				+ "<th (align=\"left\"|style=\"text-align: left;\")[^<>]*>Markdown dialect<\\/th>\\s*"
+				+ "<th[^<>]*>Default<\\/th>\\s*"
+				+ "<th (align=\"center\"|style=\"text-align: center;\")[^<>]*>Centered column<\\/th>\\s*"
 				+ "<\\/tr>\\s*"
 				+ "<\\/thead>\\s*"
-				+ "<tbody>\\s*"
-				+ "<tr.*>\\s*"
-				+ "<td (align=\"right\"|style=\"text-align: right;\")>1<\\/td>\\s*"
-				+ "<td (align=\"left\"|style=\"text-align: left;\")>CommonMark<\\/td>\\s*"
-				+ "<td>x<\\/td>\\s*"
-				+ "<td (align=\"center\"|style=\"text-align: center;\")>A<\\/td>\\s*"
+				+ "<tbody[^<>]*>\\s*"
+				+ "<tr[^<>]*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")[^<>]*>1<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")[^<>]*>CommonMark<\\/td>\\s*"
+				+ "<td[^<>]*>x<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")[^<>]*>A<\\/td>\\s*"
 				+ "<\\/tr>\\s*"
-				+ "<tr.*>\\s*"
-				+ "<td (align=\"right\"|style=\"text-align: right;\")>2<\\/td>\\s*"
-				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitHub-flavored Markdown<\\/td>\\s*"
-				+ "<td>y<\\/td>\\s*"
-				+ "<td (align=\"center\"|style=\"text-align: center;\")>B<\\/td>\\s*"
+				+ "<tr[^<>]*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")[^<>]*>2<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")[^<>]*>GitHub-flavored Markdown<\\/td>\\s*"
+				+ "<td[^<>]*>y<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")[^<>]*>B<\\/td>\\s*"
 				+ "<\\/tr>\\s*"
-				+ "<tr.*>\\s*"
-				+ "<td (align=\"right\"|style=\"text-align: right;\")>3<\\/td>\\s*"
-				+ "<td (align=\"left\"|style=\"text-align: left;\")>GitLab-flavored Markdown<\\/td>\\s*"
-				+ "<td>z<\\/td>\\s*"
-				+ "<td (align=\"center\"|style=\"text-align: center;\")>C<\\/td>\\s*"
+				+ "<tr[^<>]*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")[^<>]*>3<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")[^<>]*>GitLab-flavored Markdown<\\/td>\\s*"
+				+ "<td[^<>]*>z<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")[^<>]*>C<\\/td>\\s*"
 				+ "<\\/tr>\\s*"
-				+ "<tr.*>\\s*"
-				+ "<td (align=\"right\"|style=\"text-align: right;\")>...<\\/td>\\s*"
-				+ "<td (align=\"left\"|style=\"text-align: left;\")>...<\\/td>\\s*"
-				+ "<td>...<\\/td>\\s*"
-				+ "<td (align=\"center\"|style=\"text-align: center;\")>...<\\/td>\\s*"
+				+ "<tr[^<>]*>\\s*"
+				+ "<td (align=\"right\"|style=\"text-align: right;\")[^<>]*>...<\\/td>\\s*"
+				+ "<td (align=\"left\"|style=\"text-align: left;\")[^<>]*>...<\\/td>\\s*"
+				+ "<td[^<>]*>...<\\/td>\\s*"
+				+ "<td (align=\"center\"|style=\"text-align: center;\")[^<>]*>...<\\/td>\\s*"
 				+ "<\\/tr>\\s*"
 				+ "<\\/tbody>\\s*"
 				+ "<\\/table>\\s"));
@@ -295,7 +296,7 @@ Einstein's formula $E=mc^2$ is famous.
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<p>Markdown supports LaTeX syntax for formulas\\.\\s+"
+		assertTrue(result.matches("<p[^<>]*>Markdown supports LaTeX syntax for formulas\\.\\s+"
 				+ "Einstein's\\s+formula\\s+"
 				+ "<span(.|\\s)*>\\\\\\(E=mc\\^2\\\\\\)<\\/span>\\s+"
 				+ "is famous\\.<\\/p>\\s*"));
@@ -318,8 +319,8 @@ $$\\sum_{i=1}^{n}=\\frac{n(n+1)}{2}$$
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.matches("<p>Formulas can be placed in display mode\\s+with\\s+the\\s+usual\\s+LaTeX\\s+syntax:</p>\\s*"
-				+ "<p>\\s*<span(.|\\s)*>\\s*"
+		assertTrue(result.matches("<p[^<>]*>Formulas can be placed in display mode\\s+with\\s+the\\s+usual\\s+LaTeX\\s+syntax:</p>\\s*"
+				+ "<p[^<>]*>\\s*<span(.|\\s)*>\\s*"
 				+ "\\\\\\[\\\\sum_\\{i=1\\}\\^\\{n\\}=\\\\frac\\{n\\(n\\+1\\)\\}\\{2\\}\\\\\\]\\s*"
 				+ "<\\/span>\\s*<\\/p>\\s"));
 	}

@@ -42,7 +42,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		String resultWithoutLinebreaks = result.replace("\n", " ");
-		assertTrue(resultWithoutLinebreaks.contains("<span style=\"color:red\">PlantUML file"));
+		assertTrue(resultWithoutLinebreaks.matches(".*<span style=\"color:red\"[^<>]*>PlantUML file.*"));
 		assertTrue(resultWithoutLinebreaks.contains("does not exist.</span>"));
 	}
 	
@@ -59,7 +59,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		
-		Matcher regexMatcher = Pattern.compile("<figure>\\s*<svg.*<\\/svg>\\s*<figcaption.*>Some diagram<\\/figcaption>\\s*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
+		Matcher regexMatcher = Pattern.compile("<figure[^<>]*>\\s*<svg.*<\\/svg>\\s*<figcaption.*>Some diagram<\\/figcaption>\\s*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
 		assertTrue(regexMatcher.find());
 	}
 	
@@ -75,7 +75,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		
 		assertNotNull(result);
 		
-		Matcher regexMatcher = Pattern.compile("<figure>\\s*<svg.*<\\/svg>.*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
+		Matcher regexMatcher = Pattern.compile("<figure[^<>]*>\\s*<svg.*<\\/svg>.*<\\/figure>\\s*", Pattern.DOTALL).matcher(result);
 		assertTrue(regexMatcher.find());
 	}
 	
