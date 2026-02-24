@@ -184,6 +184,12 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 	protected IPreferenceStore getPreferenceStore() {
 		return FluentUI.getDefault().getPreferenceStore();
 	}
+	
+	public void scrollToElement(int sourceOffset, int sourceLength) {
+		if (this.viewjob != null) {
+			this.viewjob.scrollToElement(sourceOffset, sourceLength);
+		}
+	}
 
 	@Override
 	public void dispose() {

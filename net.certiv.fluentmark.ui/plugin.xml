@@ -761,6 +761,11 @@
             id="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
             name="Extract PlantUML code to a *.puml file">
       </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
+            id="net.certiv.fluentmark.ui.navigation.to.preview"
+            name="Jump to rendered element in preview">
+      </command>
    </extension>
 
    <extension
@@ -921,6 +926,20 @@
             </reference>
          </enabledWhen>
       </handler>
+      <handler
+            class="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
+            commandId="net.certiv.fluentmark.ui.navigation.to.preview">
+         <activeWhen>
+            <reference
+                  definitionId="net.certiv.fluentmark.editorVisible">
+            </reference>
+         </activeWhen>
+         <enabledWhen>
+            <reference
+                  definitionId="net.certiv.fluentmark.editorVisible">
+            </reference>
+         </enabledWhen>
+      </handler>
       
    </extension>
    
@@ -981,6 +1000,12 @@
             contextId="net.certiv.fluentmark.ui.editorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
+      </key>
+      <key
+            commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+            contextId="net.certiv.fluentmark.ui.editorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F5">
       </key>
    </extension>
    <extension

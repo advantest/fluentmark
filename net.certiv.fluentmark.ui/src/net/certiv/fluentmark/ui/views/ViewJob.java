@@ -40,6 +40,7 @@ public class ViewJob extends Job {
 
 	private static final String Render = "Fluent.set('%s');";
 	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
+	private static final String CMD_SCROLL_TO_ELEMENT = "Fluent.scrollToElement(%s, %s);";
 	
 	private String currentAnchorToScrollTo;
 	private String previewContents;
@@ -187,6 +188,27 @@ public class ViewJob extends Job {
 					boolean ok = browser.execute(script);
 					if (!ok) {
 						Log.error(String.format("JavaScript execution (scroll to anchor %s) failed.", anchor));
+					}
+				}
+			}
+		});
+	}
+	
+	public void scrollToElement(int sourceOffset, int sourceLength) {
+		if (state != State.READY || browser == null || browser.isDisposed()) {
+			return;
+		}
+		
+		String script = String.format(CMD_SCROLL_TO_ELEMENT, sourceOffset, sourceLength);
+		
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if (browser != null && !browser.isDisposed()) {
+					boolean ok = browser.execute(script);
+					if (!ok) {
+						Log.error(String.format("JavaScript execution (scroll to element with offset %s and length %s) failed.", sourceOffset, sourceLength));
 					}
 				}
 			}

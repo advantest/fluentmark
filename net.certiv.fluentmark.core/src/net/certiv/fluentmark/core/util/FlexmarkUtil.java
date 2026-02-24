@@ -9,16 +9,23 @@
  */
 package net.certiv.fluentmark.core.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
+import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.misc.Extension;
 
+import net.certiv.fluentmark.core.markdown.flexmark.SourcePositionAttributesRendererExtension;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
 
 /**
@@ -26,7 +33,25 @@ import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlParsingTools;
  */
 public class FlexmarkUtil {
 	
-	private static final MarkdownParserAndHtmlRenderer markdownParserHtmlRenderer = new MarkdownParserAndHtmlRenderer();
+	private static final class MarkdownParserAndHtmlRendererWithSourceTracking extends MarkdownParserAndHtmlRenderer {
+		
+		@Override
+		protected MutableDataSet createOptions() {
+			MutableDataSet options = super.createOptions();
+
+			Collection<Extension> extensionsFromParent = Parser.EXTENSIONS.get(options);
+
+			List<Extension> allExtensions = new ArrayList<>(extensionsFromParent);
+			allExtensions.add(SourcePositionAttributesRendererExtension.create());
+
+			options.set(Parser.EXTENSIONS, allExtensions);
+
+			return options;
+		}
+		
+	}
+	
+	private static final MarkdownParserAndHtmlRenderer markdownParserHtmlRenderer = new MarkdownParserAndHtmlRendererWithSourceTracking();
 	
 	public static Document parseMarkdown(String markdownCode) {
 		if (markdownCode == null) {

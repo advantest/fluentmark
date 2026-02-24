@@ -313,6 +313,39 @@
 					scrollTo: function(anchorname) {
 						location.hash = '#' + anchorname;
 					},
+					scrollToElement: function(sourceOffset, sourceLength) {
+						const candidates = Array.from(document.querySelectorAll('[source-offset]'))
+							.filter(el => {
+								const elOffset = Number.parseInt(el.getAttribute('source-offset'), 10);
+								const elLength = Number.parseInt(el.getAttribute('source-length'), 10);
+								return elOffset <= sourceOffset && (sourceLength == 0 || sourceOffset + sourceLength <= elOffset + elLength);
+							});
+
+						if (candidates.length > 0) {
+							candidates.sort((a, b) => {
+								const offsetA = Number.parseInt(a.getAttribute('source-offset'), 10);
+								const offsetB = Number.parseInt(b.getAttribute('source-offset'), 10);
+																
+								const lenA = Number.parseInt(a.getAttribute('source-length'), 10);
+								const lenB = Number.parseInt(b.getAttribute('source-length'), 10);
+								if (offsetA != offsetB) {
+									return offsetB - offsetA;
+								} else {
+									return lenA - lenB;
+								}
+							});
+
+							const element = candidates[0];
+
+							// scroll to element
+							element.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+							// highlight the element
+							const outlineBefore = element.style.outline;
+							element.style.outline = "2px solid #42b983";
+							setTimeout(() => element.style.outline = outlineBefore, 2000);
+						}
+					},
 					updateImages: function() {
 						reloadLocalImages();
 						refreshImages();
