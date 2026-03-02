@@ -4,4 +4,5 @@
       <category name="com.advantest.designdocumentation.features"/>
    </feature>
    <category-def name="com.advantest.designdocumentation.features" label="Design Documentation"/>
+   <repository-reference location="https://plantuml.github.io/plantuml-eclipse/" name="PlantUML for Eclipse" enabled="true" />
 </site>
