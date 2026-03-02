@@ -3,7 +3,7 @@
       id="net.certiv.fluentmark.feature"
       label="FluentMark Editor"
       version="1.6.1.qualifier"
-      provider-name="Certiv Analytics">
+      provider-name="Advantest Europe GmbH">
 
    <description>
       Full featured Markdown Editor. Originally developed by Gerald Rosenberg (https://github.com/grosenberg/Fluentmark)
@@ -29,7 +29,7 @@ Copyright (c) 2022-2024.
    </license>
 
    <url>
-      <update label="Certiv Analytics" url="http://www.certiv.net/updates/"/>
+      <update label="FluentMark Advantest Edition" url="https://advantest.github.io/fluentmark/"/>
    </url>
 
    <includes
@@ -59,7 +59,7 @@ Copyright (c) 2022-2024.
       <import plugin="org.eclipse.jdt.ui" version="3.24.0" match="greaterOrEqual"/>
       <import plugin="net.certiv.spellchecker" version="4.3.2" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.core" version="3.31.0" match="greaterOrEqual"/>
-      <import feature="net.sourceforge.plantuml.library.feature" version="1.2025.10.202511041744"/>
+      <import feature="net.sourceforge.plantuml.library.feature" version="1.2025.10.202511041744" match="greaterOrEqual"/>
    </requires>
 
    <plugin
