@@ -3,6 +3,6 @@
    <feature url="features/net.certiv.fluentmark.feature_1.6.1.qualifier.jar" id="net.certiv.fluentmark.feature" version="1.6.1.qualifier">
       <category name="com.advantest.designdocumentation.features"/>
    </feature>
-   <category-def name="com.advantest.designdocumentation.features" label="Design Documentation"/>
+   <category-def name="com.advantest.designdocumentation.features" label="Markdown"/>
    <repository-reference location="https://plantuml.github.io/plantuml-eclipse/" name="PlantUML for Eclipse" enabled="true" />
 </site>
