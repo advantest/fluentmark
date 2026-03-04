@@ -22,6 +22,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 
+import com.vladsch.flexmark.util.sequence.Escaping;
+
 import java.util.ArrayList;
 
 import net.certiv.fluentmark.core.validation.IAnchorResolver;
@@ -75,7 +77,7 @@ public class JavaCodeMemberResolver implements IAnchorResolver {
 		}
 		
 		if (memberReference.contains("(")) {
-			// memberReference is in this case the method signature, e.g. "doSomething(String, boolean, int)"
+			// memberReference is in this case the method signature, e.g. "doSomething(String,boolean,int)"
 			return findMethod(primaryType, memberReference);
 		} else {
 			// memberReference is in this case the field name
@@ -84,10 +86,10 @@ public class JavaCodeMemberResolver implements IAnchorResolver {
 	}
 	
 	private IMethod findMethod(IType parentType, String methodSignature) {
-		String[] signatureParts = methodSignature.split("[\\(\\)]");
+		String unescapedMethodSignature = Escaping.unescapeString(methodSignature);
+		String[] signatureParts = unescapedMethodSignature.split("[\\(\\)]");
 		String methodName = signatureParts[0];
 		String methodParametersPart = signatureParts.length > 1 ? signatureParts[1] : "";
-		//String[] methodParameters = methodParametersPart.split(",\\s*");
 		String[] methodParameters = parseMethodParameters(methodParametersPart);
 		int numParams = methodParameters.length;
 		
