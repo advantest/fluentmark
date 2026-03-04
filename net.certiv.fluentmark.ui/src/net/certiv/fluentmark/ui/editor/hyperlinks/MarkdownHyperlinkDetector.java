@@ -226,18 +226,18 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 		
 		String[] parts = linkTarget.split("#");
 		String targetFilePath = parts[0];
-		String fragment = null;
+		String anchor = null;
 		if (parts.length == 2) {
-			fragment = parts[1];
+			anchor = parts[1];
 		}
 		
 		IFile targetFile = null;
 		
 		// do we have an anchor within our opened Markdown file?
-		if (fragment != null && !fragment.isBlank() && (targetFilePath == null || targetFilePath.isBlank())) {
+		if (anchor != null && !anchor.isBlank() && (targetFilePath == null || targetFilePath.isBlank())) {
 			targetFile = currentFile;
 			
-			return new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment);
+			return new MarkdownFileHyperlink(targetFile, linkTargetRegion, anchor);
 		}
 		
 		if (targetFilePath == null || targetFilePath.isBlank()) {
@@ -260,11 +260,11 @@ public class MarkdownHyperlinkDetector extends AbstractHyperlinkDetector
 			}
 			
 			if (FileUtils.isMarkdownFile(targetFile)) {
-				return new MarkdownFileHyperlink(targetFile, linkTargetRegion, fragment);
+				return new MarkdownFileHyperlink(targetFile, linkTargetRegion, anchor);
 			}
 			
-			if (fragment != null && FileUtils.isJavaFile(targetFile)) {
-				return new JavaMemberHyperlink(targetFile, linkTargetRegion, fragment);
+			if (anchor != null && FileUtils.isJavaFile(targetFile)) {
+				return new JavaMemberHyperlink(targetFile, linkTargetRegion, anchor);
 			}
 			return new FileHyperlink(targetFile, linkTargetRegion);
 		}

@@ -60,7 +60,7 @@ public class FilePathValidator implements IValidationResultReporter {
 		boolean fileExists = checkFileExists(resourceRelativePath, currentFile, lineNumber, offset, endOffset);
 		
 		// check fragment if file exists
-		if (fileExists && fragment != null) {
+		if (fileExists && fragment != null && fragment.startsWith("#")) {
 			
 			// adapt positions to the fragment only
 			int indexOfHashTag = completeLink.indexOf('#');
@@ -68,21 +68,22 @@ public class FilePathValidator implements IValidationResultReporter {
 			endOffset = offset + fragment.length() + 1;
 			lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
+			String anchor = fragment.substring(1);
 			
 			if (resourceRelativePath.equals(currentFile.getLocation())) {
 				// are we looking for sections in current Markdown file
 				
-				checkSectionAnchorExists(fragment, document, currentFile, lineNumber, offset, endOffset);
+				checkSectionAnchorExists(anchor, document, currentFile, lineNumber, offset, endOffset);
 				
 			} else if (FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(resourceRelativePath.getFileExtension())) {
 				// we're looking for sections in another Markdown file
 				
-				checkSectionAnchorExists(resourceRelativePath, fragment, currentFile, lineNumber, offset, endOffset);
+				checkSectionAnchorExists(resourceRelativePath, anchor, currentFile, lineNumber, offset, endOffset);
 				
 			} else {
 				// we're looking for targets in the file, e.g. method or a field in a Java file
 				
-				checkAnchorTargetExists(resourceRelativePath, fragment, currentFile, lineNumber, offset, endOffset);
+				checkAnchorTargetExists(resourceRelativePath, anchor, currentFile, lineNumber, offset, endOffset);
 			}
 		}
 	}

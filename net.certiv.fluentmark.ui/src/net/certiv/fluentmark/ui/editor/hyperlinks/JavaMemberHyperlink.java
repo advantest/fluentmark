@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2026 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.editor.hyperlinks;
 
@@ -22,8 +22,8 @@ public class JavaMemberHyperlink extends FileHyperlink {
 	public JavaMemberHyperlink(IFile javaTargetFile, IRegion linkTargetRegion, String javaMemberReference) {
 		super (javaTargetFile, linkTargetRegion);
 		
-		Assert.isNotNull(javaMemberReference);
-		Assert.isTrue(!javaMemberReference.isBlank());
+		Assert.isLegal(javaMemberReference!= null && !javaMemberReference.isBlank() && !javaMemberReference.startsWith("#"),
+				"A Java member reference (anchor) is expected to be non-empty and is not allowed to begin with a '#'.");
 		
 		this.javaMemberReference = javaMemberReference;
 	}
