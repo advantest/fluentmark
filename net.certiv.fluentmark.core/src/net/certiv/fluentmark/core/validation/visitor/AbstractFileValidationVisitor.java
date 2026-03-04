@@ -28,8 +28,6 @@ import net.certiv.fluentmark.core.validation.FileValidator;
 
 abstract class AbstractFileValidationVisitor implements IResourceVisitor {
 	
-	protected final String PROJECT_NATURE_ID = "org.eclipse.jdt.core.javanature";
-	
 	protected final FileValidator validator;
 	protected final IProgressMonitor progressMonitor;
 	
