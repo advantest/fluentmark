@@ -286,7 +286,7 @@ public final class FileUtils {
 			return null;
 		}
 		
-		return path.substring(index);
+		return path.substring(index + 1);
 	}
 	
 	public static boolean isMarkdownFile(IFile file) {
