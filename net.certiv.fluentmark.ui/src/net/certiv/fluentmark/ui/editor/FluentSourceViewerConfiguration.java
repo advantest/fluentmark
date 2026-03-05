@@ -47,7 +47,7 @@ import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
-import net.certiv.fluentmark.ui.editor.assist.FileLinkContentAssistProcessor;
+import net.certiv.fluentmark.ui.editor.assist.FileLinksAndAnchorsContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
@@ -249,7 +249,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		}
 
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
-		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
+		processor.addDelegate(new FileLinksAndAnchorsContentAssistProcessor(editor));
 		
 		List<IContentAssistProcessor> additionalContentAssistProcessors =  ContentAssistProcessorsManager.getInstance()
 				.getAdditionalContentAssistProcessors();

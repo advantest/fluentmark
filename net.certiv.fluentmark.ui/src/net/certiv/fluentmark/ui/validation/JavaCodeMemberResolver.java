@@ -9,11 +9,15 @@
  */
 package net.certiv.fluentmark.ui.validation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
-
 import org.eclipse.core.runtime.IStatus;
-
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
@@ -22,10 +26,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 
-import com.vladsch.flexmark.util.sequence.Escaping;
-
-import java.util.ArrayList;
-
+import net.certiv.fluentmark.core.util.UrlUtils;
 import net.certiv.fluentmark.core.validation.IAnchorResolver;
 import net.certiv.fluentmark.ui.Log;
 
@@ -52,7 +53,7 @@ public class JavaCodeMemberResolver implements IAnchorResolver {
 	public ICompilationUnit findJavaCompilationUnitFor(IFile javaFile) {
 		IJavaElement element = JavaCore.create(javaFile);
 		
-		if (element == null || !(element instanceof ICompilationUnit)) {
+		if (!(element instanceof ICompilationUnit)) {
 			return null;
 		}
 		
@@ -64,13 +65,7 @@ public class JavaCodeMemberResolver implements IAnchorResolver {
 			return null;
 		}
 		
-		ICompilationUnit compilationUnit = findJavaCompilationUnitFor(javaFile);
-		
-		if (compilationUnit == null) {
-			return null;
-		}
-		
-		IType primaryType = compilationUnit.findPrimaryType();
+		IType primaryType = findPrimaryType(javaFile);
 		
 		if (primaryType == null) {
 			return null;
@@ -85,8 +80,62 @@ public class JavaCodeMemberResolver implements IAnchorResolver {
 		}
 	}
 	
-	private IMethod findMethod(IType parentType, String methodSignature) {
-		String unescapedMethodSignature = Escaping.unescapeString(methodSignature);
+	public List<IMember> findJavaMembers(IFile javaFile, String memberReferencePrefix) {
+		if (javaFile == null) {
+			return Collections.emptyList();
+		}
+		
+		IType primaryType = findPrimaryType(javaFile);
+		
+		if (primaryType == null) {
+			return Collections.emptyList();
+		}
+		
+		final String name;
+		int index = memberReferencePrefix.indexOf('(');
+		if (index >= 0) {
+			name = memberReferencePrefix.substring(0, index);
+		} else {
+			name = memberReferencePrefix;
+		}
+		
+		List<IMethod> matchingMethods = Collections.emptyList();
+		List<IField> matchingFields = Collections.emptyList();
+		try {
+			// TODO also match parameter types?
+			matchingMethods = Arrays.stream(primaryType.getMethods())
+				.filter(method -> method.getElementName().startsWith(name))
+				.toList();
+			
+			matchingFields = Arrays.stream(primaryType.getFields())
+					.filter(field -> field.getElementName().startsWith(name))
+					.toList();
+		} catch (JavaModelException e) {
+			Log.log(IStatus.WARNING, -1, "Could not access methods/fields in type " + primaryType.getFullyQualifiedName(), e);
+		}
+		
+		List<IMember> members = new ArrayList<>(matchingMethods.size() + matchingFields.size());
+		members.addAll(matchingMethods);
+		members.addAll(matchingFields);
+		return members;
+	}
+	
+	private IType findPrimaryType(IFile javaFile) {
+		if (javaFile == null) {
+			return null;
+		}
+		
+		ICompilationUnit compilationUnit = findJavaCompilationUnitFor(javaFile);
+		
+		if (compilationUnit == null) {
+			return null;
+		}
+		
+		return compilationUnit.findPrimaryType();
+	}
+	
+	private IMethod findMethod(IType parentType, String escapedMethodSignature) {
+		String unescapedMethodSignature = UrlUtils.unescapeBracketsInMethodReference(escapedMethodSignature);
 		String[] signatureParts = unescapedMethodSignature.split("[\\(\\)]");
 		String methodName = signatureParts[0];
 		String methodParametersPart = signatureParts.length > 1 ? signatureParts[1] : "";

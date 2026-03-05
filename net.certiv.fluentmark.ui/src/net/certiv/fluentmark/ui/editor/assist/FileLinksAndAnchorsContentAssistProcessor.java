@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2026 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.ui.editor.assist;
 
@@ -15,12 +15,20 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -33,26 +41,29 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import net.certiv.fluentmark.core.extensionpoints.AnchorResolversManager;
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.util.FileUtils;
+import net.certiv.fluentmark.core.util.UrlUtils;
 import net.certiv.fluentmark.ui.FluentImages;
 import net.certiv.fluentmark.ui.FluentUI;
+import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.util.DocumentEditorUtils;
+import net.certiv.fluentmark.ui.validation.JavaCodeMemberResolver;
 
-public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
+public class FileLinksAndAnchorsContentAssistProcessor implements IContentAssistProcessor {
 
 	private static final char[] COMPLETION_PROPOSAL_AUTO_ACTIVATION_CHARS = { '/', '#' };
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 	
 	private final ITextEditor editor;
 	
-	public FileLinkContentAssistProcessor(ITextEditor editor) {
+	public FileLinksAndAnchorsContentAssistProcessor(ITextEditor editor) {
 		this.editor = editor;
 	}
 	
 	/**
-	 * We compute completion proposals for links, image references, and link reference definitions.
-	 * 
+	 * We compute completion proposals for links, image references, and link reference definitions as well as anchors to Markdown sections / elements in target files.
 	 * 
 	 * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
 	 */
@@ -84,7 +95,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			// add proposals for the case that we're not in a link, in an image, or in a link reference definition
 			if (!cursorInLinkOrImageStatement && !cursorInLinkRefDefinition
 					// we only make proposals if we're at the beginning of a line or we have a whitespace char left from cursor
-					&& (lineLeftFromCursor.length() == 0 || Character.isWhitespace(lineLeftFromCursor.charAt(lineLeftFromCursor.length() - 1)))
+					&& (lineLeftFromCursor.isEmpty() || Character.isWhitespace(lineLeftFromCursor.charAt(lineLeftFromCursor.length() - 1)))
 					// we don't propose link/image creation if we're in an anchor definition like "# Heading {#}"
 					&& !lineLeftFromCursor.matches("#+\\s.*\\{#\\S*")) {
 				
@@ -106,6 +117,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		}
 	}
 	
+	private int findUnescapedClosingBracket(String text) {
+		// We have to consider that there might be escaped brackets in Markdown links, e.g. in [](File.java#method\(\))
+		Matcher closingBracketMatcher = REGEX_UNESCAPED_CLOSING_BRACKET.matcher(text);
+		return closingBracketMatcher.find() ? closingBracketMatcher.start() : -1;
+	}
+	
 	private boolean addProposalsForLinksAndImages(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile, IDocument document,
 			int offset, int currentLine, int lineOffset, int lineLength, String lineLeftFromCursor, String lineRightFromCursor) {
 		/*
@@ -115,7 +132,7 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		 *  ![title](file reference path)
 		 *  where the cursor is between the "(" and ")" brackets.
 		 */
-		int indexOfClosingRoundBracket = lineRightFromCursor.indexOf(')');
+		int indexOfClosingRoundBracket = findUnescapedClosingBracket(lineRightFromCursor);
 		int indexOfOpeningRoundBracket = lineLeftFromCursor.lastIndexOf('(');
 		int indexOfClosingSquareBracket = -1;
 		if (indexOfOpeningRoundBracket > -1
@@ -250,16 +267,12 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			String linkTextLeftFromCursor, String linkTextRightFromCursor) {
 		
 		int indexOfOpeningBracket = lineLeftFromCursor.lastIndexOf('(');
-		int indexOfClosingBracket = lineLeftFromCursor.length() + lineRightFromCursor.indexOf(')');
+		int indexOfClosingBracket = lineLeftFromCursor.length() + findUnescapedClosingBracket(lineRightFromCursor);
 		int replacementOffset = lineOffset + indexOfOpeningBracket + 1;
 		int replacementLength = indexOfClosingBracket - indexOfOpeningBracket - 1;
 		
-		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-			int indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".md");
-			if (indexOfFileExtension < 0) {
-				indexOfFileExtension = lineLeftFromCursor.lastIndexOf(".MD");
-			}
-			int indexOfAnchorStart = indexOfFileExtension + 3;
+		if (cursorInOptionalAnchorAfterFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfAnchorStart = lineLeftFromCursor.lastIndexOf('#');
 			replacementOffset = lineOffset + indexOfAnchorStart;
 			replacementLength = indexOfClosingBracket - indexOfAnchorStart;
 		}
@@ -274,12 +287,8 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 		int replacementOffset = offset - linkTextLeftFromCursor.length();
 		int replacementLength = linkTextLeftFromCursor.length() + linkTextRightFromCursor.length();
 		
-		if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
-			int indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".md");
-			if (indexOfFileExtension < 0) {
-				indexOfFileExtension = linkTextLeftFromCursor.lastIndexOf(".MD");
-			}
-			int indexOfAnchorStart = indexOfFileExtension + 3;
+		if (cursorInOptionalAnchorAfterFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			int indexOfAnchorStart = linkTextLeftFromCursor.lastIndexOf('#');
 			replacementOffset += indexOfAnchorStart;
 			replacementLength -= indexOfAnchorStart;
 		}
@@ -288,6 +297,9 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 				linkTextLeftFromCursor, linkTextRightFromCursor, replacementOffset, replacementLength);
 	}
 	
+	// find a ')' bracket, but not "\)"; regex: (?<!\\)\)
+	private static final Pattern REGEX_UNESCAPED_CLOSING_BRACKET = Pattern.compile("(?<!\\\\)\\)");
+		
 	private void addAnchorProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
 			IDocument document, String linkTextLeftFromCursor, String linkTextRightFromCursor,
 			int replacmentOffset, int replacementLength) {
@@ -298,31 +310,46 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			String markdownFileContent = document.get();
 			addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, currentEditorsMarkdownFile);
 			
-		// we have a path to a Markdown file in our link target
-		} else if (cursorInOptionalAnchorAfterMarkdownFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+		} else if (cursorInOptionalAnchorAfterFilePath(linkTextLeftFromCursor, linkTextRightFromCursor)) {
+			// we have a path to a file in our link target
 			int indexOfHashtag = linkTextLeftFromCursor.indexOf('#');
 			String targetFilePath = linkTextLeftFromCursor;
 			if (indexOfHashtag >= 0) {
 				targetFilePath = linkTextLeftFromCursor.substring(0, indexOfHashtag);
 			}
 			
+			String fileExtension = FileUtils.getFileExtension(targetFilePath);
 			IPath absolutePath = FileUtils.resolveToAbsoluteResourcePath(targetFilePath, currentEditorsMarkdownFile);
 			IFile targetFile = FileUtils.resolveToWorkspaceFile(absolutePath);
+			
 			if (targetFile != null) {
-				// look up IDocument for the IFile in case it is opened in a text editor
-				IDocument targetFileDocument = DocumentEditorUtils.findDocumentFor(targetFile);
-				
-				String markdownFileContent = targetFileDocument != null ?
-						targetFileDocument.get() : 
-						FileUtils.readFileContents(targetFile);
-				addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, targetFile);
+				if (FileUtils.FILE_EXTENSION_MARKDOWN.equalsIgnoreCase(fileExtension)) {
+					// look up IDocument for the IFile in case it is opened in a text editor
+					IDocument targetFileDocument = DocumentEditorUtils.findDocumentFor(targetFile);
+					
+					String markdownFileContent = targetFileDocument != null ?
+							targetFileDocument.get() : 
+							FileUtils.readFileContents(targetFile);
+					addProposalsWithSectionAnchorsFromMarkdownCode(proposals, markdownFileContent, replacmentOffset, replacementLength, targetFile);
+				} else if (FileUtils.FILE_EXTENSION_JAVA.equalsIgnoreCase(fileExtension)) {
+					String javaMemberPrefix = linkTextLeftFromCursor.substring(indexOfHashtag + 1);
+					addProposalsWithJavaMembersFromTargetFile(proposals, targetFile, replacmentOffset, replacementLength, javaMemberPrefix);
+				}
 			}
 		}
 	}
 	
-	private boolean cursorInOptionalAnchorAfterMarkdownFilePath(String linkTextLeftFromCursor, String linkTextRightFromCursor) {
-		String regex = ".+\\.(md|MD)(#\\S*)?";
+	private boolean cursorInOptionalAnchorAfterFilePath(String linkTextLeftFromCursor, String linkTextRightFromCursor) {
+		String regex = ".+\\.\\w+(#\\S*)?";
 		return linkTextLeftFromCursor.matches(regex);
+	}
+	
+	private JavaCodeMemberResolver getJavaMemberResolver() {
+		return AnchorResolversManager.getInstance().getAnchorResolvers().stream()
+			.filter(resolver -> resolver instanceof JavaCodeMemberResolver)
+			.map(r -> (JavaCodeMemberResolver) r)
+			.findFirst()
+			.orElse(null);
 	}
 	
 	private void addProposalsWithSectionAnchorsFromMarkdownCode(List<ICompletionProposal> proposals, String markdownCode,
@@ -335,6 +362,43 @@ public class FileLinkContentAssistProcessor implements IContentAssistProcessor {
 			String explanation = " (section identifier" + (fileName.isBlank() ? "" : " in " + fileName) + ")";
 			String replacementText = "#" + anchor;
 			proposals.add(new CompletionProposal(replacementText, replacementOffset, replacementLength, replacementText.length(), img, replacementText + explanation, null, null));
+		}
+	}
+	
+	private void addProposalsWithJavaMembersFromTargetFile(List<ICompletionProposal> proposals, IFile javaTargetFile, int replacementOffset, int replacementLength, String javaMemberPrefix) {
+		JavaCodeMemberResolver resolver = getJavaMemberResolver();
+		if (resolver == null || javaTargetFile == null) {
+			return;
+		}
+		
+		for (IMember member: resolver.findJavaMembers(javaTargetFile, javaMemberPrefix)) {
+			Image img = null;
+			String targetMethodOrFieldReference = member.getElementName();
+			String escapedTargetMethodOrFieldReference = targetMethodOrFieldReference;
+			if (IJavaElement.METHOD == member.getElementType() && member instanceof IMethod method) {
+				// determine the method signature and escape brackets
+				StringBuilder builder = new StringBuilder();
+				builder.append(targetMethodOrFieldReference);
+				builder.append('(');
+				try {
+					List<String> paramTypes = Arrays.stream(method.getParameters())
+						.map(p -> Signature.getSignatureSimpleName(p.getTypeSignature()))
+						.toList();
+					builder.append(String.join(",", paramTypes));
+				} catch (JavaModelException e) {
+					Log.log(IStatus.WARNING, -1, "Could not access methods parameters in type " + method.getDeclaringType().getFullyQualifiedName(), e);
+					// skip this method in that case
+					continue;
+				}
+				builder.append(')');
+				targetMethodOrFieldReference = builder.toString();
+				escapedTargetMethodOrFieldReference = UrlUtils.escapeBracketsInMethodReference(targetMethodOrFieldReference);
+			}
+			IType declaringType = member.getDeclaringType();
+			String qualifier = declaringType != null ? declaringType.getFullyQualifiedName() : ""; 
+			String replacementText = "#" + escapedTargetMethodOrFieldReference;
+			proposals.add(new CompletionProposal(replacementText, replacementOffset, replacementLength, replacementText.length(), img,
+					targetMethodOrFieldReference + "(" + qualifier + ")", null, replacementText));
 		}
 	}
 	
