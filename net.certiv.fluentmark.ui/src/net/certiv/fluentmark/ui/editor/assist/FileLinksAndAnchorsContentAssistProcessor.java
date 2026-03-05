@@ -23,12 +23,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.ui.ISharedImages;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -372,7 +375,7 @@ public class FileLinksAndAnchorsContentAssistProcessor implements IContentAssist
 		}
 		
 		for (IMember member: resolver.findJavaMembers(javaTargetFile, javaMemberPrefix)) {
-			Image img = null;
+			Image img = getImage(member);
 			String targetMethodOrFieldReference = member.getElementName();
 			String escapedTargetMethodOrFieldReference = targetMethodOrFieldReference;
 			if (IJavaElement.METHOD == member.getElementType() && member instanceof IMethod method) {
@@ -398,8 +401,41 @@ public class FileLinksAndAnchorsContentAssistProcessor implements IContentAssist
 			String qualifier = declaringType != null ? declaringType.getFullyQualifiedName() : ""; 
 			String replacementText = "#" + escapedTargetMethodOrFieldReference;
 			proposals.add(new CompletionProposal(replacementText, replacementOffset, replacementLength, replacementText.length(), img,
-					targetMethodOrFieldReference + "(" + qualifier + ")", null, replacementText));
+					targetMethodOrFieldReference + " - (" + qualifier + ")", null, replacementText));
 		}
+	}
+	
+	private Image getImage(IMember member) {
+		int memberFlags = 0;
+		try {
+			memberFlags = member.getFlags();
+		} catch (JavaModelException e) {
+			return null;
+		}
+		
+		if (IJavaElement.METHOD == member.getElementType()) {
+			if (Flags.isPublic(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
+			} else if (Flags.isProtected(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PROTECTED);
+			} else if (Flags.isPrivate(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PRIVATE);
+			} else {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_DEFAULT);
+			}
+		} else if (IJavaElement.FIELD == member.getElementType()) {
+			if (Flags.isPublic(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_FIELD_PUBLIC);
+			} else if (Flags.isProtected(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_FIELD_PROTECTED);
+			} else if (Flags.isPrivate(memberFlags)) {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_FIELD_PRIVATE);
+			} else {
+				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_FIELD_DEFAULT);
+			}
+		}
+		
+		return null;
 	}
 	
 	private void addFilePathProposals(List<ICompletionProposal> proposals, IFile currentEditorsMarkdownFile,
