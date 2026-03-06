@@ -23,9 +23,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.google.common.html.HtmlEscapers;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.util.ast.Document;
 
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;

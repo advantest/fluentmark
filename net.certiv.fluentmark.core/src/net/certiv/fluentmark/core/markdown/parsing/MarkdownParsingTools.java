@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
+import com.advantest.flexmark.ext.plantuml.PlantUmlBlockNode;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.vladsch.flexmark.util.ast.Block;
 
 
