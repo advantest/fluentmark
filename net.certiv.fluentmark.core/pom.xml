@@ -56,42 +56,7 @@
 			<version>3.5</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.markdownj</groupId>
-			<artifactId>markdownj-core</artifactId>
-			<version>0.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.atlassian.commonmark</groupId>
-			<artifactId>commonmark</artifactId>
-			<version>0.10.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.pegdown</groupId>
-			<artifactId>pegdown</artifactId>
-			<version>1.6.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.parboiled</groupId>
-			<artifactId>parboiled-core</artifactId>
-			<version>1.1.8</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.parboiled</groupId>
-			<artifactId>parboiled-java</artifactId>
-			<version>1.1.8</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-all</artifactId>
-			<version>4.0</version>
-		</dependency>
-
+		<!-- needed for DOT -->
 		<dependency>
 			<groupId>com.github.rjeschke</groupId>
 			<artifactId>txtmark</artifactId>
@@ -176,54 +141,6 @@
 									<groupId>org.apache.commons</groupId>
 									<artifactId>commons-lang3</artifactId>
 									<version>3.5</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.markdownj</groupId>
-									<artifactId>markdownj-core</artifactId>
-									<version>0.4</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.pegdown</groupId>
-									<artifactId>pegdown</artifactId>
-									<version>1.6.0</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.parboiled</groupId>
-									<artifactId>parboiled-core</artifactId>
-									<version>1.1.8</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.parboiled</groupId>
-									<artifactId>parboiled-java</artifactId>
-									<version>1.1.8</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.ow2.asm</groupId>
-									<artifactId>asm-all</artifactId>
-									<version>4.0</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>com.atlassian.commonmark</groupId>
-									<artifactId>commonmark</artifactId>
-									<version>0.10.0</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

@@ -5,20 +5,10 @@
 	<classpathentry kind="src" path="src/"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime-4.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/asm-all-4.0.jar"/>
-	<classpathentry kind="lib" path="lib/commonmark-0.10.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.5.jar"/>
-	<classpathentry kind="lib" path="lib/markdownj-core-0.4.jar"/>
-	<classpathentry kind="lib" path="lib/parboiled-core-1.1.8.jar"/>
-	<classpathentry kind="lib" path="lib/parboiled-java-1.1.8.jar"/>
-	<classpathentry kind="lib" path="lib/pegdown-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/txtmark-0.13.jar"/>
 	<classpathentry kind="lib" path="lib/com.google.guava-30.1.0.v20221112-0806.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/asm-5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/asm-analysis-5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/asm-tree-5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/asm-util-5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/autolink-0.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/markdown-core-1.0.11-SNAPSHOT.jar" sourcepath="/markdown-core"/>
 	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
