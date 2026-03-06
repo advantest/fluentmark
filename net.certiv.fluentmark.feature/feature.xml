@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="net.certiv.fluentmark.feature"
-      label="FluentMark Editor"
+      label="FluentMark Advantest Edition"
       version="1.6.1.qualifier"
       provider-name="Advantest Europe GmbH">
 
