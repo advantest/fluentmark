@@ -24,11 +24,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/annotations-24.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-attributes-0.65.2-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-plantuml"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-jira-ticket-links-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-jira-ticket-links"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-math-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-math"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-plantuml-1.0.0-SNAPSHOT.jar" sourcepath="/flexmark-ext-plantuml"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-jira-ticket-links-1.0.0-SNAPSHOT.jar" sourcepath="/flexmark-ext-jira-ticket-links"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-math-1.0.0-SNAPSHOT.jar" sourcepath="/flexmark-ext-math"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-tables-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-tables"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-figures-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-figures"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-figures-1.0.0-SNAPSHOT.jar" sourcepath="/flexmark-ext-figures"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-ext-footnotes-0.65.2-SNAPSHOT.jar" sourcepath="/flexmark-ext-footnotes"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-0.65.2-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/flexmark-util-ast-0.65.2-SNAPSHOT.jar"/>
