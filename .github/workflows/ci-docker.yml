@@ -40,6 +40,11 @@ jobs:
               <password>${GITHUB_TOKEN}</password>
             </server>
             <server>
+              <id>github-packages-flexmark-extensions</id>
+              <username>${GITHUB_ACTOR}</username>
+              <password>${GITHUB_TOKEN}</password>
+            </server>
+            <server>
               <id>github-packages-markdown-core</id>
               <username>${GITHUB_ACTOR}</username>
               <password>${GITHUB_TOKEN}</password>

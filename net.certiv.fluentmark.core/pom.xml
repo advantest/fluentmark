@@ -28,6 +28,10 @@
 			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
 		</repository>
 		<repository>
+			<id>github-packages-flexmark-extensions</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-extensions</url>
+		</repository>
+		<repository>
 			<id>github-packages-markdown-core</id>
 			<url>https://maven.pkg.github.com/advantest/markdown-core</url>
 		</repository>
