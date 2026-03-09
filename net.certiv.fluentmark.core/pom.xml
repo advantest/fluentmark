@@ -45,12 +45,6 @@
 			<version>4.7.1</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.5</version>
-		</dependency>
-
 		<!-- needed for DOT -->
 		<dependency>
 			<groupId>com.github.rjeschke</groupId>
@@ -128,14 +122,6 @@
 									<groupId>org.antlr</groupId>
 									<artifactId>antlr-runtime</artifactId>
 									<version>3.5.2</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.apache.commons</groupId>
-									<artifactId>commons-lang3</artifactId>
-									<version>3.5</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

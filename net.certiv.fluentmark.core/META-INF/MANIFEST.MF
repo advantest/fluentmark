@@ -63,13 +63,11 @@ Export-Package: com.advantest,
  net.certiv.fluentmark.core.validation,
  net.certiv.fluentmark.core.validation.uri,
  net.certiv.fluentmark.core.validation.visitor,
- org.antlr.v4.runtime,
- org.apache.commons.lang3
+ org.antlr.v4.runtime
 Bundle-Activator: net.certiv.fluentmark.core.FluentCore
 Bundle-ClassPath: .,
  lib/antlr4-runtime-4.7.1.jar,
  lib/antlr-runtime-3.5.2.jar,
- lib/commons-lang3-3.5.jar,
  lib/ST4-4.0.8.jar,
  lib/txtmark-0.13.jar,
  lib/autolink-0.6.0.jar,
@@ -100,6 +98,7 @@ Bundle-ClassPath: .,
  lib/flexmark-util-visitor-0.65.2-SNAPSHOT.jar
 Bundle-Vendor: Advantest Europe GmbH
 Require-Bundle: com.google.guava;bundle-version="30.1.0",
+ org.apache.commons.lang3;bundle-version="3.5.0",
  org.eclipse.core.runtime;bundle-version="3.23.0",
  org.eclipse.core.resources;bundle-version="3.15.100",
  org.eclipse.core.filesystem;bundle-version="1.10.200",

@@ -65,7 +65,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.23.0",
  net.certiv.spellchecker;bundle-version="4.3.2",
  net.certiv.fluentmark.core;bundle-version="1.6.1",
  org.eclipse.ltk.core.refactoring;bundle-version="3.14.200",
- org.eclipse.ltk.ui.refactoring;bundle-version="3.13.200"
+ org.eclipse.ltk.ui.refactoring;bundle-version="3.13.200",
+ org.apache.commons.lang3;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
