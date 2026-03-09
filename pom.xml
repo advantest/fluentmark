@@ -17,10 +17,6 @@
 		<url>https://www.advantest.com/en/</url>
 	</organization>
 
-	<prerequisites>
-		<maven>3.0</maven>
-	</prerequisites>
-
 	<properties>
 		<releaseVersion>1.6.1</releaseVersion>
 		<qualifier>-SNAPSHOT</qualifier>
