@@ -31,14 +31,14 @@
 		     see: https://github.com/eclipse-tycho/tycho/issues/725
 		     If you do and encounter problem, you could try deleting / moving
 		     ~/.m2/repository/.meta/p2-artifacts.properties file. -->
-		<tycho.version>4.0.8</tycho.version>
+		<tycho.version>4.0.13</tycho.version>
 		<!-- <tycho-extras.version>1.2.0</tycho-extras.version> -->
 		<java.version>21</java.version>
 		<jacoco.version>0.8.14</jacoco.version>
 	</properties>
 
 	<modules>
-		<module>target-platform/2025-03</module>
+		<module>target-platform/2025-12</module>
 		<module>net.certiv.fluentmark.core</module>
 		<module>net.certiv.fluentmark.ui</module>
 		<module>net.certiv.fluentmark.feature</module>
@@ -156,7 +156,7 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>eclipse-435</artifactId>
+							<artifactId>eclipse-438</artifactId>
 							<version>${project.version}</version>
 						</artifact>
 						<!-- the following seems not to help building the product
