@@ -125,15 +125,22 @@ public class HtmlGen {
 				preview = Strings.replaceFirst(preview, "%vueLibUrl%", vueJsLibUrl.toString());
 				
 				preview = Strings.replaceFirst(preview, "%path%", filePath.toString());
-				preview = Strings.replaceFirst(preview, "%styles%", getStyle(filePath));
+				
+				StringBuilder currentCssBuilder = new StringBuilder();
+				currentCssBuilder.append("\t\t<style media=\"screen\" type=\"text/css\">");
+				currentCssBuilder.append(Strings.EOL);
+				currentCssBuilder.append("\t\t\t");
+				currentCssBuilder.append(getStyle(filePath));
+				currentCssBuilder.append("\t\t</style>");
+				preview = Strings.replaceFirst(preview, "<!-- %style% -->", currentCssBuilder.toString());
 				
 				String highlightScript = FileUtils.fromBundle("resources/html/highlight-preview.html");
 				highlightScript = Strings.replaceFirst(highlightScript, "%highlightJsLibUrl%", highlightJsLibUrl.toString());
 				highlightScript = Strings.replaceFirst(highlightScript, "%highlightCssUrl%", highlightCssUrl.toString());
-				preview = Strings.replaceFirst(preview, "%highlight%", highlightScript);
+				preview = Strings.replaceFirst(preview, "<!-- %highlight% -->", highlightScript);
 				
 				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax-preview.html");
-				preview = Strings.replaceFirst(preview, "%mathjax%", mathJaxScript);
+				preview = Strings.replaceFirst(preview, "<!-- %mathjax% -->", mathJaxScript);
 				
 				sb.append(preview);
 				break;
