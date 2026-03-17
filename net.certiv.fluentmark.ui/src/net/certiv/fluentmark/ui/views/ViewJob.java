@@ -6,14 +6,13 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.views;
 
-import org.eclipse.ui.IEditorInput;
+import java.math.BigDecimal;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-
-import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -21,16 +20,9 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.widgets.Display;
-
-import java.net.URISyntaxException;
-
-import java.io.IOException;
-
-import java.math.BigDecimal;
+import org.eclipse.ui.IEditorInput;
 
 import net.certiv.fluentmark.core.convert.Kind;
-import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -90,10 +82,6 @@ public class ViewJob extends Job {
 	}
 
 	public boolean load() {
-		return load(false);
-	}
-
-	public boolean load(boolean firebug) {
 		this.previewContents = null;
 		
 		FluentEditor editor = view.getActiveFluentEditor();
@@ -130,16 +118,6 @@ public class ViewJob extends Job {
 			FluentUI.log(IStatus.ERROR, "Translation to HTML failed.", e);
 			browser.setText("Failure during Markdown to HTML translation. See error log for details.");
 			return false;
-		}
-		
-		if (firebug) {
-			String script;
-			try {
-				script = FileUtils.fromBundle("resources/html/firebug.html", FluentUI.PLUGIN_ID) + Strings.EOL;
-				content = content.replaceFirst("</head>", script + "</head>");
-			} catch (IOException | URISyntaxException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load firebug.html from bundle", e);
-			}
 		}
 		
 		browser.setText(content);

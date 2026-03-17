@@ -430,13 +430,6 @@
                style="push"
                tooltip="Show HTML source code">
          </command>
-         <command
-               commandId="net.certiv.fluentmark.firebug"
-               icon="icons/obj16/firebug.png"
-               label="Firebug"
-               style="push"
-               tooltip="Open Firebug console">
-         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -737,12 +730,6 @@
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            description="Firebug"
-            id="net.certiv.fluentmark.firebug"
-            name="Firebug">
-      </command>
-      <command
-            categoryId="net.certiv.fluentmark.commands"
             defaultHandler="net.certiv.fluentmark.ui.handlers.ShowHtmlSourceCodeHandler"
             description="Show the HTML code generated from the given Markdown code"
             id="net.certiv.fluentmark.showHtmlCode"
@@ -929,20 +916,6 @@
          </enabledWhen>
       </handler>
       
-      <handler
-            class="net.certiv.fluentmark.ui.handlers.FirebugHandler"
-            commandId="net.certiv.fluentmark.firebug">
-         <activeWhen>
-            <reference
-                  definitionId="net.certiv.fluentmark.editorVisible">
-            </reference>
-         </activeWhen>
-         <enabledWhen>
-            <reference
-                  definitionId="net.certiv.fluentmark.editorVisible">
-            </reference>
-         </enabledWhen>
-      </handler>
       <handler
             class="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
             commandId="net.certiv.fluentmark.ui.navigation.to.preview">

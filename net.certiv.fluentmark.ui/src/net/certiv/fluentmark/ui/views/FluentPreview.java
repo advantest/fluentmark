@@ -156,11 +156,6 @@ public class FluentPreview extends ViewPart implements PartListener, ITextListen
 		viewjob.update();
 	}
 
-	// called only by firebug view icon
-	public void debug() {
-		viewjob.load(true);
-	}
-
 	// -------------------------------------------------------------------------
 
 	public Browser getBrowser() {
