@@ -335,8 +335,10 @@
 							for (var idx = 0; idx < blocks.length; idx++) {
 								hljs.highlightElement(blocks[idx]);
 							}
-							MathJax.typesetClear();
-							MathJax.typeset();
+							if (typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function') {
+								MathJax.typesetClear();
+								MathJax.typeset();
+							}
 						});
 						this.updateImages();
 					},
