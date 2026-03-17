@@ -83,6 +83,13 @@
 							</includes>
 							<followSymlinks>false</followSymlinks>
 						</fileset>
+						<fileset>
+							<directory>${project.basedir}/resources/js</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
 					</filesets>
 				</configuration>
 			</plugin>
@@ -170,6 +177,47 @@
 						</configuration>
 					</execution>
 
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.13.0</version>
+				<executions>
+					<execution>
+						<id>download-vuejs</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js</url>
+							<outputDirectory>${project.basedir}/resources/js</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>download-highlightjs</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js</url>
+							<outputDirectory>${project.basedir}/resources/js</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>download-highlightjs-style</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/default.min.css</url>
+							<outputDirectory>${project.basedir}/resources/js/highlight-css</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			

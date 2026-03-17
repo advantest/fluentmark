@@ -120,11 +120,24 @@ public final class FileUtils {
 	 * @throws  
 	 */
 	public static String fromBundle(String path, String bundleId) throws IOException, URISyntaxException {
-		Bundle bundle = Platform.getBundle(bundleId);
-		URL url = bundle.getEntry(path);
-		if (url == null) return null;
-		url = FileLocator.toFileURL(url);
+		URL url = getPluginResourceUrl(path, bundleId);
+		if (url == null) {
+			return null;
+		}
 		return read(URIUtil.toFile(URIUtil.toURI(url)));
+	}
+	
+	public static URL getPluginResourceUrl(String resourcePath) throws IOException {
+		return getPluginResourceUrl(resourcePath, FluentCore.PLUGIN_ID);
+	}
+	
+	public static URL getPluginResourceUrl(String resourcePath, String pluginId) throws IOException {
+		Bundle bundle = Platform.getBundle(pluginId);
+		URL url = bundle.getEntry(resourcePath);
+		if (url == null) {
+			return null;
+		}
+		return FileLocator.toFileURL(url);
 	}
 
 	public static String read(File file) throws RuntimeException {

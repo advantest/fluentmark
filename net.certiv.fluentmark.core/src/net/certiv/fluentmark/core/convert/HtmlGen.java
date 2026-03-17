@@ -113,13 +113,26 @@ public class HtmlGen {
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
 				
+				// the JavaScript lib versions are set in the pom.xml (except for MathJax)
+				URL vueJsLibUrl = FileUtils.getPluginResourceUrl("resources/js/vue.min.js");
+				URL highlightJsLibUrl = FileUtils.getPluginResourceUrl("resources/js/highlight.min.js");
+				URL highlightCssUrl = FileUtils.getPluginResourceUrl("resources/js/highlight-css/default.min.css");
+				
+				if (vueJsLibUrl == null || highlightJsLibUrl == null || highlightCssUrl == null) {
+					throw new IOException("Failed loading one or more JavaScript library resources for Markdown preview.");
+				}
+				
+				preview = Strings.replaceFirst(preview, "%vueLibUrl%", vueJsLibUrl.toString());
+				
 				preview = Strings.replaceFirst(preview, "%path%", filePath.toString());
 				preview = Strings.replaceFirst(preview, "%styles%", getStyle(filePath));
 				
-				String highlightScript = FileUtils.fromBundle("resources/html/highlight.html");
+				String highlightScript = FileUtils.fromBundle("resources/html/highlight-preview.html");
+				highlightScript = Strings.replaceFirst(highlightScript, "%highlightJsLibUrl%", highlightJsLibUrl.toString());
+				highlightScript = Strings.replaceFirst(highlightScript, "%highlightCssUrl%", highlightCssUrl.toString());
 				preview = Strings.replaceFirst(preview, "%highlight%", highlightScript);
 				
-				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax.html");
+				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax-preview.html");
 				preview = Strings.replaceFirst(preview, "%mathjax%", mathJaxScript);
 				
 				sb.append(preview);

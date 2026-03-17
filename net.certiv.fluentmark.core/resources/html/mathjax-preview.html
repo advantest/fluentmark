@@ -1,0 +1,33 @@
+		<script type="text/javascript">
+			window.MathJax = {
+				options: {
+					enableMenu: true,
+					ignoreHtmlClass: 'tex2jax_ignore',
+					processHtmlClass: 'tex2jax_process'
+				},
+				tex: {
+					inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+					displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+					processEscapes: true,
+					tags: "ams",
+					autoload: {
+						color: [],
+						colorv2: ['color']
+					}
+				},
+				loader: {
+					load: ['input/asciimath']
+				}
+			};
+		</script>
+		<!-- The MathJax library has to be loaded via CDN (via web URL) instead of using a pre-downloaded lib, since
+		     MathJax dynamically loads additional libs relative to its base path, depending on the MathJax config. -->
+		<script type="text/javascript" id="MathJax-script"
+			async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-svg.min.js">
+		</script>
+		<!-- Preferrably use chtml output, but wait for the following issue to be fixed first:
+			 https://github.com/eclipse-platform/eclipse.platform.ui/issues/2519
+		<script type="text/javascript" id="MathJax-script"
+			async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js">
+		</script>
+		-->

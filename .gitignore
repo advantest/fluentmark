@@ -5,3 +5,5 @@ com.advantest.markdown.core/lib
 graphviz/tests/graphviz-*
 
 *.log
+
+net.certiv.fluentmark.core/resources/js/
