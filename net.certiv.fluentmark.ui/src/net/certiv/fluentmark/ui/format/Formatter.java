@@ -50,8 +50,15 @@ public class Formatter {
 	}
 
 	private static void doFormat(FluentEditor editor, ITextSelection sel) {
-		IDocument doc = editor.ensureLastLineBlank().getDocument();
+		IDocument doc = editor.getDocument();
 		if (doc == null || doc.getLength() == 0) return;
+		
+		// In case we have no selection and will format the whole document,
+		// we can add a last blank line if ti's missing
+		// TODO Do we need a last blank line at all?
+		if (sel == null || sel.getLength() == 0) {
+			doc = editor.ensureLastLineBlank().getDocument();
+		}
 
 		docLength = doc.getLength();
 
@@ -72,6 +79,10 @@ public class Formatter {
 			undoMgr.endCompoundChange();
 		} catch (Exception ex) {
 			Log.error("Bad location error occurred during formatting", ex);
+		} finally {
+			if (sel != null) {
+				editor.setCursorOffset(sel.getOffset());
+			}
 		}
 	}
 
@@ -83,7 +94,7 @@ public class Formatter {
 		PagePart end = model.partAtOffset(endOffset);
 
 		for (int idx = beg.getPartIdx(); idx <= end.getPartIdx(); idx++) {
-			selected.add(model.getPagePart(idx));
+			selected.add(model.getPageParts().get(idx));
 		}
 		return selected;
 	}

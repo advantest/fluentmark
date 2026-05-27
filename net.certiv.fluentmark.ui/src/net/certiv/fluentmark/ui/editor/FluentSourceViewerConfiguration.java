@@ -47,7 +47,7 @@ import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.ProgressMonitorAndCanceler;
 import net.certiv.fluentmark.ui.editor.assist.DotCompletionProcessor;
-import net.certiv.fluentmark.ui.editor.assist.FileLinkContentAssistProcessor;
+import net.certiv.fluentmark.ui.editor.assist.FileLinksAndAnchorsContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.MultiContentAssistProcessor;
 import net.certiv.fluentmark.ui.editor.assist.TemplateCompletionProcessor;
 import net.certiv.fluentmark.ui.editor.color.IColorManager;
@@ -140,7 +140,6 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		buildPartitionRepairer(reconciler, mathScanner, MarkdownPartitioner.MATHBLOCK);
 		buildPartitionRepairer(reconciler, htmlScanner, MarkdownPartitioner.HTMLBLOCK);
 		buildLineRepairer(reconciler, markup, MarkdownPartitioner.CODESPAN);
-		buildLineRepairer(reconciler, markup, MarkdownPartitioner.PLANTUML_INCLUDE);
 		buildLineRepairer(reconciler, markup, IDocument.DEFAULT_CONTENT_TYPE);
 
 		return reconciler;
@@ -250,7 +249,7 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		}
 
 		MultiContentAssistProcessor processor = new MultiContentAssistProcessor();
-		processor.addDelegate(new FileLinkContentAssistProcessor(editor));
+		processor.addDelegate(new FileLinksAndAnchorsContentAssistProcessor(editor));
 		
 		List<IContentAssistProcessor> additionalContentAssistProcessors =  ContentAssistProcessorsManager.getInstance()
 				.getAdditionalContentAssistProcessors();
@@ -274,7 +273,6 @@ public class FluentSourceViewerConfiguration extends TextSourceViewerConfigurati
 		assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
 		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.DOTBLOCK);
-		assistant.setContentAssistProcessor(processor, MarkdownPartitioner.PLANTUML_INCLUDE);
 
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {

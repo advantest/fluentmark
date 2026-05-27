@@ -53,4 +53,6 @@ public interface IParent extends IElement {
 	boolean isAncestor(IParent child);
 
 	String getLineDelim();
+	
+	boolean setLineDelimiter(String lineDelimiter);
 }

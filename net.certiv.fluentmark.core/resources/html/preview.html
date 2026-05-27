@@ -7,9 +7,7 @@
 		<title>Fluentmark Preview</title>
 		
 		<base href="%path%"/>
-		<style media="screen" type="text/css">
-			%styles%
-		</style>
+<!-- %style% -->
 		<style>
 			figure, :not(figure) > img {
 				transform-origin: 0 0;
@@ -17,7 +15,7 @@
 				cursor: zoom-in;
 				display: inline-block;
 			}
-			#zoom-hint {
+			#zoom-hint, #jump-to-source-hint {
 				opacity: 0;
 				position: fixed;
 				background-color: lightgray;
@@ -39,13 +37,22 @@
 					transform: none;
 				}
 			}
+			/* Used to highlight a single element when displaying an element in source code and showing it in the rendered preview */
+			.is-highlighted {
+				outline: 2px solid #075ED3;
+			}
+			/* highlight elements on hover if the option "jump to source" is available */
+			[source-offset]:hover {
+				outline: 1px dashed #075ED3;
+				/*cursor: pointer;*/
+			}
 		</style>
 
-%highlight%
+<!-- %highlight% -->
 
-%mathjax%
+<!-- %mathjax% -->
 
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+		<script type="text/javascript" src="%vueLibUrl%"></script>
 		
 	</head>
 
@@ -56,6 +63,10 @@
 			<div>Use <em>Alt + mouse wheel</em> to zoom.</div>
 			<div>Use <em>left mouse button</em> to grab and move.</div>
 			<div>Use <em>right mouse button</em> to reset.</div>
+		</div>
+		
+		<div id="jump-to-source-hint">
+			<div>Jump to source with <em>Ctrl + mouse click</em>.</div>
 		</div>
 
 		<script type="text/javascript">
@@ -185,8 +196,6 @@
 							scale = scale / factor;
 						}
 							
-						var newScale = (move > 0) ? scale * factor : scale / factor;
-							
 						setTransform(currentImage, zoomX, zoomY, scale);
 					};
 	
@@ -285,6 +294,34 @@
 				},
 				mounted: function() {
 					this.refresh();
+					this.$el.addEventListener('click', this.jumpToSourceOnMouseClick, true);
+					
+					this.$el.addEventListener('mouseover', (e) => {
+						// Find the closest DOM element with source code offset
+						const target = e.target.closest('[source-offset]');
+						
+						if (target) {
+							document.getElementById("jump-to-source-hint").style.opacity = 1;
+						}
+					});
+					
+					this.$el.addEventListener('mousemove', (e) => {
+						const tooltip = document.getElementById("jump-to-source-hint")
+						// if hint is visible
+						if (tooltip.style.opacity == 1) {
+							tooltip.style.left = (e.clientX + 10) + 'px';
+							tooltip.style.top = (e.clientY + 2) + 'px';
+						}
+					});
+					
+					this.$el.addEventListener('mouseout', (e) => {
+						// Find the closest DOM element with source code offset
+						const target = e.target.closest('[source-offset]');
+						
+						if (target) {
+							document.getElementById("jump-to-source-hint").style.opacity = 0;
+						}
+					});
 				},
 				updated: function() {
 					this.refresh();
@@ -296,8 +333,10 @@
 							for (var idx = 0; idx < blocks.length; idx++) {
 								hljs.highlightElement(blocks[idx]);
 							}
-							MathJax.typesetClear();
-							MathJax.typeset();
+							if (typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function') {
+								MathJax.typesetClear();
+								MathJax.typeset();
+							}
 						});
 						this.updateImages();
 					},
@@ -312,6 +351,58 @@
 					},
 					scrollTo: function(anchorname) {
 						location.hash = '#' + anchorname;
+					},
+					scrollToElement: function(sourceOffset, sourceLength) {
+						const candidates = Array.from(document.querySelectorAll('[source-offset]'))
+							.filter(el => {
+								const elOffset = Number.parseInt(el.getAttribute('source-offset'), 10);
+								const elLength = Number.parseInt(el.getAttribute('source-length'), 10);
+								return elOffset <= sourceOffset && (sourceLength == 0 || sourceOffset + sourceLength <= elOffset + elLength);
+							});
+
+						if (candidates.length > 0) {
+							candidates.sort((a, b) => {
+								const offsetA = Number.parseInt(a.getAttribute('source-offset'), 10);
+								const offsetB = Number.parseInt(b.getAttribute('source-offset'), 10);
+																
+								const lenA = Number.parseInt(a.getAttribute('source-length'), 10);
+								const lenB = Number.parseInt(b.getAttribute('source-length'), 10);
+								if (offsetA != offsetB) {
+									return offsetB - offsetA;
+								} else {
+									return lenA - lenB;
+								}
+							});
+
+							const element = candidates[0];
+
+							// scroll to element
+							element.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+							// highlight the element
+							element.classList.add('is-highlighted');
+							setTimeout(() => element.classList.remove('is-highlighted'), 2000);
+						}
+					},
+					jumpToSourceOnMouseClick: function(event) {
+						// only listen to Ctrl + left mouse click or on MacOS Command + left mouse click
+						if (event.ctrlKey || event.metaKey) {
+							// do not follow a link and do not open a menu
+							event.preventDefault();
+							event.stopPropagation();
+							
+							// Find the closest DOM element with source code offset
+							const target = event.target.closest('[source-offset]');
+							
+							// if we have an element and the Java-side function 'jumpToSource' is available...
+							if (target && window.jumpToSource) {
+								const offset = parseInt(target.getAttribute('source-offset'), 10);
+								const length = parseInt(target.getAttribute('source-length'), 10);
+
+								// Call the Java function registered via BrowserFunction
+								window.jumpToSource(offset, length);
+							}
+						}
 					},
 					updateImages: function() {
 						reloadLocalImages();

@@ -248,15 +248,15 @@ public class FluentEditor extends TextEditor
 		super.doSetInput(input);
 		IDocument doc = getDocumentProvider().getDocument(input);
 
-		String lineSeparator = getPreferredLineSeparator();
+		String preferredLineSeparator = getPreferredLineSeparator();
 
 		// check and correct line endings
 		String text = doc.get();
 		int hash = text.hashCode();
-		text = Strings.normalize(text, lineSeparator);
+		text = Strings.normalize(text, preferredLineSeparator);
 		if (hash != text.hashCode()) {
 			// ask the user if she wants to change the line endings
-			boolean windowsLineEndings = lineSeparator.equals("\r\n");
+			boolean windowsLineEndings = preferredLineSeparator.equals("\r\n");
 			IFile file = getEditorInputFile();
 			String fileName = (file != null ? file.getName() : "the file to be opened");
 			boolean confirmed = MessageDialog.openQuestion(this.getSite().getShell(), "Adapt line endings?",
@@ -266,7 +266,12 @@ public class FluentEditor extends TextEditor
 				doc.set(text);
 			}
 		}
-
+		
+		String currentLineSeparator = getLineDelimiter(doc);
+		if (pageModel != null && !pageModel.getLineDelim().equals(currentLineSeparator)) {
+			pageModel.setLineDelimiter(currentLineSeparator);
+		}
+		
 		connectPartitioningToElement(input, doc);
 
 		FluentSourceViewer sourceViewer = (FluentSourceViewer) getSourceViewer();

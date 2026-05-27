@@ -28,11 +28,10 @@ public class MarkdownPartitioner extends AbstractDocumentPartitioner {
 	public static final String DOTBLOCK = "__dotblock";
 	public static final String UMLBLOCK = "__umlblock";
 	public static final String MATHBLOCK = "__mathblock";
-	public static final String PLANTUML_INCLUDE = "__plantuml_include";
 
 	/** Partition type groups by similar treatment */
 	public static final String[] LEGAL_TYPES = new String[] { COMMENT, CODEBLOCK, CODESPAN, HTMLBLOCK, DOTBLOCK, UMLBLOCK,
-			MATHBLOCK, PLANTUML_INCLUDE, FRONT_MATTER };
+			MATHBLOCK, FRONT_MATTER };
 	
 	private static MarkdownPartitioner INSTANCE = null;
 	

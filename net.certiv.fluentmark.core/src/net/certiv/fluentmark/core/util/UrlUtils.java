@@ -11,6 +11,8 @@ package net.certiv.fluentmark.core.util;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.net.UrlEscapers;
 
@@ -56,4 +58,36 @@ public class UrlUtils {
 		return UrlEscapers.urlPathSegmentEscaper().escape(text);
 	}
 	
+	// detect unescaped brackets, regex: (?<!\\)[\(\)\[\]\<\>]
+	private static final Pattern REGEX_CHARS_TO_ESCAPE = Pattern.compile("(?<!\\\\)[\\(\\)\\[\\]\\<\\>]");
+	
+	// detect escaped brackets, regex: \\[\(\)\[\]\<\>]
+	private static final Pattern REGEX_ESCAPED_CHARS = Pattern.compile("\\\\[\\(\\)\\[\\]\\<\\>]");
+	
+	public static String escapeBracketsInMethodReference(String methodReference) {
+		Matcher matcher = REGEX_CHARS_TO_ESCAPE.matcher(methodReference);
+		StringBuilder builder = new StringBuilder();
+		int index = 0;
+		while (matcher.find()) {
+			builder.append(methodReference.substring(index, matcher.start()));
+			builder.append('\\');
+			builder.append(methodReference.substring(matcher.start(), matcher.end()));
+			index = matcher.end();
+		}
+		builder.append(methodReference.substring(index, methodReference.length()));
+		return builder.toString();
+	}
+	
+	public static String unescapeBracketsInMethodReference(String methodReference) {
+		Matcher matcher = REGEX_ESCAPED_CHARS.matcher(methodReference);
+		StringBuilder builder = new StringBuilder();
+		int index = 0;
+		while (matcher.find()) {
+			builder.append(methodReference.substring(index, matcher.start()));
+			builder.append(methodReference.substring(matcher.start() + 1, matcher.end()));
+			index = matcher.end();
+		}
+		builder.append(methodReference.substring(index, methodReference.length()));
+		return builder.toString();
+	}
 }

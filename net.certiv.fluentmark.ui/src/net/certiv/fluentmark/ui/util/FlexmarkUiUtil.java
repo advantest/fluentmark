@@ -12,9 +12,9 @@ package net.certiv.fluentmark.ui.util;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlBlockNode;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.vladsch.flexmark.ast.Image;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.ast.Document;
 

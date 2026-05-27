@@ -113,14 +113,34 @@ public class HtmlGen {
 			case VIEW:
 				String preview = FileUtils.fromBundle("resources/html/preview.html");
 				
+				// the JavaScript lib versions are set in the pom.xml (except for MathJax)
+				URL vueJsLibUrl = FileUtils.getPluginResourceUrl("resources/js/vue.min.js");
+				URL highlightJsLibUrl = FileUtils.getPluginResourceUrl("resources/js/highlight.min.js");
+				URL highlightCssUrl = FileUtils.getPluginResourceUrl("resources/js/highlight-css/default.min.css");
+				
+				if (vueJsLibUrl == null || highlightJsLibUrl == null || highlightCssUrl == null) {
+					throw new IOException("Failed loading one or more JavaScript library resources for Markdown preview.");
+				}
+				
+				preview = Strings.replaceFirst(preview, "%vueLibUrl%", vueJsLibUrl.toString());
+				
 				preview = Strings.replaceFirst(preview, "%path%", filePath.toString());
-				preview = Strings.replaceFirst(preview, "%styles%", getStyle(filePath));
 				
-				String highlightScript = FileUtils.fromBundle("resources/html/highlight.html");
-				preview = Strings.replaceFirst(preview, "%highlight%", highlightScript);
+				StringBuilder currentCssBuilder = new StringBuilder();
+				currentCssBuilder.append("\t\t<style media=\"screen\" type=\"text/css\">");
+				currentCssBuilder.append(Strings.EOL);
+				currentCssBuilder.append("\t\t\t");
+				currentCssBuilder.append(getStyle(filePath));
+				currentCssBuilder.append("\t\t</style>");
+				preview = Strings.replaceFirst(preview, "<!-- %style% -->", currentCssBuilder.toString());
 				
-				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax.html");
-				preview = Strings.replaceFirst(preview, "%mathjax%", mathJaxScript);
+				String highlightScript = FileUtils.fromBundle("resources/html/highlight-preview.html");
+				highlightScript = Strings.replaceFirst(highlightScript, "%highlightJsLibUrl%", highlightJsLibUrl.toString());
+				highlightScript = Strings.replaceFirst(highlightScript, "%highlightCssUrl%", highlightCssUrl.toString());
+				preview = Strings.replaceFirst(preview, "<!-- %highlight% -->", highlightScript);
+				
+				String mathJaxScript = FileUtils.fromBundle("resources/html/mathjax-preview.html");
+				preview = Strings.replaceFirst(preview, "<!-- %mathjax% -->", mathJaxScript);
 				
 				sb.append(preview);
 				break;

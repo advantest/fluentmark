@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -38,7 +39,10 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import net.certiv.fluentmark.core.markdown.model.ISourceRange;
 import net.certiv.fluentmark.core.markdown.model.ISourceReference;
+import net.certiv.fluentmark.core.markdown.model.PagePart;
+import net.certiv.fluentmark.core.markdown.model.PageRoot;
 import net.certiv.fluentmark.core.markdown.model.SourceRange;
+import net.certiv.fluentmark.core.markdown.model.Type;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
 import net.certiv.fluentmark.ui.editor.DocumentCharacterIterator;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -654,14 +658,159 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 		}
 		return map;
 	}
+	
+	private static class SectionRegion implements IRegion {
+		
+		private final int level;
+		private final int offset;
+		private int length;
+		
+		private SectionRegion parent = null;
+		private List<SectionRegion> children = new ArrayList<>();
+		
+		public SectionRegion(int offset, int length, int level) {
+			this.offset = offset;
+			this.length = length;
+			this.level = level;
+		}
+
+		@Override
+		public int getOffset() {
+			return this.offset;
+		}
+		
+		@Override
+		public int getLength() {
+			return this.length;
+		}
+		
+		public int getLevel() {
+			return this.level;
+		}
+		
+		public void addSubsection(SectionRegion sectionRegion) {
+			Assert.isLegal(sectionRegion != null && sectionRegion.level > this.level);
+			
+			this.children.add(sectionRegion);
+			sectionRegion.parent = this;
+		}
+		
+		public SectionRegion getParent() {
+			return this.parent;
+		}
+		
+		public Stream<SectionRegion> stream() {
+			return Stream.concat(
+					Stream.of(this), 
+					this.children.stream().flatMap(SectionRegion::stream));
+		}
+	}
 
 	private void computeFoldingStructure(final FoldingStructureComputationContext ctx) {
 		try {
 			IDocument doc = ctx.getDocument();
+			
+			List<Tuple> comments = new ArrayList<>();
+			
+			List<SectionRegion> topLevelSections = collectSectionRanges();
+			topLevelSections.stream()
+				.flatMap(SectionRegion::stream)
+				.forEach(section -> {
+					Position position = createBlockPosition(section);
+					try {
+						comments.add(new Tuple(new FluentProjectionAnnotation(false,
+								doc.get(position.offset, Math.min(16, position.length)), false), position));
+					} catch (BadLocationException e) {
+						// do nothing
+					}
+				});
+			
 			ITypedRegion[] partitions = TextUtilities.computePartitioning(doc, MarkdownPartitioner.FLUENT_MARKDOWN_PARTITIONING, 0,
 					doc.getLength(), false);
-			computeBlockFoldingStructure(partitions, ctx);
-		} catch (BadLocationException e) {}
+			computeBlockFoldingStructure(partitions, ctx, comments);
+		} catch (BadLocationException e) {
+			// do nothing
+		}
+	}
+	
+	private List<SectionRegion> collectSectionRanges() {
+		if (editor == null || editor.getPageModel() == null) {
+			return Collections.emptyList();
+		}
+		
+		PageRoot pageModel = this.editor.getPageModel();
+		List<SectionRegion> topLevelSections = createSectionHierarchy(pageModel);
+		adaptSectionsLengths(topLevelSections, pageModel);
+		
+		return topLevelSections;
+	}
+
+	private List<SectionRegion> createSectionHierarchy(PageRoot pageModel) {
+		List<SectionRegion> topLevelSections = new ArrayList<>();
+		
+		SectionRegion previousSection = null;
+		for (PagePart part : pageModel.getPageParts()) {
+			ISourceRange range = part.getSourceRange();
+			if (Type.HEADER.equals(part.getKind())) {
+				SectionRegion newSection = new SectionRegion(range.getOffset(), range.getLength(), part.getLevel());
+				addSectionToSectionHierarchy(topLevelSections, previousSection, newSection);
+				
+				previousSection = newSection;
+			}
+		}
+		
+		return topLevelSections;
+	}
+
+	private void addSectionToSectionHierarchy(List<SectionRegion> topLevelSections, SectionRegion previousSection,
+			SectionRegion newSection) {
+		if (previousSection != null) {
+			if (previousSection.getLevel() == newSection.getLevel()) {
+				if (previousSection.parent != null) {
+					previousSection.parent.addSubsection(newSection);
+				}
+			} else if (previousSection.getLevel() < newSection.getLevel()) {
+				previousSection.addSubsection(newSection);
+			} else {
+				SectionRegion parentSection = findPrecedingParentSection(previousSection, newSection);
+				if (parentSection != null) {
+					parentSection.addSubsection(newSection);
+				} else {
+					topLevelSections.add(newSection);
+				}
+			}
+		} else {
+			topLevelSections.add(newSection);
+		}
+	}
+
+	private SectionRegion findPrecedingParentSection(SectionRegion previousSection, SectionRegion newSection) {
+		SectionRegion parentCandidate = previousSection;
+		while (parentCandidate != null && parentCandidate.level >= newSection.level) {
+			parentCandidate = parentCandidate.parent;
+		}
+		return parentCandidate;
+	}
+	
+	private void adaptSectionsLengths(List<SectionRegion> sections, PageRoot pageModel) {
+		for (int i = 0; i < sections.size(); i++) {
+			SectionRegion currentSection = sections.get(i);
+			
+			if (i + 1 < sections.size()) {
+				SectionRegion nextSection = sections.get(i+ 1);
+				currentSection.length = nextSection.offset - currentSection.offset;
+			} else {
+				if (currentSection.getParent() != null) {
+					currentSection.length = currentSection.getParent().offset + currentSection.getParent().length - currentSection.offset;
+				} else {
+					currentSection.length = pageModel.getSourceRange().getLength() - currentSection.offset;
+				}
+			}
+		}
+		
+		for (SectionRegion section: sections) {
+			adaptSectionsLengths(section.children, pageModel);
+		}
 	}
 
 	/**
@@ -671,13 +820,12 @@ public class FoldingStructureProvider implements IFoldingStructureProvider {
 	 * @param ctx the folding structure context
 	 * @throws BadLocationException
 	 */
-	private void computeBlockFoldingStructure(ITypedRegion[] partitions, FoldingStructureComputationContext ctx)
+	private void computeBlockFoldingStructure(ITypedRegion[] partitions, FoldingStructureComputationContext ctx, List<Tuple> comments)
 			throws BadLocationException {
 		boolean collapse = ctx.collapseComments();
 		IDocument doc = ctx.getDocument();
 		int startLine = -1;
 		int endLine = -1;
-		List<Tuple> comments = new ArrayList<>();
 		ModifiableRegion commentRange = new ModifiableRegion();
 		for (ITypedRegion partition : partitions) {
 			if (isFoldablePartition(partition.getType())) {

@@ -369,7 +369,13 @@
                   commandId="net.certiv.fluentmark.openView"
                   icon="icons/obj16/fluentmark_doc.png"
                   style="push"
-                  tooltip="Open FluentMark Viewer">
+                  tooltip="Open FluentMark View">
+            </command>
+            <command
+                  commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+                  icon="icons/etool16/goto_preview.png"
+                  style="push"
+                  tooltip="Show Element in FluentMark View">
                <visibleWhen>
                   <reference
                         definitionId="net.certiv.fluentmark.editorVisible">
@@ -424,13 +430,6 @@
                style="push"
                tooltip="Show HTML source code">
          </command>
-         <command
-               commandId="net.certiv.fluentmark.firebug"
-               icon="icons/obj16/firebug.png"
-               label="Firebug"
-               style="push"
-               tooltip="Open Firebug console">
-         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -439,6 +438,17 @@
                icon="icons/obj16/fluentmark_doc.png"
                id="net.certiv.fluentmark.ui.markdown.menu"
                label="Markdown">
+            <command
+                  commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+                  icon="icons/etool16/goto_preview.png"
+                  style="push"
+                  tooltip="Show Element in FluentMark View">
+               <visibleWhen>
+                  <reference
+                        definitionId="net.certiv.fluentmark.editorVisible">
+                  </reference>
+               </visibleWhen>
+            </command>
             <command
                   commandId="net.certiv.fluentmark.ui.addMarkdownValidationsBuilder"
                   icon="icons/obj16/fluentmark_doc.png"
@@ -720,12 +730,6 @@
       </command>
       <command
             categoryId="net.certiv.fluentmark.commands"
-            description="Firebug"
-            id="net.certiv.fluentmark.firebug"
-            name="Firebug">
-      </command>
-      <command
-            categoryId="net.certiv.fluentmark.commands"
             defaultHandler="net.certiv.fluentmark.ui.handlers.ShowHtmlSourceCodeHandler"
             description="Show the HTML code generated from the given Markdown code"
             id="net.certiv.fluentmark.showHtmlCode"
@@ -760,6 +764,11 @@
             defaultHandler="net.certiv.fluentmark.ui.handlers.ExtractPlantUmlCodeHandler"
             id="net.certiv.fluentmark.ui.refactoring.extractPumlCode"
             name="Extract PlantUML code to a *.puml file">
+      </command>
+      <command
+            defaultHandler="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
+            id="net.certiv.fluentmark.ui.navigation.to.preview"
+            name="Go to rendered element in preview">
       </command>
    </extension>
 
@@ -908,8 +917,8 @@
       </handler>
       
       <handler
-            class="net.certiv.fluentmark.ui.handlers.FirebugHandler"
-            commandId="net.certiv.fluentmark.firebug">
+            class="net.certiv.fluentmark.ui.handlers.JumpToElementInPreviewHandler"
+            commandId="net.certiv.fluentmark.ui.navigation.to.preview">
          <activeWhen>
             <reference
                   definitionId="net.certiv.fluentmark.editorVisible">
@@ -981,6 +990,12 @@
             contextId="net.certiv.fluentmark.ui.editorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
+      </key>
+      <key
+            commandId="net.certiv.fluentmark.ui.navigation.to.preview"
+            contextId="net.certiv.fluentmark.ui.editorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+F5">
       </key>
    </extension>
    <extension

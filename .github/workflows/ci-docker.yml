@@ -3,54 +3,67 @@ name: Java CI with Maven/Tycho
 on:
   push:
     branches-ignore:
-    - main
     - master
   pull_request:
     branches:
-    - develop
+    - main
   workflow_dispatch:
 
 permissions:
   contents: read
   packages: read
 
-env:
-  GRAPHVIZ_VERSION: '11.0.0'
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    # save some values in variables in order to use them within the Docker container
+    env:
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
-      image: ghcr.io/${{ github.repository }}:graphviz-${{ env.GRAPHVIZ_VERSION }}
+      image: ghcr.io/${{ github.repository }}:graphviz-11.0.0
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-    - name: Check out
-      uses: actions/checkout@v4
 
+    steps:
     - name: Set up settings.xml for Maven and GitHub packages access
       run: |
-        mkdir -p $HOME/.m2
-        cat > $HOME/.m2/settings.xml <<EOF
+        mkdir -p /root/.m2
+        cat > /root/.m2/settings.xml <<EOF
         <settings>
           <servers>
             <server>
               <id>github-packages-flexmark</id>
-              <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
+              <username>${GITHUB_ACTOR}</username>
+              <password>${GITHUB_TOKEN}</password>
+            </server>
+            <server>
+              <id>github-packages-flexmark-extensions</id>
+              <username>${GITHUB_ACTOR}</username>
+              <password>${GITHUB_TOKEN}</password>
             </server>
             <server>
               <id>github-packages-markdown-core</id>
-              <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
+              <username>${GITHUB_ACTOR}</username>
+              <password>${GITHUB_TOKEN}</password>
             </server>
           </servers>
         </settings>
+        EOF
+
+    - name: Set up user details for git commits
+      run: |
+        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git config --global user.name ${GITHUB_ACTOR}
+
+    - name: Check out
+      uses: actions/checkout@v4
 
     - name: Build with Maven/Tycho
       # -U means update snapshots (needed, since we might depend on a markdown-core SNAPSHOT version)
-      run: mvn -B clean verify --file pom.xml -U -Dcode-coverage
+      # xvfb-run is used to start a virtual X server (virtual screen) for UI tests
+      run: xvfb-run -s "-screen 0 1920x1080x24" mvn -B clean verify --file pom.xml -U -Dcode-coverage
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph

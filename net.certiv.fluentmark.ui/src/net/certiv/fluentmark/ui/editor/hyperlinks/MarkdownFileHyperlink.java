@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.ui.editor.hyperlinks;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IRegion;
 
@@ -23,6 +24,9 @@ public class MarkdownFileHyperlink extends FileHyperlink {
 	
 	public MarkdownFileHyperlink(IFile markdownTargetFile, IRegion linkTargetRegion, String anchor) {
 		super (markdownTargetFile, linkTargetRegion);
+		
+		Assert.isLegal(anchor != null && !anchor.isBlank() && !anchor.startsWith("#"),
+				"An anchor is expected to be non-empty and is not allowed to begin with a '#'.");
 		
 		this.targetAnchor = anchor;
 	}

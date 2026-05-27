@@ -25,7 +25,6 @@ import net.certiv.fluentmark.core.markdown.scanner.rules.FrontMatterRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.HtmlCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.IndentedCodeRule;
 import net.certiv.fluentmark.core.markdown.scanner.rules.MatchRule;
-import net.certiv.fluentmark.core.markdown.scanner.rules.PumlFileInclusionRule;
 import net.certiv.fluentmark.core.plantuml.parsing.PlantUmlConstants;
 
 public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implements IScannerExt {
@@ -46,32 +45,12 @@ public class MarkdownPartitionScanner extends RuleBasedPartitionScanner implemen
 		IToken umlblock = new Token(MarkdownPartitioner.UMLBLOCK);
 		IToken mathblock = new Token(MarkdownPartitioner.MATHBLOCK);
 		
-		// TODO Get rid of the PlantUML inclusion statement type region in the partition scanner
-		Token plantUmlInclude = new Token(MarkdownPartitioner.PLANTUML_INCLUDE);
-		
-		// TODO Find another way to set token color.
-		// That should work as soon as we get rid of PumlFileInclusionRule,
-		// then the ScannerMarkup and its LinkRule will be responsible for the syntax highlighting.
-		// The following code doesn't work, since FastPartinioner expects String as token data,
-		// but link color and style are set via TextAttribute as token data.
-		
-//		IPreferenceStore store = FluentUI.getDefault().getPreferenceStore();
-//		IColorManager colorManager = FluentUI.getDefault().getColorMgr();
-//		PreferenceConverter.getColor(store, Prefs.EDITOR_LINK_COLOR);
-//		Color color = colorManager.getColor(Prefs.EDITOR_LINK_COLOR);
-//		// TODO also use the same style for PlantUML include statements as for links
-//		// see net.certiv.fluentmark.ui.editor.text.AbstractBufferedRuleBasedScanner#createTextAttribute(...)
-//		TextAttribute attribute = new TextAttribute(color, null, SWT.NORMAL);
-//		plantUmlInclude.setData(attribute);
-
 		List<IPredicateRule> rules = new ArrayList<>();
 
 		rules.add(new FrontMatterRule("---", "---", matter, '\\'));
 		rules.add(new MultiLineRule("<!--", "-->", comment, '\\', false));
 		rules.add(new MultiLineRule("$$", "$$", mathblock, '\\', false));
 		rules.add(new MatchRule("\\$\\S", "\\S\\$\\D", mathblock, '\\', true, true));
-		
-		rules.add(new PumlFileInclusionRule(plantUmlInclude));
 		
 		rules.add(new HtmlCodeRule(htmlblock));
 		rules.add(new DotCodeRule(dotblock));

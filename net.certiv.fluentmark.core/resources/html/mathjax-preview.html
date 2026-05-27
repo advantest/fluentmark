@@ -13,14 +13,15 @@
 					autoload: {
 						color: [],
 						colorv2: ['color']
-					},
-					packages: {'[+]': ['noerrors']}
+					}
 				},
 				loader: {
-					load: ['input/asciimath', '[tex]/noerrors']
+					load: ['input/asciimath']
 				}
 			};
 		</script>
+		<!-- The MathJax library has to be loaded via CDN (via web URL) instead of using a pre-downloaded lib, since
+		     MathJax dynamically loads additional libs relative to its base path, depending on the MathJax config. -->
 		<script type="text/javascript" id="MathJax-script"
 			async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-svg.min.js">
 		</script>

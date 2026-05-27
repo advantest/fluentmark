@@ -6,14 +6,13 @@
  ******************************************************************************/
 package net.certiv.fluentmark.ui.views;
 
-import org.eclipse.ui.IEditorInput;
+import java.math.BigDecimal;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -21,16 +20,9 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.widgets.Display;
-
-import java.net.URISyntaxException;
-
-import java.io.IOException;
-
-import java.math.BigDecimal;
+import org.eclipse.ui.IEditorInput;
 
 import net.certiv.fluentmark.core.convert.Kind;
-import net.certiv.fluentmark.core.util.FileUtils;
-import net.certiv.fluentmark.core.util.Strings;
 import net.certiv.fluentmark.ui.FluentUI;
 import net.certiv.fluentmark.ui.Log;
 import net.certiv.fluentmark.ui.editor.FluentEditor;
@@ -40,6 +32,7 @@ public class ViewJob extends Job {
 
 	private static final String Render = "Fluent.set('%s');";
 	private static final String CMD_SCROLL_TO = "Fluent.scrollTo('%s');";
+	private static final String CMD_SCROLL_TO_ELEMENT = "Fluent.scrollToElement(%s, %s);";
 	
 	private String currentAnchorToScrollTo;
 	private String previewContents;
@@ -89,10 +82,6 @@ public class ViewJob extends Job {
 	}
 
 	public boolean load() {
-		return load(false);
-	}
-
-	public boolean load(boolean firebug) {
 		this.previewContents = null;
 		
 		FluentEditor editor = view.getActiveFluentEditor();
@@ -129,16 +118,6 @@ public class ViewJob extends Job {
 			FluentUI.log(IStatus.ERROR, "Translation to HTML failed.", e);
 			browser.setText("Failure during Markdown to HTML translation. See error log for details.");
 			return false;
-		}
-		
-		if (firebug) {
-			String script;
-			try {
-				script = FileUtils.fromBundle("resources/html/firebug.html", FluentUI.PLUGIN_ID) + Strings.EOL;
-				content = content.replaceFirst("</head>", script + "</head>");
-			} catch (IOException | URISyntaxException e) {
-				FluentUI.log(IStatus.ERROR, "Could not load firebug.html from bundle", e);
-			}
 		}
 		
 		browser.setText(content);
@@ -187,6 +166,27 @@ public class ViewJob extends Job {
 					boolean ok = browser.execute(script);
 					if (!ok) {
 						Log.error(String.format("JavaScript execution (scroll to anchor %s) failed.", anchor));
+					}
+				}
+			}
+		});
+	}
+	
+	public void scrollToElement(int sourceOffset, int sourceLength) {
+		if (state != State.READY || browser == null || browser.isDisposed()) {
+			return;
+		}
+		
+		String script = String.format(CMD_SCROLL_TO_ELEMENT, sourceOffset, sourceLength);
+		
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if (browser != null && !browser.isDisposed()) {
+					boolean ok = browser.execute(script);
+					if (!ok) {
+						Log.error(String.format("JavaScript execution (scroll to element with offset %s and length %s) failed.", sourceOffset, sourceLength));
 					}
 				}
 			}

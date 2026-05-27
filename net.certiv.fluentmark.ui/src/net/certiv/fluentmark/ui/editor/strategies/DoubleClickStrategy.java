@@ -113,7 +113,7 @@ public class DoubleClickStrategy extends DefaultTextDoubleClickStrategy {
 					ISourceRange range = part.getSourceRange();
 					editor.getViewer().setSelectedRange(range.getOffset(), 0);
 					
-					TextEdit edit = new ReplaceEdit(range.getOffset(), range.getLength() - 1, newTable);
+					TextEdit edit = new ReplaceEdit(range.getOffset(), range.getLength(), newTable);
 					
 					try {
 						edit.apply(editor.getDocument());
