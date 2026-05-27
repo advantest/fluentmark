@@ -14,27 +14,50 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 ## Features
 
 + Choice of Markdown converter
-    - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred)
+    - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred) **(Advantest Edition only)**
     - support for the [Pandoc](https://pandoc.org) converter
 + Real-time preview
     - smooth, reactively rendered HTML display, using [Vue.js](https://vuejs.org/)
+    - navigation from source code to preview and back **(Advantest Edition only)**
+    - improved navigation support (e.g. following links in preview opens same file in editor) **(Advantest Edition only)**
+    - Zoom images in the preview **(Advantest Edition only)**
     - stylesheet controlled presentation
         + multiple built-in stylesheets
-        + local custom/user defined stylesheets
+        + local custom/user-defined stylesheets
 + PDF export using Pandoc
-    - custom/user defined LaTeX page template support
+    - custom/user-defined LaTeX page template support
 + LaTex/Math presentation using [MathJax](https://www.mathjax.org/)
-+ Code highlighting using [highlight.js](https://highlightjs.org/)
++ Code highlighting in code blocks using [highlight.js](https://highlightjs.org/)
 + Diagram rendering
     - UML diagrams using the [PlantUML](https://plantuml.com/) language
-    - Graph diagrams using the [Graphviz DOT](http://www.graphviz.org/) language
+    <!-- - Graph diagrams using the [Graphviz DOT](http://www.graphviz.org/) language -->
     - all diagram previews are rendered in real-time
     - exported Web and PDF documents embed the diagrams as scalable SVG images
++ Markdown code validation and error reporting **(Advantest Edition only)**
+    - Check link targets (web links, links to sections, links to files). Do the linked files, sections, or web sites exist?
+    - Check anchors (section identifiers). Are identifiers unique? Do they contain illegal characters?
+    - Check image references (find missing image files)
+    - Add additional validations using extension points (e.g. check links to tickets in your intra-net)
 + Spell check with quick-assist correction processor
++ Various code assist features
+    - Code completion for code templates
+    - Code completion for anchors (section identifiers) and links to sections **(Advantest Edition only)**, etc.
+    - Code assist for creating paths to files, either using a file selection dialog or by step-wise completing the file path using code proposals **(Advantest Edition only)**
++ Refactoring operations **(Advantest Edition only)**
+    - Extract a PlantUML code block to a linked *.puml file or in-line such a file as a code block
+    - Replace SVG images with on-demand rendered PlantUML diagram files
 + Smart editing behaviors, including intelligent paragraph, list & blank line handling
 + Table editor
 + Text, list and table formatter
++ Support for TODO and FIXME tasks in Markdown code **(Advantest Edition only)**
 + Outline view with drag-and-drop support
+    - "Hide all but the sections" filter **(Advantest Edition only)**
++ Extended Markdown language **(Advantest Edition only)**
+    - PlantUML code blocks are first-class citizens, no need to surround them in fenced code blocks, i.e. everything between `@startuml` and `@enduml` is rendered as a PlantUML diagram
+    - Fenced code blocks with the `plantuml` language are automatically rendered as a diagram (not as a code block or text)
+    - Using *.puml files as images, e.g. `![Some diagram](classes.puml)` (they are rendered on demand)
+    - [Footnote support](https://github.com/vsch/flexmark-java/wiki/Extensions#footnotes)
+    <!-- - Links to Java members (methods or fields), e.g. [important method](path/to/ClassName.java#getSomething(int, boolean, Character[], List<Map<K,V>>)) -->
 
 ## Screenshots
 
