@@ -171,8 +171,12 @@ public class Converter {
 			if (result != null && !result.hasErrors()) {
 				String output = result.stdOutput;
 				String firstOutputLine = output.lines().findFirst().orElse("");
-				if (!firstOutputLine.isBlank() && firstOutputLine.matches("pandoc \\d+\\.\\d+.*")) {
-					return firstOutputLine.substring("pandoc ".length());
+				if (!firstOutputLine.isBlank()) {
+					if (firstOutputLine.matches("pandoc \\d+\\.\\d+.*")) {
+						return firstOutputLine.substring("pandoc ".length());
+					} else if (firstOutputLine.matches("pandoc.exe \\d+\\.\\d+.*")) {
+						return firstOutputLine.substring("pandoc.exe ".length());
+					}
 				}
 			}
 		}
