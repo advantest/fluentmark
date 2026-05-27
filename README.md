@@ -73,31 +73,22 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 
 ## Installation & Use
 
-Install the latest version from our Eclipse update site (p2 repository): [https://advantest.github.io/fluentmark/](https://advantest.github.io/fluentmark/).
+Install the latest version from our Eclipse update site (p2 repository): **[https://advantest.github.io/fluentmark/](https://advantest.github.io/fluentmark/)**.
 (In Eclipse, select the menu Help -> Install New Software...,
 then paste the update site URL into the text field and press enter, select the features to be installed and press the Finish button.)
 
-Requires Eclipse 2025-03 or newer & JDK 21+.
+### Requirements
+
+- Eclipse 2025-12 or newer
+- Java 21 or newer
+- [Graphviz](https://www.graphviz.org/download/) for rendering diagrams (PlantUML / DOT)
+- [Pandoc](https://pandoc.org) (optional) for rendering PDF (could also be used to render HTML instead of using flexmark)
+- For PDF export, both *Pandoc* and a _LaTeX_ processor must be installed. Pandoc recommends [*MikTeX*](https://miktex.org/).
 
 
-Preferences ---
-- `Window`&rarr;`FluentMark`
+### Preferences
+- Window &rarr; Preferences... &rarr; FluentMark
 
-Pandoc converter ---
-- Install [Pandoc](https://pandoc.org). The `pandoc` executable can then be selected from the local filesystem 
-  on the Pandoc Converter preference page.
-
-PDF export ---
-- Both *Pandoc* and a _LaTeX_ processor must be installed. Pandoc recommends [*MikTeX*](https://miktex.org/).
-
-DOT graphics ---
-- Install [Graphviz](http://www.graphviz.org/download.php). The `dot` executable can then be selected 
-  on the Converter preference page.
-
-UML diagrams ---
-- The basic PlantUml jar is built-in. Diagrams other than sequence diagrams require DOT graphics. If 
-  `Graphviz` is installed in a non-default directory, set the `GRAPHVIZ_DOT` environment variable to 
-  the actual installation directory.
 
 ### Keys
 
