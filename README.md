@@ -1,7 +1,7 @@
 <!-- see https://shields.io/badges -->
 
 ![GitHub License](https://img.shields.io/github/license/advantest/fluentmark)
-[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/advantest/fluentmark/actions/workflows/ci.yml)
+[![Java CI with Maven/Tycho](https://github.com/advantest/fluentmark/actions/workflows/ci-docker.yml/badge.svg?branch=main)](https://github.com/advantest/fluentmark/actions/workflows/ci-docker.yml)
 
 # FluentMark Advantest Edition (AE)
 
@@ -14,27 +14,50 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 ## Features
 
 + Choice of Markdown converter
-    - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred)
+    - support for the [flexmark](https://github.com/advantest/flexmark-java) converter (preferred) **(Advantest Edition only)**
     - support for the [Pandoc](https://pandoc.org) converter
 + Real-time preview
     - smooth, reactively rendered HTML display, using [Vue.js](https://vuejs.org/)
+    - navigation from source code to preview and back **(Advantest Edition only)**
+    - improved navigation support (e.g. following links in preview opens same file in editor) **(Advantest Edition only)**
+    - Zoom images in the preview **(Advantest Edition only)**
     - stylesheet controlled presentation
         + multiple built-in stylesheets
-        + local custom/user defined stylesheets
+        + local custom/user-defined stylesheets
 + PDF export using Pandoc
-    - custom/user defined LaTeX page template support
+    - custom/user-defined LaTeX page template support
 + LaTex/Math presentation using [MathJax](https://www.mathjax.org/)
-+ Code highlighting using [highlight.js](https://highlightjs.org/)
++ Code highlighting in code blocks using [highlight.js](https://highlightjs.org/)
 + Diagram rendering
     - UML diagrams using the [PlantUML](https://plantuml.com/) language
-    - Graph diagrams using the [Graphviz DOT](http://www.graphviz.org/) language
+    <!-- - Graph diagrams using the [Graphviz DOT](http://www.graphviz.org/) language -->
     - all diagram previews are rendered in real-time
     - exported Web and PDF documents embed the diagrams as scalable SVG images
++ Markdown code validation and error reporting **(Advantest Edition only)**
+    - Check link targets (web links, links to sections, links to files). Do the linked files, sections, or web sites exist?
+    - Check anchors (section identifiers). Are identifiers unique? Do they contain illegal characters?
+    - Check image references (find missing image files)
+    - Add additional validations using extension points (e.g. check links to tickets in your intra-net)
 + Spell check with quick-assist correction processor
++ Various code assist features
+    - Code completion for code templates
+    - Code completion for anchors (section identifiers) and links to sections **(Advantest Edition only)**, etc.
+    - Code assist for creating paths to files, either using a file selection dialog or by step-wise completing the file path using code proposals **(Advantest Edition only)**
++ Refactoring operations **(Advantest Edition only)**
+    - Extract a PlantUML code block to a linked *.puml file or in-line such a file as a code block
+    - Replace SVG images with on-demand rendered PlantUML diagram files
 + Smart editing behaviors, including intelligent paragraph, list & blank line handling
 + Table editor
 + Text, list and table formatter
++ Support for TODO and FIXME tasks in Markdown code **(Advantest Edition only)**
 + Outline view with drag-and-drop support
+    - "Hide all but the sections" filter **(Advantest Edition only)**
++ Extended Markdown language **(Advantest Edition only)**
+    - PlantUML code blocks are first-class citizens, no need to surround them in fenced code blocks, i.e. everything between `@startuml` and `@enduml` is rendered as a PlantUML diagram
+    - Fenced code blocks with the `plantuml` language are automatically rendered as a diagram (not as a code block or text)
+    - Using *.puml files as images, e.g. `![Some diagram](classes.puml)` (they are rendered on demand)
+    - [Footnote support](https://github.com/vsch/flexmark-java/wiki/Extensions#footnotes)
+    <!-- - Links to Java members (methods or fields), e.g. [important method](path/to/ClassName.java#getSomething(int, boolean, Character[], List<Map<K,V>>)) -->
 
 ## Screenshots
 
@@ -50,31 +73,22 @@ This work is forked from [https://github.com/grosenberg/Fluentmark](https://gith
 
 ## Installation & Use
 
-Install the latest version from our Eclipse update site (p2 repository): [https://advantest.github.io/fluentmark/](https://advantest.github.io/fluentmark/).
+Install the latest version from our Eclipse update site (p2 repository): **[https://advantest.github.io/fluentmark/](https://advantest.github.io/fluentmark/)**.
 (In Eclipse, select the menu Help -> Install New Software...,
 then paste the update site URL into the text field and press enter, select the features to be installed and press the Finish button.)
 
-Requires Eclipse 2025-03 or newer & JDK 21+.
+### Requirements
+
+- Eclipse 2025-12 or newer
+- Java 21 or newer
+- [Graphviz](https://www.graphviz.org/download/) for rendering diagrams (PlantUML / DOT)
+- [Pandoc](https://pandoc.org) (optional) for rendering PDF (could also be used to render HTML instead of using flexmark)
+- For PDF export, both *Pandoc* and a _LaTeX_ processor must be installed. Pandoc recommends [*MikTeX*](https://miktex.org/).
 
 
-Preferences ---
-- `Window`&rarr;`FluentMark`
+### Preferences
+- Window &rarr; Preferences... &rarr; FluentMark
 
-Pandoc converter ---
-- Install [Pandoc](https://pandoc.org). The `pandoc` executable can then be selected from the local filesystem 
-  on the Pandoc Converter preference page.
-
-PDF export ---
-- Both *Pandoc* and a _LaTeX_ processor must be installed. Pandoc recommends [*MikTeX*](https://miktex.org/).
-
-DOT graphics ---
-- Install [Graphviz](http://www.graphviz.org/download.php). The `dot` executable can then be selected 
-  on the Converter preference page.
-
-UML diagrams ---
-- The basic PlantUml jar is built-in. Diagrams other than sequence diagrams require DOT graphics. If 
-  `Graphviz` is installed in a non-default directory, set the `GRAPHVIZ_DOT` environment variable to 
-  the actual installation directory.
 
 ### Keys
 
