@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   build:
+    if: github.ref_name == 'main' && github.repository == 'advantest/fluentmark'
     runs-on: ubuntu-latest
     env:
         GRAPHVIZ_VERSION: ${{ github.event.inputs.GRAPHVIZ_VERSION }}
