@@ -128,7 +128,7 @@
 		</location>
 		<location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 			<repository location="https://plantuml.github.io/plantuml-eclipse/"/>
-			<unit id="net.sourceforge.plantuml.library.feature.feature.group" version="1.2026.3.202605081623"/>
+			<unit id="net.sourceforge.plantuml.library.feature.feature.group" version="1.2026.3.202606081557"/>
 			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.2.1.202605211549"/>
 			<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.2.1.202605211549"/>
 			<unit id="net.sourceforge.plantuml.uml2.feature.feature.group" version="1.2.1.202605211549"/>
