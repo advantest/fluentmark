@@ -18,7 +18,7 @@
 	</organization>
 
 	<properties>
-		<releaseVersion>1.6.1</releaseVersion>
+		<releaseVersion>1.6.2</releaseVersion>
 		<qualifier>-SNAPSHOT</qualifier>
 		
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

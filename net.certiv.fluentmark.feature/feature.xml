@@ -2,7 +2,7 @@
 <feature
       id="net.certiv.fluentmark.feature"
       label="FluentMark Advantest Edition"
-      version="1.6.1.qualifier"
+      version="1.6.2.qualifier"
       provider-name="Advantest Europe GmbH">
 
    <description>
@@ -64,10 +64,10 @@ Copyright (c) 2022-2026.
 
    <plugin
          id="net.certiv.fluentmark.core"
-         version="1.6.1.qualifier"/>
+         version="1.6.2.qualifier"/>
 
    <plugin
          id="net.certiv.fluentmark.ui"
-         version="1.6.1.qualifier"/>
+         version="1.6.2.qualifier"/>
 
 </feature>

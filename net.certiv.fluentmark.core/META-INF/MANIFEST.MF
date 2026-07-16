@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FluentMark AE Core
 Bundle-SymbolicName: net.certiv.fluentmark.core;singleton:=true
-Bundle-Version: 1.6.1.qualifier
+Bundle-Version: 1.6.2.qualifier
 Export-Package: com.advantest,
  com.advantest.flexmark.ext.figures,
  com.advantest.flexmark.ext.jira.tickets,
