@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  * https://www.eclipse.org/org/documents/epl-v10.html
  * 
- * Copyright © 2025 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2025-2026 Advantest Europe GmbH. All rights reserved.
  */
 package net.certiv.fluentmark.core.util;
 
@@ -66,7 +66,9 @@ public class ExtensionsUtil {
 				IConfigurationElement[] configElements = extension.getConfigurationElements();
 				for (IConfigurationElement configElement : configElements) {
 					T instance = createExecutableExtensionFrom(configElement, instanceType);
-					instances.add(instance);
+					if (instance != null) {
+						instances.add(instance);
+					}
 				}
 			}
 			return instances;
