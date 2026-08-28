@@ -18,7 +18,9 @@
 	<description>Markdown parser and converter</description>
 	
 	<properties>
-		<markdown-core-version>1.0.12-20260811-1549</markdown-core-version>
+		<markdown-core-version>1.0.13-SNAPSHOT</markdown-core-version>
+		<!-- This flexmark-extensions-version should match the flexmark-extensions-version used by markdown-core. -->
+		<flexmark-extensions-version>1.0.2-SNAPSHOT</flexmark-extensions-version>
 		<sass-version>1.85.1</sass-version>
 	</properties>
 	
@@ -64,6 +66,14 @@
 					<artifactId>plantuml</artifactId>
 				</exclusion>
 			</exclusions> 
+		</dependency>
+
+		<!-- markdown-core doesn't declare flexmark-ext-sourcetracking as a dependency,
+		     so we need to declare it explicitly here. -->
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-sourcetracking</artifactId>
+			<version>${flexmark-extensions-version}</version>
 		</dependency>
 
 	</dependencies>
