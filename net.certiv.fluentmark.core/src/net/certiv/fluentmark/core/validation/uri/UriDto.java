@@ -25,6 +25,15 @@ public class UriDto {
 		this.fragment = fragment;
 	}
 	
+	/**
+	 * Parses the given URI text into its parts.
+	 * 
+	 * <p>The fragment is returned without the leading <code>#</code>, whichever way the text had to
+	 * be parsed: <code>doc.md#section</code> has the fragment <code>section</code>.</p>
+	 * 
+	 * @param uriText the text to be parsed
+	 * @return the parts of the given URI
+	 */
 	public static UriDto parseUri(String uriText) {
 		String path = null;
 		String scheme = null;
@@ -45,7 +54,7 @@ public class UriDto {
 			path = uriText;
 			
 			if (indexOfHashtag > -1) {
-				fragment = uriText.substring(indexOfHashtag);
+				fragment = uriText.substring(indexOfHashtag + 1);
 				path = uriText.substring(0, indexOfHashtag);
 			}
 			
