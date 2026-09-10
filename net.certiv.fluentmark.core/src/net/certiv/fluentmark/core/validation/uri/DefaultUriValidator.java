@@ -90,7 +90,7 @@ public class DefaultUriValidator implements IUriValidator {
 				// and use the same use agent value here
 				.header("User-Agent", "curl/8.11.0")
 				.header("Accept", "*/*")
-				.timeout(Duration.ofMillis(200))
+				.timeout(Duration.ofSeconds(5))
 				.build();
 	}
 	
