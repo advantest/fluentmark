@@ -156,7 +156,7 @@ public class FilePathValidator implements IValidationResultReporter {
 	private void checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
 		String markdownFileContent = currentDocument.get();
 		
-		checkSectionAnchorExists(sectionAnchor, markdownFileContent, currentFile, lineNumber, offset, endOffset);
+		checkSectionAnchorExists(sectionAnchor, markdownFileContent, currentFile.getLocation(), currentFile, lineNumber, offset, endOffset);
 	}
 	
 	private void checkSectionAnchorExists(IPath targetFileWithAnchor, String sectionAnchor, IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
@@ -165,11 +165,26 @@ public class FilePathValidator implements IValidationResultReporter {
 		String mdFileContent = readTextFromFile(file);
 		
 		if (mdFileContent != null) {
-			checkSectionAnchorExists(sectionAnchor, mdFileContent, currentFile, lineNumber, offset, endOffset);
+			checkSectionAnchorExists(sectionAnchor, mdFileContent, absolutePath, currentFile, lineNumber, offset, endOffset);
 		}
 	}
 	
-	private void checkSectionAnchorExists(String sectionAnchor, String markdownFileContent, IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
+	/**
+	 * Reports that the document the link points to does not declare the anchor it names.
+	 * 
+	 * @param sectionAnchor the anchor the link names
+	 * @param markdownFileContent the content of the document that was searched for it
+	 * @param searchedDocumentPath the location of the document that was searched, which is the one
+	 *        the message names &ndash; a reader following the message has to be sent to the
+	 *        document missing the anchor and not to the one holding the link
+	 * @param currentFile the file the link stands in, which the issue is reported for
+	 * @param lineNumber the line the link stands in
+	 * @param offset the offset the fragment starts at
+	 * @param endOffset the offset the fragment ends at
+	 * @throws CoreException if the issue cannot be reported
+	 */
+	private void checkSectionAnchorExists(String sectionAnchor, String markdownFileContent, IPath searchedDocumentPath,
+			IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
 		Set<String> anchors = MarkdownParsingTools.findValidSectionAnchorsInMarkdownCode(markdownFileContent);
 		if (anchors.contains(sectionAnchor)) {
 			// we found the target, no need to report issues
@@ -180,7 +195,7 @@ public class FilePathValidator implements IValidationResultReporter {
 		issueConsumer.reportValidationResult(currentFile,
 				IssueTypes.MARKDOWN_ISSUE,
 				IMarker.SEVERITY_ERROR,
-				String.format("There is no section with the given anchor '%s' in the Markdown document '%s' or the anchor is invalid.", sectionAnchor, currentFile.getLocation().toString()),
+				String.format("There is no section with the given anchor '%s' in the Markdown document '%s' or the anchor is invalid.", sectionAnchor, searchedDocumentPath.toString()),
 				lineNumber,
 				offset,
 				endOffset);
