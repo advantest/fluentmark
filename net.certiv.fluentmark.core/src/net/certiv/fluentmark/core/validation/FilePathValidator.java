@@ -44,6 +44,21 @@ public class FilePathValidator implements IValidationResultReporter {
 		this.issueConsumer = issueConsumer;
 	}
 	
+	/**
+	 * Checks the file a link points to and, where the link names one, the anchor inside that file.
+	 * 
+	 * @param completeLink the target as it is written in the document, fragment included
+	 * @param targetFilePath the path part of the target, may be <code>null</code> or blank if the
+	 *        link names nothing but a fragment
+	 * @param fragment the fragment part of the target without its leading <code>#</code>, may be
+	 *        <code>null</code> if the link names none
+	 * @param document the document the link stands in
+	 * @param currentFile the file the document belongs to
+	 * @param lineNumber the line the link stands in
+	 * @param offset the offset the target starts at
+	 * @param endOffset the offset the target ends at
+	 * @throws CoreException if an issue cannot be reported
+	 */
 	public void checkFilePathAndFragment(String completeLink, String targetFilePath, String fragment,
 			IDocument document, IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
 		
@@ -60,7 +75,7 @@ public class FilePathValidator implements IValidationResultReporter {
 		boolean fileExists = checkFileExists(resourceRelativePath, currentFile, lineNumber, offset, endOffset);
 		
 		// check fragment if file exists
-		if (fileExists && fragment != null && fragment.startsWith("#")) {
+		if (fileExists && fragment != null && !fragment.isBlank()) {
 			
 			// adapt positions to the fragment only
 			int indexOfHashTag = completeLink.indexOf('#');
@@ -68,7 +83,7 @@ public class FilePathValidator implements IValidationResultReporter {
 			endOffset = offset + fragment.length() + 1;
 			lineNumber = DocumentUtils.getLineNumberForOffset(document, offset);
 			
-			String anchor = fragment.substring(1);
+			String anchor = fragment;
 			
 			if (resourceRelativePath.equals(currentFile.getLocation())) {
 				// are we looking for sections in current Markdown file
