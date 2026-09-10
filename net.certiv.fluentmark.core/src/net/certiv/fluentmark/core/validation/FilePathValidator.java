@@ -10,6 +10,7 @@
 package net.certiv.fluentmark.core.validation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -85,7 +86,7 @@ public class FilePathValidator implements IValidationResultReporter {
 			
 			String anchor = fragment;
 			
-			if (resourceRelativePath.equals(currentFile.getLocation())) {
+			if (pointsAtDocumentItself(resourceRelativePath, currentFile)) {
 				// are we looking for sections in current Markdown file
 				
 				checkSectionAnchorExists(anchor, document, currentFile, lineNumber, offset, endOffset);
@@ -151,6 +152,34 @@ public class FilePathValidator implements IValidationResultReporter {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Tells whether a link target points at the very document holding the link.
+	 * 
+	 * <p>The target is written relative to the document, the location of the document is absolute,
+	 * so the two can only be compared once the target is resolved. Both are then compared as the
+	 * file system sees them, which makes a target finding its way back through parent segments,
+	 * e.g. <code>sub/../me.md</code>, point at the document as well.</p>
+	 * 
+	 * @param resourceRelativePath the path part of the link target
+	 * @param currentFile the file holding the link
+	 * @return <code>true</code> if the target is the document itself
+	 */
+	private boolean pointsAtDocumentItself(IPath resourceRelativePath, IFile currentFile) {
+		IPath targetLocation = FileUtils.toAbsolutePath(resourceRelativePath, currentFile);
+		IPath currentLocation = currentFile.getLocation();
+		
+		if (targetLocation.equals(currentLocation)) {
+			return true;
+		}
+		
+		try {
+			return targetLocation.toFile().getCanonicalFile().equals(currentLocation.toFile().getCanonicalFile());
+		} catch (IOException e) {
+			// we cannot ask the file system, so we stay with what we could compare
+			return false;
+		}
 	}
 	
 	private void checkSectionAnchorExists(String sectionAnchor, IDocument currentDocument, IFile currentFile, int lineNumber, int offset, int endOffset) throws CoreException {
