@@ -62,7 +62,7 @@ public class Converter {
 		String dotexe = configurationProvider.getDotCommand();
 		umlGen.getRenderer().setDotExecutable(dotexe);
 		
-		System.setProperty("PLANTUML_SECURITY_PROFILE", "UNSECURE");
+		System.setProperty("PLANTUML_SECURITY_PROFILE", "INSECURE");
 	}
 	
 	public IConfigurationProvider getConfigurationProvider() {

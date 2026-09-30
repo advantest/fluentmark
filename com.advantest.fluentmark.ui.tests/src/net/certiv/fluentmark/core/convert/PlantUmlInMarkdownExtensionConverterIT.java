@@ -95,7 +95,7 @@ public class PlantUmlInMarkdownExtensionConverterIT extends AbstractConverterIT 
 		String result = convert(markdownFile, document);
 		
 		assertNotNull(result);
-		assertTrue(result.contains("PlantUML security profile: UNSECURE"));
+		assertTrue(result.contains("PlantUML security profile: INSECURE"));
 	}
 
 }
