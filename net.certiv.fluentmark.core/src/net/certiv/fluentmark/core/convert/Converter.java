@@ -19,15 +19,18 @@ import java.util.regex.Pattern;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
+import com.advantest.plantuml.PlantUmlSettings;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.google.common.html.HtmlEscapers;
 import com.vladsch.flexmark.util.ast.Document;
 
+import net.certiv.fluentmark.core.FluentCore;
 import net.certiv.fluentmark.core.markdown.parsing.MarkdownParsingTools;
 import net.certiv.fluentmark.core.markdown.parsing.RegexMatch;
 import net.certiv.fluentmark.core.markdown.partitions.MarkdownPartitioner;
@@ -60,7 +63,13 @@ public class Converter {
 	
 	private void initPlantUML() {
 		String dotexe = configurationProvider.getDotCommand();
-		umlGen.getRenderer().setDotExecutable(dotexe);
+		try {
+			PlantUmlSettings.setDotExecutable(dotexe);
+		} catch (IllegalArgumentException e) {
+			// a preference naming no executable must not keep the converter from being built:
+			// PlantUML then lays a graph out with the renderer it carries itself
+			FluentCore.log(IStatus.WARNING, "Could not use the configured Graphviz dot executable.", e);
+		}
 		
 		System.setProperty("PLANTUML_SECURITY_PROFILE", "INSECURE");
 	}
